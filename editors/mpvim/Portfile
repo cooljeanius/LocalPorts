@@ -5,6 +5,7 @@ PortSystem          1.0
 
 name                mpvim
 version             0.1.0
+revision            1
 categories-append   editors macports
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall larryv openmaintainer
@@ -20,18 +21,12 @@ livecheck.type      none
 
 fetch.type          svn
 svn.url             https://svn.macports.org/repository/macports/contrib/mpvim
-svn.revision        102168
+svn.revision        102174
 
 depends_run-append  path:bin/vim:vim
 
 worksrcdir          ${name}
 
-configure {
-    reinplace "s|~/.vim|${destroot}${prefix}/share/vim/vimfiles|g" ${worksrcpath}/Makefile
-}
+use_configure       no
 
-build {}
-
-destroot {
-    system -W ${worksrcpath} "make install"
-}
+destroot.destdir    prefix=${destroot}${prefix}/share/vim/vimfiles
