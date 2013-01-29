@@ -1,0 +1,47 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                cpan2port
+version             0.1.0
+categories          sysutils macports
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             WTFPL-2 permissive
+supported_archs     noarch
+
+description         A perl script to generate MacPorts portfiles
+long_description    ${description} from CPAN modules
+homepage            http://svn.macports.org/repository/macports/contrib/cpan2port
+
+livecheck.type      none
+
+fetch.type          svn
+svn.url             https://svn.macports.org/repository/macports/contrib/cpan2port
+svn.revision        101883
+
+depends_lib-append  port:p5.12-module-depends \
+                    port:p5.12-list-moreutils \
+                    port:p5.12-module-corelist \
+                    port:p5.12-yaml \
+                    port:p5.12-file-path \
+                    port:p5.12-pod-simple \
+                    port:p5.12-carp-clan \
+                    port:p5.12-getopt-simple
+
+worksrcdir          ${name}
+
+configure.perl      ${prefix}/bin/perl5.12
+
+configure {
+    reinplace "s|#! /usr/bin/env perl|#!${configure.perl}|g" ${worksrcpath}/${name}
+}
+
+build {}
+
+destroot {
+    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/${name}
+    xinstall -d ${destroot}${prefix}/share/doc/${name}
+    xinstall -m 644 ${worksrcpath}/COPYING ${destroot}${prefix}/share/doc/${name}/COPYING
+}
