@@ -8,7 +8,7 @@ version              0.4.25
 revision             2
 categories           net games
 platforms            darwin
-maintainers          nomaintainer
+maintainers          gwmail.gwu.edu:egall greenend.org.uk:owen openmaintainer
 license              GPL-2+
 description          Daemon that emulates Blizzards Battle.net service
 long_description     ${description}. Currently broken.
