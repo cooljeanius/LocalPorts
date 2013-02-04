@@ -34,11 +34,6 @@ if {![variant_isset keep_prefix]} {
     prefix          /opt/local
 }
 
-# Readline is disabled by default to avoid support issues with people who
-# have a readline in /usr/local. Since this portfile is presumably used in a
-# clean environment, enable it here.
-configure.args      --enable-readline
-
 variant mp_deps      description "Use ports supplied by MacPorts to fulfill missing dependencies" {
 depends_build-append port:bsdmake \
                      port:bzr \
@@ -74,7 +69,10 @@ depends_build-append port:bzip2 \
                      port:subversion \
                      port:unzip \
                      path:bin/xar:xar \
-                     port:zip
+                     port:zip \
+                     port:curl \
+                     port:sqlite3
+                     #port:tcl-sqlite3
     pre-configure {
         ui_msg "Warning: Using this variant could possibly be dangerous."
     }
@@ -91,16 +89,26 @@ configure.env-append BZIP2=${prefix}/bin/bzip2 \
                      XAR=${prefix}/bin/xar \
                      ZIP=${prefix}/bin/zip \
                      PATH=${prefix}/bin:${prefix}/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+configure.args-append --with-curlprefix=${prefix} \
+                      --with-tcl=${prefix}/lib \
+                      --with-tclinclude=${prefix}/include \
+                      --with-sqlite3prefix=${prefix} \
+                      --with-frameworks-dir=${prefix}/Library/Frameworks
 }
 
 if {![variant_isset mp_deps]} {
     # We don't want to use anything supplied by ports when building MacPorts itself
     # (unless the user requests the variant specifying otherwise, that is)
-    configure.env       PATH=/usr/bin:/bin:/usr/sbin:/sbin
+    configure.env    PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
     # When not using the mp_deps variant, MacPorts' configure removes ${prefix}/bin
     # from $PATH, so in that case, it's better to not use ccache, to avoid problems.
     configure.ccache no
+
+    # Readline is disabled by default to avoid support issues with people who
+    # have a readline in /usr/local. Since this portfile is presumably used in a
+    # clean environment (if not using the mp_deps variant), enable it here.
+    configure.args-append --enable-readline
 }
 
 # Some of MacPorts' default flags don't play well when we're building MacPorts
