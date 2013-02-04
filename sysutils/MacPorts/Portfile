@@ -1,0 +1,347 @@
+# $Id: Portfile 102342 2013-01-31 17:22:53Z ryandesign@macports.org $
+
+PortSystem          1.0
+
+name                MacPorts
+version             2.1.3
+revision            1
+
+categories          sysutils
+platforms           darwin freebsd
+maintainers         lists.macosforge.org:macports-mgr
+license             BSD
+
+description         The MacPorts Infrastructure
+long_description \
+   MacPorts provides the infrastructure that allows easy installation and \
+   management of freely available software on Mac OS X 10.4 or newer systems.
+
+notes "This port cannot directly be used to upgrade MacPorts; use 'port\
+selfupdate' for that."
+
+homepage            http://www.macports.org/
+master_sites        sourceforge:project/macports/MacPorts/${version}
+# testing subdir is for non-final releases only
+#dist_subdir         ${name}/testing
+use_bzip2           yes
+
+checksums           rmd160 ef4acbf38d1a2261d878d30c9c5e85953e1a3d1f \
+                    sha256 db1205f30747d0cf6ff96709fe121f077575eea4f6d181796c14f22e35086999
+
+variant keep_prefix description "Use configured prefix instead of enforcing /opt/local" {}
+if {![variant_isset keep_prefix]} {
+    prefix          /opt/local
+}
+
+# Readline is disabled by default to avoid support issues with people who
+# have a readline in /usr/local. Since this portfile is presumably used in a
+# clean environment, enable it here.
+configure.args      --enable-readline
+
+variant mp_deps      description "Use ports supplied by MacPorts to fulfill missing dependencies" {
+depends_build-append port:bsdmake \
+                     port:bzr \
+                     port:gpatch \
+                     port:mercurial \
+                     port:xz \
+                     port:swig-tcl \
+                     port:gnustep-make \
+                     port:gnustep-make-cocoa
+                     #The other gnustep ports are left out because they're broken
+configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
+                     BZR=${prefix}/bin/bzr \
+                     GPATCH=${prefix}/bin/gpatch \
+                     HG=${prefix}/bin/hg \
+                     LZMA=${prefix}/bin/lzma \
+                     SWIG=${prefix}/bin/swig \
+                     XZ=${prefix}/bin/xz \
+                     GNUSTEP_SYSTEM_ROOT=${prefix}/GNUstep \
+                     PATH=${prefix}/bin:/usr/bin:/bin:/usr/sbin:/sbin
+configure.args-append --prefix=${prefix}
+}
+
+variant mp_shadow_deps requires mp_deps description "Use ports supplied by MacPorts as dependencies, even if they shadow standard OS X system tools" {
+depends_build-append port:bzip2 \
+                     port:cpio \
+                     port:file \
+                     port:git-core \
+                     port:cctools \
+                     port:gnutar \
+                     port:gzip \
+                     port:openssl \
+                     port:rsync \
+                     port:subversion \
+                     port:unzip \
+                     path:bin/xar:xar \
+                     port:zip
+    pre-configure {
+        ui_msg "Warning: Using this variant could possibly be dangerous."
+    }
+configure.env-append BZIP2=${prefix}/bin/bzip2 \
+                     FILE=${prefix}/bin/file \
+                     GIT=${prefix}/bin/git \
+                     GNUTAR=${prefix}/bin/gnutar \
+                     GZIP=${prefix}/bin/gzip \
+                     LIPO=${prefix}/bin/lipo \
+                     OPENSSL=${prefix}/bin/openssl \
+                     RSYNC=${prefix}/bin/rsync \
+                     SVN=${prefix}/bin/svn \
+                     UNZIP=${prefix}/bin/unzip \
+                     XAR=${prefix}/bin/xar \
+                     ZIP=${prefix}/bin/zip \
+                     PATH=${prefix}/bin:${prefix}/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+}
+
+if {![variant_isset mp_deps]} {
+    # We don't want to use anything supplied by ports when building MacPorts itself
+    # (unless the user requests the variant specifying otherwise, that is)
+    configure.env       PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+    # When not using the mp_deps variant, MacPorts' configure removes ${prefix}/bin
+    # from $PATH, so in that case, it's better to not use ccache, to avoid problems.
+    configure.ccache no
+}
+
+# Some of MacPorts' default flags don't play well when we're building MacPorts
+# itself; nuke them.
+configure.cppflags
+configure.ldflags
+configure.cc_archflags
+configure.objc_archflags
+configure.ld_archflags
+compiler.cpath
+compiler.library_path
+
+post-destroot {
+    # Only install .default versions of config files.
+    delete ${destroot}${prefix}/etc/macports/archive_sites.conf
+    delete ${destroot}${prefix}/etc/macports/macports.conf
+    delete ${destroot}${prefix}/etc/macports/pubkeys.conf
+    delete ${destroot}${prefix}/etc/macports/sources.conf
+    delete ${destroot}${prefix}/etc/macports/variants.conf
+}
+
+if {![info exists package.resources]} {
+    set package.resources ${workpath}/pkg_resources
+    set package.scripts   ${workpath}/pkg_resources
+} elseif {!${package.flat}} {
+    package.scripts   ${package.resources}
+}
+set resources_lang ${package.resources}/English.lproj
+
+pre-pkg {
+    file copy -force -- ${worksrcpath}/portmgr/dmg/ReadMe.rtf ${resources_lang}
+    file copy -force -- ${worksrcpath}/portmgr/dmg/License.html ${resources_lang}
+    file copy -force -- ${worksrcpath}/portmgr/dmg/postflight ${package.scripts}
+    file copy -force -- ${worksrcpath}/src/upgrade_sources_conf_default.tcl ${package.scripts}
+    file copy -force -- ${worksrcpath}/src/images_to_archives.tcl ${package.scripts}
+
+    file attributes ${package.scripts}/postflight -permissions 0755
+    file attributes ${package.scripts}/upgrade_sources_conf_default.tcl -permissions 0755
+    file attributes ${package.scripts}/images_to_archives.tcl -permissions 0755
+    file attributes ${resources_lang}/ReadMe.rtf -permissions 0644
+    file attributes ${resources_lang}/License.html -permissions 0644
+
+    reinplace "s|__PREFIX__|${prefix}|g" \
+              ${package.scripts}/postflight \
+              ${resources_lang}/ReadMe.rtf
+    reinplace "s|is built|contains a Universal installer|" ${resources_lang}/ReadMe.rtf
+    reinplace "s|__XVERS__|${macosx_deployment_target}|" ${resources_lang}/ReadMe.rtf
+    if {${package.flat}} {
+        file copy -force -- ${worksrcpath}/portmgr/dmg/Distribution ${workpath}
+        file attributes ${workpath}/Distribution -permissions 0644
+        reinplace "s|__PREFIX__|${prefix}|g" ${workpath}/Distribution
+        switch $macosx_deployment_target {
+            10.4    {set xcode_cli "Command Line Support"}
+            10.5    -
+            10.6    {set xcode_cli "UNIX Development"}
+            default {set xcode_cli "Command Line Tools or UNIX Development"}
+        }
+        reinplace "s|__XCODECLITOOLS__|${xcode_cli}|g" ${workpath}/Distribution
+        reinplace "s|__XVERS__|${macosx_deployment_target}|" ${workpath}/Distribution
+        set next_major [lindex [split $macosx_deployment_target .] 0].[expr [lindex [split $macosx_deployment_target .] 1] + 1]
+        reinplace "s|__NEXT_XVERS__|$next_major|" ${workpath}/Distribution
+        reinplace "s|__VERSION__|${version}|" ${workpath}/Distribution
+        move ${package.scripts}/postflight ${package.scripts}/postinstall
+    } else {
+        file copy -force -- ${worksrcpath}/portmgr/dmg/InstallationCheck ${package.resources}
+        file copy -force -- ${worksrcpath}/portmgr/dmg/InstallationCheck.strings ${resources_lang}
+        file attributes ${package.resources}/InstallationCheck -permissions 0755
+        file attributes ${resources_lang}/InstallationCheck.strings -permissions 0644
+        reinplace "s|__PREFIX__|${prefix}|g" \
+              ${package.resources}/InstallationCheck
+        reinplace "s|__DARWINVERS__|${os.major}|" ${package.resources}/InstallationCheck
+        reinplace "s|__XVERS__|${macosx_deployment_target}|" \
+            ${resources_lang}/InstallationCheck.strings
+    }
+    # won't be there before the pkg is built with older base versions
+    if {[file isfile ${resources_lang}/Welcome.html]} {
+        reinplace "s|or newer ||" ${resources_lang}/Welcome.html
+        if {${os.major} > 8} {
+            reinplace "s|10\\.4|${macosx_deployment_target}|" ${resources_lang}/Welcome.html
+        }
+    }
+}
+
+post-pkg {
+    # for older base versions
+    set lproj ${workpath}/${name}-${version}.pkg/Contents/Resources/English.lproj
+    if {[file isfile ${lproj}/Welcome.html]} {
+        reinplace "s|or newer ||" ${lproj}/Welcome.html
+        if {${os.major} > 8} {
+            reinplace "s|10\\.4|${macosx_deployment_target}|" ${lproj}/Welcome.html
+        }
+    }
+}
+
+platform darwin 8 powerpc {
+    pre-configure {
+        set sdkrootpath /Developer/SDKs/MacOSX10.4u.sdk
+        if {[file exists ${sdkrootpath}]} {
+            # User has SDK installed.
+            set tclstubpath /System/Library/Frameworks/Tcl.framework/Versions/8.4/libtclstub8.4.a
+            if {![file exists ${sdkrootpath}${tclstubpath}]} {
+                ui_msg "Fixing your MacOSX10.4u installation by copying libtclstub8.4.a to ${sdkrootpath}${tclstubpath}"
+                xinstall -p ${tclstubpath} ${sdkrootpath}${tclstubpath}
+            }
+            # Supply architecture and sysroot flags to build MacPorts universal.
+            configure.cflags-append -isysroot ${sdkrootpath} -arch ppc -arch i386
+            configure.env-append SHLIB_LDFLAGS='-Wl,-syslibroot,${sdkrootpath} -arch ppc -arch i386'
+        }
+    }
+}
+
+platform darwin 8 i386 {
+    # Supply architecture flags to build MacPorts universal.
+    configure.cflags-append -arch ppc -arch i386
+    configure.args-append SHLIB_LDFLAGS='-arch ppc -arch i386'
+}
+
+platform darwin 9 {
+    # Supply architecture flags to build MacPorts universal.
+    configure.cflags-append -arch ppc -arch i386
+    configure.args-append SHLIB_LDFLAGS='-arch ppc -arch i386'
+}
+
+platform darwin {
+    if {${os.major} >= 10} {
+        # Supply architecture flags to build MacPorts universal.
+        configure.cflags-append -arch x86_64 -arch i386
+        configure.args-append SHLIB_LDFLAGS='-arch x86_64 -arch i386'
+    }
+}
+
+destroot.violate_mtree yes
+destroot.keepdirs    ${destroot}${prefix}/include \
+                     ${destroot}${prefix}/lib \
+                     ${destroot}${prefix}/libexec \
+                     ${destroot}${prefix}/sbin \
+                     ${destroot}${prefix}/share/info \
+                     ${destroot}${prefix}/share/man/cat1 \
+                     ${destroot}${prefix}/share/man/cat2 \
+                     ${destroot}${prefix}/share/man/cat3 \
+                     ${destroot}${prefix}/share/man/cat4 \
+                     ${destroot}${prefix}/share/man/cat5 \
+                     ${destroot}${prefix}/share/man/cat6 \
+                     ${destroot}${prefix}/share/man/cat7 \
+                     ${destroot}${prefix}/share/man/cat8 \
+                     ${destroot}${prefix}/share/man/cat9 \
+                     ${destroot}${prefix}/share/man/catl \
+                     ${destroot}${prefix}/share/man/catn \
+                     ${destroot}${prefix}/share/man/man1 \
+                     ${destroot}${prefix}/share/man/man2 \
+                     ${destroot}${prefix}/share/man/man3 \
+                     ${destroot}${prefix}/share/man/man4 \
+                     ${destroot}${prefix}/share/man/man5 \
+                     ${destroot}${prefix}/share/man/man6 \
+                     ${destroot}${prefix}/share/man/man7 \
+                     ${destroot}${prefix}/share/man/man8 \
+                     ${destroot}${prefix}/share/man/man9 \
+                     ${destroot}${prefix}/share/man/manl \
+                     ${destroot}${prefix}/share/man/mann \
+                     ${destroot}${prefix}/share/nls/C \
+                     ${destroot}${prefix}/share/nls/skel \
+                     ${destroot}${prefix}/share/nls/af_ZA.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/af_ZA.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/bg_BG.CP1251 \
+                     ${destroot}${prefix}/share/nls/cs_CZ.ISO8859-2 \
+                     ${destroot}${prefix}/share/nls/da_DK.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/da_DK.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/de_AT.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/de_AT.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/de_CH.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/de_CH.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/de_DE.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/de_DE.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/el_GR.ISO8859-7 \
+                     ${destroot}${prefix}/share/nls/en_AU.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/en_AU.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/en_AU.US-ASCII \
+                     ${destroot}${prefix}/share/nls/en_CA.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/en_CA.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/en_CA.US-ASCII \
+                     ${destroot}${prefix}/share/nls/en_GB.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/en_GB.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/en_GB.US-ASCII \
+                     ${destroot}${prefix}/share/nls/en_NZ.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/en_NZ.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/en_NZ.US-ASCII \
+                     ${destroot}${prefix}/share/nls/en_US.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/en_US.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/es_ES.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/es_ES.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/et_EE.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/fi_FI.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/fi_FI.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/fr_BE.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/fr_BE.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/fr_CA.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/fr_CA.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/fr_CH.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/fr_CH.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/fr_FR.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/fr_FR.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/hi_IN.ISCII-DEV \
+                     ${destroot}${prefix}/share/nls/hr_HR.ISO8859-2 \
+                     ${destroot}${prefix}/share/nls/hu_HU.ISO8859-2 \
+                     ${destroot}${prefix}/share/nls/is_IS.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/is_IS.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/it_CH.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/it_CH.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/it_IT.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/it_IT.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/ja_JP.SJIS \
+                     ${destroot}${prefix}/share/nls/ja_JP.eucJP \
+                     ${destroot}${prefix}/share/nls/ko_KR.eucKR \
+                     ${destroot}${prefix}/share/nls/la_LN.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/la_LN.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/la_LN.ISO8859-2 \
+                     ${destroot}${prefix}/share/nls/la_LN.ISO8859-4 \
+                     ${destroot}${prefix}/share/nls/la_LN.US-ASCII \
+                     ${destroot}${prefix}/share/nls/lt_LT.ISO8859-4 \
+                     ${destroot}${prefix}/share/nls/nl_BE.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/nl_BE.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/nl_NL.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/nl_NL.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/no_NO.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/no_NO.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/pl_PL.ISO8859-2 \
+                     ${destroot}${prefix}/share/nls/pt_BR.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/pt_PT.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/pt_PT.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/ro_RO.ISO8859-2 \
+                     ${destroot}${prefix}/share/nls/ru_RU.CP866 \
+                     ${destroot}${prefix}/share/nls/ru_RU.ISO8859-5 \
+                     ${destroot}${prefix}/share/nls/ru_RU.KOI8-R \
+                     ${destroot}${prefix}/share/nls/sk_SK.ISO8859-2 \
+                     ${destroot}${prefix}/share/nls/sl_SI.ISO8859-2 \
+                     ${destroot}${prefix}/share/nls/sv_SE.ISO8859-1 \
+                     ${destroot}${prefix}/share/nls/sv_SE.ISO8859-15 \
+                     ${destroot}${prefix}/share/nls/tr_TR.ISO8859-9 \
+                     ${destroot}${prefix}/share/nls/uk_UA.ISO8859-5 \
+                     ${destroot}${prefix}/share/nls/uk_UA.KOI8-U \
+                     ${destroot}${prefix}/share/nls/zh_CN.eucCN \
+                     ${destroot}${prefix}/share/nls/zh_TW.Big5 \
+                     ${destroot}${prefix}/var/macports/build \
+                     ${destroot}${prefix}/var/macports/distfiles \
+                     ${destroot}${prefix}/var/macports/registry

@@ -1,5 +1,6 @@
 mpvim 0
-cpan2port 509
-macportsscripts 1170
-port-depgraph 1589
-portfile-gen 2131
+macports 509
+cpan2port 997
+macportsscripts 1658
+port-depgraph 2077
+portfile-gen 2619
