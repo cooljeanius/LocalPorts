@@ -1,5 +1,7 @@
 mpvim 499
 portdir editors/mpvim description {mpvim adds MacPorts support to vim.} depends_fetch bin:svn:subversion homepage http://svn.macports.org/repository/macports/contrib/mpvim depends_run path:bin/vim:vim epoch 0 platforms darwin name mpvim license BSD maintainers {gwmail.gwu.edu:egall larryv openmaintainer} long_description {{mpvim adds MacPorts support to vim.} This currently includes syntax coloring for Portfiles and running lint from vim.} categories {editors macports} version 0.1.0 revision 1
+bnetd 480
+variants universal depends_build port:libtool portdir net/bnetd description {Daemon that emulates Blizzards Battle.net service} homepage http://www.chiark.greenend.org.uk/~owend/free/bnetd.html epoch 0 platforms darwin depends_lib port:libpcap name bnetd long_description {{Daemon that emulates Blizzards Battle.net service.} Currently broken.} maintainers {gwmail.gwu.edu:egall greenend.org.uk:owen openmaintainer} license GPL-2+ categories {net games} version 0.4.25 revision 2
 MacPorts 475
 variants {keep_prefix mp_deps mp_shadow_deps universal} portdir sysutils/MacPorts description {The MacPorts Infrastructure} homepage http://www.macports.org/ epoch 0 platforms {darwin freebsd} name MacPorts long_description {MacPorts provides the infrastructure that allows easy installation and management of freely available software on Mac OS X 10.4 or newer systems.} maintainers lists.macosforge.org:macports-mgr license BSD categories sysutils version 2.1.3 revision 1
 cpan2port 647

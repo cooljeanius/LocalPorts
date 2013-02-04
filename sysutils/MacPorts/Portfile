@@ -101,10 +101,6 @@ if {![variant_isset mp_deps]} {
     # (unless the user requests the variant specifying otherwise, that is)
     configure.env    PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
-    # When not using the mp_deps variant, MacPorts' configure removes ${prefix}/bin
-    # from $PATH, so in that case, it's better to not use ccache, to avoid problems.
-    configure.ccache no
-
     # Readline is disabled by default to avoid support issues with people who
     # have a readline in /usr/local. Since this portfile is presumably used in a
     # clean environment (if not using the mp_deps variant), enable it here.
@@ -120,6 +116,9 @@ configure.objc_archflags
 configure.ld_archflags
 compiler.cpath
 compiler.library_path
+
+# It's better to not use ccache, to avoid problems in general.
+configure.ccache no
 
 post-destroot {
     # Only install .default versions of config files.

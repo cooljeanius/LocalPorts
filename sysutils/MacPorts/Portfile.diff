@@ -1,5 +1,5 @@
 --- /opt/local/var/macports/sources/rsync.macports.org/release/tarballs/ports/sysutils/MacPorts/Portfile	2013-01-31 12:30:18.000000000 -0500
-+++ ./Portfile	2013-02-04 06:22:10.000000000 -0500
++++ ./Portfile	2013-02-04 06:34:24.000000000 -0500
 @@ -1,9 +1,11 @@
 +# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
  # $Id: Portfile 102342 2013-01-31 17:22:53Z ryandesign@macports.org $
@@ -12,7 +12,7 @@
  
  categories          sysutils
  platforms           darwin freebsd
-@@ -32,13 +34,82 @@
+@@ -32,13 +34,78 @@
      prefix          /opt/local
  }
  
@@ -41,9 +41,7 @@
 +                     PATH=${prefix}/bin:/usr/bin:/bin:/usr/sbin:/sbin
 +configure.args-append --prefix=${prefix}
 +}
- 
--# We don't want to use anything supplied by ports when building MacPorts itself.
--configure.env       PATH=/usr/bin:/bin:/usr/sbin:/sbin
++
 +variant mp_shadow_deps requires mp_deps description "Use ports supplied by MacPorts as dependencies, even if they shadow standard OS X system tools" {
 +depends_build-append port:bzip2 \
 +                     port:cpio \
@@ -83,32 +81,29 @@
 +                      --with-sqlite3prefix=${prefix} \
 +                      --with-frameworks-dir=${prefix}/Library/Frameworks
 +}
-+
+ 
+-# We don't want to use anything supplied by ports when building MacPorts itself.
+-configure.env       PATH=/usr/bin:/bin:/usr/sbin:/sbin
 +if {![variant_isset mp_deps]} {
 +    # We don't want to use anything supplied by ports when building MacPorts itself
 +    # (unless the user requests the variant specifying otherwise, that is)
-+    configure.env       PATH=/usr/bin:/bin:/usr/sbin:/sbin
-+
-+    # When not using the mp_deps variant, MacPorts' configure removes ${prefix}/bin
-+    # from $PATH, so in that case, it's better to not use ccache, to avoid problems.
-+    configure.ccache no
++    configure.env    PATH=/usr/bin:/bin:/usr/sbin:/sbin
 +
 +    # Readline is disabled by default to avoid support issues with people who
 +    # have a readline in /usr/local. Since this portfile is presumably used in a
 +    # clean environment (if not using the mp_deps variant), enable it here.
-+    configure.args      --enable-readline
++    configure.args-append --enable-readline
 +}
  
  # Some of MacPorts' default flags don't play well when we're building MacPorts
  # itself; nuke them.
-@@ -50,10 +121,6 @@
+@@ -50,8 +117,7 @@
  compiler.cpath
  compiler.library_path
  
 -# MacPorts' configure removes ${prefix}/bin from $PATH,
 -# so better do not use ccache, to avoid problems.
--configure.ccache no
--
++# It's better to not use ccache, to avoid problems in general.
+ configure.ccache no
+ 
  post-destroot {
-     # Only install .default versions of config files.
-     delete ${destroot}${prefix}/etc/macports/archive_sites.conf
