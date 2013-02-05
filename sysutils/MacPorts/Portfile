@@ -7,7 +7,7 @@ name                MacPorts
 version             2.1.3
 revision            1
 
-categories          sysutils
+categories          sysutils macports
 platforms           darwin freebsd
 maintainers         lists.macosforge.org:macports-mgr
 license             BSD
@@ -34,7 +34,8 @@ if {![variant_isset keep_prefix]} {
     prefix          /opt/local
 }
 
-variant mp_deps      description "Use ports supplied by MacPorts to fulfill missing dependencies" {
+variant mp_deps conflicts universal description "Use ports supplied by MacPorts to fulfill missing dependencies" {
+# The conflict with the universal variant is because bzr doesn't have a universal variant
 depends_build-append port:bsdmake \
                      port:bzr \
                      port:gpatch \
@@ -69,12 +70,12 @@ depends_build-append port:bzip2 \
                      port:subversion \
                      port:unzip \
                      path:bin/xar:xar \
-                     port:zip \
-                     port:curl \
+                     port:zip
+depends_lib-append   port:tclcurl \
                      port:sqlite3
                      #port:tcl-sqlite3
     pre-configure {
-        ui_msg "Warning: Using this variant could possibly be dangerous."
+        ui_msg "Warning: Using this variant could possibly be dangerous, as libraries might cause breakages with upgrades."
     }
 configure.env-append BZIP2=${prefix}/bin/bzip2 \
                      FILE=${prefix}/bin/file \
@@ -94,6 +95,29 @@ configure.args-append --with-curlprefix=${prefix} \
                       --with-tclinclude=${prefix}/include \
                       --with-sqlite3prefix=${prefix} \
                       --with-frameworks-dir=${prefix}/Library/Frameworks
+}
+
+variant docs requires mp_deps description "Builds documentation" {
+depends_build-append port:tcl-dox \
+                     port:tcldoc \
+                     path:bin/doxygen:doxygen
+    post-build {
+        doxygen
+    }
+}
+
+variant bundle requires mp_deps description "Adds other ports related to MacPorts" {
+depends_build-append port:cpan2port \
+                     port:macports-notifier \
+                     port:MacPorts_Framework \
+                     port:macportsscripts \
+                     port:mpvim \
+                     port:Pallet \
+                     port:port-depgraph \
+                     port:port_cutleaves \
+                     port:portfile-gen \
+                     port:pearl \
+                     port:ghsum
 }
 
 if {![variant_isset mp_deps]} {

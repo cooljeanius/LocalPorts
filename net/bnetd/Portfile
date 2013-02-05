@@ -22,8 +22,10 @@ patchfiles           patch-d2cs-cmdline_parse.c.diff \
 
 worksrcdir           ${worksrcdir}/src
 
-depends_build-append port:libtool
+depends_build-append port:libtool \
+                     port:autoconf-archive
 depends_lib-append   port:libpcap
+use_autoreconf       yes
 configure.args       --mandir=${prefix}/share/man/ \
                      --sysconfdir=${prefix}/etc/bnetd/ \
                      --localstatedir=${prefix}/var/bnetd/ \
