@@ -72,8 +72,7 @@ depends_build-append port:bzip2 \
                      path:bin/xar:xar \
                      port:zip
 depends_lib-append   port:tclcurl \
-                     port:sqlite3
-                     #port:tcl-sqlite3
+                     port:tcl-sqlite3
     pre-configure {
         ui_msg "Warning: Using this variant could possibly be dangerous, as libraries might cause breakages with upgrades."
     }
@@ -102,7 +101,7 @@ depends_build-append port:tcl-dox \
                      port:tcldoc \
                      path:bin/doxygen:doxygen
     post-build {
-        doxygen
+        system -W ${worksrcpath} "doxygen"
     }
 }
 

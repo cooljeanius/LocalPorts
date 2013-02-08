@@ -1,0 +1,51 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem        1.0
+PortGroup         github 1.0
+
+github.setup      cooljeanius LocalPorts 0.1.0 v
+name              useful-ports
+version           0.1
+categories        sysutils macports
+platforms         darwin
+maintainers       gwmail.gwu.edu:egall
+license           Permissive
+
+description       Useful ports that I usually like to install
+
+long_description  ${description}
+
+depends_build     port:gawk \
+                  port:mawk \
+                  port:xgawk \
+                  port:libhangul \
+                  port:fribidi \
+                  port:liblinebreak \
+                  port:g95 \
+                  port:binutils \
+                  port:libuninameslist \
+                  port:libuninum \
+                  port:libunistring \
+                  port:libutf8proc \
+                  port:libsigsegv \
+                  port:uni2ascii \
+                  port:endian \
+                  port:cfitsio \
+                  port:f2c \
+                  port:fpp \
+                  port:py-f2py \
+                  port:autoconf-archive \
+                  port:javacc \
+                  port:jikespg \
+                  port:fastjar \
+                  port:chsuf \
+                  port:bbe \
+                  port:gsed \
+                  port:ssed \
+                  port:convmv \
+                  port:jansson \
+                  port:libb64 \
+                  port:ossp-xds \
+                  port:xorg-encodings \
+                  port:autogen

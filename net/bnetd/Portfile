@@ -2,7 +2,9 @@
 # $Id: Portfile 40550 2008-10-06 20:34:21Z jmr@macports.org $
 
 PortSystem           1.0
+PortGroup            github 1.0
 
+github.setup         cooljeanius bnetd 0.4.25 v
 name                 bnetd
 version              0.4.25
 revision             2
@@ -16,16 +18,18 @@ long_description     ${description}. Currently broken.
 homepage             http://www.chiark.greenend.org.uk/~owend/free/bnetd.html
 master_sites         http://www.chiark.greenend.org.uk/~owend/free/
 checksums            md5 8a27ad997fabfb6d1dc514bb14c01bed
-patchfiles           patch-d2cs-cmdline_parse.c.diff \
-                     patch-d2dbs-cmdline_parse.c.diff \
-                     patch-d2dbs-main.c.diff
 
-worksrcdir           ${worksrcdir}/src
+fetch.type 	     git
+git.url              git://github.com/cooljeanius/bnetd.git
 
-depends_build-append port:libtool \
-                     port:autoconf-archive
+post-extract {
+worksrcdir           ${worksrcdir}/bnetd/bnetd-${version}/src
+}
+
+depends_build-append port:autoconf-archive
 depends_lib-append   port:libpcap
 use_autoreconf       yes
+
 configure.args       --mandir=${prefix}/share/man/ \
                      --sysconfdir=${prefix}/etc/bnetd/ \
                      --localstatedir=${prefix}/var/bnetd/ \
