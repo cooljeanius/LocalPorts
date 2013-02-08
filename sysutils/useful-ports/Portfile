@@ -4,10 +4,10 @@
 PortSystem        1.0
 PortGroup         github 1.0
 
-github.setup      cooljeanius LocalPorts 0.1.1 v
+github.setup      cooljeanius LocalPorts 0.1.2 v
 name              useful-ports
 version           0.1
-revision          1
+revision          2
 categories        sysutils macports
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall
