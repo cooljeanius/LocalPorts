@@ -4,17 +4,31 @@
 PortSystem        1.0
 PortGroup         github 1.0
 
-github.setup      cooljeanius LocalPorts 0.1.0 v
+github.setup      cooljeanius LocalPorts 0.1.1 v
 name              useful-ports
 version           0.1
+revision          1
 categories        sysutils macports
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall
 license           Permissive
+supported_archs   noarch
 
 description       Useful ports that I usually like to install
 
 long_description  ${description}
+
+fetch.type        git
+git.url           git://github.com/cooljeanius/LocalPorts.git
+
+use_configure     no
+
+build {}
+
+destroot {
+    xinstall -d ${destroot}${prefix}/share/doc/${name}
+    xinstall -m 640 ${worksrcpath}/README.md ${destroot}${prefix}/share/doc/${name}
+}
 
 depends_build     port:gawk \
                   port:mawk \
@@ -29,7 +43,6 @@ depends_build     port:gawk \
                   port:libunistring \
                   port:libutf8proc \
                   port:libsigsegv \
-                  port:uni2ascii \
                   port:endian \
                   port:cfitsio \
                   port:f2c \
