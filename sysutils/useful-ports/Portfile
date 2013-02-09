@@ -97,4 +97,11 @@ depends_build     port:gawk \
                   port:gpp \
                   port:mcpp \
                   port:vbpp \
-                  port:rpl
+                  port:rpl \
+                  port:gccmakedep \
+                  port:makedepend \
+                  port:sysvbanner \
+                  port:boost-jam \
+                  port:libgnugetopt \
+                  port:vbindiff
+

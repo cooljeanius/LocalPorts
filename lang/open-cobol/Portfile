@@ -22,5 +22,14 @@ checksums           md5 e38c898e01d50a7ca6bb3e41cfcb0c64 \
 
 depends_lib         port:gmp \
                     port:libtool \
+                    port:db44 \
                     port:db46 \
-                    port:ncurses
+                    port:ncurses \
+                    port:libgnugetopt \
+                    port:libiconv \
+                    port:gettext \
+                    port:mpfr
+
+configure.args-append --infodir=${prefix}/share/info
+configure.cppflags-append -I${prefix}/include/gnugetopt -Wno-pointer-sign
+configure.ldflags-append -lgnugetopt
