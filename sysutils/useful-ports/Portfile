@@ -7,7 +7,7 @@ PortGroup         github 1.0
 github.setup      cooljeanius LocalPorts 0.1.2 v
 name              useful-ports
 version           0.1
-revision          2
+revision          3
 categories        sysutils macports
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall
@@ -61,4 +61,40 @@ depends_build     port:gawk \
                   port:libb64 \
                   port:ossp-xds \
                   port:xorg-encodings \
-                  port:autogen
+                  port:autogen \
+                  port:cfv \
+                  port:md5sha1sum \
+                  port:unhash \
+                  port:dcfldd \
+                  port:fast-md5 \
+                  port:md5deep \
+                  port:gettext-lint \
+                  port:pv \
+                  port:gmsl \
+                  port:remake \
+                  port:bootstrap_cmds \
+                  port:developer_cmds \
+                  port:CoreOSMakefiles \
+                  port:darwinbuild \
+                  port:proctools \
+                  port:yasm \
+                  port:nasm \
+                  port:ccache \
+                  port:poll-emulator \
+                  port:unsermake \
+                  port:libthai \
+                  port:tftp-hpa \
+                  port:dmalloc \
+                  port:google-perftools \
+                  port:halloc \
+                  port:byacc \
+                  port:byaccj \
+                  port:ebnf2yacc \
+                  port:lemon \
+                  port:berkeley_upc \
+                  port:am-utils \
+                  port:idutils \
+                  port:gpp \
+                  port:mcpp \
+                  port:vbpp \
+                  port:rpl
