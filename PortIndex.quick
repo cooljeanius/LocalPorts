@@ -1,7 +1,10 @@
-mpvim 0
-bnetd 509
-macports 999
-cpan2port 1487
-macportsscripts 2148
-port-depgraph 2567
-portfile-gen 3109
+libsndfile 0
+mpvim 756
+cec 1265
+bnetd 1773
+macports 2263
+cpan2port 2751
+macportsscripts 3412
+port-depgraph 3831
+portfile-gen 4373
+useful-ports 4866
