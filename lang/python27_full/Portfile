@@ -1,0 +1,56 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           active_variants 1.1
+
+name                python27_full
+version             2.7.3
+categories          lang python
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall
+license             PSF
+
+description         A fuller distribution of Python27
+
+long_description    ${description}. Based on Homebrew's version.
+
+homepage            http://www.python.org/
+master_sites        ${homepage}ftp/python/${version}/
+
+distname            Python-${version}
+use_xz              yes
+supported_archs     noarch
+
+checksums           rmd160  a51bb3ed518c897d1cf3c3d237929d385409d9f7 \
+                    sha256  61d36be58e9e9c733c49d7b76858d5c08e2c63a84f2066b29d35d3521057c985
+
+depends_build       port:py27-virtualenv
+depends_lib         port:python27 \
+                    port:py27-distribute \
+                    port:py27-pip \
+                    port:py27-gdbm \
+                    port:py27-tkinter \
+                    port:py27-sqlite \
+                    port:py27-virtualenvwrapper \
+                    port:virtualenv_select
+
+require_active_variants python27 brewlike
+
+configure.args      --enable-ipv6 \
+                    --datarootdir=${prefix}/share \
+                    --datadir=${prefix}/share
+
+build {
+    ui_msg "No build required. The only reason that configure step ran was to generate pyconfig.h."
+}
+
+destroot {
+    system -W ${destroot}/${prefix}/share "${prefix}/bin/virtualenv-2.7 --distribute ./venv-py27"
+    system -W ${destroot}/${prefix}/share "${prefix}/bin/virtualenv-2.7 --relocatable ./venv-py27"
+    system -W ${destroot}/${prefix}/share/venv-py27 "./bin/pip install --upgrade distribute"
+    system -W ${destroot}/${prefix}/share/venv-py27 "./bin/pip install --upgrade pip"
+    xinstall ${worksrcpath}/pyconfig.h ${destroot}/${prefix}/share/venv-py27/include
+}
+
+livecheck.type      none

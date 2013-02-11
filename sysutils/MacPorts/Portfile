@@ -105,7 +105,7 @@ depends_build-append port:tcl-dox \
     }
 }
 
-variant bundle requires mp_deps description "Adds other ports related to MacPorts" {
+variant mp_bundle requires mp_deps description "Adds other ports related to MacPorts" {
 depends_build-append port:cpan2port \
                      port:macports-notifier \
                      port:MacPorts_Framework \

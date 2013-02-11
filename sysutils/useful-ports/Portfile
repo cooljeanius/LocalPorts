@@ -103,5 +103,8 @@ depends_build     port:gawk \
                   port:sysvbanner \
                   port:boost-jam \
                   port:libgnugetopt \
-                  port:vbindiff
-
+                  port:vbindiff \
+                  port:pth \
+                  port:ssdeep \
+                  port:re2c \
+                  port:ed
