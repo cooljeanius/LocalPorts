@@ -38,6 +38,7 @@ depends_build     port:gawk \
                   port:liblinebreak \
                   port:g95 \
                   port:binutils \
+                  port:uni2ascii \
                   port:libuninameslist \
                   port:libuninum \
                   port:libunistring \
@@ -91,7 +92,6 @@ depends_build     port:gawk \
                   port:byaccj \
                   port:ebnf2yacc \
                   port:lemon \
-                  port:berkeley_upc \
                   port:am-utils \
                   port:idutils \
                   port:gpp \
@@ -107,4 +107,5 @@ depends_build     port:gawk \
                   port:pth \
                   port:ssdeep \
                   port:re2c \
-                  port:ed
+                  port:ed \
+                  port:splint

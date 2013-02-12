@@ -198,7 +198,7 @@ variant noconflict description {Removes conflicts with the other Wine ports by a
             system "install_name_tool -change @executable_path/../lib/libwine.1.dylib ${prefix}/lib/libcxwine.1.dylib ${dll}"
         }
         foreach binary [glob ${destroot}${prefix}/*] {
-            file rename ${binary} cx${binary}
+            file rename ${binary} cx[file tail ${binary}]
         }        
 
         xinstall ${filespath}/wine.in ${destroot}${prefix}/bin/cxwine
@@ -244,6 +244,8 @@ depends_lib-append          port:gphoto2 \
                             port:icoconvert \
                             port:util-linux \
                             port:lcab \
+                            port:fontforge \
+                            path:bin/convert:imagemagick \
                             port:dbus \
                             port:dosbox \
                             port:xorg-libpthread-stubs \
@@ -272,7 +274,7 @@ depends_lib-append          port:i386-mingw32-libunicows \
                             port:dbus-glib-sharp \
                             port:elftoolchain \
                             port:gecko-sharp2 \
-                            port:libelf
+                            port:libelf \
                             port:liboss \
                             port:linuxdoc \
                             port:mono-addins \

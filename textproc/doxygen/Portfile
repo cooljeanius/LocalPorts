@@ -89,6 +89,14 @@ post-patch {
 
 	# do not require GNU install; BSD install suffices
 	reinplace "s,-n \"`\$j/\$i --version 2>/dev/null \| grep utils`\",-x \"\$j/\$i\",g" ${worksrcpath}/configure
+
+        if {[string match *gcc* ${configure.compiler}]} { 
+                 reinplace "s|-Wno-invalid-source-encoding||g" ${worksrcpath}/libmd5/Makefile.libmd5 \ 
+                         ${worksrcpath}/src/Makefile.libdoxycfg \ 
+                         ${worksrcpath}/tmake/lib/macosx-c++/tmake.conf \ 
+                         ${worksrcpath}/tmake/lib/macosx-intel-c++/tmake.conf \ 
+                         ${worksrcpath}/tmake/lib/macosx-uni-c++/tmake.conf 
+         }
 }
 
 build.target		all

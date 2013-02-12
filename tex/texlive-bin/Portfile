@@ -1,0 +1,313 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 100850 2012-12-30 00:31:32Z devans@macports.org $
+
+PortSystem      1.0
+PortGroup       texlive 1.0
+
+name            texlive-bin
+version         2012
+revision        6
+
+categories      tex
+maintainers     dports
+description     TeX Live Binaries.
+long_description    TeX Live is an easy way to get up and running with TeX. \
+    It provides a comprehensive TeX system with binaries for most flavors \
+    of Unix, including GNU/Linux, and also Windows. It includes all the \
+    major TeX-related programs, macro packages, and fonts that are free \
+    software, including support for many languages around the world.
+
+homepage        http://www.tug.org/texlive/
+platforms       darwin
+
+# This port installs two libraries: kpathsea (LGPL-2.1+) and ptexenc (BSD).
+# The binaries are covered under various licenses, but all distributable;
+# see the texlive portfile for more information.
+license         Copyleft Permissive LGPL-2.1+ BSD
+
+# Our distfile is a stripped-down version of the texlive source
+# tarball, available from CTAN in systems/texlive/Source. For faster
+# download time, it omits a number of libraries and utilities that we
+# don't build. However, the port should still work with an unmodified
+# texlive distfile.
+master_sites    http://flute.csail.mit.edu/texlive
+set distversion 20120708.26940
+use_xz          yes
+distname        texlive-${distversion}-source-stripped
+worksrcdir      ${distname}
+
+set tlpkgdistname   tlpkg-TeXLive-${distversion}
+distfiles-append    ${tlpkgdistname}${extract.suffix}
+
+checksums       texlive-20120708.26940-source-stripped.tar.xz \
+                rmd160  a1253c3b2852926337e724bdb30f07b376597089 \
+                sha256  765b2f7488fe06a59a7560e59132444e26de985961f06a41162e4de367269e4d \
+                tlpkg-TeXLive-20120708.26940.tar.xz \
+                rmd160  f550437e2591f770d449a01fabd44a4eb43d79fb \
+                sha256  259ed8697d8f42de51da4c0345c15d25c2925ec3f3422420c9144d9a54c55fb9
+
+depends_lib     port:fontconfig \
+                port:freetype \
+                port:libpng \
+                port:ncurses \
+                port:zlib \
+                port:libzzip \
+                port:t1lib \
+                port:poppler \
+                port:texlive-common
+
+depends_run     port:ghostscript
+
+depends_build   path:bin/perl:perl5 \
+                path:bin/pkg-config:pkgconfig
+
+# fix xdvipdfmx/freetype dfont issue (#30745)
+patchfiles-append   patch-texk_xdvipdfmx_src_cidtype2.c.diff
+
+# make luatex less sensitive to zlib version changes
+# (cf. http://bugs.debian.org/581818)
+patchfiles-append   patch-texk_web2c_luatexdir_luazlib_lzlib.c.diff
+
+# patches related to changes in install paths
+patchfiles-append   patch-texk_kpathsea_Makefile.in.diff \
+                    patch-texk_tetex_Makefile.in.diff \
+                    patch-texk_tetex_updmap-sys.sh.diff \
+                    patch-texk_tex4htk_Makefile.in.diff \
+                    patch-texk_texlive_context_mtxrun.diff \
+                    patch-texk_texlive_linked_scripts_Makefile.in.diff \
+                    patch-texk_xdvik_xdvi-sh.in.diff \
+                    patch-utils_chktex_Makefile.in.diff
+
+# # fixes for makefile brokenness not otherwise specified
+patchfiles-append   patch-libs-freetype-Makefile.in.diff \
+                    patch-libs_icu_icu-49.1_configure.diff \
+                    patch-libs_icu_Makefile.in.diff
+
+post-patch {
+    reinplace "s|@@TEXMFMAIN@@|${texlive_texmfmain}|" ${worksrcpath}/texk/tetex/Makefile.in
+    reinplace "s|@@TEXMFMAIN@@|${texlive_texmfmain}|" ${worksrcpath}/texk/texlive/linked_scripts/Makefile.in
+    reinplace "s|@@TEXMFDIST@@|${texlive_texmfdist}|" ${worksrcpath}/texk/texlive/linked_scripts/Makefile.in
+    reinplace "s|@@TEXMFDIST@@|${texlive_texmfdist}|" ${worksrcpath}/texk/tex4htk/Makefile.in
+    reinplace "s|@@TEXLIVE_BINDIR@@|${texlive_bindir}|" ${worksrcpath}/texk/xdvik/xdvi-sh.in
+    reinplace "s|@@TEXMFMAIN@@|${texlive_texmfmain}|" ${worksrcpath}/utils/chktex/Makefile.in
+
+    # Defaults for the texmf search paths need to be compiled into
+    # libkpathsea -- really, just the location of texmf.cnf, which
+    # defines all the other paths. texlive normally finds this file
+    # using a bindir-relative path extracted from texmf.cnf, but this
+    # is both incorrect (it fails to find our texmf.cnf) and overkill
+    # (we know the absolute path of texmf.cnf).
+    #
+    # Accordingly, we patch the kpathsea makefile to not try to derive
+    # the default paths from texmf.cnf, and just provide our own
+    # paths.h with the right path substituted in.
+    delete ${worksrcpath}/texk/kpathsea/texmf.cnf
+    file copy ${filespath}/texk_kpathsea_paths.h ${worksrcpath}/texk/kpathsea/paths.h
+    reinplace "s|@@PREFIX@@|${prefix}|" ${worksrcpath}/texk/kpathsea/paths.h
+    reinplace "s|@@TEXMFSYSCONFIG@@|${texlive_texmfsysconfig}|" ${worksrcpath}/texk/kpathsea/paths.h
+    reinplace "s|@@TEXMFSYSCONFIG@@|${texlive_texmfsysconfig}|" ${worksrcpath}/texk/texlive/context/mtxrun
+
+    if {![variant_isset atsui]} {
+        # Force configure to believe that Carbon API is
+        # unavailable. This test is actually used to determine whether
+        # ATSUI should be used.
+        reinplace "s|kpse_cv_have_Carbon=yes|kpse_cv_have_Carbon=no|" ${worksrcpath}/texk/web2c/configure
+        reinplace "s|kpse_cv_have_Carbon=yes|kpse_cv_have_Carbon=no|" ${worksrcpath}/texk/xdv2pdf/configure
+    }
+    
+    # Force xdvipdfmx to use multi-platform freetype API as freetype is not
+    # compiled with --with-old-mac-fonts. A patch helps xdvipdfmx accept dfont
+    # files that freetype can handle.
+    reinplace "s|kpse_cv_have_ApplicationServices=yes|kpse_cv_have_ApplicationServices=no|" ${worksrcpath}/texk/xdvipdfmx/configure
+}
+
+# llvm-gcc apparently fails on Xcode 4.0.x (#30758)
+if {${configure.compiler} == "llvm-gcc-4.2" &&
+    [vercmp $xcodeversion 4.1] < 0} {
+    configure.compiler gcc-4.2
+}
+
+
+# We use MacPorts-provided libraries instead of the ones included in
+# texlive whenever possible, to avoid redundancy and to better keep
+# current with respect to security updates and the like.
+#
+# Exceptions are freetype1 (not in MacPorts anymore) and icu (the
+# texlive version is non-standard)
+#
+# Many of the --with-system-* and --disable-* flags are actually
+# redundant because we've removed those components from the distfile,
+# but we leave them here for compatibility with the stock distfile.
+configure.args  --bindir=${texlive_bindir} \
+                --mandir=${texlive_bindir} \
+                --infodir=${prefix}/share/info \
+                --enable-shared \
+                --disable-multiplatform \
+                --disable-native-texlive-build \
+                --without-old-mac-fonts \
+                --with-banner-add="/MacPorts ${version}_${revision}" \
+                --with-system-freetype2 \
+                --without-system-freetype \
+                --without-system-icu \
+                --with-system-gd \
+                --with-system-libpng \
+                --with-libpng-includes=${prefix}/include \
+                --with-libpng-libdir=${prefix}/lib \
+                --with-system-ncurses \
+                --with-system-t1lib \
+                --with-t1lib-includes=${prefix}/include \
+                --with-t1lib-libdir=${prefix}/lib \
+                --with-system-xpdf \
+                --with-system-poppler \
+                --with-system-zlib \
+                --with-system-zziplib \
+                --disable-biber \
+                --disable-etex \
+                --disable-detex \
+                --disable-dvi2tty \
+                --disable-dvipng \
+                --disable-lcdf-typetools \
+                --disable-ps2eps \
+                --disable-psutils \
+                --disable-t1utils \
+                --disable-texinfo \
+                --disable-xindy \
+                --without-x \
+                --without-pdfopen \
+                --enable-build-in-source-tree
+
+
+configure.cppflags-delete   -I${prefix}/include
+configure.ldflags-delete    -L${prefix}/lib
+configure.cppflags-append   -isystem${prefix}/include \
+                            -Wno-invalid-source-encoding
+configure.env-append        LIBRARY_PATH=${prefix}/lib
+
+# work around bug in texlive makefiles where $OBJC is not recorded
+# during configure phase
+pre-build {
+    append_list_to_environment_value build "OBJC" ${configure.objc}
+    append_list_to_environment_value build "OBJCFLAGS" ${configure.objcflags}
+    append_list_to_environment_value build "OBJCFLAGS" ${configure.objc_archflags}
+}
+
+post-destroot   {
+    # texmf and texmf-dist will be installed by other texlive ports
+    delete ${destroot}${prefix}/share/texmf
+    delete ${destroot}${prefix}/share/texmf-dist
+    delete ${destroot}${texlive_texmfdist}
+
+    # Do not install scripts we do not want, or symlinks to scripts that
+    # we don't install
+    delete ${destroot}${texlive_texmfmain}/scripts/texlive/tlmgr.pl
+    delete ${destroot}${texlive_bindir}/latexmk
+    delete ${destroot}${texlive_bindir}/tlmgr    
+
+    # Do not install the pre-generated fmtutil.cnf; we generate our own
+    delete ${destroot}${texlive_texmfmain}/web2c/fmtutil.cnf
+
+    # install the tlpkg/TeXLive perl module
+    copy ${workpath}/${tlpkgdistname} ${destroot}${prefix}/share/tlpkg
+
+    # gzip manpages that are installed into texlive_bindir
+    foreach manpage [glob -directory ${destroot}${texlive_bindir} man*/*] {
+        # need to make sure it isn't a symlink
+        if {[file type $manpage] == "file"} {
+            system "gzip $manpage"
+        }
+    }
+
+    # Create version/arch-specific links to the texbin directory used
+    # by the TeXDist prefpane; it seems that future versions of the
+    # prefpane will want these.
+    xinstall -d ${destroot}${texlive_mactex_texdistdir}-${version}
+    if {[variant_isset universal]} {
+        ln -s ${texlive_mactex_texbindir} \
+            ${destroot}${texlive_mactex_texdistdir}-${version}/universal-darwin
+    } else {
+        ln -s ${texlive_mactex_texbindir} \
+            ${destroot}${texlive_mactex_texdistdir}-${version}/${configure.build_arch}-darwin
+    }
+    ln -s ${texlive_mactex_texdistdir}-${version} \
+          ${destroot}${texlive_mactex_texdistdir}
+}
+
+pre-activate {
+    if { [file exists ${texlive_texmfdist}/scripts/tex4ht/ht.sh]
+         && ![catch {set vers [lindex [registry_active texlive-htmlxml] 0]}]
+         && [vercmp [lindex $vers 1] 13822] == 0
+         && [lindex $vers 2] <3} {
+        registry_deactivate_composite texlive-htmlxml "" [list ports_nodepcheck 1]
+    }
+
+    if { [file exists ${texlive_texmfmain}/scripts/tetex/updmap.pl]
+         && ![catch {set vers [lindex [registry_active texlive-basic] 0]}]
+         && [vercmp [lindex $vers 1] 23152] < 0} {
+        registry_deactivate_composite texlive-basic "" [list ports_nodepcheck 1]
+    }
+
+    # TL2012: some scripts in texmf are now installed by this port
+    # rather than by texlive-bin-extra and texlive-basic
+    if { ![catch {set vers [lindex [registry_active texlive-bin-extra] 0]}]
+         && [vercmp [lindex $vers 1] 26926] < 0} {
+        registry_deactivate_composite texlive-bin-extra "" [list ports_nodepcheck 1]
+    }
+    if { ![catch {set vers [lindex [registry_active texlive-basic] 0]}]
+         && [vercmp [lindex $vers 1] 26926] < 0} {
+        registry_deactivate_composite texlive-basic "" [list ports_nodepcheck 1]
+    }
+
+}
+
+post-activate {
+    system "${texlive_bindir}/mktexlsr"
+}
+
+variant atsui description {Use ATSUI instead of freetype for XeTeX font rendering (forces 32-bit)} {
+    # ATSUI is a deprecated interface, not available on 64-bit archs,
+    # so force 32-bit build
+    supported_archs i386 ppc
+
+    # ...and on 10.7 and above, enough of the APIs are broken that we
+    # can't build xdv2pdf, and need to use a hack to make xetex build
+    if {${os.platform} == "darwin" && ${os.major} >= 11} {
+        configure.args-append --disable-xdv2pdf
+    }
+
+    # ...and it doesn't build with clang, either (#33602)
+    if {${configure.compiler} == "clang"} {
+        configure.compiler llvm-gcc-4.2
+    }
+}
+
+if {![variant_isset "atsui"]} {
+    notes-append "XeTeX is built without support for Apple Type Services for Unicode Imaging (ATSUI) or Apple Advanced Typography (AAT). To enable it, build texlive-bin with the +atsui variant. Note that this will force texlive and all of its dependencies to be built 32-bit."
+}
+
+variant x11 conflicts no_x11 description {Build with x11 support, using Xaw widgets for xdvi} {
+    depends_lib-append port:xorg-libXp
+    configure.args-delete --without-x --without-pdfopen
+    depends_lib-append port:xorg-libXaw
+    configure.args-append --with-xdvi-x-toolkit=xaw
+}
+
+variant motif requires x11 description {Use Motif to build xdvi} {
+    depends_lib-delete port:xorg-libXaw
+    configure.args-delete --with-xdvi-x-toolkit=xaw
+    depends_lib-append lib:libXm:openmotif
+    configure.args-append --with-xdvi-x-toolkit=motif
+}
+
+variant no_x11 conflicts x11 motif description {Legacy compatibility variant} {}
+
+if {![variant_isset no_x11]} {
+    default_variants    +x11
+}
+
+platform darwin 8 {
+    patchfiles-append patch-libs_icu_icu-49.1_common_putil.cpp.diff
+}
+
+livecheck.type      regex
+livecheck.url       ${homepage}acquire.html
+livecheck.regex     "TeX Live (\[0-9\]+) "

@@ -34,8 +34,7 @@ if {![variant_isset keep_prefix]} {
     prefix          /opt/local
 }
 
-variant mp_deps conflicts universal description "Use ports supplied by MacPorts to fulfill missing dependencies" {
-# The conflict with the universal variant is because bzr doesn't have a universal variant
+variant mp_deps description "Use ports supplied by MacPorts to fulfill missing dependencies" {
 depends_build-append port:bsdmake \
                      port:bzr \
                      port:gpatch \
@@ -45,6 +44,10 @@ depends_build-append port:bsdmake \
                      port:gnustep-make \
                      port:gnustep-make-cocoa
                      #The other gnustep ports are left out because they're broken
+pre-configure {
+    reinplace "s|MP_PATH_SCAN||" ${worksrcpath}/configure.ac
+}
+use_autoconf         yes
 configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
                      BZR=${prefix}/bin/bzr \
                      GPATCH=${prefix}/bin/gpatch \
@@ -60,11 +63,17 @@ configure.args-append --prefix=${prefix}
 variant mp_shadow_deps requires mp_deps description "Use ports supplied by MacPorts as dependencies, even if they shadow standard OS X system tools" {
 depends_build-append port:bzip2 \
                      port:cpio \
+                     port:cvs \
+                     port:diffutils \
+                     port:ed \
                      port:file \
+                     port:gawk \
                      port:git-core \
+                     port:gsed \
                      port:cctools \
                      port:gnutar \
                      port:gzip \
+                     port:md5sha1sum \
                      port:openssl \
                      port:rsync \
                      port:subversion \
@@ -72,7 +81,8 @@ depends_build-append port:bzip2 \
                      path:bin/xar:xar \
                      port:zip
 depends_lib-append   port:tclcurl \
-                     port:tcl-sqlite3
+                     port:tcl-sqlite3 \
+                     port:tclreadline
     pre-configure {
         ui_msg "Warning: Using this variant could possibly be dangerous, as libraries might cause breakages with upgrades."
     }
@@ -96,7 +106,7 @@ configure.args-append --with-curlprefix=${prefix} \
                       --with-frameworks-dir=${prefix}/Library/Frameworks
 }
 
-variant docs requires mp_deps description "Builds documentation" {
+variant docs conflicts universal requires mp_deps description "Builds documentation" {
 depends_build-append port:tcl-dox \
                      port:tcldoc \
                      path:bin/doxygen:doxygen
@@ -116,7 +126,8 @@ depends_build-append port:cpan2port \
                      port:port_cutleaves \
                      port:portfile-gen \
                      port:pearl \
-                     port:ghsum
+                     port:ghsum \
+                     port:useful-ports
 }
 
 if {![variant_isset mp_deps]} {
