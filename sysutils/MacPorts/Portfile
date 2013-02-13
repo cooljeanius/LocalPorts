@@ -113,6 +113,14 @@ depends_build-append port:tcl-dox \
     post-build {
         system -W ${worksrcpath} "doxygen"
     }
+    post-destroot {
+        xinstall -d ${destroot}${prefix}/share/doc/${name}
+        xinstall ${worksrcpath}/doc/INTERNALS ${destroot}${prefix}/share/doc/${name}
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/tcl-dox
+        foreach doc [glob ${worksrcpath}/tcldox/*] {
+            xinstall doc ${destroot}${prefix}/share/doc/${name}/tcl-dox
+        }
+    }
 }
 
 variant mp_bundle requires mp_deps description "Adds other ports related to MacPorts" {
