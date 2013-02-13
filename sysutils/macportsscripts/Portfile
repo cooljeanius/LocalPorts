@@ -12,6 +12,7 @@ maintainers	phw gwmail.gwu.edu:egall openmaintainer
 description	Various scripts to work with MacPorts
 license         BSD
 long_description ${description}
+supported_archs noarch
 
 fetch.type 	git
 git.url 	git://github.com/cooljeanius/macportsscripts.git

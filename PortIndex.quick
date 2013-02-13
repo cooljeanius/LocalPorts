@@ -11,5 +11,6 @@ macportsscripts 5126
 port-depgraph 5545
 portfile-gen 6087
 useful-ports 6580
-doxygen 8048
-wine-crossover 9245
+texlive-bin 8048
+doxygen 8982
+wine-crossover 10179

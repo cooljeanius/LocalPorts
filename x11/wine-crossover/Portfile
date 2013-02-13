@@ -218,7 +218,7 @@ variant noconflict description {Removes conflicts with the other Wine ports by a
     }
 }
 
-variant big description {Pulls in more dependencies in order to add more features.} {
+variant huge description {Pulls in more dependencies in order to add more features.} {
 configure.args-delete       --without-alsa \
                             --without-capi \
                             --without-gphoto \
