@@ -44,10 +44,11 @@ depends_build-append port:bsdmake \
                      port:gnustep-make \
                      port:gnustep-make-cocoa
                      #The other gnustep ports are left out because they're broken
-pre-configure {
-    reinplace "s|MP_PATH_SCAN||" ${worksrcpath}/configure.ac
-}
-use_autoconf         yes
+# This block doesn't work yet
+#pre-configure {
+#    reinplace "s|MP_PATH_SCAN||" ${worksrcpath}/configure.ac
+#}
+#use_autoconf         yes
 configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
                      BZR=${prefix}/bin/bzr \
                      GPATCH=${prefix}/bin/gpatch \
@@ -55,7 +56,7 @@ configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
                      LZMA=${prefix}/bin/lzma \
                      SWIG=${prefix}/bin/swig \
                      XZ=${prefix}/bin/xz \
-                     GNUSTEP_SYSTEM_ROOT=${prefix}/GNUstep \
+                     GNUSTEP_SYSTEM_ROOT=${prefix}/GNUstep/System \
                      PATH=${prefix}/bin:/usr/bin:/bin:/usr/sbin:/sbin
 configure.args-append --prefix=${prefix}
 }
@@ -106,7 +107,7 @@ configure.args-append --with-curlprefix=${prefix} \
                       --with-frameworks-dir=${prefix}/Library/Frameworks
 }
 
-variant docs conflicts universal requires mp_deps description "Builds documentation" {
+variant docs requires mp_deps description "Builds documentation" {
 depends_build-append port:tcl-dox \
                      port:tcldoc \
                      path:bin/doxygen:doxygen

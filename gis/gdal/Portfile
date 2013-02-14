@@ -111,7 +111,22 @@ build.target
 
 variant lzma conflicts universal \
     description {Enable LZMA (7Z) compression support} {
-    depends_lib-append      port:lzma
+    depends_lib-append      port:lzma \
+                            port:xz \
+                            port:lzip
+    if {[variant_isset python24]} {
+        depends_lib-append  port:py24-liblzma
+    }
+    if {[variant_isset python25]} {
+        depends_lib-append  port:py25-liblzma
+    }
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-liblzma \
+                            port:py26-pylzma
+    }
+    if {[variant_isset python27]} {
+        depends_lib-append  port:py27-liblzma
+    }
     configure.args-delete   --without-lzma
     configure.args-append   --with-lzma=${prefix}
 }
@@ -314,10 +329,11 @@ variant framework description {Build as a Mac OS X framework} {
     configure.args-append   --with-macosx-framework
 }
 
-variant huge requires curl expat geos hdf4 hdf5 mysql5 netcdf odbc opencl poppler postgresql81 postgresql82 \
+variant huge requires curl expat geos hdf4 hdf5 mysql5 netcdf odbc opencl poppler postgresql82 \
                       postgresql84 postgresql90 postgresql91 postgresql92 spatialite sqlite3 \
                       description {Pull in as many dependencies as possible} {
-    configure.args-delete --without-pg \
+    configure.args-delete --without-lzma \
+                          --without-pg \
                           --without-grass \
                           --without-libgrass \
                           --without-cfitsio \
@@ -359,7 +375,6 @@ variant huge requires curl expat geos hdf4 hdf5 mysql5 netcdf odbc opencl popple
                           --without-poppler
     depends_lib-append    port:cfitsio \
                           port:libxmi \
-                          port:sam2p \
                           port:netcdf-fortran \
                           port:nco \
                           port:libgdiplus \
@@ -369,19 +384,27 @@ variant huge requires curl expat geos hdf4 hdf5 mysql5 netcdf odbc opencl popple
                           port:jubatus-msgpack-rpc \
                           port:grib_api \
                           port:ssdeep \
-                          port:pamtester \
                           port:swig-perl \
                           port:swig-php \
+                          port:swig-python \
                           port:swig-ruby \
                           port:libkml \
                           port:shapelib
     configure.args-append --with-cfitsio \
                           --with-msg \
                           --with-grib \
-                          --with-pam \
                           --with-perl \
                           --with-php \
                           --with-ruby
+}
+
+variant extra_nonuniversal conflicts universal requires huge lzma postgresql81 postgresql83 xerces description {Extra dependencies that aren't universal} {
+    depends_lib-append    port:wgrib2 \
+                          port:ocilib \
+                          port:sam2p \
+                          port:pamtester
+    configure.args-append --with-pam \
+                          --with-oci
 }
 
 default_variants    +expat

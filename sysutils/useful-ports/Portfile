@@ -33,7 +33,6 @@ destroot {
 depends_build     port:gawk \
                   port:mawk \
                   port:xgawk \
-                  port:libhangul \
                   port:fribidi \
                   port:liblinebreak \
                   port:g95 \
@@ -108,4 +107,15 @@ depends_build     port:gawk \
                   port:ssdeep \
                   port:re2c \
                   port:ed \
-                  port:splint
+                  port:splint \
+                  port:xmlto \
+                  port:asciidoc \
+                  port:boehmgc \
+                  port:aamath \
+                  port:e \
+                  port:glark \
+                  port:jakarta-regexp \
+                  port:re2 \
+                  port:string_replace \
+                  port:tre \
+                  port:dash 

@@ -1,4 +1,5 @@
-# $Id: Portfile 103089 2013-02-13 23:57:22Z ryandesign@macports.org $
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 102643 2013-02-05 17:11:30Z jeremyhu@macports.org $
 
 PortSystem 1.0
 
@@ -38,7 +39,7 @@ checksums           ${distname}.src${extract.suffix} \
 depends_build-append	bin:perl:perl5 port:flex port:bison
 depends_lib		port:libpng path:bin/dot:graphviz port:libiconv
 
-patchfiles	    patch-configure.diff
+patchfiles	    patch-libmd5-compiler.diff
 
 patch.pre_args      -p1
 configure.universal_args-delete --disable-dependency-tracking
@@ -89,10 +90,13 @@ post-patch {
 	# do not require GNU install; BSD install suffices
 	reinplace "s,-n \"`\$j/\$i --version 2>/dev/null \| grep utils`\",-x \"\$j/\$i\",g" ${worksrcpath}/configure
 
-	# remove flag that is not defined for gcc and only suppresses some warnings for clang
-    if {[string match *gcc* ${configure.compiler}]} {
-		reinplace "s|-Wno-invalid-source-encoding||g" ${tmake_conf}
-	}
+        if {[string match *gcc* ${configure.compiler}]} { 
+                 reinplace "s|-Wno-invalid-source-encoding||g" ${worksrcpath}/libmd5/Makefile.libmd5 \ 
+                         ${worksrcpath}/src/Makefile.libdoxycfg \ 
+                         ${worksrcpath}/tmake/lib/macosx-c++/tmake.conf \ 
+                         ${worksrcpath}/tmake/lib/macosx-intel-c++/tmake.conf \ 
+                         ${worksrcpath}/tmake/lib/macosx-uni-c++/tmake.conf 
+         }
 }
 
 build.target		all
