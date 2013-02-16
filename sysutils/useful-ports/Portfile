@@ -125,4 +125,5 @@ depends_build     port:gawk \
                   port:osh \
                   port:yajl \
                   port:daemon \
-                  port:daemontools
+                  port:daemontools \
+                  port:gnuregex

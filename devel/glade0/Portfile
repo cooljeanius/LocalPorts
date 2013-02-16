@@ -1,0 +1,70 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 77852 2011-04-15 00:31:50Z devans@macports.org $
+
+PortSystem             1.0
+
+name                   glade0
+set real_name          glade
+version                0.6.4
+revision               0
+set branch             [join [lrange [split ${version} .] 0 1] .]
+license                GPL-2+
+
+replaced_by            glade2
+
+categories             devel gnome
+platforms              darwin
+maintainers            gwmail.gwu.edu:egall openmaintainer
+
+description            Glade is a RAD tool to enable quick & easy development of user interfaces \
+                       for the GTK+ toolkit and the GNOME desktop environment.
+
+long_description       ${description} This version is outdated and has been replaced by port 'glade2'.
+
+homepage               http://glade.gnome.org/
+master_sites           gnome:sources/${real_name}/${branch}/
+distname               ${real_name}-${version}
+
+checksums              md5    6bae18e2fd323d64168992e126e27efb
+
+depends_extract-append port:gzip \
+                       port:gnutar
+
+post-extract {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+    reinplace "s|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|" ${worksrcpath}/configure.ac
+}
+
+use_autoconf           yes
+
+depends_build-append   port:gettext \
+                       port:rarian \
+                       port:automake17 \
+                       port:autoconf213 \
+                       port:intltool \
+                       port:xdg-utils \
+                       port:desktop-file-utils \
+                       port:texinfo
+
+depends_lib-append     port:gtk1 \
+                       port:libgnome \
+                       port:glib1 \
+                       path:bin/dbus-send:dbus \
+                       path:bin/perl:perl5
+
+configure.ldflags-append  -L${prefix}/lib
+configure.cppflags-append -I${prefix}/include/gtk-1.2
+configure.cppflags-delete -I/opt/local/include/gtk-2.0 \
+                          -I/opt/local/lib/gtk-2.0/include
+
+pre-configure {
+    ui_msg "This port is outdated and has been replaced by port 'glade1'.  Please install that port instead."
+}
+
+notes "
+Remember to set ACLOCAL_FLAGS=\"-I ${prefix}/share/glade-0\"
+"
+
+livecheck.type      regex
+livecheck.url       http://ftp.gnome.org/pub/gnome/sources/${real_name}/${branch}/
+livecheck.regex     {LATEST-IS-(\d+(?:\.\d+)*)}

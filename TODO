@@ -1,5 +1,5 @@
 Ports to create some day:
-- busybox
+- busybox (build system is difficult to wrangle, don't know if I can do it)
 - armadillo
 - EasySIMBL
 - OpenCFLite
@@ -11,7 +11,30 @@ Ports to create some day:
 - Packages
 - FlatCarbon-Headers
 - other stuff from opensource.apple.com or from the Apple sample code that comes with Xcode.
+- also other stuff that comes from macosforge
 - db_select
 - pip_select
 - Jumpcut
 - The Unarchiver
+- Open64
+- ucc
+- Prime Mover
+- Daemonic
+- MachOView(er)
+- code-dump-ppc
+- ExeToC Decompiler
+- relipmoC
+- kbuild - Linux Kernel Build (gcml)
+- nwcc
+- The Amsterdam Compiler Kit
+- rcracki_mt
+- wxHexEditor
+- Hexplorer
+- Qt#
+- Qt Jambi
+- qtcl
+- Locomotive
+- fetcav
+- clamtk
+- hspell-gui
+- db2html

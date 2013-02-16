@@ -1,0 +1,91 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 77852 2011-04-15 00:31:50Z devans@macports.org $
+
+PortSystem           1.0
+
+name                 glade2
+set real_name        glade
+version              2.12.2
+revision             4
+set branch           [join [lrange [split ${version} .] 0 1] .]
+license              GPL-2+
+
+replaced_by          glade3
+
+categories           devel gnome
+platforms            darwin
+maintainers          gwmail.gwu.edu:egall openmaintainer
+
+description          Glade is a RAD tool to enable quick & easy development of user interfaces \
+                     for the GTK+ toolkit and the GNOME desktop environment.
+
+long_description     ${description} This version is outdated and has been replaced by port 'glade3'.
+
+homepage             http://glade.gnome.org/
+master_sites         gnome:sources/${real_name}/${branch}/
+distname             ${real_name}-${version}
+use_bzip2            yes
+
+checksums            sha1    a43d89b147296244ba4b2efc67e8772d5155afff \
+                     md5     54082e44bba1c75770aa0bff2f38987e \
+                     sha256  50712d1e5cb369ee1399e9c78ac410e3e69c7582ac9bf1e11d27a7348d3d0a58
+
+patchfiles-append    patch-glade-gbwidgets-gbclist.c.diff \
+                     patch-glade-glade_menu_editor.c.diff \
+                     patch-glade-glade_keys_dialog.c.diff \
+                     patch-glade-glade_project_view.h.diff
+
+depends_build-append port:pkgconfig \
+                     port:gettext \
+                     port:rarian \
+                     port:gconf
+
+depends_lib-append   port:gtk2 \
+                     port:libxml2 \
+                     port:libgnome \
+                     port:libgnomeui \
+                     port:libgnomecanvas \
+                     port:libgnome-keyring \
+                     port:libbonobo \
+                     port:libbonoboui \
+                     port:orbit2 \
+                     port:atk \
+                     port:cairo \
+                     port:pango \
+                     port:gdk-pixbuf2 \
+                     port:glib2 \
+                     path:lib/pkgconfig/pixman-1.pc:libpixman \
+                     port:freetype \
+                     port:libpng \
+                     port:harfbuzz \
+                     port:libart_lgpl \
+                     port:gnome-vfs \
+                     port:gnome-vfs-monikers \
+                     path:bin/dbus-send:dbus
+
+configure.ldflags-append -L${prefix}/lib
+
+configure.args       --disable-gnome-db
+
+variant gnomedb description {Enable GNOME DB support} {
+    configure.args-delete --disable-gnome-db
+    depends_lib-append    port:libgnomedb
+    depends_lib-delete    port:libgda
+}
+variant gail conflicts universal description {Require libgail} {
+    depends_lib-append    port:libgail-gnome \
+                          port:gdk-pixbuf
+    depends_lib-delete    port:at-spi \
+                          port:atk
+}
+pre-configure {
+    ui_msg "This port is outdated and has been replaced by port 'glade3'.  Please install that port instead."
+}
+
+notes "
+Remember to set ACLOCAL_FLAGS=\"-I ${prefix}/share/glade-2\"
+"
+
+livecheck.type      regex
+livecheck.url       http://ftp.gnome.org/pub/gnome/sources/${real_name}/${branch}/
+livecheck.regex     {LATEST-IS-(\d+(?:\.\d+)*)}
