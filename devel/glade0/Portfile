@@ -47,8 +47,9 @@ depends_build-append   port:gettext \
                        port:texinfo
 
 depends_lib-append     port:gtk1 \
-                       port:libgnome \
+                       port:gnome-libs \
                        port:glib1 \
+                       port:oaf \
                        path:bin/dbus-send:dbus \
                        path:bin/perl:perl5
 
