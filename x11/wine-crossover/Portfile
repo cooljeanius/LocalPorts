@@ -190,22 +190,39 @@ variant noconflict description {Removes conflicts with the other Wine ports by a
     post-destroot {
         xinstall -d ${destroot}${prefix}/libexec/cxwine
         file rename ${destroot}${prefix}/bin/wineloader ${destroot}${prefix}/libexec/cxwine/cxwine
+        file rename ${destroot}${prefix}/lib/libwine.1.0.dylib ${destroot}${prefix}/lib/libcxwine.1.0.dylib
+        system -W ${destroot}${prefix}/lib "ln -sfv ./libcxwine.1.0.dylib ./libwine.1.dylib"
+        system -W ${destroot}${prefix}/lib "ln -sfv ./libcxwine.1.0.dylib ./libwine.dylib"
+        file rename ${destroot}${prefix}/lib/libwine.dylib ${destroot}${prefix}/lib/libcxwine.dylib
         file rename ${destroot}${prefix}/lib/libwine.1.dylib ${destroot}${prefix}/lib/libcxwine.1.dylib
         system "install_name_tool -change @executable_path/../lib/libwine.1.dylib ${prefix}/lib/libcxwine.1.dylib ${destroot}${prefix}/libexec/cxwine/cxwine"
 
-        file rename ${destroot}${prefix}/lib/wine ${destroot}/lib/cxwine
+        file rename ${destroot}${prefix}/lib/wine ${destroot}${prefix}/lib/cxwine
+        file rename ${destroot}${prefix}/include/wine ${destroot}${prefix}/include/cxwine
         foreach dll [glob ${destroot}${prefix}/lib/cxwine/*.so] {
             system "install_name_tool -change @executable_path/../lib/libwine.1.dylib ${prefix}/lib/libcxwine.1.dylib ${dll}"
         }
-        foreach binary [glob ${destroot}${prefix}/*] {
-            file rename ${binary} cx[file tail ${binary}]
-        }        
+        foreach binary [glob ${destroot}${prefix}/bin/*] {
+            file rename ${binary} [file dirname ${binary}]/cx[file tail ${binary}]
+        }
+        system -W ${destroot}${prefix}/bin "ln -sfv ./cxwinegcc ./cxwinecpp"
+        system -W ${destroot}${prefix}/bin "ln -sfv ./cxwinegcc ./cxwineg++"
+        foreach manpage [glob ${destroot}${prefix}/share/man/man1/*] {
+            file rename ${manpage} [file dirname ${manpage}]/cx[file tail ${manpage}]
+        }
+        file delete ${destroot}${prefix}/share/man/man1/cxwinecpp.1
+        file delete ${destroot}${prefix}/share/man/man1/cxwineg++.1
+        foreach manpage [glob ${destroot}${prefix}/share/man/*.UTF-8/man1/*] {
+            file rename ${manpage} [file dirname ${manpage}]/cx[file tail ${manpage}]
+        }
 
         xinstall ${filespath}/wine.in ${destroot}${prefix}/bin/cxwine
         reinplace s|@PREFIX@|${prefix}|g ${destroot}${prefix}/bin/cxwine
-    
+
+        file rename ${destroot}${prefix}/share/wine ${destroot}${prefix}/share/cxwine
         xinstall -d ${destroot}${prefix}/share/cxwine/gecko
         xinstall -m 644 ${distpath}/${wine_gecko_distfile} ${destroot}${prefix}/share/cxwine/gecko
+        file rename ${destroot}${prefix}/share/applications/wine.desktop ${destroot}${prefix}/share/applications/cxwine.desktop
     
         xinstall -d ${destroot}${prefix}/share/doc/${name}
         xinstall -m 644 -W ${worksrcpath} \
@@ -215,6 +232,9 @@ variant noconflict description {Removes conflicts with the other Wine ports by a
             LICENSE \
             README \
             ${destroot}${prefix}/share/doc/${name}
+    }
+    pre-install {
+        system "find ${destroot} -name .DS_Store -delete"
     }
 }
 
@@ -235,6 +255,10 @@ configure.args-append       --with-gphoto \
                             --with-gnutls \
                             --with-mpg123 \
                             --with-sane
+depends_build-append        port:cctools \
+                            port:byacc \
+                            port:coreutils \
+                            port:gettext-lint
 depends_lib-append          port:gphoto2 \
                             port:gnutls \
                             port:mpg123 \
@@ -246,14 +270,15 @@ depends_lib-append          port:gphoto2 \
                             port:lcab \
                             port:fontforge \
                             path:bin/convert:imagemagick \
-                            port:dbus \
+                            path:bin/dbus-send:dbus \
                             port:dosbox \
                             port:xorg-libpthread-stubs \
                             path:bin/valgrind:valgrind \
                             port:p5.12-ole-storage_lite \
                             port:p5.12-lwp-protocol-https \
                             port:psutils \
-                            port:cmdftp
+                            port:cmdftp \
+                            port:unrtf
     platform darwin {
         depends_lib-append  port:rmtrash \
                             port:xorg-libAppleWM \
@@ -268,11 +293,12 @@ pre-fetch {
 configure.args-append       --with-openal \
                             --with-oss \
                             --with-ldap
+depends_build-append        port:i386-elf-gcc \
+                            port:binutils \
+                            port:elftoolchain
 depends_lib-append          port:i386-mingw32-libunicows \
-                            port:i386-elf-gcc \
                             port:nsis \
                             port:dbus-glib-sharp \
-                            port:elftoolchain \
                             port:gecko-sharp2 \
                             port:libelf \
                             port:liboss \
@@ -284,7 +310,8 @@ depends_lib-append          port:i386-mingw32-libunicows \
                             port:png2ico \
                             port:openal \
                             port:ttf2pt1 \
-                            port:pev
+                            port:pev \
+                            port:rtfreader
 }
 
 livecheck.type              regex

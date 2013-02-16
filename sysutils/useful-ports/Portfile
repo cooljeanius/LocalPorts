@@ -7,7 +7,7 @@ PortGroup         github 1.0
 github.setup      cooljeanius LocalPorts 0.1.2 v
 name              useful-ports
 version           0.1
-revision          3
+revision          4
 categories        sysutils macports
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall
@@ -16,7 +16,7 @@ supported_archs   noarch
 
 description       Useful ports that I usually like to install
 
-long_description  ${description}
+long_description  ${description}.
 
 fetch.type        git
 git.url           git://github.com/cooljeanius/LocalPorts.git
@@ -118,4 +118,11 @@ depends_build     port:gawk \
                   port:re2 \
                   port:string_replace \
                   port:tre \
-                  port:dash 
+                  port:zsh-templates-osx \
+                  port:sudosh \
+                  port:rootsh \
+                  port:rc \
+                  port:osh \
+                  port:yajl \
+                  port:daemon \
+                  port:daemontools

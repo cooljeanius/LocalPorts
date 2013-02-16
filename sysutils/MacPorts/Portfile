@@ -119,7 +119,7 @@ depends_build-append port:tcl-dox \
         xinstall ${worksrcpath}/doc/INTERNALS ${destroot}${prefix}/share/doc/${name}
         xinstall -d ${destroot}${prefix}/share/doc/${name}/tcl-dox
         foreach doc [glob ${worksrcpath}/tcldox/*] {
-            xinstall doc ${destroot}${prefix}/share/doc/${name}/tcl-dox
+            xinstall ${doc} ${destroot}${prefix}/share/doc/${name}/tcl-dox
         }
     }
 }

@@ -29,73 +29,74 @@ master_sites        http://www.gdal.org/dl/ \
 checksums           rmd160  1ab34a85946bae4313cbd925cdbbf728d23d7b57 \
                     sha256  9f3b9ae968eaa8d06ee5448e5b65e7bfa940e2e345282a29d95275421f36c688
 
-depends_lib-append  port:zlib \
-                    port:libpng \
-                    port:tiff \
-                    port:libgeotiff \
-                    port:jpeg \
-                    path:include/gif_lib.h:giflib \
-                    port:proj
+depends_build-append        port:ed \
+                            port:libtool
+depends_lib-append          port:zlib \
+                            port:libpng \
+                            port:tiff \
+                            port:libgeotiff \
+                            port:jpeg \
+                            path:include/gif_lib.h:giflib \
+                            port:proj
 
-set PYINST          ""
-set OPENCLBASE      "/System/Library/Frameworks/OpenCL.framework/"
+set PYINST                  ""
+set OPENCLBASE              "/System/Library/Frameworks/OpenCL.framework/"
 
-configure.args-append \
-                    --with-local=${prefix} \
-                    --with-libz=${prefix} \
-                    --without-lzma \
-                    --with-png=${prefix} \
-                    --with-libtiff=${prefix} \
-                    --with-geotiff=${prefix} \
-                    --with-jpeg=${prefix}\
-                    --with-gif=${prefix} \
-                    --with-static-proj4=${prefix} \
-                    --without-pg \
-                    --without-grass \
-                    --without-libgrass \
-                    --without-cfitsio \
-                    --without-pcraster \
-                    --without-netcdf \
-                    --without-ogdi \
-                    --without-fme \
-                    --without-hdf4 \
-                    --without-hdf5 \
-                    --without-jasper \
-                    --without-openjpeg \
-                    --without-ecw \
-                    --without-kakadu \
-                    --without-mrsid \
-                    --without-jp2mrsid \
-                    --without-msg \
-                    --without-bsb \
-                    --without-oci \
-                    --without-grib \
-                    --without-mysql \
-                    --without-ingres \
-                    --without-xerces \
-                    --without-odbc \
-                    --without-curl \
-                    --without-sqlite3 \
-                    --without-spatialite \
-                    --without-dwgdirect \
-                    --without-idb \
-                    --without-sde \
-                    --without-geos \
-                    --without-opencl \
-                    --without-pam \
-                    --without-perl \
-                    --without-php \
-                    --without-ruby \
-                    --without-python \
-                    --without-xerces \
-                    --without-expat \
-                    --without-poppler \
-                    --mandir=${prefix}/share/man
+configure.args-append       --with-local=${prefix} \
+                            --with-libz=${prefix} \
+                            --without-lzma \
+                            --with-png=${prefix} \
+                            --with-libtiff=${prefix} \
+                            --with-geotiff=${prefix} \
+                            --with-jpeg=${prefix}\
+                            --with-gif=${prefix} \
+                            --with-static-proj4=${prefix} \
+                            --without-pg \
+                            --without-grass \
+                            --without-libgrass \
+                            --without-cfitsio \
+                            --without-pcraster \
+                            --without-netcdf \
+                            --without-ogdi \
+                            --without-fme \
+                            --without-hdf4 \
+                            --without-hdf5 \
+                            --without-jasper \
+                            --without-openjpeg \
+                            --without-ecw \
+                            --without-kakadu \
+                            --without-mrsid \
+                            --without-jp2mrsid \
+                            --without-msg \
+                            --without-bsb \
+                            --without-oci \
+                            --without-grib \
+                            --without-mysql \
+                            --without-ingres \
+                            --without-xerces \
+                            --without-odbc \
+                            --without-curl \
+                            --without-sqlite3 \
+                            --without-spatialite \
+                            --without-dwgdirect \
+                            --without-idb \
+                            --without-sde \
+                            --without-geos \
+                            --without-opencl \
+                            --without-pam \
+                            --without-perl \
+                            --without-php \
+                            --without-ruby \
+                            --without-python \
+                            --without-xerces \
+                            --without-expat \
+                            --without-poppler \
+                            --mandir=${prefix}/share/man
 
 # Patch to ensure that the python installation respects DESTDIR
-patchfiles          patch-swig_python_GNUmakefile \
-                    patch-gdalwarpkernel_opencl_c.diff \
-                    patch-gdalwarpkernel_opencl_h.diff
+patchfiles                  patch-swig_python_GNUmakefile \
+                            patch-gdalwarpkernel_opencl_c.diff \
+                            patch-gdalwarpkernel_opencl_h.diff
 
 # Patches for universal build
 post-configure {
@@ -133,14 +134,49 @@ variant lzma conflicts universal \
 
 variant geos description {Enable GEOS geometry engine functionality} {
     depends_lib-append      port:geos
+    if {![variant_isset universal]} {
+        depends_lib-append  port:geos2
+    }
+    if {[variant_isset python25]} {
+        depends_lib-append  port:py25-geoalchemy
+    }
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-geoalchemy
+    }
+    if {[variant_isset python27]} {
+        depends_lib-append  port:py27-geoalchemy
+    }
     configure.args-delete   --without-geos
     configure.args-append   --with-geos=${prefix}/bin/geos-config
 }
 
 variant curl description {Enable curl support} {
-    depends_lib-append      port:curl
+    depends_lib-append      port:curl \
+                            port:flickcurl \
+                            port:tclcurl
+    if {[variant_isset framework]} {
+        depends_lib-append  port:curlftpfs \
+        platform darwin < 9 {
+            depends_lib-append port:curlhandle
+        }
+    }
     configure.args-delete   --without-curl
     configure.args-append   --with-curl=${prefix}/bin/curl-config
+    if {[variant_isset python24]} {
+        depends_lib-append  port:py24-curl \
+                            port:curlish_select
+    }
+    if {[variant_isset python25]} {
+        depends_lib-append  port:py25-curl \
+                            port:curlish_select
+    }
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-curl \
+                            port:py26-curlish
+    }
+    if {[variant_isset python27]} {
+        depends_lib-append  port:py27-curlish
+    }
 }
 
 variant mrsid description {Enable MrSID file format} {
@@ -154,19 +190,32 @@ variant mrsid description {Enable MrSID file format} {
 }
 
 variant hdf4 description {Enable HDF4 file format} {
-    depends_lib-append      port:hdf4
+    depends_lib-append      port:hdf4 \
+                            port:hdfeos
     configure.args-delete   --without-hdf4
     configure.args-append   --with-hdf4=${prefix}
 }
 
 variant hdf5 description {Enable HDF5 file format} {
-    depends_lib-append      port:hdf5-18
+    depends_lib-append      port:hdf5-18 \
+                            port:h5utils \
+                            port:hdfeos5
+    if {[variant_isset hdf4]} {
+        depends_lib-append  port:h4h5tools
+    }
     configure.args-delete   --without-hdf5
     configure.args-append   --with-hdf5=${prefix}
 }
 
 variant netcdf description {Enable NetCDF file format} {
-    depends_lib-append      port:netcdf
+    depends_lib-append      port:netcdf \
+                            port:ncview
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-netcdf4
+    }
+    if {[variant_isset python27]} {
+        depends_lib-append  port:py27-netcdf4
+    }
     configure.args-delete   --without-netcdf
     configure.args-append   --with-netcdf=${prefix}
 }
@@ -293,7 +342,11 @@ variant mysql5 description {Enable MySQL 5 support} {
 }
 
 variant sqlite3 description {Enable SQLite3 support} {
-    depends_lib-append      port:sqlite3
+    depends_lib-append      port:sqlite3 \
+                            port:tcl-sqlite3
+    if {[variant_isset framework]} {
+        depends_lib-append  port:qt4-mac-sqlite3-plugin
+    }
     configure.args-delete   --without-sqlite3
     configure.args-append   --with-sqlite3=${prefix}
 }
@@ -302,10 +355,33 @@ variant spatialite description {Enable SpartiaLite support} {
     depends_lib-append      port:spatialite
     configure.args-delete   --without-spatialite
     configure.args-append   --with-spatialite=${prefix}
+    if {[variant_isset python24]} {
+        depends_lib-append  port:py24-spatialite
+    }
+    if {[variant_isset python25]} {
+        depends_lib-append  port:py25-spatialite
+    }
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-spatialite
+    }
+    if {[variant_isset python27]} {
+        depends_lib-append  port:py27-spatialite
+    }
 }
 
 variant odbc description {Enable ODBC support} {
     depends_lib-append      port:unixODBC
+    if {[variant_isset mysql5]} {
+        if {![variant_isset universal]} {
+            depends_lib-append mysql-connector-odbc
+        }
+    }
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-pyodbc
+    }
+    if {[variant_isset python27]} {
+        depends_lib-append  port:py27-pyodbc
+    }
     configure.args-delete   --without-odbc
     configure.args-append   --with-odbc=${prefix}
 }
@@ -322,6 +398,12 @@ variant opencl description {Use OpenCL for parallel computations} {
     configure.args-append   --with-opencl
     configure.args-append   --with-opencl-include=${OPENCLBASE}/Headers
     configure.args-append   --with-opencl-lib='-framework OpenCL'
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-pyopencl
+    }
+    if {[variant_isset python27]} {
+        depends_lib-append  port:py27-pyopencl
+    }
 }
 
 # OS X Framework
@@ -329,85 +411,132 @@ variant framework description {Build as a Mac OS X framework} {
     configure.args-append   --with-macosx-framework
 }
 
-variant huge requires curl expat geos hdf4 hdf5 mysql5 netcdf odbc opencl poppler postgresql82 \
+variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler postgresql82 \
                       postgresql84 postgresql90 postgresql91 postgresql92 spatialite sqlite3 \
                       description {Pull in as many dependencies as possible} {
-    configure.args-delete --without-lzma \
-                          --without-pg \
-                          --without-grass \
-                          --without-libgrass \
-                          --without-cfitsio \
-                          --without-pcraster \
-                          --without-netcdf \
-                          --without-ogdi \
-                          --without-fme \
-                          --without-hdf4 \
-                          --without-hdf5 \
-                          --without-jasper \
-                          --without-openjpeg \
-                          --without-ecw \
-                          --without-kakadu \
-                          --without-mrsid \
-                          --without-jp2mrsid \
-                          --without-msg \
-                          --without-bsb \
-                          --without-oci \
-                          --without-grib \
-                          --without-mysql \
-                          --without-ingres \
-                          --without-xerces \
-                          --without-odbc \
-                          --without-curl \
-                          --without-sqlite3 \
-                          --without-spatialite \
-                          --without-dwgdirect \
-                          --without-idb \
-                          --without-sde \
-                          --without-geos \
-                          --without-opencl \
-                          --without-pam \
-                          --without-perl \
-                          --without-php \
-                          --without-ruby \
-                          --without-python \
-                          --without-xerces \
-                          --without-expat \
-                          --without-poppler
-    depends_lib-append    port:cfitsio \
-                          port:libxmi \
-                          port:netcdf-fortran \
-                          port:nco \
-                          port:libgdiplus \
-                          port:h5utils \
-                          port:h4h5tools \
-                          port:msgpack \
-                          port:jubatus-msgpack-rpc \
-                          port:grib_api \
-                          port:ssdeep \
-                          port:swig-perl \
-                          port:swig-php \
-                          port:swig-python \
-                          port:swig-ruby \
-                          port:libkml \
-                          port:shapelib
-    configure.args-append --with-cfitsio \
-                          --with-msg \
-                          --with-grib \
-                          --with-perl \
-                          --with-php \
-                          --with-ruby
+    configure.args-delete   --without-lzma \
+                            --without-pg \
+                            --without-grass \
+                            --without-libgrass \
+                            --without-cfitsio \
+                            --without-pcraster \
+                            --without-netcdf \
+                            --without-ogdi \
+                            --without-fme \
+                            --without-hdf4 \
+                            --without-hdf5 \
+                            --without-jasper \
+                            --without-openjpeg \
+                            --without-ecw \
+                            --without-kakadu \
+                            --without-mrsid \
+                            --without-jp2mrsid \
+                            --without-msg \
+                            --without-bsb \
+                            --without-oci \
+                            --without-grib \
+                            --without-mysql \
+                            --without-ingres \
+                            --without-xerces \
+                            --without-odbc \
+                            --without-curl \
+                            --without-sqlite3 \
+                            --without-spatialite \
+                            --without-dwgdirect \
+                            --without-idb \
+                            --without-sde \
+                            --without-geos \
+                            --without-opencl \
+                            --without-pam \
+                            --without-perl \
+                            --without-php \
+                            --without-ruby \
+                            --without-python \
+                            --without-xerces \
+                            --without-expat \
+                            --without-poppler \
+                            --disable-dependency-tracking
+    depends_lib-append      port:cfitsio \
+                            port:libxmi \
+                            port:netcdf-fortran \
+                            port:nco \
+                            port:libgdiplus \
+                            port:msgpack \
+                            port:jubatus-msgpack-rpc \
+                            port:grib_api \
+                            port:ssdeep \
+                            port:swig-perl \
+                            port:p5.12-www-curl \
+                            port:p5.12-xml-sax-expat \
+                            port:swig-python \
+                            port:swig-ruby \
+                            port:rb-xmlparser \
+                            port:rb-sqlite3 \
+                            port:rb-poppler \
+                            port:libkml \
+                            port:shapelib \
+                            port:podofo \
+                            port:lcms2 \
+                            port:fontconfig \
+                            port:freetype \
+                            port:bzip2 \
+                            port:libtool \
+                            port:szip \
+                            port:xorg-libsm \
+                            port:xorg-libice \
+                            port:xorg-libx11 \
+                            port:xorg-libxcb \
+                            port:xorg-libXau \
+                            port:xorg-libXdmcp \
+                            port:c-ares \
+                            port:libidn \
+                            port:gettext \
+                            port:libssh2 \
+                            port:libiconv \
+                            path:lib/.libstdcxx:libstdcxx \
+                            bin:java:kaffe
+    if {[variant_isset python25]} {
+        depends_lib-append  port:py25-couchdbkit \
+                            port:py25-couchdb \
+                            port:py25-xlwt
+    }
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-couchdb \
+                            port:py26-couchdbkit \
+                            port:py26-xlwt
+    }
+    if {[variant_isset python27]} {
+        depends_lib-append  port:py27-couchdb \
+                            port:py27-xlwt
+    }
+    if {[variant_isset xerces]} {
+        depends_lib-append  port:xalanj
+    }
+    configure.args-append   --with-cfitsio \
+                            --with-grib \
+                            --with-perl \
+                            --with-ruby
+    use_parallel_build      no
 }
 
-variant extra_nonuniversal conflicts universal requires huge lzma postgresql81 postgresql83 xerces description {Extra dependencies that aren't universal} {
-    depends_lib-append    port:wgrib2 \
-                          port:ocilib \
-                          port:sam2p \
-                          port:pamtester
-    configure.args-append --with-pam \
-                          --with-oci
+variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresql81 postgresql83 xerces description {Extra dependencies that aren't universal} {
+    depends_lib-append      port:wgrib2 \
+                            port:ocilib \
+                            port:sam2p \
+                            port:pamtester \
+                            port:svdlibc \
+                            port:couchdb \
+                            port:swig-php \
+                            port:pear-Net_Curl \
+                            port:mdbtools
+    configure.args-append   --with-pam \
+                            --with-php \
+                            --with-msg \
+                            --with-oci
 }
 
-default_variants    +expat
+default_variants            +expat \
+                            +geos
 
 # Postconfigure hack to avoid read ${include} .h files before
 # GDAL own include directories
