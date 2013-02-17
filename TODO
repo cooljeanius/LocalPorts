@@ -16,6 +16,7 @@ Ports to create some day:
 - pip_select
 - Jumpcut
 - The Unarchiver
+Stuff I've downloaded from SourceForge randomly in the past:
 - Open64
 - ucc
 - Prime Mover
@@ -38,3 +39,48 @@ Ports to create some day:
 - clamtk
 - hspell-gui
 - db2html
+From gnome-desktop-suite's comments hidden in its portfile:
+#
+# TODO
+#
+# The following modules are included in the current GNOME desktop
+# environment specification but have not yet been ported to MacPorts
+#
+# at-spi2-atk
+# at-spi2-core
+# brasero  (no support for darwin Mac OS X, requires Linux SG or BSD CAM)
+# cheese   (requires Video4Linux or  V4L2)
+# deskbar-applet
+# ekiga (requires Video4Linux or  V4L2)
+# evolution
+# evolution-exchange
+# evolution-mapi
+# evolution-webcal
+# gnome-bluetooth
+# gnome-desktop-sharp
+# gnome-disk-utility
+# gnome-nettool
+# gnome-packagekit
+# gnome-power-manager
+# gnome-screensaver
+# gnome-system-tools
+# gnome-user-share
+# gok
+# hampster-applet
+# mousetweaks
+# nautilus-sendto
+# orca
+# sound-juicer (depends on brasero)
+# tomboy
+# vinagre
+#
+# BROKEN PORTS
+#
+# The following ports are included in the current GNOME desktop
+# environment specification and have been ported to MacPorts but
+# are currently broken and/or need to be updated
+#
+# gnome-netstatus (builds but doesn't work -- tries to open /proc/net/dev)
+# gnome-system-monitor (builds but segfaults on processes/resources -- probably due to lack of support for MacOSX in libgtop)
+#
+

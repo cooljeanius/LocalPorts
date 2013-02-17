@@ -1,0 +1,71 @@
+# $Id$
+
+PortSystem          1.0
+
+name                krita
+version             2.6.0
+categories          kde4
+platforms           darwin
+license				GPL
+maintainers         gmail.com:patrik.andersson.se
+description	        Krita 2.6.0 (without Vc)
+long_description    Krita is the full-featured free digital painting studio for \
+                    artists who want to create professional work from start to end. \
+                    Krita is used by comic book artists, illustrators, concept \
+                    artists, matte and texture painters and in the digital VFX \
+                    industry.
+homepage			http://www.krita.org
+master_sites        http://download.kde.org/stable/calligra-latest/
+
+checksums			rmd160 579752fd844b7064f4386f22c7a36d02ee615fda \
+					sha256 77e1257588856bf4b3924672c847c3c766e8d8819c23017ea24e141e4e9051cf
+
+depends_lib			port:kdelibs4 \
+					port:kde4-runtime \
+					port:eigen \
+					port:qt4-mac \
+					port:cmake \
+					port:lcms \
+					port:libpng \
+					port:exiv2
+
+extract {
+	mkdir -p $HOME/kde4/src
+	mkdir -p $HOME/kde4/build
+	mkdir -p $HOME/kde4/inst
+	mkdir -p $HOME/kde4/build/calligra
+	mv ${distfiles} $HOME/kde4/src/${distfiles}
+	cd $HOME/kde4/src/calligra
+	tar -x ${distfiles} 
+	cd calligra
+}
+
+configure {
+	cmake -DCMAKE_INSTALL_PREFIX=$HOME/kde4/inst $HOME/kde4/src/calligra \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCREATIVEONLY=ON
+}
+
+build {
+	make -j3
+}
+
+test {}
+
+destroot {
+}
+
+install {
+	make install
+	export KDEDIRS=/path/to/install:$KDEDIRS
+	export PATH=/path/to/install/bin:$PATH
+	export KDEHOME=/path/to/a/config/dir
+	launchctl load -w /Library/LaunchAgents/org.macports.kdecache.plist
+	launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist
+	kbuildsycoca4 
+}
+
+activate {}
+
+
+
+

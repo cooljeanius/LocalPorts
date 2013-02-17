@@ -1,0 +1,115 @@
+--- /opt/local/var/macports/sources/LocalPorts/kde4/krita/Portfile.orig	2013-02-17 08:27:04.000000000 -0500
++++ /opt/local/var/macports/sources/LocalPorts/kde4/krita/Portfile	2013-02-17 08:58:02.000000000 -0500
+@@ -1,69 +1,79 @@
++# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+ # $Id$
+ 
+ PortSystem          1.0
++PortGroup           kde4 1.1
+ 
+ name                krita
+ version             2.6.0
+-categories          kde4
++categories          kde4 graphics
+ platforms           darwin
+-license				GPL
++license             GPL
+ maintainers         gmail.com:patrik.andersson.se
+-description	        Krita 2.6.0 (without Vc)
++description         Krita ${version} (without Vc)
+ long_description    Krita is the full-featured free digital painting studio for \
+                     artists who want to create professional work from start to end. \
+                     Krita is used by comic book artists, illustrators, concept \
+                     artists, matte and texture painters and in the digital VFX \
+                     industry.
+-homepage			http://www.krita.org
++homepage            http://www.krita.org
+ master_sites        http://download.kde.org/stable/calligra-latest/
+ 
+-checksums			rmd160 579752fd844b7064f4386f22c7a36d02ee615fda \
+-					sha256 77e1257588856bf4b3924672c847c3c766e8d8819c23017ea24e141e4e9051cf
++checksums           rmd160 579752fd844b7064f4386f22c7a36d02ee615fda \
++                    sha256 77e1257588856bf4b3924672c847c3c766e8d8819c23017ea24e141e4e9051cf
+ 
+-depends_lib			port:kdelibs4 \
+-					port:kde4-runtime \
+-					port:eigen \
+-					port:qt4-mac \
+-					port:cmake \
+-					port:lcms \
+-					port:libpng \
+-					port:exiv2
++# Some of these are drawn in as dependencies automatically by the kde4 portgroup, but I'll leave them all in anyway just in case
++depends_lib-append  port:kdelibs4 \
++                    port:kde4-runtime \
++                    port:eigen \
++                    port:qt4-mac \
++                    port:cmake \
++                    port:lcms \
++                    port:libpng \
++                    port:exiv2
+ 
++# This is probably a bad idea; you should probably just let MacPorts extract into the normal spot
++# However, I'll let it be in case you have a good reason for doing it this way.
+ extract {
+-	mkdir -p $HOME/kde4/src
+-	mkdir -p $HOME/kde4/build
+-	mkdir -p $HOME/kde4/inst
+-	mkdir -p $HOME/kde4/build/calligra
+-	mv ${distfiles} $HOME/kde4/src/${distfiles}
+-	cd $HOME/kde4/src/calligra
+-	tar -x ${distfiles} 
+-	cd calligra
++    system "mkdir -p $HOME/kde4/src"
++    system "mkdir -p $HOME/kde4/build"
++    system "mkdir -p $HOME/kde4/inst"
++    system "mkdir -p $HOME/kde4/build/calligra"
++    system "mv ${distfiles} $HOME/kde4/src/${distfiles}"
++    system "cd $HOME/kde4/src/calligra"
++    system "tar -x ${distfiles}"
++    system "cd calligra"
+ }
+ 
++# It would be better to do this by setting configure.args instead
+ configure {
+-	cmake -DCMAKE_INSTALL_PREFIX=$HOME/kde4/inst $HOME/kde4/src/calligra \
+-      -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCREATIVEONLY=ON
++    system -W $HOME/kde4/src/calligra "cmake -DCMAKE_INSTALL_PREFIX=$HOME/kde4/inst \
++    $HOME/kde4/src/calligra -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCREATIVEONLY=ON"
+ }
+ 
++# It would be better to do this part with build.args, seeing as "make" is already the default build.cmd
+ build {
+-	make -j3
++    system -W $HOME/kde4/src/calligra "make -j3"
+ }
+ 
+-test {}
++# Putting this because of your use of $HOME
++destroot.violate_mtree yes
+ 
+ destroot {
+ }
+ 
+ install {
+-	make install
+-	export KDEDIRS=/path/to/install:$KDEDIRS
+-	export PATH=/path/to/install/bin:$PATH
+-	export KDEHOME=/path/to/a/config/dir
+-	launchctl load -w /Library/LaunchAgents/org.macports.kdecache.plist
+-	launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist
+-	kbuildsycoca4 
++# "make install" would normally be run during the destroot step; I'm not sure why you're skipping that
++    system "make install"
++# export statements removed, they just pointed to placeholders
++    system "launchctl load -w /Library/LaunchAgents/org.macports.kdecache.plist"
++    system "launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist"
++    system "kbuildsycoca4"
+ }
+ 
++# This is probably a bad idea, too. Although I can see why you're doing it,
++# since you're installing stuff directly instead of archiving it from the destroot.
++# (It's still a bad idea though)
+ activate {}
+ 
+ 

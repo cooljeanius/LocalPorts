@@ -1,0 +1,101 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 102485 2013-02-04 16:02:38Z raimue@macports.org $
+
+PortSystem            1.0
+PortGroup             qt4 1.0
+
+name                  valkyrie
+version               2.0.0
+revision              0
+categories            devel aqua
+platforms             darwin
+supported_archs       i386 x86_64
+universal_variant     yes
+license               GPL-2
+maintainers           raimue gwmail.gwu.edu:egall openmaintainer
+
+description           A Qt4-based GUI for valgrind.
+long_description \
+    Valkyrie is a graphical frontend to valgrind: what ddd is to gdb, valkyrie is to valgrind. \
+    It uses Qt4 and works with the Memcheck and Helgrind tools. \
+    It also has an XML merging tool for Memcheck outputs (vk_logmerge).
+
+homepage              http://valgrind.org
+master_sites          http://valgrind.org/downloads/
+use_bzip2             yes
+
+checksums             md5     a411dfb803f548dae5f988de0160aeb5 \
+                      sha1    999a6623eea5b7b8d59b55d59b8198f4fcd08add \
+                      rmd160  ae7d9905a22311af3261347b5c39e7ca7fccaaa7 \
+                      sha256  a70b9ffb2409c96c263823212b4be6819154eb858825c9a19aad0ae398d59b43
+
+# This was taken from the valgrind portfile; I don't know if it actually applies to valkyrie, too, though...
+pre-configure {
+    if {"darwin" == ${os.platform} && (${os.major} < 9 || ${os.major} > 12)} {
+        ui_error "${name} ${version} is only compatible with Mac OS X 10.5, 10.6, 10.7 and 10.8"
+        return -code error "incompatible Mac OS X version"
+    }
+}
+
+# "use_configure no" is a dirty hack used because I couldn't get it to work otherwise
+use_configure         no
+# Even though we're not using configure, I left these in, in case someone wants to try to remove it
+# and use the configure step properly again
+configure.cmd         "${qt_qmake_cmd}"
+configure.args-delete --prefix=/opt/local \
+                      --disable-dependency-tracking
+configure.args        QMAKESPEC=${qt_mkspecs_dir}/macx-g++
+configure.pre_args
+configure.post_args
+configure.ldflags
+
+depends_build-append  port:makeicns
+depends_lib-append    path:bin/valgrind:valgrind \
+                      port:xpm
+
+post-configure {
+# doing the actual configuring in a post-configure step goes with the dirty hack of
+# using "use_configure no" above
+    system -W ${worksrcpath} "${qt_qmake_cmd} QMAKESPEC=${qt_mkspecs_dir}/macx-g++"
+# When Qt is installed without +universal, and qmake is called with
+# "QMAKE_LDFLAGS += -arch foo", and "foo" is the native arch, then, at
+# least sometimes, qmake will erroneously remove the second "foo" but
+# leave the "-arch" flag -- generating an error at linking.  Not sure
+# if this is the case with +debug though...
+    if {![variant_isset universal]} {
+        reinplace "s|\\(-arch ${build_arch}\\) -arch|\\1|" \
+            ${worksrcpath}/Makefile
+    }
+}
+
+# allow ccache, if specified by the user (this was taken from the djview portfile)
+pre-build {
+    if {[tbool configure.ccache]} {
+        build.post_args "CCACHE=ccache"
+    }
+}
+
+variant debug description {Set for debugging} {
+    use_parallel_build no
+}
+
+# Setting destroot.destdir doesn't actually work, but it should though.
+destroot.destdir      ${destroot}${prefix}
+# "make install" by default puts stuff into ${destroot}/usr/local,
+# so we have to move everything into the right places manually
+post-destroot {
+    xinstall -d ${destroot}${prefix}/share/${name}-${version}
+    copy [glob ${destroot}/usr/local/share/${name}-${version}/*] ${destroot}${prefix}/share/${name}-${version}
+    xinstall -m 755 -d ${destroot}${applications_dir}
+    copy [glob ${destroot}/*/local/bin/*.app] ${destroot}${applications_dir}
+    foreach png [glob ${worksrcpath}/icons/*.png] {
+        system -W ${worksrcpath}/icons "makeicns -in ${png}"
+    }
+    eval xinstall [glob ${worksrcpath}/icons/*] ${destroot}${applications_dir}/valkyrie.app/Contents/Resources
+    delete ${destroot}/usr
+}
+
+livecheck.type        regex
+livecheck.url         ${homepage}
+# The livecheck regex is broken; I'm not sure how to fix it...
+livecheck.regex       ${name}-(\\d(?:\\.\\d)+)
