@@ -126,4 +126,6 @@ depends_build     port:gawk \
                   port:yajl \
                   port:daemon \
                   port:daemontools \
-                  port:gnuregex
+                  port:gnuregex \
+                  port:makeicns \
+                  port:dylibbundler

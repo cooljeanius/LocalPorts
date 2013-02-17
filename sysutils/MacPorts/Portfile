@@ -138,6 +138,20 @@ depends_build-append port:cpan2port \
                      port:ghsum \
                      port:useful-ports
 }
+variant egallager requires mp_shadow_deps description "Uses my personal fork of MacPorts" {
+    PortGroup                github 1.0
+    PortGroup                archcheck 1.0
+
+    set oldname              ${name}
+    github.setup             cooljeanius MacPorts-fork ${version}ebg v
+    set name                 ${oldname}
+
+    fetch.type               git
+    git.url                  git://github.com/cooljeanius/MacPorts-fork.git
+    depends_build-append     port:autoconf-archive \
+                             port:dylibbundler
+    use_autoconf             yes
+}
 
 if {![variant_isset mp_deps]} {
     # We don't want to use anything supplied by ports when building MacPorts itself
