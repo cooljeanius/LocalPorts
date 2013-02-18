@@ -193,7 +193,8 @@ configure.cppflags-delete   -I${prefix}/include \
                             -Wall
 configure.ldflags-delete    -L${prefix}/lib
 configure.cppflags-append   -isystem${prefix}/include
-configure.env-append        LIBRARY_PATH=${prefix}/lib
+configure.env-append        LIBRARY_PATH=${prefix}/lib \
+                            WARNING_CFLAGS=-Wno-invalid-source-encoding
 
 # work around bug in texlive makefiles where $OBJC is not recorded
 # during configure phase
@@ -201,7 +202,13 @@ pre-build {
     append_list_to_environment_value build "OBJC" ${configure.objc}
     append_list_to_environment_value build "OBJCFLAGS" ${configure.objcflags}
     append_list_to_environment_value build "OBJCFLAGS" ${configure.objc_archflags}
+    append_list_to_environment_value build "WARNING_CFLAGS" -Wno-invalid-source-encoding
+    reinplace "s|-Wimplicit -Wreturn-type||" ${worksrcpath}/Makefile
+    reinplace "s|-Wdeclaration-after-statement||" ${worksrcpath}/Makefile
+    reinplace "s|@WARNING_CFLAGS@|-Wno-invalid-source-encoding|" ${worksrcpath}/texk/makejvf/Makefile.in
 }
+
+build.env-append            WARNING_CFLAGS=-Wno-invalid-source-encoding
 
 post-destroot   {
     # texmf and texmf-dist will be installed by other texlive ports
@@ -311,6 +318,14 @@ variant motif requires x11 description {Use Motif to build xdvi} {
 }
 
 variant no_x11 conflicts x11 motif description {Legacy compatibility variant} {}
+
+variant no_makejvf description {Temporary variant to keep makejvf from building and causing a memory leak} {
+    configure.args-append --disable-makejvf
+}
+
+if {[string match *clang* ${configure.compiler}]} {
+    default_variants    +no_makejvf
+}
 
 if {![variant_isset no_x11]} {
     default_variants    +x11
