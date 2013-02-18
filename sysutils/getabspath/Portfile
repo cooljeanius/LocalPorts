@@ -1,0 +1,59 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 37141 2008-05-27 16:56:36Z simon@macports.org $
+
+PortSystem          1.0
+PortGroup           conflicts_build 1.0
+
+name                getabspath
+version             1.4
+revision            1
+categories          sysutils
+platforms           darwin
+maintainers         nomaintainer
+license             GPL-2+
+description         getabspath converts relative POSIX pathes to absolute ones.
+long_description    getabspath is a console-based tool which converts relative \
+                    POSIX pathes to absolute ones.
+
+homepage            http://getabspath.sourceforge.net/
+master_sites        sourceforge
+distname            getAbsPath-${version}-src
+checksums           md5 e40c3e9ea5865a10a47baf55857dbd72
+
+worksrcdir          getAbsPath
+
+universal_variant   yes
+
+configure {
+    system -W ${worksrcpath} "echo \"using `which gcc`\"..."
+}
+
+configure.cflags-delete \
+                    -pedantic-errors
+
+post-configure {
+    reinplace "s|-pedantic-errors||" ${worksrcpath}/Makefile
+}
+
+pre-build {
+    if {![catch "registry_active libc-headers"]} {
+        ui_msg "Having libc-headers active can cause warnings when building ${name}."
+        ui_msg "We had to remove ${name}'s \"-pedantic-erros\" flag just to get it to build \
+                while the libc-headers port is active."
+        ui_msg "You might want to deactivate the libc-headers port while building ${name}, and then \
+               reactivate it later."
+        ui_msg "Continuing building anyway for now though..."
+    }
+}
+
+build.target
+
+destroot {
+    xinstall -m 755 -s ${worksrcpath}/getAbsPath \
+        ${destroot}${prefix}/bin/getabspath
+    xinstall -m 755 -d ${destroot}${prefix}/share/doc/${name}
+    xinstall -m 644 -W ${worksrcpath} COPYING README \
+        ${destroot}${prefix}/share/doc/${name}
+}
+
+livecheck.type      none

@@ -1,65 +1,77 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id: Portfile 100850 2012-12-30 00:31:32Z devans@macports.org $
 
-PortSystem      1.0
-PortGroup       texlive 1.0
+PortSystem          1.0
+PortGroup           texlive 1.0
+PortGroup           archcheck 1.0
 
-name            texlive-bin
-version         2012
-revision        6
+name                texlive-bin
+version             2012
+revision            7
 
-categories      tex
-maintainers     dports
-description     TeX Live Binaries.
+categories          tex
+maintainers         dports
+description         TeX Live Binaries.
 long_description    TeX Live is an easy way to get up and running with TeX. \
     It provides a comprehensive TeX system with binaries for most flavors \
     of Unix, including GNU/Linux, and also Windows. It includes all the \
     major TeX-related programs, macro packages, and fonts that are free \
     software, including support for many languages around the world.
 
-homepage        http://www.tug.org/texlive/
-platforms       darwin
+homepage            http://www.tug.org/texlive/
+platforms           darwin
 
 # This port installs two libraries: kpathsea (LGPL-2.1+) and ptexenc (BSD).
 # The binaries are covered under various licenses, but all distributable;
 # see the texlive portfile for more information.
-license         Copyleft Permissive LGPL-2.1+ BSD
+license             Copyleft Permissive LGPL-2.1+ BSD
 
 # Our distfile is a stripped-down version of the texlive source
 # tarball, available from CTAN in systems/texlive/Source. For faster
 # download time, it omits a number of libraries and utilities that we
 # don't build. However, the port should still work with an unmodified
 # texlive distfile.
-master_sites    http://flute.csail.mit.edu/texlive
-set distversion 20120708.26940
-use_xz          yes
-distname        texlive-${distversion}-source-stripped
-worksrcdir      ${distname}
+master_sites        http://flute.csail.mit.edu/texlive
+set distversion     ${version}0708.26940
+use_xz              yes
+distname            texlive-${distversion}-source-stripped
+worksrcdir          ${distname}
 
 set tlpkgdistname   tlpkg-TeXLive-${distversion}
 distfiles-append    ${tlpkgdistname}${extract.suffix}
 
-checksums       texlive-20120708.26940-source-stripped.tar.xz \
-                rmd160  a1253c3b2852926337e724bdb30f07b376597089 \
-                sha256  765b2f7488fe06a59a7560e59132444e26de985961f06a41162e4de367269e4d \
-                tlpkg-TeXLive-20120708.26940.tar.xz \
-                rmd160  f550437e2591f770d449a01fabd44a4eb43d79fb \
-                sha256  259ed8697d8f42de51da4c0345c15d25c2925ec3f3422420c9144d9a54c55fb9
+checksums           texlive-${version}0708.26940-source-stripped.tar.xz \
+                    rmd160  a1253c3b2852926337e724bdb30f07b376597089 \
+                    sha256  765b2f7488fe06a59a7560e59132444e26de985961f06a41162e4de367269e4d \
+                    tlpkg-TeXLive-${version}0708.26940.tar.xz \
+                    rmd160  f550437e2591f770d449a01fabd44a4eb43d79fb \
+                    sha256  259ed8697d8f42de51da4c0345c15d25c2925ec3f3422420c9144d9a54c55fb9
 
-depends_lib     port:fontconfig \
-                port:freetype \
-                port:libpng \
-                port:ncurses \
-                port:zlib \
-                port:libzzip \
-                port:t1lib \
-                port:poppler \
-                port:texlive-common
+depends_lib         port:fontconfig \
+                    port:freetype \
+                    port:libpng \
+                    port:ncurses \
+                    port:zlib \
+                    port:libzzip \
+                    port:t1lib \
+                    port:poppler \
+                    port:texlive-common
 
-depends_run     port:ghostscript
+depends_run         port:ghostscript
 
-depends_build   path:bin/perl:perl5 \
-                path:bin/pkg-config:pkgconfig
+depends_build       path:bin/perl:perl5 \
+                    path:bin/pkg-config:pkgconfig \
+                    port:gcc_select \
+                    port:llvm_select \
+                    port:clang_select \
+                    port:mcpp \
+                    path:bin/bash:bash \
+                    path:bin/sed:gsed \
+                    path:bin/awk:gawk \
+                    path:bin/nm:cctools \
+                    port:getabspath
+
+depends_skip_archcheck getabspath
 
 # fix xdvipdfmx/freetype dfont issue (#30745)
 patchfiles-append   patch-texk_xdvipdfmx_src_cidtype2.c.diff
@@ -176,11 +188,11 @@ configure.args  --bindir=${texlive_bindir} \
                 --without-pdfopen \
                 --enable-build-in-source-tree
 
-
-configure.cppflags-delete   -I${prefix}/include
+configure.cppflags-delete   -I${prefix}/include \
+                            -Winvalid-source-encoding \
+                            -Wall
 configure.ldflags-delete    -L${prefix}/lib
-configure.cppflags-append   -isystem${prefix}/include \
-                            -Wno-invalid-source-encoding
+configure.cppflags-append   -isystem${prefix}/include
 configure.env-append        LIBRARY_PATH=${prefix}/lib
 
 # work around bug in texlive makefiles where $OBJC is not recorded
@@ -201,7 +213,7 @@ post-destroot   {
     # we don't install
     delete ${destroot}${texlive_texmfmain}/scripts/texlive/tlmgr.pl
     delete ${destroot}${texlive_bindir}/latexmk
-    delete ${destroot}${texlive_bindir}/tlmgr    
+    delete ${destroot}${texlive_bindir}/tlmgr
 
     # Do not install the pre-generated fmtutil.cnf; we generate our own
     delete ${destroot}${texlive_texmfmain}/web2c/fmtutil.cnf
@@ -285,16 +297,16 @@ if {![variant_isset "atsui"]} {
 }
 
 variant x11 conflicts no_x11 description {Build with x11 support, using Xaw widgets for xdvi} {
-    depends_lib-append port:xorg-libXp
+    depends_lib-append    port:xorg-libXp
     configure.args-delete --without-x --without-pdfopen
-    depends_lib-append port:xorg-libXaw
+    depends_lib-append    port:xorg-libXaw
     configure.args-append --with-xdvi-x-toolkit=xaw
 }
 
 variant motif requires x11 description {Use Motif to build xdvi} {
-    depends_lib-delete port:xorg-libXaw
+    depends_lib-delete    port:xorg-libXaw
     configure.args-delete --with-xdvi-x-toolkit=xaw
-    depends_lib-append lib:libXm:openmotif
+    depends_lib-append    lib:libXm:openmotif
     configure.args-append --with-xdvi-x-toolkit=motif
 }
 

@@ -3,15 +3,15 @@
 
 PortSystem          1.0
 
-name                portfile-gen
-version             0.2
+name                port-whatsnew
+version             0.1
 categories          sysutils macports
-maintainers         ryandesign gwmail.gwu.edu:egall openmaintainer
+maintainers         gwmail.gwu.edu:egall openmaintainer
 platforms           darwin
 license             BSD
 supported_archs     noarch
 
-description         Generate a basic template Portfile given a few bits of information
+description         Show the svn log of what changed since this port was installed.
 long_description    ${description}
 homepage            http://svn.macports.org/repository/macports/contrib/${name}
 
@@ -19,7 +19,7 @@ livecheck.type      none
 
 fetch.type          svn
 svn.url             https://svn.macports.org/repository/macports/contrib/${name}
-svn.revision        102094
+svn.revision        103172
 
 worksrcdir          ${name}
 

@@ -12,16 +12,16 @@ platforms           darwin freebsd
 maintainers         lists.macosforge.org:macports-mgr
 license             BSD
 
-description         The MacPorts Infrastructure
+description         The ${name} Infrastructure
 long_description \
-   MacPorts provides the infrastructure that allows easy installation and \
+   ${name} provides the infrastructure that allows easy installation and \
    management of freely available software on Mac OS X 10.4 or newer systems.
 
-notes "This port cannot directly be used to upgrade MacPorts; use 'port\
+notes "This port cannot directly be used to upgrade ${name}; use 'port\
 selfupdate' for that."
 
 homepage            http://www.macports.org/
-master_sites        sourceforge:project/macports/MacPorts/${version}
+master_sites        sourceforge:project/macports/${name}/${version}
 # testing subdir is for non-final releases only
 #dist_subdir         ${name}/testing
 use_bzip2           yes
@@ -34,7 +34,7 @@ if {![variant_isset keep_prefix]} {
     prefix          /opt/local
 }
 
-variant mp_deps description "Use ports supplied by MacPorts to fulfill missing dependencies" {
+variant mp_deps description "Use ports supplied by ${name} to fulfill missing dependencies" {
 depends_build-append port:bsdmake \
                      port:bzr \
                      port:gpatch \
@@ -43,12 +43,6 @@ depends_build-append port:bsdmake \
                      port:swig-tcl \
                      port:gnustep-make \
                      port:gnustep-make-cocoa
-                     #The other gnustep ports are left out because they're broken
-# This block doesn't work yet
-#pre-configure {
-#    reinplace "s|MP_PATH_SCAN||" ${worksrcpath}/configure.ac
-#}
-#use_autoconf         yes
 configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
                      BZR=${prefix}/bin/bzr \
                      GPATCH=${prefix}/bin/gpatch \
@@ -61,7 +55,7 @@ configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
 configure.args-append --prefix=${prefix}
 }
 
-variant mp_shadow_deps requires mp_deps description "Use ports supplied by MacPorts as dependencies, even if they shadow standard OS X system tools" {
+variant mp_shadow_deps requires mp_deps description "Use ports supplied by ${name} as dependencies, even if they shadow standard OS X system tools" {
 depends_build-append port:bzip2 \
                      port:cpio \
                      port:cvs \
@@ -124,7 +118,7 @@ depends_build-append port:tcl-dox \
     }
 }
 
-variant mp_bundle requires mp_deps description "Adds other ports related to MacPorts" {
+variant mp_bundle requires mp_deps description "Adds other ports related to ${name}" {
 depends_build-append port:cpan2port \
                      port:macports-notifier \
                      port:MacPorts_Framework \
@@ -143,13 +137,21 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
     PortGroup                archcheck 1.0
 
     set oldname              ${name}
-    github.setup             cooljeanius MacPorts-fork ${version}ebg v
+    github.setup             cooljeanius ${name}-fork ${version}ebg_2 v
     set name                 ${oldname}
 
     fetch.type               git
-    git.url                  git://github.com/cooljeanius/MacPorts-fork.git
+    git.url                  git://github.com/cooljeanius/${name}-fork.git
     depends_build-append     port:autoconf-archive \
-                             port:dylibbundler
+                             port:dylibbundler \
+                             path:bin/bison:bison \
+                             path:bin/perl:perl5 \
+                             path:bin/python:python_select \
+                             path:bin/java:kaffe \
+                             path:bin/gcj:eclipse-ecj32 \
+                             path:bin/gcc:gcc_select \
+                             path:bin/flex:flex
+    depends_lib-append       port:tcLex
     use_autoconf             yes
 }
 

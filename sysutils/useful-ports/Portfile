@@ -3,6 +3,7 @@
 
 PortSystem        1.0
 PortGroup         github 1.0
+PortGroup         archcheck 1.0
 
 github.setup      cooljeanius LocalPorts 0.1.2 v
 name              useful-ports
@@ -128,4 +129,7 @@ depends_build     port:gawk \
                   port:daemontools \
                   port:gnuregex \
                   port:makeicns \
-                  port:dylibbundler
+                  port:dylibbundler \
+                  port:getabspath
+
+depends_skip_archcheck getabspath
