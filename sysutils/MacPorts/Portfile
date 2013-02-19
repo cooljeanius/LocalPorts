@@ -82,6 +82,7 @@ depends_lib-append   port:tclcurl \
         ui_msg "Warning: Using this variant could possibly be dangerous, as libraries might cause breakages with upgrades."
     }
 configure.env-append BZIP2=${prefix}/bin/bzip2 \
+                     CVS=${prefix}/bin/cvs \
                      FILE=${prefix}/bin/file \
                      GIT=${prefix}/bin/git \
                      GNUTAR=${prefix}/bin/gnutar \
@@ -101,11 +102,50 @@ configure.args-append --with-curlprefix=${prefix} \
                       --with-frameworks-dir=${prefix}/Library/Frameworks
 }
 
+variant only_mp_deps requires mp_shadow_deps keep_prefix description {Makes MacPorts entirely self-hosting} {
+    depends_build-append port:coreutils \
+                         port:grep \
+                         port:gwhich \
+                         port:launch \
+                         port:gmake \
+                         port:tcl
+    set prefix           ${prefix}
+    pre-configure {
+        system "echo \"prefix is ${prefix}\""
+        system -W ${worksrcpath} "ln -sv `which grep` ."
+        system -W ${worksrcpath} "ln -sv `which gzip` ."
+        system -W ${worksrcpath} "ln -sv `which gmake` ."
+    }
+    configure.env-append PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin \
+                         GREP=${prefix}/bin/grep \
+                         OPEN=${prefix}/bin/launch \
+                         MAKE=${prefix}/bin/gmake \
+                         GMAKE=${prefix}/bin/gmake \
+                         TCLSH=${prefix}/bin/tclsh \
+                         STLIB_LD=${prefix}/bin/ar
+    pre-build {
+        reinplace "s|gzip|${prefix}/bin/gzip|" ${worksrcpath}/Makefile
+        reinplace "s|gzip|${prefix}/bin/gzip|" ${worksrcpath}/doc/Makefile
+        reinplace "s|\$\{STLIB_LD\}|${prefix}/bin/ar|" ${worksrcpath}/src/cregistry/Makefile
+    }
+    build.env-append     ${configure.env}
+    use_parallel_build   no
+    build.cmd            ${prefix}/bin/gmake
+    build.args
+    build.pre_args
+    build.post_args
+    build.target         src
+}
+
 variant docs requires mp_deps description "Builds documentation" {
     depends_build-append port:tcl-dox \
                          port:tcldoc \
                          path:bin/doxygen:doxygen
-    build.target-append tcldoc tcldox
+    pre-build {
+        system -W ${worksrcpath} "doxygen -u"
+    }
+    build.target-append tcldox
+    #build.target-append tcldoc
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${name}
         xinstall ${worksrcpath}/doc/INTERNALS ${destroot}${prefix}/share/doc/${name}

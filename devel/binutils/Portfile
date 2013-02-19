@@ -55,24 +55,32 @@ configure.args         --infodir='${prefix}/share/info' \
                        --disable-ppl-version-check \
                        --disable-cloog-version-check \
                        --enable-stage1-languages=all \
-                       --enable-stage1-checking=all
+                       --enable-stage1-checking=all \
+                       --with-gnu-ld \
+                       --enable-plugins \
+                       --enable-threads \
+                       --with-zlib \
+                       --enable-64-bit-bfd
 
 configure.env-append   SED=${prefix}/bin/gsed \
                        MSGFMT=${prefix}/bin/msgfmt \
                        GMSGFMT=${prefix}/bin/msgfmt \
                        XGETTEXT=${prefix}/bin/xgettext \
-                       MSGMERGE=${prefix}/bin/msgmerge
+                       MSGMERGE=${prefix}/bin/msgmerge \
+                       MKDIR=/bin/mkdir
+
+configure.cppflags-append -I${prefix}/include
 
 post-extract {
     system -W ${worksrcpath} "${prefix}/bin/autoscan264"
-    system -W ${worksrcpath} "${prefix}/bin/aclocal-17"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal-17 -I config"
 }
 
 pre-configure {
     system "echo \"ppl `ppl-config -V` is installed with: `${prefix}/bin/ppl-config -O`\""
 }
 
-pre-build {
+post-configure {
     if {![catch "registry_active libc-headers"]} {
         ui_msg "Having libc-headers active can cause a lot of warnings when building ${name}."
         ui_msg "You might want to deactivate the libc-headers port while building ${name}, and then \
@@ -89,16 +97,32 @@ configure.ccache       no
 # It correcty passes along most configure variables (CFLAGS, LDFLAGS, ...),
 #    but seems to neglect CPPFLAGS.
 build.env-append       CPPFLAGS='-I${prefix}/include' \
+                       CFLAGS='-I${prefix}/include' \
                        SED=${prefix}/bin/gsed \
                        MSGFMT=${prefix}/bin/msgfmt \
                        GMSGFMT=${prefix}/bin/msgfmt \
                        XGETTEXT=${prefix}/bin/xgettext \
                        MSGMERGE=${prefix}/bin/msgmerge
 
+post-build {
+    system -W ${worksrcpath}/gprof "${configure.cmd} ${configure.args}"
+    system -W ${worksrcpath}/gprof "export CPPFLAGS=\'-I${prefix}/include\'"
+    system -W ${worksrcpath}/gprof "make"
+    system -W ${worksrcpath}/gold "${configure.cmd} ${configure.args}"
+    system -W ${worksrcpath}/gold/po "make"
+    system -W ${worksrcpath}/gas "${configure.cmd} ${configure.args}"
+    system -W ${worksrcpath}/gas "make"
+    system -W ${worksrcpath}/ld "${configure.cmd} ${configure.args}"
+    system -W ${worksrcpath}/ld "make"
+}
+
 # Binutils violates the mtree layout by creating ${prefix}/<arch>/
 destroot.violate_mtree yes
 
 post-destroot {
+    system -W ${worksrcpath}/gprof "make install"
+    system -W ${worksrcpath}/gas "make install"
+    system -W ${worksrcpath}/ld "make install"
     file rename ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/${name}-standards.info
     file rename ${destroot}${prefix}/share/info/configure.info ${destroot}${prefix}/share/info/${name}-configure.info
 }
