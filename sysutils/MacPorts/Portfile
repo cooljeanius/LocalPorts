@@ -149,7 +149,7 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
                              path:bin/gcc:gcc_select \
                              path:bin/flex:flex
     #depends_lib-append      port:tcLex
-    depends_skip_archcheck   kaffe
+    depends_skip_archcheck   kaffe eclipse-ecj32
     use_autoconf             yes
 }
 

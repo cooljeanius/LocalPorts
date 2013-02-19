@@ -1,0 +1,30 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem        1.0
+PortGroup         active_variants 1.1
+
+name              chroot-tools
+version           0.1
+categories        sysutils
+platforms         darwin
+maintainers       gwmail.gwu.edu:egall openmaintainer
+license           Permissive
+supported_archs   noarch
+
+description       Tools useful for setting up chroots
+
+long_description  ${description}.
+
+use_configure     no
+
+build {}
+
+depends_lib-append python27_full \
+                   mod_chroot \
+                   rbenv \
+                   jailkit \
+                   sudo \
+                   erni \
+                   darwinbuild \
+                   rootsh

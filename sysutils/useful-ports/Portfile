@@ -165,6 +165,7 @@ depends_lib-append port:gawk \
                    port:pssh \
                    port:volatility \
                    port:openssh \
-                   port:vim
+                   port:vim \
+                   port:bash-completion
 
 depends_skip_archcheck getabspath dmg2img alac_decoder

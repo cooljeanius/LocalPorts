@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem        1.0
+PortGroup         active_variants 1.1
+
+name              PureDarwin
+version           0.1
+categories        sysutils
+platforms         darwin
+maintainers       gwmail.gwu.edu:egall openmaintainer
+license           Permissive
+supported_archs   noarch
+
+description       An attempt at building a self-hosting Darwin using MacPorts
+
+long_description  ${description}.
+
+use_configure     no
+
+build {}
+
+depends_lib-append darwinbuild \
+                   kernel-tools-slim \
+                   quartz-wm \
+                   apple-gcc40 \
+                   apple-gcc42 \
+                   bootstrap_cmds \
+                   csu \
+                   gdb-apple \
+                   libc-headers \
+                   libm-headers \
+                   llvm-gcc42 \
+                   tcp_wrappers \
+                   MacPorts \
+                   chroot-tools
+
+require_active_variants MacPorts mp_shadow_deps
+require_active_variants MacPorts mp_bundle
+
