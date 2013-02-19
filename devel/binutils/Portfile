@@ -106,13 +106,15 @@ build.env-append       CPPFLAGS='-I${prefix}/include' \
 
 post-build {
     system -W ${worksrcpath}/gprof "${configure.cmd} ${configure.args}"
-    system -W ${worksrcpath}/gprof "export CPPFLAGS=\'-I${prefix}/include\'"
+    reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gprof/Makefile
     system -W ${worksrcpath}/gprof "make"
     system -W ${worksrcpath}/gold "${configure.cmd} ${configure.args}"
     system -W ${worksrcpath}/gold/po "make"
     system -W ${worksrcpath}/gas "${configure.cmd} ${configure.args}"
+    reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gas/Makefile
     system -W ${worksrcpath}/gas "make"
     system -W ${worksrcpath}/ld "${configure.cmd} ${configure.args}"
+    reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/ld/Makefile
     system -W ${worksrcpath}/ld "make"
 }
 
@@ -120,8 +122,10 @@ post-build {
 destroot.violate_mtree yes
 
 post-destroot {
+    destroot.destdir prefix=${destroot}${prefix}
     system -W ${worksrcpath}/gprof "make install"
     system -W ${worksrcpath}/gas "make install"
+    system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${destroot}${prefix}/lib ${destroot}${prefix} ${destroot}${prefix} x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 \"\" \"\" no \"\" x86_64-apple-darwin11.4.2 ppcmacos"
     system -W ${worksrcpath}/ld "make install"
     file rename ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/${name}-standards.info
     file rename ${destroot}${prefix}/share/info/configure.info ${destroot}${prefix}/share/info/${name}-configure.info

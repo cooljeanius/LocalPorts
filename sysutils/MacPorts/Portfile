@@ -113,6 +113,7 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix description {Makes MacP
     pre-configure {
         system "echo \"prefix is ${prefix}\""
         system -W ${worksrcpath} "ln -sv `which grep` ."
+        reinplace "s|grep \-v|${prefix}/bin/grep \-v|" ${worksrcpath}/configure
         system -W ${worksrcpath} "ln -sv `which gzip` ."
         system -W ${worksrcpath} "ln -sv `which gmake` ."
     }
