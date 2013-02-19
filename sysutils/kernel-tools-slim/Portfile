@@ -1,0 +1,76 @@
+# -*- Mode: Tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:et:sw=4:ts=4:sts=4
+# $Id: Portfile 57375 2009-09-10 08:16:41Z ryandesign@macports.org $
+
+PortSystem        1.0
+
+name              kernel-tools-slim
+version           8J2135
+categories        sysutils
+maintainers       sfiera
+license           BSD
+description       Tools required to build xnu for Intel
+long_description \
+  Installs a number of tools needed to build the xnu kernel on Intel, \
+  including (but not limited to) relpath and seg_hack
+
+homepage          http://kernel.macosforge.org/
+master_sites      http://www.macosforge.org/files
+distfiles         kernel-tools-${version}.root.tar.gz
+checksums         md5  e47e75b43211a9094875d60502cc4e35 \
+                  sha1 c91733821d9bb2420c228099fa85437b347fbe2c
+platforms         darwin
+
+default_variants  universal
+
+configure {
+  system -W ${worksrcpath} "uname -a"
+}
+
+build {
+  ui_msg "Running ls -R..."
+  system -W ${worksrcpath} "ls -R"
+}
+
+pre-extract {
+  xinstall -d ${worksrcpath}
+}
+
+extract.dir ${worksrcpath}
+
+destroot {
+  foreach top {include lib man} {
+    fs-traverse file ${worksrcpath}/usr/local/${top} {
+      set dest [string range $file [string length $worksrcpath/usr/local] end]
+      if {$top == "man"} {
+          set dest share/$dest
+      }
+      switch -exact [file type ${file}] {
+        file      { xinstall -m 644 ${file} ${destroot}${prefix}/${dest} }
+        directory { xinstall -d -m 755 ${destroot}${prefix}/${dest} }
+        link      { system "ln -sf [file readlink ${file}] ${destroot}${prefix}/${dest}" }
+      }
+    }
+  }
+  foreach top {bin libexec} {
+    fs-traverse file ${worksrcpath}/usr/local/${top} {
+      set dest [string range $file [string length $worksrcpath/usr/local] end]
+      switch -exact [file type ${file}] {
+        file      { xinstall -m 755 ${file} ${destroot}${prefix}/${dest} }
+        directory { xinstall -d -m 755 ${destroot}${prefix}/${dest} }
+        link      { system "ln -sf [file readlink ${file}] ${destroot}${prefix}/${dest}" }
+      }
+    }
+  }
+}
+# remove stuff supplied by cctools
+post-destroot {
+  foreach bin {check_dylib checksyms indr nmedit seg_addr_table seg_hack} {
+    delete ${destroot}${prefix}/bin/${bin}
+  }
+  foreach man1 {check_dylib checksyms indr seg_addr_table} {
+    delete ${destroot}${prefix}/share/man/man1/${man1}.1
+  }
+  delete ${destroot}${prefix}/share/man/man3
+}
+
+livecheck.type  none

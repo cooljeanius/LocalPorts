@@ -102,12 +102,10 @@ configure.args-append --with-curlprefix=${prefix} \
 }
 
 variant docs requires mp_deps description "Builds documentation" {
-depends_build-append port:tcl-dox \
-                     port:tcldoc \
-                     path:bin/doxygen:doxygen
-    post-build {
-        system -W ${worksrcpath} "doxygen"
-    }
+    depends_build-append port:tcl-dox \
+                         port:tcldoc \
+                         path:bin/doxygen:doxygen
+    build.target-append tcldoc tcldox
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${name}
         xinstall ${worksrcpath}/doc/INTERNALS ${destroot}${prefix}/share/doc/${name}
@@ -147,11 +145,11 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
                              path:bin/bison:bison \
                              path:bin/perl:perl5 \
                              path:bin/python:python_select \
-                             path:bin/java:kaffe \
                              path:bin/gcj:eclipse-ecj32 \
                              path:bin/gcc:gcc_select \
                              path:bin/flex:flex
-    depends_lib-append       port:tcLex
+    #depends_lib-append      port:tcLex
+    depends_skip_archcheck   kaffe
     use_autoconf             yes
 }
 

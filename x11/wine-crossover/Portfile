@@ -233,6 +233,8 @@ variant noconflict description {Removes conflicts with the other Wine ports by a
             README \
             ${destroot}${prefix}/share/doc/${name}
     }
+    # I only added the following block to deal with when I check the destroot manually
+    # through Finder to check to make sure everything's right. Feel free to remove it.
     pre-install {
         system "find ${destroot} -name .DS_Store -delete"
     }
