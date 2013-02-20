@@ -1,0 +1,67 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 99304 2012-10-31 22:42:34Z jmr@macports.org $
+
+PortSystem      1.0
+PortGroup       muniversal 1.0
+
+name            gdb
+version         7.5
+categories      devel
+license         GPL-3+
+maintainers     dweber openmaintainer
+description     GDB: The GNU Project Debugger
+
+long_description \
+GDB, the GNU Project debugger, allows you to see what is going on 'inside' \
+another program while it executes -- or what another program was doing at the \
+moment it crashed.  GDB can do four main kinds of things (plus other things \
+in support of these) to help you catch bugs in the act: \
+    a) start your program, specifying anything that might affect its behavior, \
+    b) make your program stop on specified conditions, \
+    c) examine what has happened, when your program has stopped, \
+    d) change things in your program, so you can experiment with correcting \
+       the effects of one bug and go on to learn about another. \
+The program being debugged can be written in Ada, C, C++, Objective-C, \
+Pascal (and many other languages). Those programs might be executing on \
+the same machine as GDB (native) or on another machine (remote). GDB \
+can run on most popular UNIX and Microsoft Windows variants.
+
+homepage        http://www.gnu.org/software/gdb/
+platforms       darwin
+supported_archs x86_64 i386
+
+master_sites    gnu
+
+use_bzip2       yes
+
+checksums       sha1    79b61152813e5730fa670c89e5fc3c04b670b02c \
+                rmd160  0eff835dde6e059a6e4e5c63586939fb2e74e4f1 \
+                sha256  d178c45c328369ae4f24f9a0ec53b7d009e2bfa1d41b7027280b24f58ae61932
+
+depends_build   port:gettext port:zlib
+
+configure.args \
+    --infodir=${prefix}/share/info \
+    --mandir=${prefix}/share/man \
+    --with-docdir=${prefix}/share/doc \
+    --program-prefix=g \
+    --disable-werror
+
+post-destroot {
+    system "chgrp procmod ${destroot}${prefix}/bin/ggdb*"
+    system "chmod g+s ${destroot}${prefix}/bin/ggdb*"
+
+    foreach info [glob -tails -directory ${destroot}${prefix}/share/info g*] {
+        move ${destroot}${prefix}/share/info/${info} ${destroot}${prefix}/share/info/g${info}
+    }
+    move ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/ggdb-standards.info
+
+    xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
+    foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {
+        ln -s ${prefix}/bin/${binary} ${destroot}${prefix}/libexec/gnubin/[string range $binary 1 end]
+    }
+}
+
+livecheck.type  regex
+livecheck.url   http://ftp.gnu.org/gnu/gdb/
+livecheck.regex gdb-(\\d+(?:\\.\\d+)+)\\.tar

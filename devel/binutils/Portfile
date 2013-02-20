@@ -126,9 +126,21 @@ post-destroot {
     system -W ${worksrcpath}/gprof "make install"
     system -W ${worksrcpath}/gas "make install"
     system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${destroot}${prefix}/lib ${destroot}${prefix} ${destroot}${prefix} x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 \"\" \"\" no \"\" x86_64-apple-darwin11.4.2 ppcmacos"
-    system -W ${worksrcpath}/ld "make install"
+#    system -W ${worksrcpath}/ld "make install"
     file rename ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/${name}-standards.info
     file rename ${destroot}${prefix}/share/info/configure.info ${destroot}${prefix}/share/info/${name}-configure.info
+    xinstall -d ${destroot}${prefix}/include/binutils
+    foreach header [glob ${destroot}${prefix}/include/*] {
+        if [file isfile ${header}] {
+            move ${header} ${destroot}${prefix}/include/binutils
+        }
+    }
+    xinstall -d ${destroot}${prefix}/lib/binutils
+    foreach library [glob ${destroot}${prefix}/lib/*] {
+        if [file isfile ${library}] {
+            move ${library} ${destroot}${prefix}/lib/binutils
+        }
+    }
 }
 
 universal_variant      no

@@ -20,20 +20,20 @@ use_configure     no
 
 build {}
 
-depends_lib-append darwinbuild \
-                   kernel-tools-slim \
-                   quartz-wm \
-                   apple-gcc40 \
-                   apple-gcc42 \
-                   bootstrap_cmds \
-                   csu \
-                   gdb-apple \
-                   libc-headers \
-                   libm-headers \
-                   llvm-gcc42 \
-                   tcp_wrappers \
-                   MacPorts \
-                   chroot-tools
+depends_lib-append port:darwinbuild \
+                   port:kernel-tools-slim \
+                   port:quartz-wm \
+                   port:apple-gcc40 \
+                   port:apple-gcc42 \
+                   port:bootstrap_cmds \
+                   port:csu \
+                   port:gdb-apple \
+                   port:libc-headers \
+                   port:libm-headers \
+                   port:llvm-gcc42 \
+                   port:tcp_wrappers \
+                   port:MacPorts \
+                   port:chroot-tools
 
 require_active_variants MacPorts only_mp_deps
 require_active_variants MacPorts mp_bundle

@@ -20,11 +20,11 @@ use_configure     no
 
 build {}
 
-depends_lib-append python27_full \
-                   mod_chroot \
-                   rbenv \
-                   jailkit \
-                   sudo \
-                   erni \
-                   darwinbuild \
-                   rootsh
+depends_lib-append port:python27_full \
+                   port:mod_chroot \
+                   port:rbenv \
+                   port:jailkit \
+                   port:sudo \
+                   port:erni \
+                   port:darwinbuild \
+                   port:rootsh

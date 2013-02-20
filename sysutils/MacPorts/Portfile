@@ -39,7 +39,7 @@ depends_build-append port:bsdmake \
                      port:bzr \
                      port:gpatch \
                      port:mercurial \
-                     port:xz \
+                     path:bin/xz:xz \
                      port:swig-tcl \
                      port:gnustep-make \
                      port:gnustep-make-cocoa
@@ -102,7 +102,7 @@ configure.args-append --with-curlprefix=${prefix} \
                       --with-frameworks-dir=${prefix}/Library/Frameworks
 }
 
-variant only_mp_deps requires mp_shadow_deps keep_prefix description {Makes MacPorts entirely self-hosting} {
+variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager description {Makes MacPorts entirely self-hosting} {
     depends_build-append port:coreutils \
                          port:grep \
                          port:gwhich \
@@ -110,6 +110,11 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix description {Makes MacP
                          port:gmake \
                          port:tcl
     set prefix           ${prefix}
+    post-extract {
+        reinplace "s|\[\$PATH\]\:/usr/sbin|\[\]|" ${worksrcpath}/configure.ac
+        reinplace "s|\[\$PATH\]\:/usr/local/bin|\[\]|" ${worksrcpath}/configure.ac
+    }
+    use_autoconf         yes
     pre-configure {
         system "echo \"prefix is ${prefix}\""
         system -W ${worksrcpath} "ln -sv `which grep` ."
