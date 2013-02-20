@@ -135,10 +135,10 @@ post-destroot {
             move ${header} ${destroot}${prefix}/include/binutils
         }
     }
-    xinstall -d ${destroot}${prefix}/lib/binutils
-    foreach library [glob ${destroot}${prefix}/lib/*] {
+    xinstall -d ${destroot}${prefix}/lib/binutils-staticlibs
+    foreach library [glob ${destroot}${prefix}/lib/*.a] {
         if [file isfile ${library}] {
-            move ${library} ${destroot}${prefix}/lib/binutils
+            move ${library} ${destroot}${prefix}/lib/binutils-staticlibs
         }
     }
 }
