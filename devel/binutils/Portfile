@@ -5,7 +5,7 @@ PortSystem             1.0
 
 name                   binutils
 version                2.21
-revision               1
+revision               2
 
 description            FSF Binutils for native development.
 long_description       Free Software Foundation development toolchain ("binutils") \
@@ -112,10 +112,14 @@ post-build {
     system -W ${worksrcpath}/gold/po "make"
     system -W ${worksrcpath}/gas "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gas/Makefile
-    system -W ${worksrcpath}/gas "make"
+    if {[catch "registry_active gdb"]} {
+        system -W ${worksrcpath}/gas "make"
+    }
     system -W ${worksrcpath}/ld "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/ld/Makefile
-    system -W ${worksrcpath}/ld "make"
+    if {[catch "registry_active gdb"]} {
+        system -W ${worksrcpath}/ld "make"
+    }
 }
 
 # Binutils violates the mtree layout by creating ${prefix}/<arch>/
@@ -124,11 +128,14 @@ destroot.violate_mtree yes
 post-destroot {
     destroot.destdir prefix=${destroot}${prefix}
     system -W ${worksrcpath}/gprof "make install"
-    system -W ${worksrcpath}/gas "make install"
+    if {[catch "registry_active gdb"]} {
+        system -W ${worksrcpath}/gas "make install"
+    }
     system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${destroot}${prefix}/lib ${destroot}${prefix} ${destroot}${prefix} x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 \"\" \"\" no \"\" x86_64-apple-darwin11.4.2 ppcmacos"
 #    system -W ${worksrcpath}/ld "make install"
     file rename ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/${name}-standards.info
     file rename ${destroot}${prefix}/share/info/configure.info ${destroot}${prefix}/share/info/${name}-configure.info
+    file rename ${destroot}${prefix}/share/info/bfd.info ${destroot}${prefix}/share/info/${name}-bfd.info
     xinstall -d ${destroot}${prefix}/include/binutils
     foreach header [glob ${destroot}${prefix}/include/*] {
         if [file isfile ${header}] {
@@ -136,9 +143,16 @@ post-destroot {
         }
     }
     xinstall -d ${destroot}${prefix}/lib/binutils-staticlibs
-    foreach library [glob ${destroot}${prefix}/lib/*.a] {
+    foreach library [glob ${destroot}${prefix}/lib/*.*a] {
         if [file isfile ${library}] {
             move ${library} ${destroot}${prefix}/lib/binutils-staticlibs
+        }
+    }
+    xinstall -d ${destroot}${prefix}/lib/x86_64/binutils
+    move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/x86_64/binutils
+    foreach msgs [glob ${destroot}${prefix}/share/locale/*/LC_MESSAGES/*.mo] {
+        if [file isfile ${msgs}] {
+            move ${msgs} [file dirname ${msgs}]/binutils-[file tail ${msgs}]
         }
     }
 }

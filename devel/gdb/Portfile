@@ -6,6 +6,7 @@ PortGroup       muniversal 1.0
 
 name            gdb
 version         7.5
+revision        1
 categories      devel
 license         GPL-3+
 maintainers     dweber openmaintainer
@@ -38,18 +39,36 @@ checksums       sha1    79b61152813e5730fa670c89e5fc3c04b670b02c \
                 rmd160  0eff835dde6e059a6e4e5c63586939fb2e74e4f1 \
                 sha256  d178c45c328369ae4f24f9a0ec53b7d009e2bfa1d41b7027280b24f58ae61932
 
-depends_build   port:gettext port:zlib
+depends_build-append   port:gettext port:zlib port:gawk port:bison port:flex port:texinfo port:expect \
+                       path:bin/nm:cctools path:bin/perl:perl5 port:intltool port:gsed \
+                       port:bootstrap_cmds port:python27 port:gnuregex port:gmake port:byacc
+depends_lib-append     port:readline port:expat port:libiconv port:ncurses port:ppl port:gcc_select \
+                       port:exec-wrapper
 
 configure.args \
     --infodir=${prefix}/share/info \
     --mandir=${prefix}/share/man \
     --with-docdir=${prefix}/share/doc \
     --program-prefix=g \
-    --disable-werror
+    --disable-werror \
+    --enable-64-bit-bfd \
+    --enable-tui \
+    --enable-multi-ice \
+    --with-gnu-ld \
+    --with-curses \
+    --with-expat
+
+build.type             gnu
+use_parallel_build     no
+configure.ccache       no
+test.run               yes
 
 post-destroot {
     system "chgrp procmod ${destroot}${prefix}/bin/ggdb*"
     system "chmod g+s ${destroot}${prefix}/bin/ggdb*"
+    if [file executable /usr/bin/codesign] {
+        system "codesign ${destroot}${prefix}/bin/ggdb*"
+    }
 
     foreach info [glob -tails -directory ${destroot}${prefix}/share/info g*] {
         move ${destroot}${prefix}/share/info/${info} ${destroot}${prefix}/share/info/g${info}
