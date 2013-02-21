@@ -107,8 +107,8 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
                          port:grep \
                          port:gwhich \
                          port:launch \
-                         port:gmake \
-                         port:tcl
+                         port:gmake
+    depends_lib-append   port:tcl
     set prefix           ${prefix}
     post-extract {
         reinplace "s|\[\$PATH\]\:/usr/sbin|\[\]|" ${worksrcpath}/configure.ac
