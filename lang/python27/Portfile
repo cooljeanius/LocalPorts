@@ -176,6 +176,11 @@ variant poll description {Enable experimental support for the poll function} {
     depends_lib-append      port:poll-emulator
 }
 
+variant valgrind description {Enable support for valgrind} {
+    depends_lib-append      path:bin/valgrind:valgrind
+    configure.args-append   --with-valgrind
+}
+
 variant brewlike description {Make more similar to Homebrew's distribution} {
     depends_build-append    port:pkgconfig \
                             port:python_select
