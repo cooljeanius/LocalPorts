@@ -93,6 +93,8 @@ depends_lib-append port:gawk \
                    port:byaccj \
                    port:ebnf2yacc \
                    port:lemon \
+                   port:bison \
+                   port:bison1 \
                    port:am-utils \
                    port:idutils \
                    port:desktop-file-utils \
