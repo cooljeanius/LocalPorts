@@ -1,0 +1,48 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 78632 2011-05-14 22:50:58Z ryandesign@macports.org $
+
+PortSystem               1.0
+PortGroup                github 1.0
+
+github.setup             cooljeanius gaa 1.6.6_1 v
+revision                 2
+platforms	         darwin
+categories	         devel
+maintainers	         gwmail.gwu.edu:egall openmaintainer
+description	         ${name} Argument Analyser
+license                  GPL-2+
+long_description         ${name} simplifies the life of the programmer: you don't have to \
+                         worry about the arguments given to it! A short text written in GAA \
+                         language generates C-code which analyses the arguments and creates your \
+                         program's help.
+
+homepage                 http://gaa.sf.net
+
+fetch.type 	         git
+git.url 	         git://github.com/cooljeanius/gaa.git
+
+depends_build-append     port:bison \
+                         port:flex
+
+variant autoreconf description {Regenerates configure script before building. \
+                                Also pulls in extra dependencies.} {
+    depends_build-append port:gawk \
+                         port:grep \
+                         port:autoconf-archive
+    use_autoreconf       yes
+    configure.args-append --disable-silent-rules
+}
+variant docs description {Generate additional documentation by using latex2html} {
+    depends_build-append port:latex2html
+    post-build {
+        system -W ${worksrcpath}/doc "latex2html *.tex"
+    }
+    post-destroot {
+        foreach docdir {gaa ref tut} {
+            xinstall -d ${destroot}${prefix}/share/doc/${name}/${docdir}
+            eval xinstall [glob ${worksrcpath}/doc/${docdir}/*] ${destroot}${prefix}/share/doc/${name}/${docdir}
+        }
+    }
+}
+
+livecheck.type	         none

@@ -55,7 +55,9 @@ depends_lib         port:fontconfig \
                     port:libzzip \
                     port:t1lib \
                     port:poppler \
-                    port:texlive-common
+                    port:texlive-common \
+                    port:icu \
+                    port:xorg-libX11
 
 depends_run         port:ghostscript
 
@@ -69,7 +71,8 @@ depends_build       path:bin/perl:perl5 \
                     path:bin/sed:gsed \
                     path:bin/awk:gawk \
                     path:bin/nm:cctools \
-                    port:getabspath
+                    port:getabspath \
+                    port:libtool
 
 depends_skip_archcheck getabspath
 

@@ -107,8 +107,16 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
                          port:grep \
                          port:gwhich \
                          port:launch \
-                         port:gmake
+                         port:gmake \
+                         port:man \
+                         port:p5.12-lchown \
+                         port:p5.12-file-chdir \
+                         port:cdsclient \
+                         port:cmdftp \
+                         port:mdf2iso \
+                         port:mtr
     depends_lib-append   port:tcl
+    depends_skip_archcheck man cdsclient
     set prefix           ${prefix}
     post-extract {
         reinplace "s|\[\$PATH\]\:/usr/sbin|\[\]|" ${worksrcpath}/configure.ac
@@ -188,14 +196,19 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
     git.url                  git://github.com/cooljeanius/${name}-fork.git
     depends_build-append     port:autoconf-archive \
                              port:dylibbundler \
+                             port:symlinks \
                              path:bin/bison:bison \
+                             path:bin/dmalloc:dmalloc \
                              path:bin/perl:perl5 \
                              path:bin/python:python_select \
-                             path:bin/gcj:eclipse-ecj32 \
+                             path:bin/javac:jikes \
+                             path:bin/guavac:google-guava \
+                             path:bin/ecj:eclipse-ecj32 \
+                             path:bin/gcj:swig-gcj \
                              path:bin/gcc:gcc_select \
                              path:bin/flex:flex
     #depends_lib-append      port:tcLex
-    depends_skip_archcheck   kaffe eclipse-ecj32
+    depends_skip_archcheck   kaffe eclipse-ecj32 google-guava
     use_autoconf             yes
 }
 
@@ -342,6 +355,10 @@ platform darwin {
     }
 }
 
+pre-destroot {
+    xinstall -d ${destroot}${prefix}/var/macports/registry/portfiles
+    xinstall -d ${destroot}${prefix}/var/macports/incoming/verified
+}
 destroot.violate_mtree yes
 destroot.keepdirs    ${destroot}${prefix}/include \
                      ${destroot}${prefix}/lib \
@@ -455,4 +472,6 @@ destroot.keepdirs    ${destroot}${prefix}/include \
                      ${destroot}${prefix}/share/nls/zh_TW.Big5 \
                      ${destroot}${prefix}/var/macports/build \
                      ${destroot}${prefix}/var/macports/distfiles \
-                     ${destroot}${prefix}/var/macports/registry
+                     ${destroot}${prefix}/var/macports/registry \
+                     ${destroot}${prefix}/var/macports/registry/portfiles \
+                     ${destroot}${prefix}/var/macports/incoming/verified

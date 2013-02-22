@@ -176,6 +176,9 @@ depends_lib-append port:gawk \
                    port:pdfgrep \
                    port:sgrep \
                    port:sgrep2 \
-                   port:exec-wrapper
+                   port:exec-wrapper \
+                   port:man2html \
+                   port:txt2man \
+                   port:docbook2x
 
 depends_skip_archcheck getabspath dmg2img alac_decoder
