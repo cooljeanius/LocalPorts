@@ -66,9 +66,9 @@ test.run               yes
 post-destroot {
     system "chgrp procmod ${destroot}${prefix}/bin/ggdb*"
     system "chmod g+s ${destroot}${prefix}/bin/ggdb*"
-    if [file executable /usr/bin/codesign] {
-        system "codesign ${destroot}${prefix}/bin/ggdb*"
-    }
+#    if [file executable /usr/bin/codesign] {
+#        system "codesign ${destroot}${prefix}/bin/ggdb*"
+#    }
 
     foreach info [glob -tails -directory ${destroot}${prefix}/share/info g*] {
         move ${destroot}${prefix}/share/info/${info} ${destroot}${prefix}/share/info/g${info}

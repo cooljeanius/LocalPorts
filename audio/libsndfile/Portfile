@@ -22,7 +22,7 @@ livecheck.regex     {Updates for (\d+\.\d+\.\d+)}
 livecheck.type      regex
 livecheck.url       ${homepage}ChangeLog
 
-depends_build       port:pkgconfig
+depends_build       port:pkgconfig port:ed
 depends_lib         port:flac port:libogg port:libvorbis
 
 master_sites        ${homepage}files/
