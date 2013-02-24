@@ -1,0 +1,73 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 99388 2012-11-04 11:48:06Z ryandesign@macports.org $
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           active_variants 1.1
+
+github.setup        cooljeanius gtk-quartz-engine 0.2.1 v
+categories          gnome aqua
+platforms           darwin
+license             LGPL-2+
+maintainers         gmail.com:tael67 gwmail.gwu.edu:egall openmaintainer
+
+description         Native Mac OS X theme for GTK+
+
+long_description    Carbon-based theme engine for 32-bit Quartz
+
+homepage            http://git.gnome.org/browse/gtk-quartz-engine
+
+fetch.type          git
+git.url             git://github.com/cooljeanius/gtk-quartz-engine.git
+
+depends_build       port:pkgconfig \
+                    port:autoconf \
+                    port:automake \
+                    port:libtool
+
+depends_lib         port:libffi \
+                    port:libiconv \
+                    port:libpng \
+                    port:glib2 \
+                    port:freetype \
+                    port:graphite2 \
+                    port:icu \
+                    port:fontconfig \
+                    port:expat \
+                    port:bzip2 \
+                    port:xorg-libX11 \
+                    port:xorg-libxcb \
+                    port:xrender \
+                    port:xorg-libXext \
+                    port:xorg-libXau \
+                    port:xorg-libXdmcp \
+                    path:lib/pkgconfig/pixman-1.pc:libpixman \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    port:harfbuzz \
+                    path:lib/pkgconfig/pango.pc:pango \
+                    port:atk \
+                    port:gdk-pixbuf2 \
+                    port:gtk2
+
+require_active_variants gtk2 quartz
+
+pre-configure {
+    if {![file exists ${prefix}/lib/pkgconfig/gdk-quartz-2.0.pc]} {
+        ui_error "
+
+****
+**** ${name} is meant to be used only in a gtk2 quartz
+**** environment but your version of gtk2 does not support quartz.
+**** Please reinstall the gtk2 port and all of its dependencies
+**** with the variants +no_x11 +quartz -x11 and then try again.
+****
+"
+        return -code error "gtk2 +no_x11 +quartz not installed"
+    }
+
+    system -W ${worksrcpath} "sh ./autogen.sh"
+}
+
+notes "
+To use ${name}, copy ${prefix}/share/themes/Quartz/gtk-2.0/gtkrc to ~/.gtkrc-2.0
+"

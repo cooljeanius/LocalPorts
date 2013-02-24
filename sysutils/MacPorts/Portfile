@@ -130,7 +130,7 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
         system -W ${worksrcpath} "ln -sv `which gzip` ."
         system -W ${worksrcpath} "ln -sv `which gmake` ."
     }
-    configure.env-append PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin \
+    configure.env-append PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin:${prefix}/libexec/texbin \
                          GREP=${prefix}/bin/grep \
                          OPEN=${prefix}/bin/launch \
                          MAKE=${prefix}/bin/gmake \
@@ -207,7 +207,7 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
                              path:bin/gcj:swig-gcj \
                              path:bin/gcc:gcc_select \
                              path:bin/flex:flex
-    #depends_lib-append      port:tcLex
+    #depends_lib-append      port:tcLex port:readline
     depends_skip_archcheck   kaffe eclipse-ecj32 google-guava
     use_autoconf             yes
 }
