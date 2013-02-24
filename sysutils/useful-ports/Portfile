@@ -180,6 +180,13 @@ depends_lib-append port:gawk \
                    port:man2html \
                    port:txt2man \
                    port:docbook2x \
-                   port:fmscripts
+                   port:fmscripts \
+                   port:macutil \
+                   port:html \
+                   port:sgml-common \
+                   port:libsgml \
+                   port:xorg-sgml-doctools \
+                   port:linuxdoc \
+                   port:util-linux
 
 depends_skip_archcheck getabspath dmg2img alac_decoder
