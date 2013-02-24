@@ -210,17 +210,18 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
     #depends_lib-append      port:tcLex port:readline
     depends_skip_archcheck   kaffe eclipse-ecj32 google-guava
     use_autoconf             yes
+    configure.args-append    --enable-readline
 }
 
 if {![variant_isset mp_deps]} {
     # We don't want to use anything supplied by ports when building MacPorts itself
     # (unless the user requests the variant specifying otherwise, that is)
-    configure.env    PATH=/usr/bin:/bin:/usr/sbin:/sbin
+    configure.env            PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
     # Readline is disabled by default to avoid support issues with people who
     # have a readline in /usr/local. Since this portfile is presumably used in a
     # clean environment (if not using the mp_deps variant), enable it here.
-    configure.args-append --enable-readline
+    configure.args-append    --enable-readline
 }
 
 # Some of MacPorts' default flags don't play well when we're building MacPorts
