@@ -83,6 +83,7 @@ depends_lib-append port:gawk \
                    port:ccache \
                    port:poll-emulator \
                    port:unsermake \
+                   port:srm \
                    port:libthai \
                    port:libhangul \
                    port:tftp-hpa \
