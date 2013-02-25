@@ -1,0 +1,57 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           ocaml 1.0
+
+name                libCUDF
+version             development-version
+categories          devel ml
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall
+license             LGPL-3+
+
+description         ${name} is a library to manipulate so called CUDF documents.
+
+long_description    ${description} A CUDF \
+                    (Common Upgradeability Description Format) document describes an \
+                    \"upgrade scenario\", as faced by package managers in popular \
+                    package-based FOSS (Free and Open Source Software) distributions.
+
+homepage            http://www.mancoosi.org/cudf/
+
+fetch.type          git
+git.url             git://gforge.inria.fr/git/cudf/cudf.git
+
+depends_lib-append  port:camlp5 \
+                    port:ocaml-findlib \
+                    port:ocaml-extlib
+
+use_configure       no
+
+build.target        opt
+test.run            yes
+
+variant tests description {Run the test suite} {
+    depends_build-append port:ocaml-ounit
+    test.run        yes
+    test.cmd        make
+    test.target     test
+    post-build {
+        system -W ${worksrcpath} "${test.cmd} ${test.target}"
+    }
+}
+
+variant native description {Build C bindings} {
+    depends_lib-append  port:glib2 \
+                        port:swig-ocaml
+    build.cmd           "make -C"
+    build.target-append c-lib-opt
+    if {[variant_isset tests]} {
+        test.cmd            "make -C"
+        test.target-append  c-lib test
+        post-build {
+            system -W ${worksrcpath} "${test.cmd} ${test.target}"
+        }
+    }
+}

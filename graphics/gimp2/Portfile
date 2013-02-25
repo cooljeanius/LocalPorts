@@ -170,23 +170,14 @@ variant quartz {
 default_variants +help_browser
 
 variant huge requires debug gvfs remote description {Pulls in many dependencies; unsupported} {
-    configure.args-delete \
-                --without-alsa \
-                --without-mac-twain
     configure.args-append \
                 --disable-silent-rules \
                 --enable-gtk-doc
     if {[variant_isset quartz]} {
-        configure.args-delete \
-                --without-lcms \
-                --without-x
         depends_lib-append \
                  port:xorg-libXmu \
                  port:xpm
         configure.args-append \
-                 --with-x \
-                 --x-includes=${prefix}/include \
-                 --x-libraries=${prefix}/lib \
                  --enable-gtk-doc-app
         platform darwin 8 {
             depends_lib-append port:curlhandle
@@ -195,9 +186,11 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
     depends_build-append \
                  port:gawk \
                  port:grep \
+                 port:gsed \
                  path:bin/nm:cctools \
                  port:gettext \
-                 port:makeicns
+                 port:makeicns \
+                 port:libtool
     depends_lib-append \
                  port:p5.12-libintl-perl \
                  port:p5.12-www-curl \
@@ -257,7 +250,11 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:xcursorgen \
                  port:xv \
                  port:xorg-libXvMC \
-                 port:xvinfo
+                 port:xvinfo \
+                 port:gobject-introspection \
+                 port:sgml-common \
+                 port:libsgml \
+                 port:xorg-sgml-doctools
     depends_run-append \
                  port:libsvg-cairo \
                  port:gdk-pixbuf \
@@ -310,10 +307,15 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py27-webkitgtk
         }
     }
+    if {[variant_isset help_browser]} {
+        depends_lib-append \
+                 port:html
+    }
     configure.cppflags-delete -Wunknown-warning-option \
                               -Wformat-non-literal
     configure.cppflags-append -Wno-unknown-warning-option \
                               -Wformat-nonliteral
+    use_parallel_build no
 }
 
 post-activate {
