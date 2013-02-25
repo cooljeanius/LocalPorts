@@ -21,7 +21,7 @@ long_description    ${description} A CUDF \
 homepage            http://www.mancoosi.org/cudf/
 
 fetch.type          git
-git.url             git://gforge.inria.fr/git/cudf/cudf.git
+git.url             git://scm.gforge.inria.fr/cudf/cudf.git
 
 depends_lib-append  port:camlp5 \
                     port:ocaml-findlib \
@@ -29,8 +29,14 @@ depends_lib-append  port:camlp5 \
 
 use_configure       no
 
+use_parallel_build  no
+
 build.target        opt
-test.run            yes
+
+post-destroot {
+    eval xinstall [glob ${destroot}/usr/bin/*] ${destroot}${prefix}/bin
+    eval file delete [glob ${destroot}/usr/bin/*]
+}
 
 variant tests description {Run the test suite} {
     depends_build-append port:ocaml-ounit
@@ -43,10 +49,14 @@ variant tests description {Run the test suite} {
 }
 
 variant native description {Build C bindings} {
+    pre-configure {
+        ui_error "This variant doesn't work yet"
+        return -code error "unimplemented variant"
+    }
     depends_lib-append  port:glib2 \
                         port:swig-ocaml
     build.cmd           "make -C"
-    build.target-append c-lib-opt
+    build.target        c-lib-opt
     if {[variant_isset tests]} {
         test.cmd            "make -C"
         test.target-append  c-lib test
