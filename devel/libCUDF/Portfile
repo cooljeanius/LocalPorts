@@ -9,7 +9,7 @@ version             development-version
 epoch               1
 categories          devel ml
 platforms           darwin
-maintainers         gwmail.gwu.edu:egall openmaintainer
+maintainers         gwmail.gwu.edu:egall cal openmaintainer
 license             LGPL-3+
 
 description         ${name} is a library to manipulate so called CUDF documents.
