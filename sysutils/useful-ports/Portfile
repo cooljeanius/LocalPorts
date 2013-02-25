@@ -67,6 +67,7 @@ depends_lib-append port:gawk \
                    port:md5sha1sum \
                    port:unhash \
                    port:dcfldd \
+                   port:dc3dd \
                    port:fast-md5 \
                    port:md5deep \
                    port:gettext-lint \
@@ -155,6 +156,7 @@ depends_lib-append port:gawk \
                    port:gwhich \
                    port:less \
                    port:texi2html \
+                   port:gzip \
                    port:gzrecover \
                    port:gengetopt \
                    port:genext2fs \
@@ -189,6 +191,28 @@ depends_lib-append port:gawk \
                    port:xorg-sgml-doctools \
                    port:linuxdoc \
                    port:util-linux \
-                   port:uucp
+                   port:uucp \
+                   port:rx \
+                   port:svn2cl \
+                   port:pthsem \
+                   port:plotutils \
+                   port:libtool \
+                   port:hfstar \
+                   port:afsctool \
+                   port:gtime \
+                   port:groff \
+                   port:man \
+                   port:gperf \
+                   port:gnutar \
+                   port:gnetcat \
+                   port:glances \
+                   port:findutils \
+                   port:diction \
+                   port:dejagnu \
+                   port:ddrescue \
+                   port:coreutils \
+                   port:argtable \
+                   port:p7zip \
+                   port:flagpoll
 
-depends_skip_archcheck getabspath dmg2img alac_decoder
+depends_skip_archcheck getabspath dmg2img alac_decoder man
