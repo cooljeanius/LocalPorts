@@ -9,6 +9,12 @@ Instructions for Usage
 Just wait until the main MacPorts project commits them, if they haven't yet.
 If you really can't wait, you can always clone this repo and then add it to your sources.conf file.
 
+Warning!
+========
+
+Some of these ports are copied from the portfiles in the main version of MacPorts.
+If you use these, you could end up with broken portfiles shadowing the good ones.
+
 Port
 ====
 
