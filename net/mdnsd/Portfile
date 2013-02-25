@@ -3,24 +3,28 @@
 
 PortSystem      1.0
 PortGroup       github 1.0
+PortGroup       compiler_blacklist_versions 1.0
 
-github.setup    cooljeanius mdnsd 0.7G v
-revision	1
-categories	net
-maintainers	gwmail.gwu.edu:egall openmaintainer
-description	embeddable Multicast DNS Daemon
+github.setup    cooljeanius mdnsd 0.7H v
+revision        1
+categories      net
+maintainers     gwmail.gwu.edu:egall openmaintainer
+description     embeddable Multicast DNS Daemon
 license         GPL-3+ BSD Permissive
-platforms	darwin
-long_description	\
-	${name} is a very lightweight, simple, portable, and easy to integrate \
-	open source implementation of Multicast DNS (part of Zeroconf, also \
-	called Rendezvous by Apple) for developers. It supports both acting \
-	as a Query and a Responder, allowing any software to participate \
-	fully on the .local network just by including a few files and \
-	calling a few functions.
+platforms       darwin
+long_description    \
+    ${name} is a very lightweight, simple, portable, and easy to integrate \
+    open source implementation of Multicast DNS (part of Zeroconf, also \
+    called Rendezvous by Apple) for developers. It supports both acting \
+    as a Query and a Responder, allowing any software to participate \
+    fully on the .local network just by including a few files and \
+    calling a few functions.
 
-fetch.type 	git
+fetch.type      git
 git.url         git://github.com/cooljeanius/mdnsd.git
+
+# code is old, fails with clang but not gcc
+compiler.blacklist-append clang
 
 variant autoreconf description {Regenerates configure script before building.} {
     depends_build-append port:gawk \
@@ -30,7 +34,9 @@ variant autoreconf description {Regenerates configure script before building.} {
 }
 
 destroot {
-	file mkdir ${destroot}${prefix}/bin
-	system -W ${worksrcpath} "install -m 755 ${worksrcpath}/mhttp ${destroot}${prefix}/bin"
-	system -W ${worksrcpath} "install -m 755 ${worksrcpath}/mquery ${destroot}${prefix}/bin"
+    file mkdir ${destroot}${prefix}/bin
+    system -W ${worksrcpath} "install -m 755 ${worksrcpath}/mhttp ${destroot}${prefix}/bin"
+    system -W ${worksrcpath} "install -m 755 ${worksrcpath}/mquery ${destroot}${prefix}/bin"
+    xinstall -d ${destroot}${prefix}/include/mdnsd
+    eval xinstall [glob ${worksrcpath}/*.h] ${destroot}${prefix}/include/mdnsd
 }

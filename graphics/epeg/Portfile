@@ -1,0 +1,64 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 102822 2013-02-09 00:51:24Z jmr@macports.org $
+
+PortSystem      1.0
+PortGroup       github 1.0
+PortGroup       compiler_blacklist_versions 1.0
+
+github.setup    cooljeanius epeg 0.9.0 v
+revision        4
+description     An IMMENSELY FAST JPEG thumbnailer library API.
+license         permissive
+long_description \
+                It's a convenience library API to using libjpeg \
+                to load JPEG images destined to be turned into \
+                thumbnails of the original, saving information with \
+                these thumbnails, retreiving it and managing to load \
+                the image ready for scaling with the minimum of fuss \
+                and CPU overhead.
+
+maintainers     gwmail.gwu.edu:egall openmaintainer
+categories      graphics x11
+platforms       darwin
+
+fetch.type      git
+git.url         git://github.com/cooljeanius/epeg.git
+
+depends_lib     lib:libjpeg:jpeg
+
+configure.args  --mandir=${prefix}/share/man
+configure.cppflags-append "-L${prefix}/lib"
+configure.cflags-append -L${prefix}/lib
+
+variant autoreconf description {Regenerates configure script before building.} {
+    depends_build-append port:gawk \
+                         port:grep \
+                         port:autoconf-archive
+    depends_lib-append   lib:libgd:gd2
+    use_autoreconf       yes
+    configure.args-append --disable-silent-rules
+}
+
+variant docs description {Build and install documentation} {
+    depends_build-append port:doxygen
+    post-build {
+        system -W ${worksrcpath} "doxygen"
+    }
+    post-destroot {
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/man/man3
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/html
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/latex
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/img
+        eval xinstall [glob ${worksrcpath}/doc/man/man3/*.3] ${destroot}${prefix}/share/doc/${name}/man/man3
+        eval xinstall [glob ${worksrcpath}/doc/man/man3/epeg*.3] ${destroot}${prefix}/share/man/man3
+        eval xinstall [glob ${worksrcpath}/doc/img/*.png] ${destroot}${prefix}/share/doc/${name}/img
+        eval xinstall [glob ${worksrcpath}/doc/latex/*.tex] ${destroot}${prefix}/share/doc/${name}/latex
+        eval xinstall [glob ${worksrcpath}/doc/latex/*.sty] ${destroot}${prefix}/share/doc/${name}/latex
+        eval xinstall [glob ${worksrcpath}/doc/html/*.html] ${destroot}${prefix}/share/doc/${name}/html
+        eval xinstall [glob ${worksrcpath}/doc/html/*.js] ${destroot}${prefix}/share/doc/${name}/html
+        eval xinstall [glob ${worksrcpath}/doc/html/*.png] ${destroot}${prefix}/share/doc/${name}/html
+        eval xinstall [glob ${worksrcpath}/doc/html/*.css] ${destroot}${prefix}/share/doc/${name}/html
+        eval xinstall [glob ${worksrcpath}/doc/*.html] ${destroot}${prefix}/share/doc/${name}
+        eval xinstall [glob ${worksrcpath}/doc/*.css] ${destroot}${prefix}/share/doc/${name}
+    }
+}

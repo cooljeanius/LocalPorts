@@ -1,0 +1,34 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 98158 2012-09-26 16:42:08Z adfernandes@macports.org $
+
+PortSystem          1.0
+PortGroup           github 1.0
+
+github.setup        cooljeanius MacOSXMacros 0.0.1 v
+license             Permissive
+categories          devel
+maintainers         gwmail.gwu.edu:egall
+description         Autoconf macros for checking stuff specific to OS X.
+long_description    ${description}
+supported_archs     noarch
+
+platforms           darwin
+
+fetch.type          git
+git.url             git://github.com/cooljeanius/MacOSXMacros.git
+
+use_configure       no
+
+build {
+    ui_msg "Fixing permissions..."
+    system -W ${worksrcpath} "chmod -x ./*.m4 ./*.md"
+}
+
+test.cmd            system -W ${worksrcpath}/Testing "autoreconf && ./configure --prefix=${prefix}"
+
+destroot {
+    xinstall -d ${destroot}${prefix}/share/aclocal
+    eval xinstall -m 644 [glob ${worksrcpath}/*.m4] ${destroot}${prefix}/share/aclocal
+    xinstall -d ${destroot}${prefix}/share/doc/${name}
+    eval xinstall -m 644 [glob ${worksrcpath}/*.md] ${destroot}${prefix}/share/doc/${name}
+}
