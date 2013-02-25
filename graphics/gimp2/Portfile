@@ -173,10 +173,9 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
     configure.args-delete \
                 --without-alsa \
                 --without-mac-twain
-    if {![variant_isset help_browser]} {
-        configure.args-delete \
-                --without-webkit
-    }
+    configure.args-append \
+                --disable-silent-rules \
+                --enable-gtk-doc
     if {[variant_isset quartz]} {
         configure.args-delete \
                 --without-lcms \
@@ -187,7 +186,8 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
         configure.args-append \
                  --with-x \
                  --x-includes=${prefix}/include \
-                 --x-libraries=${prefix}/lib
+                 --x-libraries=${prefix}/lib \
+                 --enable-gtk-doc-app
         platform darwin 8 {
             depends_lib-append port:curlhandle
         }
@@ -196,7 +196,8 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:gawk \
                  port:grep \
                  path:bin/nm:cctools \
-                 port:gettext
+                 port:gettext \
+                 port:makeicns
     depends_lib-append \
                  port:p5.12-libintl-perl \
                  port:p5.12-www-curl \
@@ -218,7 +219,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  path:lib/pkgconfig/pango.pc:pango \
                  port:fontconfig \
                  port:freetype \
-                 port:tif22pnm \
                  port:tiff \
                  port:stiff \
                  port:libgeotiff \
@@ -228,7 +228,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:jpegoptim \
                  port:jpegpixi \
                  port:mjpegtools \
-                 port:stegdetect \
                  port:zlib \
                  port:bzip2 \
                  path:bin/gs:ghostscript \
@@ -275,7 +274,12 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py25-curl \
                  port:dbus-python25 \
                  port:py25-gtkmvc \
-                 port:py25-pygtksourceview
+                 port:py25-pygtksourceview \
+                 port:pear-CodeGen
+        if {[variant_isset help_browser]} {
+            depends_lib-append \
+                 port:py25-webkitgtk
+        }
     }
     if {[variant_isset python26]} {
         depends_lib-append \
@@ -287,6 +291,10 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:dbus-python26 \
                  port:py26-gtkmvc \
                  port:py26-pygtksourceview
+        if {[variant_isset help_browser]} {
+            depends_lib-append \
+                 port:py26-webkitgtk
+        }
     }
     if {[variant_isset python27]} {
         depends_lib-append \
@@ -297,7 +305,15 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:dbus-python27 \
                  port:py27-gtkmvc \
                  port:py27-pygtksourceview
+        if {[variant_isset help_browser]} {
+            depends_lib-append \
+                 port:py27-webkitgtk
+        }
     }
+    configure.cppflags-delete -Wunknown-warning-option \
+                              -Wformat-non-literal
+    configure.cppflags-append -Wno-unknown-warning-option \
+                              -Wformat-nonliteral
 }
 
 post-activate {
