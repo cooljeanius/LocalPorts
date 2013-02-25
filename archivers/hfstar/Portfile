@@ -6,25 +6,32 @@ PortSystem      1.0
 name            hfstar
 version         1.13.19
 categories      archivers
-revision        3
+revision        4
 maintainers     gwmail.gwu.edu:egall openmaintainer
 license         GPL-2+
 description     gnutar with HFS+ support
 platforms       darwin
-long_description    \
+long_description \
         A version of gnutar for Mac OS X that supports \
-        archiving HFS+ specific information such as resource     \
+        archiving HFS+ specific information such as resource \
         forks, type and creator codes as well as other finder flags.
+
 homepage        http://www.metaobject.com/Products.html
 master_sites    http://www.metaobject.com/downloads/macos-x
+
 distname        ${name}.${version}-1.s
 extract.suffix  .tgz
+
 checksums       md5  67641190e4b3946c201a48310fe2e581 \
                 sha1 71441ca5b270e41ee1e0e2aa47f97a825a0675a0
+
 worksrcdir      ${name}
+
 patchfiles      patch-po_Makefile.in.in patch-lib-getline.h.diff
+
 configure.args  --program-prefix=hfs --mandir=${prefix}/share/man \
                 --infodir=${prefix}/share/info
+
 build.env       LANG=C
 
 post-destroot {
