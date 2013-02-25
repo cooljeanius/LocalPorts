@@ -6,6 +6,7 @@ PortGroup           ocaml 1.0
 
 name                libCUDF
 version             development-version
+epoch               1
 categories          devel ml
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall
@@ -31,7 +32,7 @@ use_configure       no
 
 use_parallel_build  no
 
-build.target        opt
+build.target-append opt
 
 post-destroot {
     eval xinstall [glob ${destroot}/usr/bin/*] ${destroot}${prefix}/bin
@@ -42,26 +43,8 @@ variant tests description {Run the test suite} {
     depends_build-append port:ocaml-ounit
     test.run        yes
     test.cmd        make
-    test.target     test
+    test.target-append test
     post-build {
         system -W ${worksrcpath} "${test.cmd} ${test.target}"
-    }
-}
-
-variant native description {Build C bindings} {
-    pre-configure {
-        ui_error "This variant doesn't work yet"
-        return -code error "unimplemented variant"
-    }
-    depends_lib-append  port:glib2 \
-                        port:swig-ocaml
-    build.cmd           "make -C"
-    build.target        c-lib-opt
-    if {[variant_isset tests]} {
-        test.cmd            "make -C"
-        test.target-append  c-lib test
-        post-build {
-            system -W ${worksrcpath} "${test.cmd} ${test.target}"
-        }
     }
 }
