@@ -27,4 +27,5 @@ depends_lib-append port:python27_full \
                    port:sudo \
                    port:erni \
                    port:darwinbuild \
-                   port:rootsh
+                   port:rootsh \
+                   port:zeroinstall-injector
