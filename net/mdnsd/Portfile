@@ -10,7 +10,7 @@ revision        1
 categories      net
 maintainers     gwmail.gwu.edu:egall openmaintainer
 description     embeddable Multicast DNS Daemon
-license         GPL-3+ BSD Permissive
+license         {GPL-3+ BSD} Permissive
 platforms       darwin
 long_description    \
     ${name} is a very lightweight, simple, portable, and easy to integrate \
