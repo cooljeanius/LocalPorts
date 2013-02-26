@@ -190,7 +190,16 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  path:bin/nm:cctools \
                  port:gettext \
                  port:makeicns \
-                 port:libtool
+                 port:libtool \
+                 port:libxslt \
+                 port:gtk-doc \
+                 port:pkg-config \
+                 port:autoconf \
+                 port:automake \
+                 port:intltool \
+                 path:bin/git:git-core
+    # intltool needs to be run with the correct version of perl
+    configure.env-append INTLTOOL_PERL=${prefix}/bin/perl5.12
     depends_lib-append \
                  port:p5.12-libintl-perl \
                  port:p5.12-www-curl \
@@ -254,7 +263,8 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:gobject-introspection \
                  port:sgml-common \
                  port:libsgml \
-                 port:xorg-sgml-doctools
+                 port:xorg-sgml-doctools \
+                 port:libgtkhtml
     depends_run-append \
                  port:libsvg-cairo \
                  port:gdk-pixbuf \
@@ -262,7 +272,7 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:jpeg2ps \
                  port:twain-sane \
                  port:jhead
-    depends_skip_archcheck jhead twain-sane jpeg2ps png2ico libsvg-cairo gdk-pixbuf
+    depends_skip_archcheck jhead twain-sane jpeg2ps png2ico libsvg-cairo gdk-pixbuf gtk-doc
     if {[variant_isset python25]} {
         depends_lib-append \
                  port:py25-fpconst \
@@ -272,6 +282,7 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:dbus-python25 \
                  port:py25-gtkmvc \
                  port:py25-pygtksourceview \
+                 port:py25-libxslt \
                  port:pear-CodeGen
         if {[variant_isset help_browser]} {
             depends_lib-append \
@@ -287,7 +298,9 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py26-curlish \
                  port:dbus-python26 \
                  port:py26-gtkmvc \
-                 port:py26-pygtksourceview
+                 port:py26-pygtksourceview \
+                 port:py26-libxslt \
+                 port:py26-gtkhtml2
         if {[variant_isset help_browser]} {
             depends_lib-append \
                  port:py26-webkitgtk
@@ -301,7 +314,9 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py27-curlish \
                  port:dbus-python27 \
                  port:py27-gtkmvc \
-                 port:py27-pygtksourceview
+                 port:py27-pygtksourceview \
+                 port:py27-libxslt \
+                 port:py27-gtkhtml2
         if {[variant_isset help_browser]} {
             depends_lib-append \
                  port:py27-webkitgtk
@@ -309,7 +324,8 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
     }
     if {[variant_isset help_browser]} {
         depends_lib-append \
-                 port:html
+                 port:html \
+                 port:libgtkhtml3
     }
     configure.cppflags-delete -Wunknown-warning-option \
                               -Wformat-non-literal
