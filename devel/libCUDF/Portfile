@@ -5,8 +5,9 @@ PortSystem          1.0
 PortGroup           ocaml 1.0
 
 name                libCUDF
-version             development-version
-epoch               1
+version             0.6.3
+epoch               2
+revision            0
 categories          devel ml
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall cal openmaintainer
@@ -21,8 +22,14 @@ long_description    ${description} A CUDF \
 
 homepage            http://www.mancoosi.org/cudf/
 
+master_sites        https://gforge.inria.fr/frs/download.php/31910/
+checksums           rmd160  be614de4b8a0de525619251fd61d241160fde1e9 \
+                    sha256  6e9f1bafe859df85c854679e2904a8172945d2bf2d676c8ae3ecb72fe6de0665
+
 fetch.type          git
 git.url             git://scm.gforge.inria.fr/cudf/cudf.git
+
+worksrcdir          cudf-${version}
 
 depends_lib-append  port:camlp5 \
                     port:ocaml-findlib \
@@ -30,13 +37,24 @@ depends_lib-append  port:camlp5 \
 
 use_configure       no
 
+# parallel building fails
 use_parallel_build  no
 
 build.target-append opt
 
+build.env-append    CC=${configure.cc}\
+                    CFLAGS=\"${configure.cflags} [get_canonical_archflags cc]\" \
+                    LDFLAGS=\"${configure.ldflags} [get_canonical_archflags ld]\" \
+
+post-patch {
+    reinplace "s#/usr/#${prefix}/#g" ${worksrcpath}/Makefile.config
+}
+
 post-destroot {
-    eval xinstall [glob ${destroot}/usr/bin/*] ${destroot}${prefix}/bin
-    eval file delete [glob ${destroot}/usr/bin/*]
+    if {[file isdirectory ${destroot}/usr/bin]} {
+        eval xinstall [glob ${destroot}/usr/bin/*] ${destroot}${prefix}/bin
+        eval file delete [glob ${destroot}/usr/bin/*]
+    }
 }
 
 variant tests description {Run the test suite} {
@@ -55,3 +73,7 @@ variant native description {Stub variant; just pulls in some extra dependencies 
                        port:pkgconfig \
                        port:ncurses
 }
+
+livecheck.type      regex
+livecheck.url       https://gforge.inria.fr/export/rss20_newreleases.php?group_id=4385
+livecheck.regex     "cudf (\\d+(?:\\.\\d+)*)"
