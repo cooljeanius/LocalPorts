@@ -116,7 +116,16 @@ variant latex description {Support LaTeX/PDF doxygen output} {
   depends_build-append          bin:pdflatex:texlive \
                                 bin:gs:ghostscript \
                                 port:texlive-latex-extra \
-                                port:texlive-fontutils
+                                port:texlive-fontutils \
+                                port:texlive-fonts-extra \
+                                port:texlive-fonts-recommended \
+                                port:texlive-bin-extra \
+                                port:texlive-plain-extra \
+                                port:texlive-documentation-english \
+                                port:texlive-generic-extra \
+                                port:texlive-metapost \
+                                port:texlive-math-extra \
+                                port:texlive-luatex
   depends_skip_archcheck        xorg-libxcb
 }
 

@@ -5,6 +5,7 @@ PortSystem           1.0
 
 name                 gcab
 version              0.4
+set branch           [join [lrange [split ${version} .] 0 1] .]
 categories           gnome devel
 platforms            darwin
 maintainers          gwmail.gwu.edu:egall openmaintainer
@@ -15,15 +16,16 @@ description          ${name} is a program to create Microsoft cabinet (.cab) arc
 long_description     ${description}. It also provides a gobject-introspection interface.
 
 homepage
-# I tried using "gnome" for the master_sites entry but that didn't work
-master_sites         http://ftp.acc.umu.se/pub/GNOME/sources/${name}/${version}
+master_sites         gnome:sources/${name}/${branch}/
 
-checksums            sha256  f907b16f1246fbde9397363d9c4ad2291f2a8a53dcd4f5979d3912bb856991b8
+checksums            md5     27c9f182bd279bedae3ba2fc5734c651 \
+                     sha     d81dfe35125e611e3a94c0d4def37ebf62b9187c \
+                     rmd160  00426e186ff7920dcf55ad3a2b544d396cbeac29 \
+                     sha256  f907b16f1246fbde9397363d9c4ad2291f2a8a53dcd4f5979d3912bb856991b8
 
 use_xz               yes
 depends_build-append port:pkgconfig \
                      port:valabind \
-                     port:gettext \
                      port:intltool
 post-patch {
     reinplace "s|m4\_esyscmd\(build-aux\/git-version-gen\ \.tarball-version\)|${version}|" ${worksrcpath}/configure.ac
@@ -35,8 +37,11 @@ pre-configure {
 }
 use_autoreconf       yes
 autoreconf.args      -fvi
-depends_lib-append   port:glib2 \
+depends_lib-append   path:lib/pkgconfig/glib-2.0.pc:glib2 \
                      port:zlib \
+                     port:gettext \
+                     port:libffi \
+                     port:libiconv \
                      port:vala \
                      port:gobject-introspection
 
