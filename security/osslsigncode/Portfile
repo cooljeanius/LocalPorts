@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                osslsigncode
+version             1.4
+categories          security devel
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             GPL-2+
+
+description         ${name} is a small tool that implements part of the functionality \
+                    of the Microsoft tool signcode.exe
+
+long_description    ${description} - more exactly the Authenticode \
+                    signing and timestamping. But ${name} is based on OpenSSL and cURL, \
+                    and thus should be able to compile on most platforms where these exist.
+
+homepage            http://osslsigncode.sourceforge.net/
+master_sites        sourceforge
+
+checksums           md5     018b12b3efc4a5250dd3977c2bada3cd \
+                    sha1    ac63d62abddfcb37597640da96f61f496bee6086 \
+                    rmd160  58e5031f2f94b8f6bcdf90a6beacf19758d7e429 \
+                    sha256  721eddade1571fcde54e7f5c21f961dacb990c19f9bdb05c4a7aaeb269979069
+
+depends_build-append port:pkgconfig
+depends_lib-append   port:openssl
+
+variant curl description {Build with curl support} {
+    depends_lib-append port:curl
+    configure.args-append --with-curl
+}
+
+variant egallager requires curl description {Use my Github fork for the source} {
+    PortGroup                github 1.0
+    github.setup             cooljeanius osslsigncode ${version}
+    fetch.type 	             git
+    git.url 	             git://github.com/cooljeanius/osslsigncode.git
+    use_autoreconf           yes
+    depends_build-append     port:gawk \
+                             port:grep
+}

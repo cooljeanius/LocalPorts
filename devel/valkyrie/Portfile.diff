@@ -1,0 +1,65 @@
+--- Portfile.orig	2013-03-02 22:57:18.000000000 -0500
++++ Portfile	2013-03-02 22:54:08.000000000 -0500
+@@ -32,31 +32,24 @@
+ # This was taken from the valgrind portfile; I don't know if it actually applies to valkyrie, too, though...
+ pre-configure {
+     if {"darwin" == ${os.platform} && (${os.major} < 9 || ${os.major} > 12)} {
+-        ui_error "${name} ${version} is only compatible with Mac OS X 10.5, 10.6, 10.7 and 10.8"
+-        return -code error "incompatible Mac OS X version"
++        ui_error "${name} ${version} is only compatible with OS X 10.5, 10.6, 10.7 and 10.8"
++        return -code error "incompatible OS X version"
+     }
+ }
+ 
+-# "use_configure no" is a dirty hack used because I couldn't get it to work otherwise
+-use_configure         no
+-# Even though we're not using configure, I left these in, in case someone want to try to remove it
+-# and use the configure step properly again
+ configure.cmd         "${qt_qmake_cmd}"
+-configure.args-delete --prefix=/opt/local \
+-                      --disable-dependency-tracking
+-configure.args        QMAKESPEC=${qt_mkspecs_dir}/macx-g++
++configure.args-append  QMAKESPEC=${qt_mkspecs_dir}/macx-g++ PREFIX=${prefix}
+ configure.pre_args
+ configure.post_args
+ configure.ldflags
++configure.universal_args
++configure.env-append  PREFIX=${prefix}
+ 
+ depends_build-append  port:makeicns
+ depends_lib-append    path:bin/valgrind:valgrind \
+                       port:xpm
+ 
+ post-configure {
+-# doing the actual configuring in a post-configure step goes with the dirty hack of
+-# using "use_configure no" above
+-    system -W ${worksrcpath} "${qt_qmake_cmd} QMAKESPEC=${qt_mkspecs_dir}/macx-g++"
+ # When Qt is installed without +universal, and qmake is called with
+ # "QMAKE_LDFLAGS += -arch foo", and "foo" is the native arch, then, at
+ # least sometimes, qmake will erroneously remove the second "foo" but
+@@ -75,17 +68,21 @@
+     }
+ }
+ 
++# Just in case
++build.env-append      ${configure.env}
++
++# This variant could have been left empty but I felt like I had to put something in it
+ variant debug description {Set for debugging} {
+     use_parallel_build no
+ }
+ 
+-# Setting destroot.destdir doesn't actually work, but it should though.
++# Apparently putting stuff in ${applications_dir} counts as violating the mtree...
++destroot.violate_mtree      yes
++
++# Setting destroot.destdir just in case
+ destroot.destdir      ${destroot}${prefix}
+-# "make install" by default puts stuff into ${destroot}/usr/local,
+-# so we have to move everything into the right places manually
+ post-destroot {
+     xinstall -d ${destroot}${prefix}/share/${name}-${version}
+-    copy [glob ${destroot}/usr/local/share/${name}-${version}/*] ${destroot}${prefix}/share/${name}-${version}
+     xinstall -m 755 -d ${destroot}${applications_dir}
+     copy [glob ${destroot}/*/local/bin/*.app] ${destroot}${applications_dir}
+     foreach png [glob ${worksrcpath}/icons/*.png] {
