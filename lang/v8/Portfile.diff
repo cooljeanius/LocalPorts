@@ -1,0 +1,15 @@
+--- /opt/local/var/macports/sources/rsync.macports.org/release/tarballs/ports/lang/v8/Portfile	2013-03-01 12:00:16.000000000 -0500
++++ Portfile	2013-03-03 12:01:25.000000000 -0500
+@@ -23,7 +23,11 @@
+ 
+ depends_build           bin:svn:subversion
+ 
+-variant universal       {}
++variant universal       {
++# v8's configure script doesn't recognize the --disable-dependency-tracking flag,
++# so nuke configure.universal_args to fix it.
++    configure.universal_args
++}
+ 
+ configure.cmd           make
+ configure.pre_args

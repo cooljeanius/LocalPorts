@@ -1,0 +1,97 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=portfile:et:sw=4:ts=4:sts=4
+# $Id: Portfile 101882 2013-01-20 21:38:30Z g5pw@macports.org $
+
+PortSystem          1.0
+
+name                rust
+version             0.5
+revision            1
+maintainers         g5pw openmaintainer
+
+categories          lang devel
+description         Compiler for the Rust programming language
+long_description    This is a compiler for Rust, including standard libraries,\
+                    tools and documentation.
+
+platforms           darwin
+license             {MIT Apache-2}
+
+homepage            http://www.rust-lang.org
+master_sites        http://dl.rust-lang.org/dist
+
+checksums           rmd160  b4988da7be984aa1337f4076e96e6d0c72e3170d \
+                    sha256  d326d22707f0562d669c11efbc33ae812ddbf76ab78f07087fc5beb095a8928a
+
+# Rust has yet to add 10.5 support: https://github.com/mozilla/rust/issues/4232
+pre-fetch {
+    if {${os.platform} == "darwin" && ${os.major} < 10} {
+        ui_error "${name} only works with OS X 10.6 Snow Leopard or later."
+        return -code error "incompatible OS X version"
+    }
+}
+
+# There's a makefile that ignores the configure script CC options, this makes \
+# it behave.
+build.args-append   CC=${configure.cc} \
+                    CXX=${configure.cxx} \
+                    CPP=${configure.cpp}
+
+# Rust has not added universal binary support: https://github.com/mozilla/rust/issues/2024
+supported_archs     i386 x86_64
+universal_variant   no
+
+# rust's configure script doesn't recognize the --disable-dependency-tracking flag,
+# so nuke configure.universal_args to fix it.
+# (leaving this in just in case a universal variant ever gets added back)
+configure.universal_args
+
+# Rust builds a copy of llvm, so import all of llvm's deps
+depends_build-append port:llvm_select
+depends_lib-append   port:libffi
+depends_run-append   port:perl5
+# Add some other dependencies asked for while configuring
+depends_build-append port:curl \
+                     port:gawk \
+                     port:diffutils \
+                     port:coreutils \
+                     port:findutils \
+                     port:gsed \
+                     port:git-core \
+                     bin:ld:ld64 \
+                     bin:valgrind:valgrind \
+                     port:texlive-latex \
+                     port:texlive-luatex \
+                     port:texlive-xetex \
+                     port:nodejs \
+                     bin:dot:graphviz \
+                     port:doxygen \
+                     port:binutils \
+                     port:zip \
+                     port:groff \
+                     port:gzip \
+                     port:ocaml \
+                     port:libxml2 \
+                     port:csu
+configure.env-append CFG_LLVM_ROOT=${prefix} \
+                     CFG_LOCAL_RUST_ROOT=${prefix}
+configure.args-append \
+                     --enable-valgrind \
+                     --enable-helgrind \
+                     --disable-optimize \
+                     --disable-optimize-cxx \
+                     --disable-optimize-llvm \
+                     --enable-debug \
+                     --enable-fast-make
+
+compiler.whitelist-append clang
+compiler.whitelist-append llvm
+
+pre-configure {
+    system -W ${worksrcpath} "git init"
+    system -W ${worksrcpath} "git submodule init"
+    system -W ${worksrcpath} "git submodule update"
+    system -W ${worksrcpath} "touch .gitmodules"
+}
+
+livecheck.url       ${homepage}/
+livecheck.regex     "/release-(\\d\.\\d)/"
