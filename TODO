@@ -87,3 +87,4 @@ From gnome-desktop-suite's comments hidden in its portfile:
 Make sure every GNU package has a port:
 http://www.gnu.org/software/software.html#allgnupkgs
 
+AMD has opensource stuff; the only one they confirm to work on Mac though is Aparapi

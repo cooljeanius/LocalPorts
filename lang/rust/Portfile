@@ -71,7 +71,8 @@ depends_build-append port:curl \
                      port:gzip \
                      port:ocaml \
                      port:libxml2 \
-                     port:csu
+                     port:csu \
+                     port:c-ares
 configure.env-append CFG_LLVM_ROOT=${prefix} \
                      CFG_LOCAL_RUST_ROOT=${prefix}
 configure.args-append \
@@ -88,10 +89,13 @@ compiler.whitelist-append llvm
 
 pre-configure {
     system -W ${worksrcpath} "git init"
+    system -W ${worksrcpath} "git remote add origin https://github.com/mozilla/rust.git"
     system -W ${worksrcpath} "git submodule init"
     system -W ${worksrcpath} "git submodule update"
     system -W ${worksrcpath} "touch .gitmodules"
 }
+
+use_parallel_build  no
 
 livecheck.url       ${homepage}/
 livecheck.regex     "/release-(\\d\.\\d)/"

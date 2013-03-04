@@ -39,7 +39,7 @@ patch {
 configure.cmd		qmake
 configure.pre_args  -spec macx-g++
 
-# qmake doesn't recognize the --disable-dependency-tracking flag,
-# so nuke configure.universal_args to fix it.
-configure.universal_args
+# qmake doesn't recognize the --disable-dependency-tracking flag
+configure.universal_args-delete \
+                    --disable-dependency-tracking
 
