@@ -31,6 +31,7 @@ destroot {
     xinstall -m 640 ${worksrcpath}/README.md ${destroot}${prefix}/share/doc/${name}
 }
 
+depends_build-append port:gawk
 depends_lib-append port:gawk \
                    port:mawk \
                    port:xgawk \
@@ -96,7 +97,6 @@ depends_lib-append port:gawk \
                    port:lemon \
                    port:bison \
                    port:bison1 \
-                   port:am-utils \
                    port:idutils \
                    port:desktop-file-utils \
                    port:diffutils \
@@ -155,6 +155,11 @@ depends_lib-append port:gawk \
                    port:gwhich \
                    port:less \
                    port:texi2html \
+                   port:c2html \
+                   port:rtf2html \
+                   port:txt2html \
+                   port:txt2man \
+                   port:txt2regex \
                    port:gzip \
                    port:gzrecover \
                    port:gengetopt \
@@ -179,7 +184,6 @@ depends_lib-append port:gawk \
                    port:sgrep \
                    port:sgrep2 \
                    port:exec-wrapper \
-                   port:txt2man \
                    port:docbook2x \
                    port:fmscripts \
                    port:macutil \

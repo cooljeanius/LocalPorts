@@ -183,7 +183,8 @@ depends_build-append port:cpan2port \
                      port:portfile-gen \
                      port:pearl \
                      port:ghsum \
-                     port:useful-ports
+                     port:useful-ports \
+                     port:port-whatsnew
 }
 variant egallager requires mp_shadow_deps description "Uses my personal fork of MacPorts" {
     PortGroup                github 1.0
