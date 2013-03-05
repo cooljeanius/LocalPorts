@@ -333,7 +333,20 @@ variant motif requires x11 description {Use Motif to build xdvi} {
     configure.args-append --with-xdvi-x-toolkit=motif
 }
 
-variant no_x11 conflicts x11 motif description {Legacy compatibility variant} {}
+variant no_x11 conflicts x11 motif description {Legacy compatibility variant} {
+depends_lib-delete  port:xorg-libX11 \
+                    port:xorg-libXau \
+                    port:xorg-libXdmcp \
+                    port:xorg-libXext \
+                    port:xorg-libXmu \
+                    port:xorg-libXt \
+                    port:xorg-libice \
+                    port:xorg-libsm \
+                    port:xorg-libxcb \
+                    port:xpm \
+                    port:xorg-libXp \
+                    port:xorg-libXaw
+}
 
 variant no_makejvf description {Temporary variant to keep makejvf from building and causing a memory leak} {
     configure.args-append --disable-makejvf
