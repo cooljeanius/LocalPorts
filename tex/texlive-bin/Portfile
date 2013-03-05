@@ -47,7 +47,7 @@ checksums           texlive-${version}0708.26940-source-stripped.tar.xz \
                     rmd160  f550437e2591f770d449a01fabd44a4eb43d79fb \
                     sha256  259ed8697d8f42de51da4c0345c15d25c2925ec3f3422420c9144d9a54c55fb9
 
-depends_lib         port:fontconfig \
+depends_lib-append  port:fontconfig \
                     port:freetype \
                     port:libpng \
                     port:ncurses \
@@ -57,11 +57,24 @@ depends_lib         port:fontconfig \
                     port:poppler \
                     port:texlive-common \
                     port:icu \
-                    port:xorg-libX11
+                    port:xorg-libX11 \
+                    port:bzip2 \
+                    port:gettext \
+                    port:libiconv \
+                    port:xorg-libXau \
+                    port:xorg-libXdmcp \
+                    port:xorg-libXext \
+                    port:xorg-libXmu \
+                    port:xorg-libXt \
+                    port:xorg-libice \
+                    port:xorg-libsm \
+                    port:xorg-libxcb \
+                    port:xpm
 
-depends_run         port:ghostscript
+depends_run-append  port:ghostscript
 
-depends_build       path:bin/perl:perl5 \
+depends_build-append \
+                    path:bin/perl:perl5 \
                     path:bin/pkg-config:pkgconfig \
                     port:gcc_select \
                     port:llvm_select \
