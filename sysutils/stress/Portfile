@@ -28,6 +28,7 @@ variant autoreconf description {Regenerates configure script before building. \
                          port:texinfo \
                          port:pkgconfig
     use_autoreconf       yes
+    autoreconf.args      -fvi
     configure.args-append --disable-silent-rules
 }
 

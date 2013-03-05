@@ -27,9 +27,11 @@ checksums           md5     018b12b3efc4a5250dd3977c2bada3cd \
 
 depends_build-append port:pkgconfig
 depends_lib-append   port:openssl
+configure.args-append --without-curl
 
 variant curl description {Build with curl support} {
     depends_lib-append port:curl
+    configure.args-delete --without-curl
     configure.args-append --with-curl
 }
 
@@ -39,6 +41,7 @@ variant egallager requires curl description {Use my Github fork for the source} 
     fetch.type 	             git
     git.url 	             git://github.com/cooljeanius/osslsigncode.git
     use_autoreconf           yes
+    autoreconf.args          -fvi
     depends_build-append     port:gawk \
                              port:grep
 }

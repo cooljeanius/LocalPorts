@@ -34,6 +34,8 @@ configure.args  --program-prefix=hfs --mandir=${prefix}/share/man \
 
 build.env       LANG=C
 
+depends_lib-append port:gettext
+
 post-destroot {
     foreach message [glob ${destroot}${prefix}/share/locale/*/LC_MESSAGES/*.mo] {
         file rename ${message} [file dirname ${message}]/hfs[file tail ${message}]

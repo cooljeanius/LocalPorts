@@ -50,8 +50,8 @@ depends_lib-append   port:gtk2 \
                      port:libbonoboui \
                      port:orbit2 \
                      port:atk \
-                     port:cairo \
-                     port:pango \
+                     path:lib/pkgconfig/cairo.pc:cairo \
+                     path:lib/pkgconfig/pango.pc:pango \
                      port:gdk-pixbuf2 \
                      port:glib2 \
                      path:lib/pkgconfig/pixman-1.pc:libpixman \
@@ -61,7 +61,30 @@ depends_lib-append   port:gtk2 \
                      port:libart_lgpl \
                      port:gnome-vfs \
                      port:gnome-vfs-monikers \
-                     path:bin/dbus-send:dbus
+                     path:bin/dbus-send:dbus \
+                     port:bzip2 \
+                     port:audiofile \
+                     port:dbus-glib \
+                     port:eggdbus \
+                     port:esound \
+                     port:expat \
+                     port:fontconfig \
+                     port:graphite2 \
+                     port:icu \
+                     port:libffi \
+                     port:libgcrypt \
+                     port:libgpg-error \
+                     port:libiconv \
+                     port:openssl \
+                     port:popt \
+                     port:xorg-libX11 \
+                     port:xorg-libxcb \
+                     port:xrender \
+                     port:xorg-libXext \
+                     port:xorg-libXau \
+                     port:xorg-libXdmcp \
+                     port:xz \
+                     port:zlib
 
 configure.ldflags-append -L${prefix}/lib
 

@@ -4,7 +4,7 @@
 PortSystem           1.0
 PortGroup            github 1.0
 
-github.setup         cooljeanius bnetd 0.4.27.2 v
+github.setup         cooljeanius bnetd 0.4.27.2_1 v
 name                 bnetd
 version              0.4.27.2
 categories           net games
@@ -30,11 +30,14 @@ depends_lib-append   port:libpcap \
                      port:rpl
 
 use_autoreconf       yes
+autoreconf.args      -fvi
 
 configure.args       --mandir=${prefix}/share/man/ \
                      --sysconfdir=${prefix}/etc/bnetd/ \
-                     --localstatedir=${prefix}/var/bnetd/ \
-                     --with-warn
+                     --localstatedir=${prefix}/var/bnetd/
+
+build.cmd            "make -f Makefile.bak"
+use_parallel_build   no
 
 platform darwin powerpc {
     configure.args-append --build=powerpc-apple-freebsd
@@ -43,11 +46,13 @@ platform darwin i386 {
     configure.args-append --build=i386-apple-darwin${os.version}
 }
 
+destroot.destdir    prefix=${destroot}${prefix}
+destroot.cmd        "make -f Makefile.bak install"
+
 pre-destroot    {
     reinplace "s|${prefix}|\${prefix}|g" ${worksrcpath}/Makefile
+    reinplace "s|${prefix}|${destroot}${prefix}|g" ${worksrcpath}/Makefile.bak
 }
-
-destroot.destdir    prefix=${destroot}${prefix}
 
 post-destroot    {
     set vardir ${destroot}${prefix}/var/bnetd
@@ -56,9 +61,9 @@ post-destroot    {
         destroot.keepdirs-append ${vardir}/${file}
     }
     reinplace "s|${destroot}${prefix}|${prefix}|g" \
-        ${destroot}${prefix}/etc/bnetd/bnetd.conf \
-        ${destroot}${prefix}/etc/bnetd/d2cs.conf \
-        ${destroot}${prefix}/etc/bnetd/d2dbs.conf
+        ${destroot}${prefix}/etc/${name}/${name}/${name}.conf \
+        ${destroot}${prefix}/etc/${name}/${name}/d2cs.conf \
+        ${destroot}${prefix}/etc/${name}/${name}/d2dbs.conf
 }
 
 variant efence conflicts universal description {Adds support for Electric Fence for finding memory problems} {

@@ -62,20 +62,37 @@ variant autoreconf description {Regenerates configure script before building.} {
                          port:grep \
                          port:autoconf-archive \
                          port:MacOSXMacros \
-                         port:vala \
+                         port:valabind \
                          port:intltool \
                          port:gtk-doc
     depends_lib-append   port:freetype \
+                         path:lib/pkgconfig/pixman-1.pc:libpixman \
                          port:fontconfig \
-                         port:cairo \
-                         port:pango \
+                         path:lib/pkgconfig/cairo.pc:cairo \
+                         path:lib/pkgconfig/pango.pc:pango \
                          port:libpng \
                          port:atk \
                          port:icu \
                          port:gdk-pixbuf2 \
                          port:xorg-libX11 \
-                         port:python27
+                         port:xorg-libxcb \
+                         port:xrender \
+                         port:xorg-libXext \
+                         port:xorg-libXau \
+                         port:xorg-libXdmcp \
+                         port:python27 \
+                         port:bzip2 \
+                         port:expat \
+                         port:gettext \
+                         port:glib2 \
+                         port:graphite2 \
+                         port:harfbuzz \
+                         port:libffi \
+                         port:libiconv \
+                         port:vala \
+                         port:zlib
     use_autoreconf       yes
+    autoreconf.args      -fvi
     configure.args-append --disable-silent-rules
 }
 

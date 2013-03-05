@@ -30,6 +30,7 @@ variant autoreconf description {Regenerates configure script before building. \
                          port:grep \
                          port:autoconf-archive
     use_autoreconf       yes
+    autoreconf.args      -fvi
     configure.args-append --disable-silent-rules
 }
 variant docs description {Generate additional documentation by using latex2html} {

@@ -36,6 +36,7 @@ variant autoreconf description {Regenerates configure script before building.} {
                          port:autoconf-archive
     depends_lib-append   lib:libgd:gd2
     use_autoreconf       yes
+    autoreconf.args      -fvi
     configure.args-append --disable-silent-rules
 }
 
