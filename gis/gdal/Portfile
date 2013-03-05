@@ -484,7 +484,7 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler pos
                             port:szip \
                             port:xorg-libsm \
                             port:xorg-libice \
-                            port:xorg-libx11 \
+                            port:xorg-libX11 \
                             port:xorg-libxcb \
                             port:xorg-libXau \
                             port:xorg-libXdmcp \
@@ -493,6 +493,8 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler pos
                             port:gettext \
                             port:libssh2 \
                             port:libiconv \
+                            port:openssl \
+                            port:jbigkit \
                             path:lib/.libstdcxx:libstdcxx \
                             bin:java:kaffe
     if {[variant_isset python25]} {
