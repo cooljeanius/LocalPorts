@@ -40,10 +40,11 @@ variant no_rename description {Don't rename the files installed. Warning: This v
 
 variant egallager description {Use my GitHub fork for the source} {
     PortGroup                github 1.0
-    github.setup             cooljeanius osxbom ${version}
+    github.setup             cooljeanius ${name} ${version}
     fetch.type 	             git
-    git.url 	             git://github.com/cooljeanius/osslsigncode.git
+    git.url 	             git://github.com/cooljeanius/${name}.git
     use_autoreconf           yes
+    use_configure            yes
     autoreconf.args          -fvi
     depends_build-append     port:gawk \
                              port:grep
