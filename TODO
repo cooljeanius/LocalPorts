@@ -1,21 +1,22 @@
 Ports to create some day:
 - busybox (build system is difficult to wrangle, don't know if I can do it)
-- armadillo
+- armadillo (oops, listed it again below)
 - EasySIMBL
 - OpenCFLite
 - OpenPowerPlant
 - freexl
-- PureDarwin
-- stress
+- PureDarwin (have stub with deps so far)
+- stress (portfile submitted)
 - PackageMaker
 - Packages
 - FlatCarbon-Headers
 - other stuff from opensource.apple.com or from the Apple sample code that comes with Xcode.
 - also other stuff that comes from macosforge
-- db_select
-- pip_select
+- db_select (brought it up in a ticket for open-cobol but it got shot down then)
+- pip_select (created ticket asking for it)
 - Jumpcut
 - The Unarchiver
+
 Stuff I've downloaded from SourceForge randomly in the past:
 - Open64
 - ucc
@@ -39,6 +40,7 @@ Stuff I've downloaded from SourceForge randomly in the past:
 - clamtk
 - hspell-gui
 - db2html
+
 From gnome-desktop-suite's comments hidden in its portfile:
 #
 # TODO
@@ -88,3 +90,13 @@ Make sure every GNU package has a port:
 http://www.gnu.org/software/software.html#allgnupkgs
 
 AMD has opensource stuff; the only one they confirm to work on Mac though is Aparapi
+
+Things that don't exist on MacPorts, but that Homebrew and Fink use as dependencies for things that do also exist on MacPorts. For example:
+- Homebrew's GDAL uses armadillo, but MacPorts doesn't have armadillo
+- Homebrew's curl uses libmetalink, but MacPorts doesn't have libmetalink
+- Homebrew's mysql uses pidof, but MacPorts doesn't have pidof
+
+Projects I've forked on GitHub but haven't made ports for yet (or updated their existing ports):
+- libmspack
+- pict2pdf
+- bap
