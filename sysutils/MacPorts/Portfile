@@ -46,6 +46,7 @@ depends_build-append port:bsdmake \
 configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
                      BZR=${prefix}/bin/bzr \
                      GPATCH=${prefix}/bin/gpatch \
+                     GNUPATCH=${prefix}/bin/gpatch \
                      HG=${prefix}/bin/hg \
                      LZMA=${prefix}/bin/lzma \
                      SWIG=${prefix}/bin/swig \
@@ -104,6 +105,8 @@ configure.args-append --with-curlprefix=${prefix} \
 }
 
 variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager description {Makes MacPorts entirely self-hosting} {
+    PortGroup            archcheck 1.0
+    PortGroup            active_variants 1.1
     depends_build-append port:coreutils \
                          port:grep \
                          port:gwhich \
@@ -115,9 +118,13 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
                          port:cdsclient \
                          port:cmdftp \
                          port:mdf2iso \
-                         port:mtr
+                         port:mtr \
+                         port:osxbom \
+                         port:pkgconfig \
+                         port:bash
     depends_lib-append   port:tcl
-    depends_skip_archcheck man cdsclient
+    depends_skip_archcheck man cdsclient osxbom
+    require_active_variants osxbom no_rename
     set prefix           ${prefix}
     post-extract {
         reinplace "s|\[\$PATH\]\:/usr/sbin|\[\]|" ${worksrcpath}/configure.ac
@@ -130,14 +137,24 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
         reinplace "s|grep \-v|${prefix}/bin/grep \-v|" ${worksrcpath}/configure
         system -W ${worksrcpath} "ln -sv `which gzip` ."
         system -W ${worksrcpath} "ln -sv `which gmake` ."
+        system -W ${worksrcpath} "export PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin:${prefix}/libexec/texbin"
     }
+    configure.env-delete PATH=${prefix}/bin:${prefix}/sbin:/usr/bin:/bin:/usr/sbin:/sbin
     configure.env-append PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin:${prefix}/libexec/texbin \
                          GREP=${prefix}/bin/grep \
+                         EGREP='${prefix}/bin/grep -E' \
                          OPEN=${prefix}/bin/launch \
                          MAKE=${prefix}/bin/gmake \
                          GMAKE=${prefix}/bin/gmake \
+                         GNUMAKE=${prefix}/bin/gmake \
                          TCLSH=${prefix}/bin/tclsh \
-                         STLIB_LD=${prefix}/bin/ar
+                         STLIB_LD=${prefix}/bin/ar \
+                         LSBOM=${prefix}/lsbom \
+                         ECHO=${prefix}/libexec/gnubin/echo \
+                         CPPFLAGS=-I${prefix}/include \
+                         PKG_CONFIG=${prefix}/bin/pkg-config \
+                         SHELL=${prefix}/bin/bash \
+                         SQLITE3_TCL_DIR=${prefix}/lib/sqlite3
     pre-build {
         reinplace "s|gzip|${prefix}/bin/gzip|" ${worksrcpath}/Makefile
         reinplace "s|gzip|${prefix}/bin/gzip|" ${worksrcpath}/doc/Makefile
