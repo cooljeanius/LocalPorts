@@ -33,10 +33,8 @@ depends_lib-append  port:qt4-mac \
                     port:libproj4 \
                     port:mapnik \
                     port:mapserver \
-                    port:pgRouting \
                     port:postgis2 \
                     port:qgis \
-                    port:qlandkarte \
                     port:qlandkartegt \
                     port:qlandkartegt-garmindev \
                     port:spatialite \
@@ -67,7 +65,6 @@ depends_lib-append  port:qt4-mac \
                     port:rgm3800 \
                     port:rgm3800py \
                     port:viking \
-                    port:grads2 \
                     port:sunclock \
                     port:xearth \
                     port:bitmap \
@@ -83,29 +80,34 @@ depends_lib-append  port:qt4-mac \
                     port:xmgr \
                     port:scale2x \
                     port:tiled \
-                    port:xbitmaps
-depends_skip_archcheck lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45
+                    port:xbitmaps \
+                    port:Platypus \
+                    port:dylibbundler \
+                    port:CocoaDialog \
+                    port:cliclick \
+                    port:osgswig-devel
+depends_skip_archcheck lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45 gpsd
 require_active_variants qt4-mac {debug demos examples openvg universal}
 require_active_variants cgal {debug demos qt4 universal}
 require_active_variants tcl {corefoundation memdebug threads universal}
 require_active_variants postgresql84 {earthdistance krb5 tcl universal}
 require_active_variants gdal {huge universal}
-require_active_variants grass {ffmpeg mysql5 sqlite3 universal}
+require_active_variants grass {ffmpeg sqlite3 universal}
 require_active_variants libpcl {debug universal}
 require_active_variants mapnik {cairo gdal geos postgis osm sqlite}
-require_active_variants pgRouting {debug universal}
 require_active_variants postgis2 {gui universal}
 require_active_variants qlandkartegt {debug universal}
 require_active_variants qlandkartegt-garmindev {debug universal}
 require_active_variants qt4-mac-sqlite3-plugin {debug universal}
-require_active_variants vtk5 {data debug mysql universal}
-require_active_variants gmt4 {gdal octave triangle xgrid}
-require_active_variants gmt5 {gdal octave triangle}
+require_active_variants vtk5 {data debug universal}
+require_active_variants gmt4 {gdal triangle xgrid}
+require_active_variants gmt5 {gdal triangle}
 
 variant python25 conflicts python26 python27 \
     description {Enable Python 2.5 support} {
     depends_lib-append      port:python25 \
-                            port:py25-django
+                            port:py25-django \
+                            port:py25-lightblue
     require_active_variants gdal {python25}
     require_active_variants py25-django {bash_completion}
     require_active_variants qgis {python25}
@@ -118,7 +120,8 @@ variant python26 conflicts python25 python27 \
                             port:py26-django \
                             port:py26-mapnik \
                             port:py26-osmgpsmap \
-                            port:py26-rtree
+                            port:py26-rtree \
+                            port:py26-lightblue
     require_active_variants gdal {python26}
     require_active_variants mapnik {python26}
     require_active_variants py26-mapnik {cairo gdal postgis sqlite}
@@ -132,7 +135,8 @@ variant python27 conflicts python25 python26 \
     depends_lib-append      port:python27 \
                             port:py27-django \
                             port:py27-osmgpsmap \
-                            port:py27-rtree
+                            port:py27-rtree \
+                            port:py27-lightblue
     require_active_variants gdal {python27}
     require_active_variants postgresql84 {python python27}
     require_active_variants mapnik {python27}
@@ -144,7 +148,10 @@ variant python27 conflicts python25 python26 \
 variant broken description {broken dependencies are thrown here until they work} {
     depends_lib-append      port:gdal-grass \
                             port:libpcl \
-                            port:grass
+                            port:grass \
+                            port:pgRouting \
+                            port:qlandkarte \
+                            port:mapm3
     require_active_variants qgis {debug grass universal}
+    require_active_variants pgRouting {debug universal}
 }
-
