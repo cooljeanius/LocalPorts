@@ -30,7 +30,6 @@ depends_lib-append  port:qt4-mac \
                     port:gdal \
                     port:qdjango \
                     port:libkml \
-                    port:libpcl \
                     port:libproj4 \
                     port:mapnik \
                     port:mapserver \
@@ -51,8 +50,41 @@ depends_lib-append  port:qt4-mac \
                     port:xalanj \
                     port:xercesc \
                     port:mdbtools \
-                    port:qt4-mac-sqlite3-plugin
-depends_skip_archcheck lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc
+                    port:qt4-mac-sqlite3-plugin \
+                    port:vtk5 \
+                    port:fmscripts \
+                    port:cmconvert \
+                    port:dgpsip \
+                    port:gpsbabel \
+                    port:gpsd \
+                    port:osm-gps-map \
+                    port:p5.12-gps \
+                    port:p5.12-term-gnuplot \
+                    port:p5.12-gdgraph \
+                    port:p5.12-parse-win32registry \
+                    port:pear-Net_UserAgent_Mobile_GPS \
+                    port:pear-Image_GIS \
+                    port:rgm3800 \
+                    port:rgm3800py \
+                    port:viking \
+                    port:grads2 \
+                    port:sunclock \
+                    port:xearth \
+                    port:bitmap \
+                    port:gmt4 \
+                    port:gmt5 \
+                    port:gnuplot \
+                    port:grace \
+                    port:jgraph \
+                    port:ploticus \
+                    port:plotutils \
+                    port:qtiplot \
+                    port:treehh \
+                    port:xmgr \
+                    port:scale2x \
+                    port:tiled \
+                    port:xbitmaps
+depends_skip_archcheck lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45
 require_active_variants qt4-mac {debug demos examples openvg universal}
 require_active_variants cgal {debug demos qt4 universal}
 require_active_variants tcl {corefoundation memdebug threads universal}
@@ -66,6 +98,9 @@ require_active_variants postgis2 {gui universal}
 require_active_variants qlandkartegt {debug universal}
 require_active_variants qlandkartegt-garmindev {debug universal}
 require_active_variants qt4-mac-sqlite3-plugin {debug universal}
+require_active_variants vtk5 {data debug mysql universal}
+require_active_variants gmt4 {gdal octave triangle xgrid}
+require_active_variants gmt5 {gdal octave triangle}
 
 variant python25 conflicts python26 python27 \
     description {Enable Python 2.5 support} {
@@ -74,33 +109,41 @@ variant python25 conflicts python26 python27 \
     require_active_variants gdal {python25}
     require_active_variants py25-django {bash_completion}
     require_active_variants qgis {python25}
+    require_active_variants vtk5 {python25}
 }
 
 variant python26 conflicts python25 python27 \
     description {Enable Python 2.6 support} {
     depends_lib-append      port:python26 \
                             port:py26-django \
-                            port:py26-mapnik
+                            port:py26-mapnik \
+                            port:py26-osmgpsmap \
+                            port:py26-rtree
     require_active_variants gdal {python26}
     require_active_variants mapnik {python26}
     require_active_variants py26-mapnik {cairo gdal postgis sqlite}
     require_active_variants py26-django {bash_completion}
     require_active_variants qgis {python26}
+    require_active_variants vtk5 {python26}
 }
 
 variant python27 conflicts python25 python26 \
     description {Enable Python 2.7 support} {
     depends_lib-append      port:python27 \
-                            port:py27-django
+                            port:py27-django \
+                            port:py27-osmgpsmap \
+                            port:py27-rtree
     require_active_variants gdal {python27}
     require_active_variants postgresql84 {python python27}
     require_active_variants mapnik {python27}
     require_active_variants py27-django {bash_completion}
     require_active_variants qgis {python27}
+    require_active_variants vtk5 {python27}
 }
 
 variant broken description {broken dependencies are thrown here until they work} {
     depends_lib-append      port:gdal-grass \
+                            port:libpcl \
                             port:grass
     require_active_variants qgis {debug grass universal}
 }
