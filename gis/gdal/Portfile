@@ -2,6 +2,7 @@
 # $Id: Portfile 102865 2013-02-09 19:16:59Z jeremyhu@macports.org $
 
 PortSystem          1.0
+PortGroup           archcheck 1.0
 
 name                gdal
 version             1.9.2
@@ -115,6 +116,7 @@ variant lzma conflicts universal \
     depends_lib-append      port:lzma \
                             port:xz \
                             port:lzip
+    depends_skip_archcheck  lzma
     if {[variant_isset python24]} {
         depends_lib-append  port:py24-liblzma
     }
@@ -236,10 +238,11 @@ variant openjpeg conflicts jasper \
 }
 
 
-variant xerces description {Enable xerces XML support for GML file format} {
+variant xerces conflicts universal description {Enable xerces XML support for GML file format} {
     depends_lib-append      port:xercesc
     configure.args-delete   --without-xerces
     configure.args-append   --with-xerces=${prefix}
+    depends_skip_archcheck xercesc
 }
 
 variant expat description {Enable expat XML support} {
@@ -295,6 +298,7 @@ variant python27 conflicts python24 python25 python26 \
 # Database variants
 variant postgresql81 description {Enable PostgreSQL 8.1 support} {
     depends_lib-append      port:postgresql81
+    depends_skip_archcheck postgresql81
     configure.args-delete   --without-pg
     configure.args-append   --with-pg=${prefix}/lib/postgresql81/bin/pg_config
 }
@@ -411,8 +415,8 @@ variant framework description {Build as a Mac OS X framework} {
     configure.args-append   --with-macosx-framework
 }
 
-variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler postgresql82 \
-                      postgresql84 postgresql90 postgresql91 postgresql92 spatialite sqlite3 \
+variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl postgresql82 postgresql84 \
+                      postgresql90 postgresql91 postgresql92 spatialite sqlite3 \
                       description {Pull in as many dependencies as possible} {
     configure.args-delete   --without-lzma \
                             --without-pg \
@@ -454,8 +458,8 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler pos
                             --without-python \
                             --without-xerces \
                             --without-expat \
-                            --without-poppler \
                             --disable-dependency-tracking
+    configure.universal_args-delete --disable-dependency-tracking
     depends_lib-append      port:cfitsio \
                             port:libxmi \
                             port:netcdf-fortran \
@@ -472,7 +476,6 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler pos
                             port:swig-ruby \
                             port:rb-xmlparser \
                             port:rb-sqlite3 \
-                            port:rb-poppler \
                             port:libkml \
                             port:shapelib \
                             port:podofo \
@@ -495,6 +498,7 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler pos
                             port:libiconv \
                             port:openssl \
                             port:jbigkit \
+                            port:armadillo \
                             path:lib/.libstdcxx:libstdcxx \
                             bin:java:kaffe
     if {[variant_isset python25]} {
@@ -511,9 +515,6 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler pos
         depends_lib-append  port:py27-couchdb \
                             port:py27-xlwt
     }
-    if {[variant_isset xerces]} {
-        depends_lib-append  port:xalanj
-    }
     configure.args-append   --with-cfitsio \
                             --with-grib \
                             --with-perl \
@@ -521,20 +522,28 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl poppler pos
     use_parallel_build      no
 }
 
-variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresql81 postgresql83 xerces description {Extra dependencies that aren't universal} {
+variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresql83 xerces description {Extra dependencies that aren't universal} {
     depends_lib-append      port:wgrib2 \
                             port:ocilib \
-                            port:sam2p \
-                            port:pamtester \
-                            port:svdlibc \
                             port:couchdb \
                             port:swig-php \
                             port:pear-Net_Curl \
                             port:mdbtools
-    configure.args-append   --with-pam \
-                            --with-php \
+    depends_skip_archcheck lzma postgresql83 wgrib2 ocilib couchdb mdbtools xercesc
+    configure.args-append   --with-php \
                             --with-msg \
                             --with-oci
+}
+variant broken requires postgreql81 extra_nonuniversal poppler description {dependencies that don't even work even when not building universal} {
+    depends_lib-append      port:pamtester \
+                            port:svdlibc \
+                            port:sam2p
+    depends_skip_archcheck pamtester sam2p tif22pnm svdlibc
+    configure.args-append   --with-pam
+    if {[variant_isset xerces]} {
+        depends_lib-append  port:xalanj
+        depends_skip_archcheck xalanj
+    }
 }
 
 default_variants            +expat \

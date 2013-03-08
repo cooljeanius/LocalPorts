@@ -1,6 +1,5 @@
 Ports to create some day:
 - busybox (build system is difficult to wrangle, don't know if I can do it)
-- armadillo (oops, listed it again below)
 - EasySIMBL
 - OpenCFLite
 - OpenPowerPlant
@@ -92,7 +91,6 @@ http://www.gnu.org/software/software.html#allgnupkgs
 AMD has opensource stuff; the only one they confirm to work on Mac though is Aparapi
 
 Things that don't exist on MacPorts, but that Homebrew and Fink use as dependencies for things that do also exist on MacPorts. For example:
-- Homebrew's GDAL uses armadillo, but MacPorts doesn't have armadillo
 - Homebrew's curl uses libmetalink, but MacPorts doesn't have libmetalink
 - Homebrew's mysql uses pidof, but MacPorts doesn't have pidof
 

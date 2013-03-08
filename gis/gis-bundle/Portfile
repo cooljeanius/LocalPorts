@@ -1,0 +1,107 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           active_variants 1.1
+PortGroup           archcheck 1.0
+
+name                gis-bundle
+version             0.1.0
+categories          replaceme
+platforms           darwin
+maintainers         replaceme
+license             replaceme
+
+description         replaceme
+
+long_description    replaceme
+
+homepage            replaceme
+master_sites        replaceme
+supported_archs     noarch
+
+checksums           rmd160  12345 \
+                    sha256  6789a
+
+depends_lib-append  port:qt4-mac \
+                    port:cgal \
+                    port:tcl \
+                    port:postgresql84 \
+                    port:gdal \
+                    port:qdjango \
+                    port:libkml \
+                    port:libpcl \
+                    port:libproj4 \
+                    port:mapnik \
+                    port:mapserver \
+                    port:pgRouting \
+                    port:postgis2 \
+                    port:qgis \
+                    port:qlandkarte \
+                    port:qlandkartegt \
+                    port:qlandkartegt-garmindev \
+                    port:spatialite \
+                    port:shapelib \
+                    port:lzma \
+                    port:xz \
+                    port:lzip \
+                    port:wgrib2 \
+                    port:ocilib \
+                    port:couchdb \
+                    port:xalanj \
+                    port:xercesc \
+                    port:mdbtools \
+                    port:qt4-mac-sqlite3-plugin
+depends_skip_archcheck lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc
+require_active_variants qt4-mac {debug demos examples openvg universal}
+require_active_variants cgal {debug demos qt4 universal}
+require_active_variants tcl {corefoundation memdebug threads universal}
+require_active_variants postgresql84 {earthdistance krb5 tcl universal}
+require_active_variants gdal {huge universal}
+require_active_variants grass {ffmpeg mysql5 sqlite3 universal}
+require_active_variants libpcl {debug universal}
+require_active_variants mapnik {cairo gdal geos postgis osm sqlite}
+require_active_variants pgRouting {debug universal}
+require_active_variants postgis2 {gui universal}
+require_active_variants qlandkartegt {debug universal}
+require_active_variants qlandkartegt-garmindev {debug universal}
+require_active_variants qt4-mac-sqlite3-plugin {debug universal}
+
+variant python25 conflicts python26 python27 \
+    description {Enable Python 2.5 support} {
+    depends_lib-append      port:python25 \
+                            port:py25-django
+    require_active_variants gdal {python25}
+    require_active_variants py25-django {bash_completion}
+    require_active_variants qgis {python25}
+}
+
+variant python26 conflicts python25 python27 \
+    description {Enable Python 2.6 support} {
+    depends_lib-append      port:python26 \
+                            port:py26-django \
+                            port:py26-mapnik
+    require_active_variants gdal {python26}
+    require_active_variants mapnik {python26}
+    require_active_variants py26-mapnik {cairo gdal postgis sqlite}
+    require_active_variants py26-django {bash_completion}
+    require_active_variants qgis {python26}
+}
+
+variant python27 conflicts python25 python26 \
+    description {Enable Python 2.7 support} {
+    depends_lib-append      port:python27 \
+                            port:py27-django
+    require_active_variants gdal {python27}
+    require_active_variants postgresql84 {python python27}
+    require_active_variants mapnik {python27}
+    require_active_variants py27-django {bash_completion}
+    require_active_variants qgis {python27}
+}
+
+variant broken description {broken dependencies are thrown here until they work} {
+    depends_lib-append      port:gdal-grass \
+                            port:grass
+    require_active_variants qgis {debug grass universal}
+}
+
