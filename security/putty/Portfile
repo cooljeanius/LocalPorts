@@ -1,0 +1,89 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 89023 2012-01-18 05:32:34Z ryandesign@macports.org $
+
+PortSystem          1.0
+PortGroup           archcheck 1.0
+
+name                putty
+version             0.62
+categories          security net comms
+platforms           darwin
+maintainers         nomaintainer
+license             MIT
+
+description         a free implementation of Telnet and SSH, along with an \
+                    xterm terminal emulator
+
+long_description    PuTTY is ${description}
+
+homepage            http://www.chiark.greenend.org.uk/~sgtatham/putty/
+master_sites        ftp://ftp.chiark.greenend.org.uk/users/sgtatham/putty-${version}/ \
+                    http://the.earth.li/~sgtatham/putty/${version}/
+
+checksums           rmd160  48324416005eb4b14654fc9e0e14d39f20971507 \
+                    sha256  8d187e86ee18c839895d263607b61788778564e3720e8d85c5305a04f9da0573
+
+depends_build-append  \
+                    port:pkgconfig \
+                    port:gtk1
+
+depends_lib-append  port:gtk1 \
+                    port:gdk-pixbuf \
+                    port:gtk2 \
+                    port:gdk-pixbuf2 \
+                    port:atk \
+                    port:glib1 \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    port:harfbuzz \
+                    path:lib/pkgconfig/pango.pc:pango \
+                    port:freetype \
+                    port:fontconfig \
+                    port:gettext \
+                    port:libiconv \
+                    port:xorg-libX11
+
+depends_skip_archcheck gdk-pixbuf
+
+if {![variant_isset native]} {
+    worksrcdir          ${worksrcpath}/unix
+
+    patchfiles          patch-Makefile.in.diff \
+                        patch-configure.diff
+
+    post-patch {
+        system -W ${worksrcdir} "mkdir m4"
+        if {[file exists ${worksrcdir}/aclocal.m4]} {
+            file copy ${worksrcdir}/aclocal.m4 ${worksrcdir}/m4
+        }
+        file copy ${prefix}/share/aclocal/gtk.m4 ${worksrcdir}/m4
+        file copy ${prefix}/share/aclocal/gtk-2.0.m4 ${worksrcdir}/m4
+        file copy ${prefix}/share/aclocal/gtk-doc.m4 ${worksrcdir}/m4
+        file copy ${worksrcdir}/Makefile.in ${worksrcdir}/Makefile.am
+        system -W ${worksrcdir} "echo \"ACLOCAL_AMFLAGS = -I m4 \" >> Makefile.am"
+    }
+    use_autoreconf      yes
+    autoreconf.args     -fvi
+
+    configure.cppflags-append -isystem${prefix}/include \
+                              -I${prefix}/include/gtk-1.2 \
+                              -I${prefix}/include/gtk-2.0
+}
+
+configure.cflags-delete   -Werror
+
+post-configure {
+    reinplace "s|\-Werror||" Makefile
+}
+
+platform macosx {
+    variant native description {Build a native Mac app version} {
+        worksrcdir ${worksrcdir}/macosx
+        patchfiles
+        post-configure {
+            reinplace "s|\-Werror||" Makefile
+        }
+        configure.cflags-delete -Werror
+        use_configure no
+    }
+}
