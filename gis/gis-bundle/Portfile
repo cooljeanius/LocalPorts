@@ -23,6 +23,7 @@ supported_archs     noarch
 checksums           rmd160  12345 \
                     sha256  6789a
 
+#TODO: make app bundles for some of these ones that have guis
 depends_lib-append  port:qt4-mac \
                     port:cgal \
                     port:tcl \
@@ -85,21 +86,20 @@ depends_lib-append  port:qt4-mac \
                     port:dylibbundler \
                     port:CocoaDialog \
                     port:cliclick \
-                    port:osgswig-devel
+                    port:libgweather \
+                    port:network-weathermap
 depends_skip_archcheck lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45 gpsd
 require_active_variants qt4-mac {debug demos examples openvg universal}
 require_active_variants cgal {debug demos qt4 universal}
 require_active_variants tcl {corefoundation memdebug threads universal}
 require_active_variants postgresql84 {earthdistance krb5 tcl universal}
 require_active_variants gdal {huge universal}
-require_active_variants grass {ffmpeg sqlite3 universal}
-require_active_variants libpcl {debug universal}
-require_active_variants mapnik {cairo gdal geos postgis osm sqlite}
+require_active_variants mapnik {cairo gdal geos osm sqlite}
 require_active_variants postgis2 {gui universal}
 require_active_variants qlandkartegt {debug universal}
 require_active_variants qlandkartegt-garmindev {debug universal}
 require_active_variants qt4-mac-sqlite3-plugin {debug universal}
-require_active_variants vtk5 {data debug universal}
+require_active_variants vtk5 {debug universal}
 require_active_variants gmt4 {gdal triangle xgrid}
 require_active_variants gmt5 {gdal triangle}
 
@@ -150,8 +150,12 @@ variant broken description {broken dependencies are thrown here until they work}
                             port:libpcl \
                             port:grass \
                             port:pgRouting \
+                            port:osgswig-devel \
                             port:qlandkarte \
                             port:mapm3
+    depends_skip_archcheck OpenSceneGraph osgswig-devel
+    require_active_variants grass {ffmpeg sqlite3 universal}
+    require_active_variants libpcl {debug universal}
     require_active_variants qgis {debug grass universal}
     require_active_variants pgRouting {debug universal}
 }
