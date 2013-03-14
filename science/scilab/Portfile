@@ -23,10 +23,15 @@ checksums           md5     914b96d9b6534166539e7fea46bfd7f1 \
                     rmd160  d8fd874b444f5160931cf5fd7285a15131002fbf \
                     sha256  d123fb0f091554b6e0621d59fca53ea0fd68c58a339cc40f0b1b4d08531fbb1f
 
-patchfiles-append patch-configure.ac.diff
+worksrcdir          ${name}-${version}
+
+patchfiles-append   patch-configure.ac.diff
 post-patch {
+    reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
 }
+
+#TODO: fix ccache
 
 use_autoreconf      yes
 autoreconf.pre_args -fvi
@@ -64,8 +69,6 @@ configure.args-append --without-tk \
 configure.env-append XMKMF=${prefix}/bin/xmkmf
 
 # gcc is needed for gfortran
-# I'm not setting a default gcc variant yet until https://trac.macports.org/ticket/38232
-# is resolved
 variant gcc43 conflicts gcc44 gcc45 gcc46 gcc47 description {Build with GCC 4.3} {
     configure.compiler  macports-gcc-4.3
     depends_lib-append  port:gcc43
