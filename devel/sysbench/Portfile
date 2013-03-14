@@ -1,0 +1,66 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem        1.0
+
+name              sysbench
+version           0.4.12
+revision          1
+
+categories        devel
+platforms         darwin
+license           GPL-2
+
+maintainers       gmail.com:alexander.janssen
+description       SysBench: a system performance benchmark
+long_description  SysBench is a modular, cross-platform and multi-threaded \
+                  benchmark tool for evaluating OS parameters that are \
+                  important for a system running a database under intensive \
+                  load. \
+                  Builds by default against MySQL 5.5.
+
+homepage          http://sysbench.sourceforge.net/
+master_sites      sourceforge
+checksums         rmd160 b77c8bf31d84f075ec69ef3972afb8baed02e6bc \
+                  sha256 83fa7464193e012c91254e595a89894d8e35b4a38324b52a5974777e3823ea9e
+
+depends_build     port:libtool \
+                  port:libxslt \
+                  port:autoconf \
+                  port:automake \
+                  port:libtool
+
+depends_lib       port:mysql55 \
+                  port:zlib \
+                  port:openssl
+
+patch.pre_args    -p1
+patchfiles        sysbench-0.4.12.patch
+
+autoreconf.pre_args     -vfi
+use_autoreconf          yes
+
+configure.args    --with-mysql-includes=${prefix}/include/mysql55/mysql \
+                  --with-mysql-libs=${prefix}/lib/mysql55/mysql
+
+variant mysql4 description {Use MySQL4 libraries} {
+      depends_lib-delete      port:mysql55
+      depends_lib-append      port:mysql4
+      configure.args-delete   \
+            --with-mysql-includes=${prefix}/include/mysql55/mysql \
+            --with-mysql-libs=${prefix}/lib/mysql55/mysql
+      configure.args-append   \
+            --with-mysql-includes=${prefix}/include/mysql4/mysql \
+            --with-mysql-libs=${prefix}/lib/mysql4/mysql
+}
+
+variant mysql5 description {Use MySQL 5.1 libraries} {
+      depends_lib-delete      port:mysql55
+      depends_lib-append      port:mysql5
+      configure.args-delete   \
+            --with-mysql-includes=${prefix}/include/mysql55/mysql \
+            --with-mysql-libs=${prefix}/lib/mysql55/mysql
+      configure.args-append   \
+            --with-mysql-includes=${prefix}/include/mysql5/mysql \
+            --with-mysql-libs=${prefix}/lib/mysql5/mysql
+}

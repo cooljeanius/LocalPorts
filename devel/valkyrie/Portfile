@@ -49,6 +49,12 @@ depends_build-append  port:makeicns
 depends_lib-append    path:bin/valgrind:valgrind \
                       port:xpm
 
+patchfiles            patch-binary-paths.diff
+
+post-patch {
+    reinplace "s:@PREFIX@:${prefix}:g" ${worksrcpath}/src/objects/valkyrie_object.cpp
+}
+
 post-configure {
 # When Qt is installed without +universal, and qmake is called with
 # "QMAKE_LDFLAGS += -arch foo", and "foo" is the native arch, then, at

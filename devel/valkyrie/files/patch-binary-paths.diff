@@ -1,0 +1,20 @@
+--- src/objects/valkyrie_object.cpp.orig	2013-03-10 11:00:36.000000000 +0100
++++ src/objects/valkyrie_object.cpp	2013-03-10 11:02:16.000000000 +0100
+@@ -212,7 +212,7 @@
+       '\0',
+       "",
+       "",
+-      "gvim",
++      "@PREFIX@/bin/mvim +%n",
+       "Src Editor:",
+       "",
+       urlValkyrie::srcEditor,
+@@ -290,7 +290,7 @@
+       '\0',
+       "",
+       "",
+-      "valgrind",      // no path by default.
++      "@PREFIX@/bin/valgrind",      // no path by default.
+       "Valgrind:",
+       "",
+       urlValkyrie::vgDir,

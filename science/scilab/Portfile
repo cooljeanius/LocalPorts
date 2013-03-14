@@ -1,0 +1,111 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                scilab
+version             5.4.0
+categories          science
+platforms           darwin
+maintainers         debian.org:sylvestre gwmail.gwu.edu:egall openmaintainer
+license             cecill
+
+description         Open source software for numerical computation
+
+long_description    ${name} is ${description}
+
+homepage            http://www.${name}.org/
+master_sites        ${homepage}download/${version}/
+distname            ${name}-${version}-src
+
+checksums           md5     914b96d9b6534166539e7fea46bfd7f1 \
+                    sha1    f6d3341c683a7e9b87826a5a358f1a893ea948a4 \
+                    rmd160  d8fd874b444f5160931cf5fd7285a15131002fbf \
+                    sha256  d123fb0f091554b6e0621d59fca53ea0fd68c58a339cc40f0b1b4d08531fbb1f
+
+patchfiles-append patch-configure.ac.diff
+post-patch {
+    reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
+}
+
+use_autoreconf      yes
+autoreconf.pre_args -fvi
+
+depends_build-append port:pkgconfig \
+                     port:imake \
+                     port:gawk \
+                     port:grep \
+                     port:intltool
+depends_lib-append   port:libgtkhtml \
+                     port:readline \
+                     port:tcl \
+                     port:tk \
+                     port:vte \
+                     port:Xaw3d \
+                     port:atlas \
+                     port:atk \
+                     path:lib/pkgconfig/cairo.pc:cairo \
+                     port:fontconfig \
+                     port:freetype \
+                     port:glib2 \
+                     port:glitz \
+                     port:gtk2 \
+                     port:libiconv \
+                     port:libpng \
+                     path:lib/pkgconfig/pango.pc:pango \
+                     path:lib/pkgconfig/pixman-1.pc:libpixman \
+                     port:ncurses
+
+configure.args-append --without-tk \
+                      --with-tcl-include=${prefix}/include \
+                      --with-tcl-library=${prefix}/lib \
+                      --without-modelica \
+                      --without-javasci
+configure.env-append XMKMF=${prefix}/bin/xmkmf
+
+# gcc is needed for gfortran
+# I'm not setting a default gcc variant yet until https://trac.macports.org/ticket/38232
+# is resolved
+variant gcc43 conflicts gcc44 gcc45 gcc46 gcc47 description {Build with GCC 4.3} {
+    configure.compiler  macports-gcc-4.3
+    depends_lib-append  port:gcc43
+    configure.args-append --with-gfortran
+}
+
+variant gcc44 conflicts gcc43 gcc45 gcc47 description {Build with GCC 4.4} {
+    configure.compiler  macports-gcc-4.4
+    depends_lib-append  port:gcc44
+    configure.args-append --with-gfortran
+}
+
+variant gcc45 conflicts gcc43 gcc44 gcc46 gcc47 description {Build with GCC 4.5} {
+    configure.compiler  macports-gcc-4.5
+    depends_lib-append  port:gcc45
+    configure.args-append --with-gfortran
+}
+
+variant gcc46 conflicts gcc43 gcc44 gcc45 gcc47 description {Build with GCC 4.6} {
+    configure.compiler  macports-gcc-4.6
+    depends_lib-append  port:gcc46
+    configure.args-append --with-gfortran
+}
+
+variant gcc47 conflicts gcc43 gcc44 gcc45 gcc46 description {Build with GCC 4.7} {
+    configure.compiler  macports-gcc-4.7
+    depends_lib-append  port:gcc47
+    configure.args-append --with-gfortran
+}
+
+# Atlas's default compiler variant is currently gcc45
+if {![variant_isset gcc43] && ![variant_isset gcc44] && ![variant_isset gcc46] &&
+    ![variant_isset gcc47]
+} then {
+    default_variants    +gcc45
+}
+
+# Ocaml is not universal, so put it in a variant conflicting with the universal variant
+variant ocaml conflicts universal description {Build OCaml module (modelica)} {
+    depends_lib-append  port:swig-ocaml
+    configure.args-delete --without-modelica
+    configure.args-append --with-modelica
+}

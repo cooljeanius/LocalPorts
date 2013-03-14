@@ -1,0 +1,43 @@
+diff -urN sysbench-0.4.12/AUTHORS sysbench-0.4.12-yalla/AUTHORS
+--- sysbench-0.4.12/AUTHORS	2013-03-13 18:02:25.000000000 +0100
++++ sysbench-0.4.12-yalla/AUTHORS	2013-03-13 20:05:35.000000000 +0100
+@@ -0,0 +1,2 @@
++Alexey Kopytov <kaamos@users.sourceforge.net>
++Copyright 2004-2009 MySQL AB
+diff -urN sysbench-0.4.12/Makefile.am sysbench-0.4.12-yalla/Makefile.am
+--- sysbench-0.4.12/Makefile.am	2009-03-15 13:18:45.000000000 +0100
++++ sysbench-0.4.12-yalla/Makefile.am	2013-03-13 18:01:26.000000000 +0100
+@@ -17,3 +17,4 @@
+ SUBDIRS = doc sysbench
+ 
+ EXTRA_DIST = autogen.sh README README-WIN.txt ChangeLog
++
+diff -urN sysbench-0.4.12/NEWS sysbench-0.4.12-yalla/NEWS
+--- sysbench-0.4.12/NEWS	2013-03-13 18:02:25.000000000 +0100
++++ sysbench-0.4.12-yalla/NEWS	2013-03-13 18:04:25.000000000 +0100
+@@ -0,0 +1 @@
++No news.
+diff -urN sysbench-0.4.12/configure.ac sysbench-0.4.12-yalla/configure.ac
+--- sysbench-0.4.12/configure.ac	2009-03-19 09:50:07.000000000 +0100
++++ sysbench-0.4.12-yalla/configure.ac	2013-03-13 17:59:40.000000000 +0100
+@@ -6,7 +6,9 @@
+ AC_CANONICAL_TARGET
+ AM_INIT_AUTOMAKE()
+ AC_CONFIG_SRCDIR([sysbench/sysbench.c])
+-AM_CONFIG_HEADER([config/config.h])
++
++# Modified for Macports
++AC_CONFIG_HEADERS([config/config.h])
+ 
+ # Checks for user arguments
+ 
+@@ -74,6 +76,9 @@
+ AC_PROG_CC
+ AC_PROG_LIBTOOL
+ 
++# Added for Macports
++AM_PROG_CC_C_O
++
+ AX_CHECK_DOCBOOK
+ 
+ # Checks for libraries.
