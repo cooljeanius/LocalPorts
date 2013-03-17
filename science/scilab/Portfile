@@ -1,31 +1,31 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id$
 
-PortSystem          1.0
+PortSystem            1.0
 
-name                scilab
-version             5.4.0
-categories          science
-platforms           darwin
-maintainers         debian.org:sylvestre gwmail.gwu.edu:egall openmaintainer
-license             cecill
+name                  scilab
+version               5.4.0
+categories            science
+platforms             darwin
+maintainers           debian.org:sylvestre gwmail.gwu.edu:egall openmaintainer
+license               cecill
 
-description         Open source software for numerical computation
+description           open source software for numerical computation
 
-long_description    ${name} is ${description}
+long_description      ${name} is ${description}
 
-homepage            http://www.${name}.org/
-master_sites        ${homepage}download/${version}/
-distname            ${name}-${version}-src
+homepage              http://www.${name}.org/
+master_sites          ${homepage}download/${version}/
+distname              ${name}-${version}-src
 
-checksums           md5     914b96d9b6534166539e7fea46bfd7f1 \
-                    sha1    f6d3341c683a7e9b87826a5a358f1a893ea948a4 \
-                    rmd160  d8fd874b444f5160931cf5fd7285a15131002fbf \
-                    sha256  d123fb0f091554b6e0621d59fca53ea0fd68c58a339cc40f0b1b4d08531fbb1f
+checksums             md5     914b96d9b6534166539e7fea46bfd7f1 \
+                      sha1    f6d3341c683a7e9b87826a5a358f1a893ea948a4 \
+                      rmd160  d8fd874b444f5160931cf5fd7285a15131002fbf \
+                      sha256  d123fb0f091554b6e0621d59fca53ea0fd68c58a339cc40f0b1b4d08531fbb1f
 
-worksrcdir          ${name}-${version}
+worksrcdir            ${name}-${version}
 
-patchfiles-append   patch-configure.ac.diff
+patchfiles-append     patch-configure.ac.diff
 post-patch {
     reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
@@ -33,39 +33,45 @@ post-patch {
 
 #TODO: fix ccache
 
-use_autoreconf      yes
-autoreconf.pre_args -fvi
+use_autoreconf        yes
+autoreconf.pre_args   -fvi
 
-depends_build-append port:pkgconfig \
-                     port:imake \
-                     port:gawk \
-                     port:grep \
-                     port:intltool
-depends_lib-append   port:libgtkhtml \
-                     port:readline \
-                     port:tcl \
-                     port:tk \
-                     port:vte \
-                     port:Xaw3d \
-                     port:atlas \
-                     port:atk \
-                     path:lib/pkgconfig/cairo.pc:cairo \
-                     port:fontconfig \
-                     port:freetype \
-                     port:glib2 \
-                     port:glitz \
-                     port:gtk2 \
-                     port:libiconv \
-                     port:libpng \
-                     path:lib/pkgconfig/pango.pc:pango \
-                     path:lib/pkgconfig/pixman-1.pc:libpixman \
-                     port:ncurses
+depends_build-append  port:pkgconfig \
+                      port:imake \
+                      port:gawk \
+                      port:grep \
+                      port:intltool
+
+# Most of these are taken from Fink's list of dependencies
+depends_lib-append    port:libgtkhtml \
+                      port:readline \
+                      port:tcl \
+                      port:tk \
+                      port:vte \
+                      port:Xaw3d \
+                      port:atlas \
+                      port:atk \
+                      path:lib/pkgconfig/cairo.pc:cairo \
+                      port:fontconfig \
+                      port:freetype \
+                      port:glib2 \
+                      port:glitz \
+                      port:gtk2 \
+                      port:libiconv \
+                      port:libpng \
+                      path:lib/pkgconfig/pango.pc:pango \
+                      path:lib/pkgconfig/pixman-1.pc:libpixman \
+                      port:ncurses \
+                      port:xorg-libX11 \
+                      port:sablotron
 
 configure.args-append --without-tk \
                       --with-tcl-include=${prefix}/include \
                       --with-tcl-library=${prefix}/lib \
                       --without-modelica \
                       --without-javasci
+
+# ./configure --help said this was an influential environment variable
 configure.env-append XMKMF=${prefix}/bin/xmkmf
 
 # gcc is needed for gfortran
@@ -108,7 +114,8 @@ if {![variant_isset gcc43] && ![variant_isset gcc44] && ![variant_isset gcc46] &
 
 # Ocaml is not universal, so put it in a variant conflicting with the universal variant
 variant ocaml conflicts universal description {Build OCaml module (modelica)} {
-    depends_lib-append  port:swig-ocaml
+    depends_lib-append  port:ocaml \
+                        port:swig-ocaml
     configure.args-delete --without-modelica
     configure.args-append --with-modelica
 }
