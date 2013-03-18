@@ -2,6 +2,7 @@
 # $Id$
 
 PortSystem            1.0
+PortGroup             archcheck 1.0
 
 name                  scilab
 version               5.4.0
@@ -25,22 +26,27 @@ checksums             md5     914b96d9b6534166539e7fea46bfd7f1 \
 
 worksrcdir            ${name}-${version}
 
-patchfiles-append     patch-configure.ac.diff
+patchfiles-append     patch-configure.ac.diff \
+                      patch-macosx.m4.diff
 post-patch {
     reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
+    # run glibtoolize before autoreconf runs it to silence some warnings from aclocal
+    system -W ${worksrcpath} "glibtoolize --copy --force"
 }
-
-#TODO: fix ccache
 
 use_autoreconf        yes
 autoreconf.pre_args   -fvi
+
+# Too many things that Scilab depends on are not universal
+universal_variant     no
 
 depends_build-append  port:pkgconfig \
                       port:imake \
                       port:gawk \
                       port:grep \
-                      port:intltool
+                      port:intltool \
+                      port:apache-ant
 
 # Most of these are taken from Fink's list of dependencies
 depends_lib-append    port:libgtkhtml \
@@ -54,6 +60,7 @@ depends_lib-append    port:libgtkhtml \
                       path:lib/pkgconfig/cairo.pc:cairo \
                       port:fontconfig \
                       port:freetype \
+                      port:gettext \
                       port:glib2 \
                       port:glitz \
                       port:gtk2 \
@@ -63,16 +70,43 @@ depends_lib-append    port:libgtkhtml \
                       path:lib/pkgconfig/pixman-1.pc:libpixman \
                       port:ncurses \
                       port:xorg-libX11 \
-                      port:sablotron
+                      port:sablotron \
+                      port:pcre \
+                      lib:hdf5:hdf5-18 \
+                      lib:fftw3:fftw-3
 
 configure.args-append --without-tk \
                       --with-tcl-include=${prefix}/include \
                       --with-tcl-library=${prefix}/lib \
                       --without-modelica \
-                      --without-javasci
+                      --without-javasci \
+                      --with-macports-prefix=${prefix} \
+                      --disable-ccache \
+                      --disable-debug-java \
+                      --disable-build-swig \
+                      --disable-build-giws \
+                      --without-gui \
+                      --disable-build-help \
+                      --without-openmp \
+                      --without-arpack-ng \
+                      --without-umfpack \
+                      --with-pcre=${prefix}
 
-# ./configure --help said this was an influential environment variable
-configure.env-append XMKMF=${prefix}/bin/xmkmf
+if {[tbool configure.ccache]} {
+    configure.args-delete --disable-ccache
+    configure.args-append --enable-ccache
+    configure.env-append  CCACHE=${prefix}/bin/ccache
+}
+
+# ./configure --help said these were influential environment variables
+configure.env-append XMKMF=${prefix}/bin/xmkmf \
+                     PKG_CONFIG=${prefix}/bin/pkg-config \
+                     PCRE_CFLAGS=-I${prefix}/include \
+                     PCRE_LIBS=-L${prefix}/lib
+
+# This is to disable checking for jgraphx, which MacPorts does not have yet
+# (it has just jgraph without the "x", but I think that's different)
+configure.env-append XCOS_ENABLE="no"
 
 # gcc is needed for gfortran
 variant gcc43 conflicts gcc44 gcc45 gcc46 gcc47 description {Build with GCC 4.3} {
@@ -81,7 +115,7 @@ variant gcc43 conflicts gcc44 gcc45 gcc46 gcc47 description {Build with GCC 4.3}
     configure.args-append --with-gfortran
 }
 
-variant gcc44 conflicts gcc43 gcc45 gcc47 description {Build with GCC 4.4} {
+variant gcc44 conflicts gcc43 gcc45 gcc46 gcc47 description {Build with GCC 4.4} {
     configure.compiler  macports-gcc-4.4
     depends_lib-append  port:gcc44
     configure.args-append --with-gfortran
@@ -105,15 +139,7 @@ variant gcc47 conflicts gcc43 gcc44 gcc45 gcc46 description {Build with GCC 4.7}
     configure.args-append --with-gfortran
 }
 
-# Atlas's default compiler variant is currently gcc45
-if {![variant_isset gcc43] && ![variant_isset gcc44] && ![variant_isset gcc46] &&
-    ![variant_isset gcc47]
-} then {
-    default_variants    +gcc45
-}
-
-# Ocaml is not universal, so put it in a variant conflicting with the universal variant
-variant ocaml conflicts universal description {Build OCaml module (modelica)} {
+variant ocaml description {Build OCaml module (modelica)} {
     depends_lib-append  port:ocaml \
                         port:swig-ocaml
     configure.args-delete --without-modelica

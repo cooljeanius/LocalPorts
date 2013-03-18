@@ -1,5 +1,5 @@
 --- configure.ac.orig	2012-09-28 18:11:00.000000000 -0400
-+++ configure.ac	2013-03-13 21:27:52.000000000 -0400
++++ configure.ac	2013-03-17 23:42:05.000000000 -0400
 @@ -16,8 +16,8 @@
  
  AC_REVISION($Revision$)dnl
@@ -20,7 +20,7 @@
  AC_CONFIG_HEADERS([modules/core/includes/machine.h])
  
  # strip executable
-@@ -145,14 +145,20 @@
+@@ -145,15 +145,21 @@
  ########## compilator & misc programs detection
  ################################################
  
@@ -34,15 +34,62 @@
 +AC_PROG_RANLIB
  
  ######
- #### Mac OS X set of fink path with provided
+-#### Mac OS X set of fink path with provided
++#### Mac OS X set of macports path with provided
  ######
  
 -AC_ARG_WITH(fink_prefix,
-+AC_ARG_WITH([fink_prefix],
- AC_HELP_STRING([--with-fink-prefix],[Provide a fink prefix. Default: /sw/ ]))
+-AC_HELP_STRING([--with-fink-prefix],[Provide a fink prefix. Default: /sw/ ]))
++AC_ARG_WITH([macports_prefix],
++AC_HELP_STRING([--with-macports-prefix],[Provide a macports prefix. Default: /opt/local ]))
  # Need MacosX Version to specify some path.                                  
  case "$host_os" in
-@@ -1214,13 +1220,24 @@
+      *Darwin* | *darwin*)
+@@ -163,26 +169,20 @@
+ 
+ case "$host" in
+     *darwin*)
+-        if test -n "$with_fink_prefix"; then
+-            # If with-fink-prefix is provided, use the provided path to make sure that we will
++        if test -n "$with_macports_prefix"; then
++            # If with-macports-prefix is provided, use the provided path to make sure that we will
+             # use it to detect dependencies (for example, gfortran is not provided in xcode.
+-            # Therefor, we use the one in fink)
+-            FINK_PREFIX="$with_fink_prefix/"
++            # Therefor, we use the one in macports)
++            MACPORTS_PREFIX="$with_macports_prefix"
+ 
+-            # Exec the init script of fink to make sure that the env is set
+-            if test -f $with_fink_prefix/bin/init.sh; then
+-                echo "source $with_fink_prefix/bin/init.sh executed to set the env"
+-                source $with_fink_prefix/bin/init.sh
+-            else
+-                AC_MSG_WARN([Could not find the fink init.sh script: $with_fink_prefix/bin/init.sh])
+-            fi
++            # Macports doesn't have an init.sh so removing that part
+         else
+-            FINK_PREFIX="/sw/"
++            MACPORTS_PREFIX="/opt/local"
+         fi
+ 
+         #Append to the default flags on Apple machines
+-        CPPFLAGS="$CPPFLAGS -I$FINK_PREFIX/include/"
+-        LDFLAGS="$LDFLAGS -L$FINK_PREFIX/lib/"
++        CPPFLAGS="$CPPFLAGS -I$MACPORTS_PREFIX/include/"
++        LDFLAGS="$LDFLAGS -L$MACPORTS_PREFIX/lib/"
+         ;;
+ esac
+ 
+@@ -813,7 +813,7 @@
+    if test "$ac_java_jvm_name" = "jdk"; then
+         JAVA_HOME=$ac_java_jvm_dir
+         JAVA_VERSION=$ac_java_jvm_version
+-#     AC_JAVA_TOOLS
++        AC_JAVA_TOOLS
+         AC_JAVA_JNI_INCLUDE
+         JAVA_JNI_INCLUDE=$ac_java_jvm_jni_include_flags
+ 
+@@ -1214,13 +1214,24 @@
  # function strtod used in modules/core/src/c/getval.c
  AC_FUNC_STRTOD
  
@@ -68,13 +115,8 @@
  
  # check header dirent
  AC_HEADER_DIRENT
-@@ -1228,9 +1245,17 @@
- # static struct timeval defined or not | used in modules/core/src/c/timer.c
- AC_HEADER_TIME
- 
--# check if the specific header is available or not | used in modules/core/src/c/link_SYSV.c
-+# check if the specific h
-+eader is available or not | used in modules/core/src/c/link_SYSV.c
+@@ -1231,6 +1242,13 @@
+ # check if the specific header is available or not | used in modules/core/src/c/link_SYSV.c
  AC_HEADER_SYS_WAIT
  
 +# Checks for typedefs, structures, and compiler characteristics.
@@ -87,7 +129,7 @@
  
  #######################
  ## Test for structures ##
-@@ -1245,7 +1270,7 @@
+@@ -1245,7 +1263,7 @@
  
  # gettext.  See http://www.gnu.org/software/hello/manual/gettext/AM_005fGNU_005fGETTEXT.html
  AM_GNU_GETTEXT([external])
@@ -96,7 +138,7 @@
  
  # function closedir used in modules/metanet/src/c/files.c
  AC_FUNC_CLOSEDIR_VOID
-@@ -1306,7 +1331,9 @@
+@@ -1306,7 +1324,9 @@
  ## other libraries
  ##################
  
@@ -107,7 +149,50 @@
  
  AC_SEARCH_LIBS([pthread_join],[pthread])
  
-@@ -1680,7 +1707,6 @@
+@@ -1314,7 +1334,7 @@
+ ## FFTW
+ #################
+ 
+-AC_ARG_WITH(fftw,
++AC_ARG_WITH([fftw],
+     AC_HELP_STRING([--without-fftw],[Disable the interface to the FFTW 3 library]))
+ 
+ FFTW_ENABLE=no
+@@ -1326,31 +1346,16 @@
+ AC_SUBST(FFTW_ENABLE)
+ AM_CONDITIONAL(FFTW, test "$with_fftw" != no)
+ 
+-
+-#################
+-## MPI
+-#################
+-
+-# Not in Scilab 5.0
+-#AC_ARG_WITH(mpi,
+-#    [  --with-mpi               compile with MPI library])
+-#
+-#if test "$with_mpi" = yes; then
+-#   AC_OPENMPI()
+-#   # We will have to detect other implementation of OpenMPI
+-#fi
+-#AM_CONDITIONAL(MPI, test "$with_mpi" = yes)
+-
+ #################
+ ## OpenMP
+ #################
+ 
+-AC_ARG_WITH(openmp,
++AC_ARG_WITH([openmp],
+     AC_HELP_STRING([--without-openmp],[Disable the usage of OpenMP (parallelization of some algoritms)]))
+ 
+ OPENMP_ENABLE=no
+ if test "$with_openmp" != no; then
+-#   AC_OPENMP
++    AC_OPENMP
+     OPENMP_CFLAGS="-fopenmp"
+     OPENMP_CXXFLAGS="-fopenmp"
+     OPENMP_LIBS="-lgomp"
+@@ -1680,7 +1685,6 @@
  AC_PROG_LIBTOOL([shared dlopen])
  AM_PROG_LIBTOOL
  

@@ -1,0 +1,15 @@
+--- m4/macosx.m4.orig	2013-03-17 21:17:50.000000000 -0400
++++ m4/macosx.m4	2013-03-17 21:45:42.000000000 -0400
+@@ -3,7 +3,11 @@
+ #
+ AC_DEFUN([AC_GET_MACOSX_VERSION],[
+     AC_MSG_CHECKING([Mac OS X Version])
+-    [macosx_version=`defaults read loginwindow SystemVersionStampAsString`]
++    if test -e $HOME/Library/Preferences/com.apple.loginwindow.plist ; then
++    	[macosx_version="`defaults read loginwindow SystemVersionStampAsString`"]
++    else
++        [macosx_version="`sw_vers -productVersion`"]
++    fi
+     case $macosx_version in
+          10.8*)
+               AC_MSG_RESULT([Mac OS X 10.8 - Mountain Lion.])
