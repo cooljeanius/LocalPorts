@@ -13,7 +13,7 @@ license               cecill
 
 description           open source software for numerical computation
 
-long_description      ${name} is ${description}
+long_description      ${name} is ${description}.
 
 homepage              http://www.${name}.org/
 master_sites          ${homepage}download/${version}/

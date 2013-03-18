@@ -1,15 +1,28 @@
 --- m4/macosx.m4.orig	2013-03-17 21:17:50.000000000 -0400
-+++ m4/macosx.m4	2013-03-17 21:45:42.000000000 -0400
-@@ -3,7 +3,11 @@
++++ m4/macosx.m4	2013-03-18 17:50:28.000000000 -0400
+@@ -2,8 +2,24 @@
+ # Return MacOSX version using system_profile tool.
  #
  AC_DEFUN([AC_GET_MACOSX_VERSION],[
++    AC_PATH_PROG([DEFAULTS], [defaults])
++    AC_PATH_PROG([SW_VERS], [sw_vers])
++    AC_PATH_PROG([UNAME], [uname])
++    AC_MSG_CHECKING([how to determine Mac OS X Version])
++    if test -e $HOME/Library/Preferences/com.apple.loginwindow.plist -a "x$DEFAULTS" != "x"; then
++        AC_MSG_RESULT([using "defaults"])
++    	[macosx_version="`defaults read loginwindow SystemVersionStampAsString`"]
++    elif test "x$SW_VERS" != "x"; then
++        AC_MSG_RESULT([using "sw_vers"])
++        [macosx_version="`sw_vers -productVersion`"]
++    elif test "x$UNAME" != "x"; then
++        AC_MSG_RESULT([using "uname"])
++        [darwin_version="`uname -r | cut -d. -f1`"]
++        [macosx_version=10.$(($darwin_version - 4))]
++    else
++        AC_MSG_ERROR([none of the standard ways of determining the Mac OS X Version are available])
++    fi
      AC_MSG_CHECKING([Mac OS X Version])
 -    [macosx_version=`defaults read loginwindow SystemVersionStampAsString`]
-+    if test -e $HOME/Library/Preferences/com.apple.loginwindow.plist ; then
-+    	[macosx_version="`defaults read loginwindow SystemVersionStampAsString`"]
-+    else
-+        [macosx_version="`sw_vers -productVersion`"]
-+    fi
      case $macosx_version in
           10.8*)
                AC_MSG_RESULT([Mac OS X 10.8 - Mountain Lion.])

@@ -1,5 +1,5 @@
 --- configure.ac.orig	2012-09-28 18:11:00.000000000 -0400
-+++ configure.ac	2013-03-17 23:42:05.000000000 -0400
++++ configure.ac	2013-03-18 17:55:42.000000000 -0400
 @@ -16,8 +16,8 @@
  
  AC_REVISION($Revision$)dnl
@@ -192,7 +192,16 @@
      OPENMP_CFLAGS="-fopenmp"
      OPENMP_CXXFLAGS="-fopenmp"
      OPENMP_LIBS="-lgomp"
-@@ -1680,7 +1685,6 @@
+@@ -1419,6 +1424,8 @@
+ 
+ AC_MSG_CHECKING([if LAPACK is available])
+ echo ""
++# FIXME: Replace `main' with a function in `-llapack':
++AC_CHECK_LIB([lapack], [main])
+ ACX_LAPACK(
+         [AC_MSG_RESULT([$LAPACK_TYPE found])],
+         AC_MSG_ERROR([Impossible to find the LAPACK library.])
+@@ -1680,7 +1687,6 @@
  AC_PROG_LIBTOOL([shared dlopen])
  AM_PROG_LIBTOOL
  
