@@ -158,7 +158,7 @@ variant curl description {Enable curl support} {
                             port:tclcurl
     if {[variant_isset framework]} {
         depends_lib-append  port:curlftpfs \
-        platform darwin < 9 {
+        platform darwin > 11 {
             depends_lib-append port:curlhandle
         }
     }

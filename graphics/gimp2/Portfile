@@ -123,6 +123,9 @@ variant python27 conflicts no_python python25 python26 description {Use python 2
 
 variant no_python description {Disable Python scripts and filters} {
     configure.args-append   --disable-python
+    depends_lib-delete      port:py27-libxml2 \
+                            port:python27 \
+                            port:python_select
 }
 
 if {![variant_isset no_python] && ![variant_isset python25] && ![variant_isset python26]} {
@@ -179,9 +182,27 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:xpm
         configure.args-append \
                  --enable-gtk-doc-app
-        platform darwin 8 {
+        platform darwin > 11 {
             depends_lib-append port:curlhandle
         }
+    } else {
+        depends_lib-append \
+                 port:xorg-libX11 \
+                 port:xorg-libXau \
+                 port:xorg-libXcomposite \
+                 port:xorg-libXcursor \
+                 port:xorg-libXdamage \
+                 port:xorg-libXdmcp \
+                 port:xorg-libXext \
+                 port:xorg-libXfixes \
+                 port:xorg-libXi \
+                 port:xorg-libXinerama \
+                 port:xorg-libXrandr \
+                 port:xorg-libXt \
+                 port:xorg-libice \
+                 port:xorg-libsm \
+                 port:xorg-libxcb \
+                 port:xrender
     }
     depends_build-append \
                  port:gawk \
@@ -193,10 +214,8 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:libtool \
                  port:libxslt \
                  port:gtk-doc \
-                 port:pkg-config \
                  port:autoconf \
                  port:automake \
-                 port:intltool \
                  path:bin/git:git-core
     # intltool needs to be run with the correct version of perl
     configure.env-append INTLTOOL_PERL=${prefix}/bin/perl5.12
@@ -249,6 +268,7 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:librsvg \
                  port:flickcurl \
                  port:jasper \
+                 port:dbus \
                  port:dbus-glib \
                  port:eggdbus \
                  port:perl5 \
@@ -264,7 +284,19 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:sgml-common \
                  port:libsgml \
                  port:xorg-sgml-doctools \
-                 port:libgtkhtml
+                 port:libgtkhtml \
+                 port:harfbuzz \
+                 port:libsoup \
+                 port:babl \
+                 port:expat \
+                 port:gettext \
+                 port:graphite2 \
+                 port:libcroco \
+                 port:libidn \
+                 port:ncurses \
+                 port:openjpeg \
+                 port:openssl \
+                 port:xz
     depends_run-append \
                  port:libsvg-cairo \
                  port:gdk-pixbuf \
@@ -325,10 +357,12 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
     if {[variant_isset help_browser]} {
         depends_lib-append \
                  port:html \
+                 port:xhtml1 \
                  port:libgtkhtml3
     }
     configure.cppflags-delete -Wunknown-warning-option \
-                              -Wformat-non-literal
+                              -Wformat-non-literal \
+                              -Werror=missing-prototypes
     configure.cppflags-append -Wno-unknown-warning-option \
                               -Wformat-nonliteral
     use_parallel_build no
