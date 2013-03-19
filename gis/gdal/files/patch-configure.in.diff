@@ -1,0 +1,11 @@
+--- configure.in.orig	2013-03-19 02:53:31.000000000 -0400
++++ configure.in	2013-03-19 02:55:04.000000000 -0400
+@@ -421,6 +421,8 @@
+ dnl manual at
+ dnl http://www.gnu.org/software/gettext/manual/html_node/AM_005fICONV.html
+ dnl ---------------------------------------------------------------------------
++AM_GNU_GETTEXT([external])
++AM_GNU_GETTEXT_VERSION([0.18.2])
+ AM_ICONV
+ 
+ dnl Extra test needed for GCC 4.5 on Solaris 11, where there is

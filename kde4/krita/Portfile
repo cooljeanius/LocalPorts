@@ -17,10 +17,11 @@ long_description    Krita is the full-featured free digital painting studio for 
                     artists, matte and texture painters and in the digital VFX \
                     industry.
 homepage            http://www.krita.org
-master_sites        http://download.kde.org/stable/calligra-latest/
+master_sites        http://download.kde.org/stable/calligra-latest/\
+                    http://www.patriksmediedesign.se/
 
-checksums           rmd160 579752fd844b7064f4386f22c7a36d02ee615fda \
-                    sha256 77e1257588856bf4b3924672c847c3c766e8d8819c23017ea24e141e4e9051cf
+checksums           rmd160 b25805f91372295d127be7ef229c3b575c662071 \
+                    sha256 1bc0cd40734baf68a0d79307d0ffbd8e15a4571375a60b1016f0fc8b68c3d2ce
 
 # Some of these are drawn in as dependencies automatically by the kde4 portgroup, but I'll leave them all in anyway just in case
 depends_lib-append  port:kdelibs4 \
@@ -32,50 +33,33 @@ depends_lib-append  port:kdelibs4 \
                     port:libpng \
                     port:exiv2
 
-# This is probably a bad idea; you should probably just let MacPorts extract into the normal spot
-# However, I'll let it be in case you have a good reason for doing it this way.
-extract {
-    system "mkdir -p $HOME/kde4/src"
-    system "mkdir -p $HOME/kde4/build"
-    system "mkdir -p $HOME/kde4/inst"
-    system "mkdir -p $HOME/kde4/build/calligra"
-    system "mv ${distfiles} $HOME/kde4/src/${distfiles}"
-    system "cd $HOME/kde4/src/calligra"
-    system "tar -x ${distfiles}"
-    system "cd calligra"
-}
+configure.args-append   -DCMAKE_BUILD_TYPE=RelWithDebInfo\
+                        -DCREATIVEONLY=ON
 
 # It would be better to do this by setting configure.args instead
-configure {
-    system -W $HOME/kde4/src/calligra "cmake -DCMAKE_INSTALL_PREFIX=$HOME/kde4/inst \
-    $HOME/kde4/src/calligra -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCREATIVEONLY=ON"
-}
+# The src folder does not contain a configure file to run, therefore this solution.
+#configure {
+#    system -W ${workpath} "cmake -DCMAKE_INSTALL_PREFIX=${destroot} \
+#    ${worksrcpath} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCREATIVEONLY=ON"
+#}
 
-# It would be better to do this part with build.args, seeing as "make" is already the default build.cmd
-build {
-    system -W $HOME/kde4/src/calligra "make -j3"
-}
+# These commands needs to be run, j3 shall be j{n+1} where n is the number of cores
+# I tried withtout them but then it tries to do "make all" and it crashes.
+#build {
+#    system -W ${workpath} "make -j3"
+#}
 
-# Putting this because of your use of $HOME
-destroot.violate_mtree yes
+#destroot.violate_mtree yes
 
-destroot {
-}
+# Install prefix is set in the configure, therefore a more simple commandline...
+#destroot {
+#    system -W ${workpath} "make install"
+#}
 
-install {
-# "make install" would normally be run during the destroot step; I'm not sure why you're skipping that
-    system "make install"
+post-activate {
 # export statements removed, they just pointed to placeholders
+# it is necessary to create some kind of path to run the application, perhaps a post-destroot script could do that.
     system "launchctl load -w /Library/LaunchAgents/org.macports.kdecache.plist"
     system "launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist"
-    system "kbuildsycoca4"
+    system -W ${workpath} "kbuildsycoca4"
 }
-
-# This is probably a bad idea, too. Although I can see why you're doing it,
-# since you're installing stuff directly instead of archiving it from the destroot.
-# (It's still a bad idea though)
-activate {}
-
-
-
-

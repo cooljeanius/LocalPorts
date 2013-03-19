@@ -1,0 +1,146 @@
+--- configure.ac.orig	2013-03-19 02:59:32.000000000 -0400
++++ configure.ac	2013-03-19 03:00:17.000000000 -0400
+@@ -32,13 +32,14 @@
+ define([AC_CACHE_SAVE], )
+ 
+ dnl Process this file with autoconf to produce a configure script.
+-AC_INIT(GDALmake.opt.in)
+-AC_CONFIG_MACRO_DIR(m4)
++AC_INIT([GDAL], [1.9.2], [seanasy@gmail.com])
++AC_CONFIG_SRCDIR([GDALmake.opt.in])
++AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_HEADERS([port/cpl_config.h:port/cpl_config.h.in])
+ AH_BOTTOM([#include "cpl_config_extras.h"])
+ 
+ dnl We require autoconf 2.52+ for libtool support on cygwin/mingw hosts
+-AC_PREREQ(2.52)
++AC_PREREQ([2.52])
+ 
+ dnl Compute the canonical host-system (the system we are building for)
+ dnl type variable $host
+@@ -52,12 +53,20 @@
+ 
+ dnl Checks for programs.
+ AC_PROG_CC
++AM_PROG_CC_C_O
++AC_PROG_CPP
+ AC_PROG_CXX
++AC_PROG_AWK
++AC_PROG_YACC
++AC_PROG_INSTALL
++AC_PROG_LN_S
++AC_PROG_MAKE_SET
++AC_PROG_RANLIB
+ AC_LIBTOOL_WIN32_DLL
+ AC_PROG_LIBTOOL
+ 
+ dnl switch between libtool and native build system
+-AC_ARG_WITH(libtool, [  --without-libtool     Don't use libtool to build the library],,)
++AC_ARG_WITH([libtool], [  --without-libtool     Don't use libtool to build the library],[],)
+ 
+ if test "$with_libtool" = "no"; then
+ AC_PROG_RANLIB
+@@ -82,23 +91,34 @@
+ AC_SUBST(HAVE_LIBTOOL,$with_libtool)
+ 
+ dnl Checks for libraries.
+-AC_CHECK_LIB(dl,dlopen,,,)
++AC_CHECK_LIB([dl],[dlopen],[],[],[])
++# FIXME: Replace `main' with a function in `-lcrypto':
++AC_CHECK_LIB([crypto], [main])
++# FIXME: Replace `main' with a function in `-lrx':
++AC_CHECK_LIB([rx], [main])
++# FIXME: Replace `main' with a function in `-lssl':
++AC_CHECK_LIB([ssl], [main])
++# FIXME: Replace `main' with a function in `-lxml2':
++AC_CHECK_LIB([xml2], [main])
++# FIXME: Replace `main' with a function in `-lz':
++AC_CHECK_LIB([z], [main])
+ 
+ dnl Needed on Solaris. 
+-AC_CHECK_LIB(rt,nanosleep,,,)
++AC_CHECK_LIB([rt],[nanosleep],[],[],[])
+ 
+ dnl We don't need to add math library to all targets
+ case "${host_os}" in
+     cygwin* | mingw32* | pw32* | beos* | darwin*)
+         ;;
+     *)
+-	AC_CHECK_LIB(m,sin,,,)
++	AC_CHECK_LIB([m],[sin],[],[],[])
+         ;;
+ esac
+ 
+ dnl Checks for header files.
+ AC_HEADER_STDC
+-AC_CHECK_HEADERS(assert.h fcntl.h unistd.h dbmalloc.h dlfcn.h stdint.h limits.h locale.h values.h float.h errno.h direct.h)
++AC_FUNC_ALLOCA
++AC_CHECK_HEADERS([assert.h dbmalloc.h direct.h dlfcn.h errno.h fcntl.h float.h inttypes.h libintl.h limits.h locale.h malloc.h memory.h stddef.h stdint.h stdio.h stdlib.h strings.h sys/param.h syslog.h unistd.h values.h wchar.h wctype.h])
+ 
+ AC_C_BIGENDIAN
+ 
+@@ -106,9 +126,22 @@
+ AC_HAVE_LONG_LONG
+ AC_UNIX_STDIO_64
+ 
+-AC_CHECK_SIZEOF(int)
+-AC_CHECK_SIZEOF(unsigned long)
+-AC_CHECK_SIZEOF(void*)
++dnl Checks for typedefs, structures, and compiler characteristics.
++AC_CHECK_HEADER_STDBOOL
++AC_C_INLINE
++AC_TYPE_OFF_T
++AC_TYPE_PID_T
++AC_C_RESTRICT
++AC_TYPE_SIZE_T
++AC_TYPE_SSIZE_T
++AC_TYPE_UINT32_T
++AC_TYPE_UINT64_T
++AC_TYPE_UINT8_T
++AC_CHECK_TYPES([ptrdiff_t])
++
++AC_CHECK_SIZEOF([int])
++AC_CHECK_SIZEOF([unsigned long])
++AC_CHECK_SIZEOF([void*])
+ dnl Some compilers (IBM VisualAge) has these types defined, so check it here.
+ dnl These types are used in internal libtiff.
+ AC_CHECK_TYPES([int8, int16, int32],,,
+@@ -137,16 +170,23 @@
+ AC_DEFINE_UNQUOTED(HOST_FILLORDER, $HOST_FILLORDER, [Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB)])
+ 
+ dnl Checks for library functions.
++AC_FUNC_ERROR_AT_LINE
++AC_FUNC_FORK
++AC_FUNC_MALLOC
++AC_FUNC_MKTIME
++AC_FUNC_REALLOC
++AC_FUNC_STRTOD
+ AC_FUNC_VPRINTF
+-AC_CHECK_FUNCS(snprintf vsnprintf)
+-AC_CHECK_FUNCS(atoll)
+-AC_CHECK_FUNCS(strtof)
+-AC_CHECK_FUNCS(getcwd)
++AC_CHECK_FUNCS([snprintf vsnprintf])
++AC_CHECK_FUNCS([atoll])
++AC_CHECK_FUNCS([strtof])
++AC_CHECK_FUNCS([getcwd])
++AC_CHECK_FUNCS([atexit dup2 floor getwd isascii localeconv localtime_r memmove memset mkdir modf pow putenv regcomp rint rmdir select setlocale sqrt strcasecmp strchr strcspn strdup strerror strncasecmp strndup strpbrk strrchr strspn strstr strtol strtoul])
+ 
+ dnl Check for declarations
+-AC_CHECK_DECLS(strtof)
++AC_CHECK_DECLS([strtof])
+ 
+-AC_CHECK_FUNCS(readlink)
++AC_CHECK_FUNCS([readlink])
+ 
+ dnl Make sure at least these are checked under C++.  Prototypes missing on 
+ dnl some platforms.
+@@ -421,6 +461,8 @@
+ dnl manual at
+ dnl http://www.gnu.org/software/gettext/manual/html_node/AM_005fICONV.html
+ dnl ---------------------------------------------------------------------------
++AM_GNU_GETTEXT([external])
++AM_GNU_GETTEXT_VERSION([0.18.2])
+ AM_ICONV
+ 
+ dnl Extra test needed for GCC 4.5 on Solaris 11, where there is

@@ -458,6 +458,13 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl postgresql8
                             --without-expat \
                             --disable-dependency-tracking
     configure.universal_args-delete --disable-dependency-tracking
+    pre-patch {
+        file copy ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+    }
+    patchfiles-append       patch-configure.ac.diff \
+                            patch-configure.in.diff
+    use_autoreconf          yes
+    autoreconf.args         -fvi
     depends_lib-append      port:cfitsio \
                             port:libxmi \
                             port:netcdf-fortran \
