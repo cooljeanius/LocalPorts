@@ -1,0 +1,57 @@
+--- /opt/local/var/macports/sources/LocalPorts/sysutils/osxbom/Portfile.orig	2013-03-19 00:45:35.000000000 -0400
++++ /opt/local/var/macports/sources/LocalPorts/sysutils/osxbom/Portfile	2013-03-19 00:47:00.000000000 -0400
+@@ -4,7 +4,6 @@
+ PortSystem          1.0
+ 
+ name                osxbom
+-version             0.0.3
+ categories          sysutils
+ maintainers         gwmail.gwu.edu:egall openmaintainer
+ platforms           darwin
+@@ -14,26 +13,40 @@
+ long_description    ${description}. Used by the PureDarwin project to work with MacPorts \
+                     binary packages.
+ homepage            https://cauldrondevelopment.com/svn/${name}/trunk/
++variant universal {}
+ 
+ livecheck.type      none
+ 
+ fetch.type          svn
+ svn.url             ${homepage}
+ svn.revision        3
++version             0.0.${svn.revision}
+ 
+ worksrcdir          trunk
+ 
+ use_configure       no
+ 
+-destroot {
+-    xinstall ${worksrcpath}/lsbom ${destroot}${prefix}/bin/${name}
+-    xinstall -d ${destroot}${prefix}/include/${name}
+-    xinstall ${worksrcpath}/bom.h ${destroot}${prefix}/include/${name}
++set CFLAGS         "${configure.cflags} [get_canonical_archflags cc]"
++
++build.env-append    CC=${configure.cc} \
++                    CXX=${configure.cxx} \
++                    CPP=${configure.cpp}
++
++pre-build {
++    reinplace "s|-Werror|${CFLAGS}|" ${worksrcpath}/Makefile
+ }
+ 
+-variant no_rename description {Don't rename the files installed. Warning: This variant shadows the system lsbom.} {
+-    destroot {
++destroot {
+         xinstall ${worksrcpath}/lsbom ${destroot}${prefix}/bin
+         xinstall ${worksrcpath}/bom.h ${destroot}${prefix}/include
++}
++
++variant rename description {Prevent osxbom from shadowing the system lsbom} {
++    destroot {
++        xinstall ${worksrcpath}/lsbom ${destroot}${prefix}/bin/${name}
++        xinstall -d ${destroot}${prefix}/include/${name}
++        xinstall ${worksrcpath}/bom.h ${destroot}${prefix}/include/${name}
+     }
+ }
++
++default_variants    +rename

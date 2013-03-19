@@ -6,7 +6,7 @@ PortGroup           archcheck 1.0
 
 name                gdal
 version             1.9.2
-revision            4
+revision            5
 categories          gis
 license             MIT BSD
 platforms           darwin
@@ -441,7 +441,6 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl postgresql8
                             --without-grib \
                             --without-mysql \
                             --without-ingres \
-                            --without-xerces \
                             --without-odbc \
                             --without-curl \
                             --without-sqlite3 \
@@ -456,7 +455,6 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl postgresql8
                             --without-php \
                             --without-ruby \
                             --without-python \
-                            --without-xerces \
                             --without-expat \
                             --disable-dependency-tracking
     configure.universal_args-delete --disable-dependency-tracking
@@ -522,23 +520,24 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl postgresql8
     use_parallel_build      no
 }
 
-variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresql83 xerces description {Extra dependencies that aren't universal} {
+variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresql83 description {Extra dependencies that aren't universal} {
     depends_lib-append      port:wgrib2 \
                             port:ocilib \
                             port:couchdb \
                             port:swig-php \
                             port:pear-Net_Curl \
                             port:mdbtools
-    depends_skip_archcheck lzma postgresql83 wgrib2 ocilib couchdb mdbtools xercesc
+    depends_skip_archcheck lzma postgresql83 wgrib2 ocilib couchdb mdbtools
     configure.args-append   --with-php \
                             --with-msg \
                             --with-oci
 }
-variant broken requires postgreql81 extra_nonuniversal poppler description {dependencies that don't even work even when not building universal} {
+variant broken requires postgreql81 extra_nonuniversal poppler xerces description {dependencies that don't even work even when not building universal} {
     depends_lib-append      port:pamtester \
                             port:svdlibc \
                             port:sam2p
-    depends_skip_archcheck pamtester sam2p tif22pnm svdlibc
+    depends_skip_archcheck pamtester sam2p tif22pnm svdlibc xercesc
+    configure.args-delete   --without-xerces
     configure.args-append   --with-pam
     if {[variant_isset xerces]} {
         depends_lib-append  port:xalanj

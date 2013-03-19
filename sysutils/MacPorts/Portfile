@@ -124,7 +124,7 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
                          port:bash
     depends_lib-append   port:tcl
     depends_skip_archcheck man cdsclient osxbom
-    require_active_variants osxbom no_rename
+    require_active_variants osxbom "" rename
     set prefix           ${prefix}
     post-extract {
         reinplace "s|\[\$PATH\]\:/usr/sbin|\[\]|" ${worksrcpath}/configure.ac
