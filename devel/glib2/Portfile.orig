@@ -1,0 +1,119 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 100080 2012-11-27 04:53:49Z ryandesign@macports.org $
+
+PortSystem                  1.0
+PortGroup                   archcheck 1.0
+PortGroup                   conflicts_build 1.0
+
+name                        glib2
+conflicts                   glib2-devel
+set my_name                 glib
+version                     2.34.3
+set branch                  [join [lrange [split ${version} .] 0 1] .]
+categories                  devel
+maintainers                 ryandesign openmaintainer
+license                     LGPL-2+
+homepage                    http://www.gtk.org/
+platforms                   darwin
+dist_subdir                 glib2
+distname                    ${my_name}-${version}
+use_xz                      yes
+use_parallel_build          yes
+
+description                 Library with data structure functions and other constructs
+
+long_description            Glib is a library which includes support routines \
+                            for C, such as lists, trees, hashes, memory \
+                            allocation, and many other things.
+
+master_sites                gnome:sources/${my_name}/${branch}/ \
+                            ftp://ftp.gtk.org/pub/${my_name}/${branch}/
+
+checksums                   rmd160  94508de21d25634f794066de246e9eecf6cbd0f8 \
+                            sha256  855fcbf87cb93065b488358e351774d8a39177281023bae58c286f41612658a7
+
+# ${prefix}/include/glib-2.0/glib/gi18n.h requires -I${prefix}/include to find libintl.h
+# See https://trac.macports.org/changeset/27148
+patchfiles                  patch-configure.diff \
+                            patch-glib-2.0.pc.in.diff \
+                            patch-glib_gunicollate.c.diff \
+                            patch-gi18n.h.diff \
+                            patch-gio_xdgmime_xdgmime.c.diff \
+                            patch-gio_gdbusprivate.c.diff
+
+depends_lib                 port:gettext \
+                            port:libiconv \
+                            port:zlib \
+                            port:libffi \
+                            path:bin/perl:perl5
+
+archcheck.files             lib/libintl.dylib \
+                            lib/libiconv.dylib \
+                            lib/libz.dylib \
+                            lib/libffi.dylib
+
+# configure checks for libelf, and if found, the build fails; see #33948.
+conflicts_build             libelf
+
+# TODO: compiling with clang produces a glib that breaks other ports; see #32202, #32204, #32233.
+compiler.blacklist          clang
+
+# -lresolv is needed at least on Tiger PPC.
+configure.ldflags-append    -lresolv \
+                            -bind_at_load
+
+configure.cflags-append     -fstrict-aliasing
+
+configure.args              --enable-static
+
+configure.perl              ${prefix}/bin/perl
+configure.python            /usr/bin/python
+configure.env-append        PERL_PATH=${configure.perl} \
+                            PKG_CONFIG=false \
+                            ZLIB_CFLAGS="-I${prefix}/include" \
+                            ZLIB_LIBS="-L${prefix}/lib -lz"
+
+pre-configure {
+    set libffi_version      [exec sed -n {s/Version: //p} ${prefix}/lib/pkgconfig/libffi.pc]
+    configure.env-append    LIBFFI_CFLAGS="-I${prefix}/lib/libffi-${libffi_version}/include" \
+                            LIBFFI_LIBS="-L${prefix}/lib -lffi"
+}
+
+post-patch {
+    reinplace "s|data_dirs = \"/usr|data_dirs = \"${prefix}/share:/usr|g" ${worksrcpath}/glib/gutils.c
+    reinplace "s|path = \"/bin|path = \"${prefix}/bin:/bin|g" ${worksrcpath}/glib/gutils.c ${worksrcpath}/glib/gspawn.c
+    reinplace "s|@@PREFIX@@|${prefix}|g" ${worksrcpath}/gio/xdgmime/xdgmime.c
+    reinplace "s|@@PREFIX@@|${prefix}|g" ${worksrcpath}/gio/gdbusprivate.c
+    reinplace "s|#! */usr/bin/env python|#!${configure.python}|g" ${worksrcpath}/glib/gtester-report
+}
+
+post-configure {
+    system "ed - ${worksrcpath}/config.h < ${filespath}/config.h.ed"
+}
+
+build.args                  V=1
+
+test.run                    yes
+test.target                 check
+
+post-destroot {
+    file delete ${destroot}${prefix}/lib/charset.alias
+
+    set docdir ${prefix}/share/doc/${name}
+    xinstall -d ${destroot}${docdir}
+    xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING ChangeLog HACKING NEWS \
+        README ${destroot}${docdir}
+}
+
+platform darwin {
+    configure.args-append   --disable-dtrace
+}
+
+platform darwin 8 {
+    depends_lib-append      port:python27
+    configure.python        ${prefix}/bin/python2.7
+}
+
+livecheck.type              regex
+livecheck.url               http://ftp.gnome.org/pub/GNOME/sources/${my_name}/${branch}/?C=M&O=D
+livecheck.regex             ${my_name}-(\[0-9.\]+)\\.tar

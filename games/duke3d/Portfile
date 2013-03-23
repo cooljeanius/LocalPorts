@@ -1,0 +1,58 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 71533 2010-09-15 20:26:12Z ryandesign@macports.org $
+
+PortSystem      1.0
+
+name            duke3d
+version         0.1
+categories      games
+platforms       darwin
+maintainers     phw openmaintainer
+license         GPL-2+
+description     Runtime for FPS Duke Nukem 3D
+long_description Duke Nukem 3D is a first-person shooter computer game \
+                developed by 3D Realms and published by Apogee Software. \
+                Level and gamefiles are not included (use Shareware Version)
+fetch.type      svn
+svn.url         svn://svn.icculus.org/duke3d/trunk/
+homepage        http://icculus.org/duke3d/
+
+depends_build   port:pkgconfig \
+                port:ppc-linux-binutils \
+                port:arc \
+                port:arj \
+                port:dos2unix \
+                port:dosmacux \
+                port:unarj \
+                port:nasm \
+                port:endian
+depends_lib     path:lib/pkgconfig/sdl.pc:libsdl \
+                port:libsdl_image \
+                port:libsdl_mixer \
+                port:physfs \
+                port:libsockets \
+                port:socket \
+                port:bochs \
+                port:dosbox
+
+worksrcdir       trunk/source/
+use_configure    no
+build.args       macosx=true
+
+platform i386 x86_64 {
+    reinplace "s|\-faltivec||" ${worksrcdir}/buildengine/Makefile
+}
+
+variant docs description {Build documentation} {
+    depends_build-append port:doxygen
+    post-build {
+        system -W ${worksrcpath}/buildengine "doxygen"
+    }
+}
+
+destroot {
+    xinstall -m 755 -d ${destroot}${prefix}/bin
+    file copy ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}
+
+livecheck.type none

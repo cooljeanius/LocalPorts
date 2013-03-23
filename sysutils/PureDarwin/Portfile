@@ -33,7 +33,8 @@ depends_lib-append port:darwinbuild \
                    port:llvm-gcc42 \
                    port:tcp_wrappers \
                    port:MacPorts \
-                   port:chroot-tools
+                   port:chroot-tools \
+                   port:proctools
 
 require_active_variants MacPorts only_mp_deps
 require_active_variants MacPorts mp_bundle
