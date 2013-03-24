@@ -2,6 +2,7 @@
 # $Id$
 
 PortSystem        1.0
+PortGroup         archcheck 1.0
 PortGroup         active_variants 1.1
 
 name              PureDarwin
@@ -11,6 +12,7 @@ platforms         darwin
 maintainers       gwmail.gwu.edu:egall openmaintainer
 license           Permissive
 supported_archs   noarch
+universal_variant no
 
 description       An attempt at building a self-hosting Darwin using MacPorts
 
@@ -33,11 +35,9 @@ depends_lib-append port:darwinbuild \
                    port:llvm-gcc42 \
                    port:tcp_wrappers \
                    port:MacPorts \
-                   port:chroot-tools \
                    port:proctools \
                    port:db47 \
                    port:fs-check \
-                   port:xserve-raid-tools \
                    port:xorg \
                    port:iRecovery \
                    port:p5.12-cpan-meta \
@@ -62,7 +62,6 @@ depends_lib-append port:darwinbuild \
                    port:openssh \
                    port:postgresql91 \
                    port:rb-cocoa \
-                   port:whois \
                    port:traceroute \
                    port:syslog-ng \
                    port:tcsh \
@@ -78,8 +77,46 @@ depends_lib-append port:darwinbuild \
                    port:apr \
                    port:apr-util \
                    port:gawk \
-                   port:mawk
-
+                   port:mawk \
+                   port:bash \
+                   port:bc \
+                   port:bind9 \
+                   port:bzip2 \
+                   port:anacron \
+                   port:cronolog \
+                   port:logrotate \
+                   port:cups-pdf \
+                   port:gimp-print \
+                   port:libgnomecups \
+                   port:curl \
+                   port:curlftpfs \
+                   port:curlhandle \
+                   port:emacs \
+                   port:expat \
+                   port:file \
+                   port:diffutils \
+                   port:gnutar \
+                   port:gzip \
+                   port:gpatch \
+                   port:graphviz \
+                   port:groff \
+                   port:mdocml \
+                   port:afsctool \
+                   port:dmg2img \
+                   port:hfstar \
+                   port:hunspell \
+                   port:libiodbc \
+                   port:ike-scan \
+                   port:xmodmap \
+                   port:ksh93 \
+                   port:Lingon \
+                   port:alac_decoder \
+                   port:less \
+                   port:lesspipe \
+                   port:AquaLess \
+                   port:libarchive \
+                   port:renameutils
+ 
 require_active_variants MacPorts only_mp_deps
 require_active_variants MacPorts mp_bundle
 
