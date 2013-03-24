@@ -1,0 +1,30 @@
+# $Id: $
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.branches      5.8 5.10 5.12 5.14 5.16
+perl5.setup         Net-SMTP-SSL 1.01
+revision            3
+license             {Artistic-1 GPL}
+maintainers         nomaintainer
+distfiles           Net-SMTP-SSL-${perl5.moduleversion}.tar.gz
+master_sites        http://search.cpan.org/CPAN/authors/id/C/CW/CWEST/
+platforms           darwin
+worksrcdir          Net-SMTP-SSL-${perl5.moduleversion}
+
+description \
+	Perl5 SSL support for Net::SMTP
+
+long_description \
+	Implements the same API as Net::SMTP, but uses IO::Socket::SSL \
+	for its network operations.
+
+checksums \
+	md5 ba039288ebf7a343feecacd374da8c1a \
+	sha1 2acccf803a6b0b5f71bd3ebed41434afb99d5e16 \
+	rmd160 8848d5f28d6e7ce03481aa6f0b7bb6b193c0bddb
+
+if {${perl5.major} != ""} {
+supported_archs noarch
+}

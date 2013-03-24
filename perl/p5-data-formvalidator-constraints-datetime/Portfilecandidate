@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.setup         Data-FormValidator-Constraints-DateTime 1.11
+#perl5.setup         Data-FormValidator-Constraints-DateTime 1.11 ../by-authors/id/W/WO/WONKO
+platforms           darwin
+maintainers         nomaintainer
+# Uncomment this line if you know there will be no arch-specific code:
+#supported_archs     noarch
+
+description         Data::FormValidator::Constraints::DateTime (no description available)
+
+long_description    ${description}
+
+checksums           sha256 c3653fddfdfb457cce5f9fdf81309a6a54b32aeb5ff343856f6f32044ac88170 \
+                    rmd160 551246674bdcabede9caf1b4f4a8d80e585af15c
+
+depends_lib-append  port:p5-datetime \
+                    port:p5-datetime-format-strptime \
+                    port:p5-data-formvalidator
+depends_build-append port:p5-datetime-format-builder
+

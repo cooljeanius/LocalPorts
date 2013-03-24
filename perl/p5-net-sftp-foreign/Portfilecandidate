@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.setup         Net-SFTP-Foreign 1.73
+#perl5.setup         Net-SFTP-Foreign 1.73 ../by-authors/id/S/SA/SALVA
+platforms           darwin
+maintainers         nomaintainer
+# Uncomment this line if you know there will be no arch-specific code:
+#supported_archs     noarch
+
+description         Net::SFTP::Foreign (no description available)
+
+long_description    ${description}
+
+checksums           sha256 97330ca61ce26bac0050271f40ca7667eaf9a2ea3ef11677b6bf0ca149833fb2 \
+                    rmd160 f4b6cc60792f52828796863703110d583cdd2a00
+
+
+
+

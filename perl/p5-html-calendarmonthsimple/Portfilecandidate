@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.setup         HTML-CalendarMonthSimple 1.25
+#perl5.setup         HTML-CalendarMonthSimple 1.25 ../by-authors/id/S/ST/STIGMATA
+platforms           darwin
+maintainers         nomaintainer
+# Uncomment this line if you know there will be no arch-specific code:
+#supported_archs     noarch
+
+description         HTML::CalendarMonthSimple (no description available)
+
+long_description    ${description}
+
+checksums           sha256 00cdd627996104df5cedee8e78596698917879b726263987d85b38d69d870c62 \
+                    rmd160 eb7639454d22fa43371220b9b9c602424579c11a
+
+depends_lib-append  port:p5-date-calc
+
+

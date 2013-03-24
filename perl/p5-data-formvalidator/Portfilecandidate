@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.setup         Data-FormValidator 4.80
+#perl5.setup         Data-FormValidator 4.80 ../by-authors/id/M/MA/MARKSTOS
+platforms           darwin
+maintainers         nomaintainer
+# Uncomment this line if you know there will be no arch-specific code:
+#supported_archs     noarch
+
+description         Data::FormValidator (no description available)
+
+long_description    ${description}
+
+checksums           sha256 1e546d670a31a847917dd02fe00cd0cf7624289b727262ffbaf455bb49fb7461 \
+                    rmd160 d9433a04efa99839c61236d5b9f1fcf2c34db2e6
+
+depends_lib-append  port:p5-date-calc \
+                    port:p5-regexp-common \
+                    port:p5-email-valid \
+                    port:p5-file-mmagic \
+                    port:p5-image-size \
+                    port:p5-mime-types \
+                    port:p5-perl6-junction
+
+perl5.use_module_build

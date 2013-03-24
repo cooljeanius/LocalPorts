@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.setup         Catalyst-Plugin-I18N 0.10
+#perl5.setup         Catalyst-Plugin-I18N 0.10 ../by-authors/id/B/BO/BOBTFISH
+platforms           darwin
+maintainers         nomaintainer
+# Uncomment this line if you know there will be no arch-specific code:
+#supported_archs     noarch
+
+description         I18N plugin for Catalyst
+
+long_description    ${description}
+
+checksums           sha256 f6039bdb2894b200ee379e4a69ea9bd9ce37611c64738d2e7b94bb05ad75399c \
+                    rmd160 8f46fb699cd3254f8007c98a805630ea626bb9ae
+
+depends_lib-append  port:p5-locale-maketext-lexicon \
+                    port:p5-catalyst-runtime \
+                    port:p5-mro-compat
+
+

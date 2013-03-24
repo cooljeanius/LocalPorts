@@ -34,7 +34,51 @@ depends_lib-append port:darwinbuild \
                    port:tcp_wrappers \
                    port:MacPorts \
                    port:chroot-tools \
-                   port:proctools
+                   port:proctools \
+                   port:db47 \
+                   port:fs-check \
+                   port:xserve-raid-tools \
+                   port:xorg \
+                   port:iRecovery \
+                   port:p5.12-cpan-meta \
+                   port:p5.12-cpan-meta-requirements \
+                   port:p5.12-cpan-meta-yaml \
+                   port:p5.12-parse-cpan-meta \
+                   port:gnuchess \
+                   port:openssl \
+                   port:cracklib \
+                   port:heimdal \
+                   port:kerberos5 \
+                   port:libcryptopp \
+                   port:libnotify \
+                   port:unfs3 \
+                   port:openal \
+                   port:fuse4x-framework \
+                   port:tuntaposx \
+                   port:openldap \
+                   port:pamtester \
+                   port:yubico-pam \
+                   port:checkpassword-pam \
+                   port:openssh \
+                   port:postgresql91 \
+                   port:rb-cocoa \
+                   port:whois \
+                   port:traceroute \
+                   port:syslog-ng \
+                   port:tcsh \
+                   port:rb-gem_plugin \
+                   port:rb-rubygems \
+                   port:sqlite3 \
+                   port:netbsd-iscsi-target \
+                   port:py27-twisted \
+                   port:startup-notification \
+                   port:webkit-gtk \
+                   port:apache2 \
+                   port:mod_perl2 \
+                   port:apr \
+                   port:apr-util \
+                   port:gawk \
+                   port:mawk
 
 require_active_variants MacPorts only_mp_deps
 require_active_variants MacPorts mp_bundle

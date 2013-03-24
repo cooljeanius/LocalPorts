@@ -1,6 +1,8 @@
 # -*- coding: utf-8; mode: tcl; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 4; truncate-lines: t -*- vim:fenc=utf-8:et:sw=4:ts=4:sts=4
 # $Id: qt4-1.0.tcl 97988 2012-09-21 12:52:02Z michaelld@macports.org $
 
+#
+# Copyright (c) 2013 Eric Gallager <egall@gwmail.gwu.edu>
 # Copyright (c) 2013 The MacPorts Project
 # All rights reserved.
 #
@@ -30,15 +32,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 #
-# This portgroup defines standard settings when using Qt4.
+# This portgroup defines standard settings when using qmake.
 #
 # Usage:
-# PortGroup                     qmake 0.1
+# PortGroup                     qmake 1.0
 
 PortGroup                       qt4 1.0
 
 configure.cmd                   ${qt_qmake_cmd}
+configure.pre_args-delete       --prefix=${prefix}
 configure.pre_args-append       PREFIX=${prefix} \
-                                "QMAKE_CC=${configure.cc} QMAKE_CXX=${configure.cxx}"
+                                "QMAKE_CC=${configure.cc} QMAKE_CXX=${configure.cxx}" \
+                                "QMAKE_OBJC=${configure.objc}"
 configure.args-append           "CFLAGS=\"${configure.cflags} [get_canonical_archflags cc]\""
 configure.universal_args-delete --disable-dependency-tracking

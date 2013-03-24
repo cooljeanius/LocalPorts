@@ -1,0 +1,24 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.setup         POE 1.354
+#perl5.setup         POE 1.354 ../by-authors/id/R/RC/RCAPUTO
+platforms           darwin
+maintainers         nomaintainer
+# Uncomment this line if you know there will be no arch-specific code:
+#supported_archs     noarch
+
+description         Networking and messaging for any event loop.
+
+long_description    ${description}
+
+checksums           sha256 a5efd9140f3222333683dd7ac263dafbf7a7529d81ec917b1ba8c947ca44ce97 \
+                    rmd160 488c2d1a94bf4e367fc401e9ef6422f056a74217
+
+depends_lib-append  port:p5-poe-test-loops \
+                    port:p5-io-tty
+depends_build-append port:p5-poe-test-loops
+

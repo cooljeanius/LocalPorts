@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.setup         Net-SMTP-SSL 1.01
+#perl5.setup         Net-SMTP-SSL 1.01 ../by-authors/id/C/CW/CWEST
+platforms           darwin
+maintainers         nomaintainer
+# Uncomment this line if you know there will be no arch-specific code:
+#supported_archs     noarch
+
+description         Net::SMTP::SSL (no description available)
+
+long_description    ${description}
+
+checksums           sha256 13599c46bc7ce47fc151ace89d0625294b62154c3a20c7ff7e7614d1f2ee6289 \
+                    rmd160 8848d5f28d6e7ce03481aa6f0b7bb6b193c0bddb
+
+depends_lib-append  port:p5-io-socket-ssl
+
+
