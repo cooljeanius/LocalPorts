@@ -373,7 +373,7 @@ variant spatialite description {Enable SpartiaLite support} {
     }
 }
 
-variant odbc description {Enable ODBC support} {
+variant unixODBC conflicts iodbc description {Enable ODBC support via unixODBC} {
     depends_lib-append      port:unixODBC
     if {[variant_isset mysql5]} {
         if {![variant_isset universal]} {
@@ -386,6 +386,12 @@ variant odbc description {Enable ODBC support} {
     if {[variant_isset python27]} {
         depends_lib-append  port:py27-pyodbc
     }
+    configure.args-delete   --without-odbc
+    configure.args-append   --with-odbc=${prefix}
+}
+
+variant iodbc conflicts unixODBC description {Enable ODBC support via libiodbc} {
+    depends_lib-append      port:libiodbc
     configure.args-delete   --without-odbc
     configure.args-append   --with-odbc=${prefix}
 }
@@ -415,7 +421,7 @@ variant framework description {Build as a Mac OS X framework} {
     configure.args-append   --with-macosx-framework
 }
 
-variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl postgresql82 postgresql84 \
+variant huge requires curl expat geos hdf5 mysql5 netcdf opencl postgresql82 postgresql84 \
                       postgresql90 postgresql91 postgresql92 spatialite sqlite3 \
                       description {Pull in as many dependencies as possible} {
     configure.args-delete   --without-lzma \
@@ -458,13 +464,6 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf odbc opencl postgresql8
                             --without-expat \
                             --disable-dependency-tracking
     configure.universal_args-delete --disable-dependency-tracking
-    pre-patch {
-        file copy ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
-    }
-    patchfiles-append       patch-configure.ac.diff \
-                            patch-configure.in.diff
-    use_autoreconf          yes
-    autoreconf.args         -fvi
     depends_lib-append      port:cfitsio \
                             port:libxmi \
                             port:netcdf-fortran \
@@ -550,6 +549,19 @@ variant broken requires postgreql81 extra_nonuniversal poppler xerces descriptio
         depends_lib-append  port:xalanj
         depends_skip_archcheck xalanj
     }
+}
+
+variant autoreconf description {Runs autoreconf before configuring} {
+    pre-patch {
+        file copy ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+    }
+    patchfiles-append       patch-configure.ac.diff \
+                            patch-configure.in.diff
+    use_autoreconf          yes
+    autoreconf.args         -fvi
+    depends_build-append    port:gawk \
+                            port:grep \
+                            port:gsed
 }
 
 default_variants            +expat \

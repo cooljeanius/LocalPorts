@@ -1,0 +1,114 @@
+# -*- Mode: Tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:et:sw=4:ts=4:sts=4
+# $Id: Portfile 93376 2012-05-21 06:17:37Z mww@macports.org $
+
+PortSystem      1.0
+
+name            gnutls
+version         2.12.19
+revision        1
+categories      devel security net
+# yes, some of the libs are GPL only
+license         LGPL-2.1+ GPL-3+
+maintainers     nomaintainer
+description     GNU Transport Layer Security Library
+homepage        http://www.gnutls.org/
+platforms       darwin
+
+long_description \
+    GnuTLS is a portable ANSI C based library which implements the TLS 1.0 and \
+    SSL 3.0 protocols. The library does not include any patented algorithms \
+    and is available under the GNU Lesser General Public License (LGPL).
+
+master_sites    gnu
+
+checksums       md5     14228b34e3d8ed176a617df40693b441 \
+                rmd160  077d62ab00780a6798cee92e80d542f1e74891f2 \
+                sha256  8f167b39de4e2fddd83f7e29c98ce2e7fc76f4d79ccf4d3d66d1379b971160ec
+
+use_bzip2       yes
+
+depends_build-append \
+                port:pkgconfig \
+                port:gaa
+
+depends_lib-append \
+                port:libgcrypt \
+                port:libtasn1 \
+                port:lzo2 \
+                port:readline \
+                port:nettle \
+                port:pth \
+                port:zlib \
+                port:gettext \
+                port:libiconv \
+                port:libgpg-error
+
+configure.args  --with-lzo \
+                --with-libgcrypt \
+                --with-libgcrypt-prefix=${prefix} \
+                --disable-guile \
+                --without-p11-kit \
+                --disable-silent-rules \
+                --with-libtasn1-prefix=${prefix} \
+                --with-libnettle-prefix=${prefix} \
+                --with-libpth-prefix=${prefix} \
+                --with-libreadline-prefix=${prefix} \
+                --disable-valgrind-tests \
+                --disable-gtk-doc
+
+variant tests description {Run tests} {
+    depends_build-append path:bin/valgrind:valgrind
+    configure.args-delete --disable-valgrind-tests
+    configure.args-append --enable-valgrind-tests
+    test.run        yes
+    test.target     check
+}
+
+post-destroot {
+    move ${destroot}${prefix}/bin/certtool ${destroot}${prefix}/bin/gnutls-certtool
+}
+
+variant guile description {Adds guile support - currently broken} {
+    depends_lib-append port:guile \
+                       port:swig-guile \
+                       port:slib-guile
+    configure.args-delete --disable-guile
+    configure.args-append --enable-guile
+    pre-build {
+        ui_msg "Warning: This build will most likely fail."
+    }
+    use_parallel_build no
+}
+
+variant autoreconf description {Runs autoreconf before configuring} {
+    post-extract {
+        file copy ${worksrcpath}/aclocal.m4 ${worksrcpath}/m4
+        file copy ${worksrcpath}/lib/aclocal.m4 ${worksrcpath}/lib/m4
+        file copy ${worksrcpath}/libextra/aclocal.m4 ${worksrcpath}/libextra/m4
+        file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/lib/m4
+    }
+    patchfiles-append       patch-configure.ac.diff \
+                            patch-lib-configure.ac.diff \
+                            patch-libextra-configure.ac.diff
+    use_autoreconf          yes
+    autoreconf.args         -fvi
+    depends_build-append    port:gawk \
+                            port:grep \
+                            port:gsed \
+                            port:gettext
+}
+
+# Because poppler's conflicts: https://trac.macports.org/ticket/38525
+variant docs conflicts universal description {Build documentation} {
+    depends_build-append    port:gtk-doc
+    configure.args-delete   --disable-gtk-doc
+    configure.args-append   --enable-gtk-doc
+}
+
+platform darwin 8 {
+    depends_build-append    port:texinfo
+}
+
+livecheck.type  regex
+livecheck.url   http://ftp.gnu.org/gnu/gnutls/
+livecheck.regex ${name}-(\\d+\\.\\d*\[02468\]+(?:\\.\\d+)*)
