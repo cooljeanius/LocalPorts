@@ -3,7 +3,6 @@
 
 PortSystem            1.0
 PortGroup             qt4 1.0
-PortGroup             app 1.0
 
 name                  valkyrie
 version               2.0.0
