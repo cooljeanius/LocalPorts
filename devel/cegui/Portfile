@@ -35,10 +35,28 @@ depends_lib-append  port:expat \
                     port:libxml2 \
                     port:pcre \
                     port:tinyxml \
+                    port:xorg-libX11 \
+                    port:xorg-libXau \
+                    port:xorg-libXdmcp \
+                    port:xorg-libXext \
+                    port:xorg-libXi \
+                    port:xorg-libXrandr \
+                    port:xorg-libXxf86vm \
                     port:xorg-libice \
                     port:xorg-libsm \
+                    port:xorg-libxcb \
+                    port:xrender \
                     port:mesa \
-                    port:zlib
+                    port:zlib \
+                    port:bzip2 \
+                    port:jasper \
+                    port:jpeg \
+                    port:lcms \
+                    port:libiconv \
+                    port:libmng \
+                    port:libpng \
+                    port:tiff \
+                    port:xz
 
 patchfiles          patch-cegui-include-CEGUIDynamicModule.h.diff \
                     patch-cegui-src-CEGUIDynamicModule.cpp.diff
@@ -144,7 +162,8 @@ variant samples description {Build samples with gtk2 (warning: not all work yet)
 
 # Language bindings variants
 variant lua description {Enable lua bindings} {
-    depends_lib-append    port:swig-lua \
+    depends_lib-append    port:lua \
+                          port:swig-lua \
                           port:toluapp
     configure.args-delete --disable-lua-module
     configure.args-append --enable-lua-module \
