@@ -5,8 +5,10 @@ PortSystem          1.0
 
 name                cegui
 version             0.7.9
+revision            1
 categories          devel
 platforms           darwin
+license             MIT
 maintainers         ryandesign openmaintainer
 
 description         Crazy Eddie’s GUI System
@@ -23,9 +25,9 @@ distname            CEGUI-${version}
 checksums           rmd160  d776fd49a629248783b0d45b05ef8ad2804cca3b \
                     sha256  7c3b264def08b46de749c2acaba363e907479d924612436f3bd09da2e474bb8c
 
-depends_build       port:pkgconfig
+depends_build-append port:pkgconfig port:imake
 
-depends_lib         port:expat \
+depends_lib-append  port:expat \
                     port:freeglut \
                     port:freeimage \
                     port:freetype \
@@ -34,7 +36,9 @@ depends_lib         port:expat \
                     port:pcre \
                     port:tinyxml \
                     port:xorg-libice \
-                    port:xorg-libsm
+                    port:xorg-libsm \
+                    port:mesa \
+                    port:zlib
 
 patchfiles          patch-cegui-include-CEGUIDynamicModule.h.diff \
                     patch-cegui-src-CEGUIDynamicModule.cpp.diff
@@ -51,12 +55,109 @@ configure.args      --disable-corona \
                     --disable-stb \
                     --disable-tga \
                     --disable-xerces-c \
+                    --disable-bidirectional-text \
                     --enable-devil \
                     --enable-freeimage \
                     --enable-freetype \
                     --enable-null-renderer \
                     --enable-pcre \
                     --enable-tinyxml \
-                    --with-x
+                    --with-tinyxml-incdir=${prefix}/include \
+                    --with-tinyxml-libdir=${prefix}/lib \
+                    --enable-libxml \
+                    --enable-expat \
+                    --with-expat-incdir=${prefix}/include \
+                    --with-expat-libdir=${prefix}/lib \
+                    --enable-opengl-renderer \
+                    --with-x \
+                    --with-zlib=${prefix}
+
+configure.env-append XMKMF=${prefix}/bin/xmkmf
+
+variant huge requires autoreconf bidirectional debug external_glew lua python xerces \
+description {Build with all available features that build universal} {
+    pre-fetch {
+        ui_msg "Good luck with this variant..."
+    }
+}
+
+variant autoreconf description {Runs autoreconf before configuring} {
+    post-extract {
+        file mkdir ${worksrcpath}/m4
+        file copy ${worksrcpath}/aclocal.m4 ${worksrcpath}/m4
+        file copy ${worksrcpath}/acinclude.m4 ${worksrcpath}/m4
+        file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    }
+    patchfiles-append       patch-configure.ac.diff \
+                            patch-Makefile.am.diff
+    use_autoreconf          yes
+    autoreconf.args         -fvi
+    depends_build-append    port:gawk \
+                            port:grep \
+                            port:gsed
+    configure.args-append   --disable-silent-rules
+}
+
+variant debug description {Enable debugging} {
+    configure.args-append --enable-debug
+}
+
+variant xerces description {Build with xerces support} {
+    depends_lib-append    port:xercesc
+    configure.args-delete --disable-xerces-c
+    configure.args-append --enable-xerces-c \
+                          --with-xerces-incdir=${prefix}/include \
+                          --with-xerces-libdir=${prefix}/lib
+}
+
+variant external_glew description {Build against an external GLEW} {
+    depends_lib-append    port:glew
+    configure.args-delete --disable-external-glew
+    configure.args-append --enable-external-glew \
+                          --with-glew-incdir=${prefix}/include \
+                          --with-glew-libdir=${prefix}/lib
+}
+
+# Ogre is not universal
+variant ogre conflicts universal description {Enable support for the OGRE rendering engine} {
+    depends_lib-append    port:ogre \
+                          port:ois
+    configure.args-delete --disable-ogre-renderer
+    configure.args-append --enable-ogre-renderer
+}
+
+variant bidirectional description {Enable bidirectional text support} {
+    depends_lib-append    port:fribidi
+    configure.args-delete --disable-bidirectional-text
+    configure.args-append --enable-bidirectional-text
+}
+
+variant samples description {Build samples with gtk2 (warning: not all work yet)} {
+    depends_lib-append    port:gtk2
+    configure.args-delete --disable-samples
+    configure.args-append --enable-samples \
+                          --with-gtk2
+    pre-build {
+        ui_msg "Warning: This will probably fail."
+    }
+}
+
+# Language bindings variants
+variant lua description {Enable lua bindings} {
+    depends_lib-append    port:swig-lua \
+                          port:toluapp
+    configure.args-delete --disable-lua-module
+    configure.args-append --enable-lua-module \
+                          --enable-toluacegui \
+                          --enable-external-toluapp \
+                          --with-tolua++-incdir=${prefix}/include \
+                          --with-tolua++-libdir=${prefix}/lib
+}
+
+variant python description {Enable python bindings} {
+    depends_lib-append    port:swig-python
+    configure.args-delete --disable-python-module
+    configure.args-append --enable-python-module
+}
 
 livecheck.regex     /CEGUI-(\[0-9.\]+)${extract.suffix}
