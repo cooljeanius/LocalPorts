@@ -1,0 +1,1388 @@
+Starting program: /Applications/MacPorts/SecretMaryo.app/Contents/MacOS/SecretMaryo 
+Reading symbols for shared libraries ++++++++++++++++++++++..warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_macports_var_macports_sources_rsync.macports.org_release_tarballs_ports_archivers_bzip2/bzip2/work/bzip2-1.0.6/blocksort.o" - no debug information available for "blocksort.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_macports_var_macports_sources_rsync.macports.org_release_tarballs_ports_archivers_bzip2/bzip2/work/bzip2-1.0.6/huffman.o" - no debug information available for "huffman.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_macports_var_macports_sources_rsync.macports.org_release_tarballs_ports_archivers_bzip2/bzip2/work/bzip2-1.0.6/crctable.o" - no debug information available for "crctable.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_macports_var_macports_sources_rsync.macports.org_release_tarballs_ports_archivers_bzip2/bzip2/work/bzip2-1.0.6/randtable.o" - no debug information available for "randtable.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_macports_var_macports_sources_rsync.macports.org_release_tarballs_ports_archivers_bzip2/bzip2/work/bzip2-1.0.6/compress.o" - no debug information available for "compress.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_macports_var_macports_sources_rsync.macports.org_release_tarballs_ports_archivers_bzip2/bzip2/work/bzip2-1.0.6/decompress.o" - no debug information available for "decompress.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_macports_var_macports_sources_rsync.macports.org_release_tarballs_ports_archivers_bzip2/bzip2/work/bzip2-1.0.6/bzlib.o" - no debug information available for "bzlib.c".
+
+..................................................................................................................................................warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/vorbisfile.o" - no debug information available for "vorbisfile.c".
+
+.warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/mdct.o" - no debug information available for "mdct.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/smallft.o" - no debug information available for "smallft.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/block.o" - no debug information available for "block.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/envelope.o" - no debug information available for "envelope.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/window.o" - no debug information available for "window.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/lsp.o" - no debug information available for "lsp.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/lpc.o" - no debug information available for "lpc.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/analysis.o" - no debug information available for "analysis.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/synthesis.o" - no debug information available for "synthesis.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/psy.o" - no debug information available for "psy.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/info.o" - no debug information available for "info.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/floor1.o" - no debug information available for "floor1.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/floor0.o" - no debug information available for "floor0.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/res0.o" - no debug information available for "res0.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/mapping0.o" - no debug information available for "mapping0.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/registry.o" - no debug information available for "registry.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/codebook.o" - no debug information available for "codebook.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/sharedbook.o" - no debug information available for "sharedbook.c".
+
+warning: Could not find object file "/Volumes/work/macports/var/macports/build/_Volumes_work_mports_dports_audio_libvorbis/libvorbis/work/libvorbis-1.3.3/lib/.libs/bitrate.o" - no debug information available for "bitrate.c".
+
+...........warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libutil/error.o" - no debug information available for "error.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libutil/glue.o" - no debug information available for "glue.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libutil/mipmap.o" - no debug information available for "mipmap.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libutil/project.o" - no debug information available for "project.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libutil/quad.o" - no debug information available for "quad.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libutil/registry.o" - no debug information available for "registry.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/dict.o" - no debug information available for "dict.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/geom.o" - no debug information available for "geom.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/memalloc.o" - no debug information available for "memalloc.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/mesh.o" - no debug information available for "mesh.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/normal.o" - no debug information available for "normal.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/priorityq.o" - no debug information available for "priorityq.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/render.o" - no debug information available for "render.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/sweep.o" - no debug information available for "sweep.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/tess.o" - no debug information available for "tess.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libtess/tessmono.o" - no debug information available for "tessmono.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/bezierEval.o" - no debug information available for "bezierEval.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/bezierPatch.o" - no debug information available for "bezierPatch.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/bezierPatchMesh.o" - no debug information available for "bezierPatchMesh.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/glcurveval.o" - no debug information available for "glcurveval.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/glinterface.o" - no debug information available for "glinterface.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/glrenderer.o" - no debug information available for "glrenderer.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/glsurfeval.o" - no debug information available for "glsurfeval.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/incurveeval.o" - no debug information available for "incurveeval.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/interface/insurfeval.o" - no debug information available for "insurfeval.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/arc.o" - no debug information available for "arc.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/arcsorter.o" - no debug information available for "arcsorter.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/arctess.o" - no debug information available for "arctess.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/backend.o" - no debug information available for "backend.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/basiccrveval.o" - no debug information available for "basiccrveval.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/basicsurfeval.o" - no debug information available for "basicsurfeval.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/bin.o" - no debug information available for "bin.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/bufpool.o" - no debug information available for "bufpool.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/cachingeval.o" - no debug information available for "cachingeval.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/ccw.o" - no debug information available for "ccw.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/coveandtiler.o" - no debug information available for "coveandtiler.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/curve.o" - no debug information available for "curve.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/curvelist.o" - no debug information available for "curvelist.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/curvesub.o" - no debug information available for "curvesub.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/dataTransform.o" - no debug information available for "dataTransform.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/displaylist.o" - no debug information available for "displaylist.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/flist.o" - no debug information available for "flist.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/flistsorter.o" - no debug information available for "flistsorter.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/hull.o" - no debug information available for "hull.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/intersect.o" - no debug information available for "intersect.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/knotvector.o" - no debug information available for "knotvector.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/mapdesc.o" - no debug information available for "mapdesc.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/mapdescv.o" - no debug information available for "mapdescv.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/maplist.o" - no debug information available for "maplist.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/mesher.o" - no debug information available for "mesher.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/monoTriangulationBackend.o" - no debug information available for "monoTriangulationBackend.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/monotonizer.o" - no debug information available for "monotonizer.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/nurbsinterfac.o" - no debug information available for "nurbsinterfac.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/nurbstess.o" - no debug information available for "nurbstess.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/patch.o" - no debug information available for "patch.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/patchlist.o" - no debug information available for "patchlist.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/quilt.o" - no debug information available for "quilt.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/reader.o" - no debug information available for "reader.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/renderhints.o" - no debug information available for "renderhints.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/slicer.o" - no debug information available for "slicer.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/sorter.o" - no debug information available for "sorter.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/splitarcs.o" - no debug information available for "splitarcs.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/subdivider.o" - no debug information available for "subdivider.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/tobezier.o" - no debug information available for "tobezier.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/trimline.o" - no debug information available for "trimline.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/trimregion.o" - no debug information available for "trimregion.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/trimvertpool.o" - no debug information available for "trimvertpool.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/uarray.o" - no debug information available for "uarray.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/internals/varray.o" - no debug information available for "varray.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/directedLine.o" - no debug information available for "directedLine.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/gridWrap.o" - no debug information available for "gridWrap.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/monoChain.o" - no debug information available for "monoChain.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/monoPolyPart.o" - no debug information available for "monoPolyPart.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/monoTriangulation.o" - no debug information available for "monoTriangulation.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/partitionX.o" - no debug information available for "partitionX.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/partitionY.o" - no debug information available for "partitionY.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/polyDBG.o" - no debug information available for "polyDBG.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/polyUtil.o" - no debug information available for "polyUtil.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/primitiveStream.o" - no debug information available for "primitiveStream.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/quicksort.o" - no debug information available for "quicksort.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/rectBlock.o" - no debug information available for "rectBlock.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/sampleComp.o" - no debug information available for "sampleComp.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/sampleCompBot.o" - no debug information available for "sampleCompBot.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/sampleCompRight.o" - no debug information available for "sampleCompRight.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/sampleCompTop.o" - no debug information available for "sampleCompTop.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/sampleMonoPoly.o" - no debug information available for "sampleMonoPoly.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/sampledLine.o" - no debug information available for "sampledLine.cc".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glu/sgi/libnurbs/nurbtess/searchTree.o" - no debug information available for "searchTree.cc".
+
+.warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_cgl.o" - no debug information available for "apple_cgl.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_glx.o" - no debug information available for "apple_glx.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_glx_context.o" - no debug information available for "apple_glx_context.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_glx_drawable.o" - no debug information available for "apple_glx_drawable.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_glx_log.o" - no debug information available for "apple_glx_log.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_glx_pbuffer.o" - no debug information available for "apple_glx_pbuffer.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_glx_pixmap.o" - no debug information available for "apple_glx_pixmap.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_glx_surface.o" - no debug information available for "apple_glx_surface.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_visual.o" - no debug information available for "apple_visual.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_glapi.o" - no debug information available for "apple_glapi.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_xgl_api_read.o" - no debug information available for "apple_xgl_api_read.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_xgl_api_stereo.o" - no debug information available for "apple_xgl_api_stereo.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/apple_xgl_api_viewport.o" - no debug information available for "apple_xgl_api_viewport.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/appledri.o" - no debug information available for "appledri.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../create_context.o" - no debug information available for "create_context.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../clientattrib.o" - no debug information available for "clientattrib.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../compsize.o" - no debug information available for "compsize.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glxconfig.o" - no debug information available for "glxconfig.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/glx_empty.o" - no debug information available for "glx_empty.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glx_error.o" - no debug information available for "glx_error.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glx_pbuffer.o" - no debug information available for "glx_pbuffer.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glx_query.o" - no debug information available for "glx_query.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glxcmds.o" - no debug information available for "glxcmds.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glxcurrent.o" - no debug information available for "glxcurrent.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glxext.o" - no debug information available for "glxext.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glxextensions.o" - no debug information available for "glxextensions.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../glxhash.o" - no debug information available for "glxhash.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/glxreply.o" - no debug information available for "glxreply.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../pixel.o" - no debug information available for "pixel.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../xfont.o" - no debug information available for "xfont.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../applegl_glx.o" - no debug information available for "applegl_glx.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(glapi_dispatch.o)" - no debug information available for "glapi_dispatch.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(glapi_entrypoint.o)" - no debug information available for "glapi_entrypoint.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(glapi_gentable.o)" - no debug information available for "glapi_gentable.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(glapi_getproc.o)" - no debug information available for "glapi_getproc.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(glapi_nop.o)" - no debug information available for "glapi_nop.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(glthread.o)" - no debug information available for "glthread.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(glapi.o)" - no debug information available for "glapi.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(u_current.o)" - no debug information available for "u_current.c".
+
+warning: Could not find object file "/opt/local/var/macports/build/_opt_mports_dports_x11_mesa/mesa/work/Mesa-8.0.4/src/glx/apple/../../../src/mapi/glapi/libglapi.a(u_thread.o)" - no debug information available for "u_thread.c".
+
+..... done
+Reading symbols for shared libraries . done
+Reading symbols for shared libraries . done
+Reading symbols for shared libraries . done
+Reading symbols for shared libraries . done
+
+Program received signal EXC_BAD_ACCESS, Could not access memory.
+Reason: KERN_PROTECTION_FAILURE at address: 0x00000008
+0x01dcb27a in CFBundleCopyBundleURL ()
+
+Thread 6 (process 83487):
+#0  0x023ec02e in __workq_kernreturn ()
+#1  0x022dcccf in _pthread_wqthread ()
+#2  0x022de6fe in start_wqthread ()
+
+Thread 5 (process 83487):
+#0  0x023ec02e in __workq_kernreturn ()
+#1  0x022dcccf in _pthread_wqthread ()
+#2  0x022de6fe in start_wqthread ()
+
+Thread 4 (process 83487):
+#0  0x023ec02e in __workq_kernreturn ()
+#1  0x022dcccf in _pthread_wqthread ()
+#2  0x022de6fe in start_wqthread ()
+
+Thread 3 (process 83487):
+#0  0x023ec02e in __workq_kernreturn ()
+#1  0x022dcccf in _pthread_wqthread ()
+#2  0x022de6fe in start_wqthread ()
+
+Thread 2 (process 83487):
+#0  0x023ec90a in kevent ()
+#1  0x02223e04 in _dispatch_mgr_invoke ()
+#2  0x02222853 in _dispatch_mgr_thread ()
+
+Thread 1 (process 83487):
+#0  0x01dcb27a in CFBundleCopyBundleURL ()
+#1  0x0159c184 in CEGUI::createFullPluginsURL ()
+#2  0x0159c6a6 in CEGUI::mac_loadExeBundle ()
+#3  0x0143fba4 in CEGUI::DynamicModule::DynamicModule ()
+#4  0x014835d0 in CEGUI::System::setXMLParser ()
+#5  0x0147ce87 in CEGUI::System::System ()
+#6  0x01483c3f in CEGUI::System::create ()
+#7  0x001bba48 in SMC::cVideo::Init_CEGUI_Fake ()
+#8  0x0002fcf1 in SMC::Init_Game ()
+#9  0x0002e70b in SDL_main ()
+#10 0x001c9f5c in -[SDLMain applicationDidFinishLaunching:] ()
+#11 0x0194edf1 in __-[NSNotificationCenter addObserver:selector:name:object:]_block_invoke_1 ()
+#12 0x01e22903 in ___CFXNotificationPost_block_invoke_1 ()
+#13 0x01ded688 in _CFXNotificationPost ()
+#14 0x01939fde in -[NSNotificationCenter postNotificationName:object:userInfo:] ()
+#15 0x003cdba9 in -[NSApplication _postDidFinishNotification] ()
+#16 0x003cd89f in -[NSApplication _sendFinishLaunchingNotification] ()
+#17 0x003cc3c0 in -[NSApplication(NSAppleEventHandling) _handleAEOpenEvent:] ()
+#18 0x003cc0d6 in -[NSApplication(NSAppleEventHandling) _handleCoreEvent:withReplyEvent:] ()
+#19 0x01e3b1c8 in -[NSObject performSelector:withObject:withObject:] ()
+#20 0x019740c2 in __-[NSAppleEventManager setEventHandler:andSelector:forEventClass:andEventID:]_block_invoke_1 ()
+#21 0x01972e75 in -[NSAppleEventManager dispatchRawAppleEvent:withRawReply:handlerRefCon:] ()
+#22 0x01972c49 in _NSAppleEventManagerGenericHandler ()
+#23 0x0379c045 in aeDispatchAppleEvent ()
+#24 0x03785b67 in dispatchEventAndSendReply ()
+#25 0x03785a54 in aeProcessAppleEvent ()
+#26 0x0286ea86 in AEProcessAppleEvent ()
+#27 0x003c9157 in _DPSNextEvent ()
+#28 0x003c8752 in -[NSApplication nextEventMatchingMask:untilDate:inMode:dequeue:] ()
+#29 0x003c4ac1 in -[NSApplication run] ()
+#30 0x001ca71f in main ()
+No symbol table info available.
+eax            0x0	0
+ecx            0x1f8c288	33079944
+edx            0x36	54
+ebx            0x0	0
+esp            0xbfffc6a0	0xbfffc6a0
+ebp            0xbfffc6a8	0xbfffc6a8
+esi            0x0	0
+edi            0xbfffc8d8	-1073755944
+eip            0x1dcb27a	0x1dcb27a <CFBundleCopyBundleURL+10>
+eflags         0x10286	66182
+cs             0x1b	27
+ss             0x23	35
+ds             0x23	35
+es             0x23	35
+fs             0x0	0
+gs             0xf	15
+st0            <invalid float value>	(raw 0xffff0000000000000000)
+st1            -nan(0x000000100)	(raw 0xffff0000000000000100)
+st2            0	(raw 0x00000000000000000000)
+st3            -nan(0x00000001a)	(raw 0xffff000000000000001a)
+st4            -nan(0x0ffe9e500)	(raw 0xffff00000000ffe9e500)
+st5            0.8146167064525760185904855459337881	(raw 0x3ffed08ab870fd32214f)
+st6            102098216348126	(raw 0x402db9b72fd5d3bc0000)
+st7            113.18999999999999772626324556767941	(raw 0x4005e26147ae147ae000)
+fctrl          0x37f	895
+fstat          0x20	32
+ftag           0xffff	65535
+fiseg          0x1b	27
+fioff          0x1e92016	32055318
+foseg          0x23	35
+fooff          0xbfffc620	-1073756640
+fop            0x0	0
+xmm0           {
+  v4_float = {-nan(0x7fffff), -nan(0x7fffff), -nan(0x7fffff), -nan(0x7fffff)}, 
+  v2_double = {-nan(0xfffffffffffff), -nan(0xfffffffffffff)}, 
+  v16_int8 = {-1 <repeats 16 times>}, 
+  v8_int16 = {-1, -1, -1, -1, -1, -1, -1, -1}, 
+  v4_int32 = {-1, -1, -1, -1}, 
+  v2_int64 = {-1, -1}, 
+  uint128 = 0xffffffffffffffffffffffffffffffff
+}	(raw 0xffffffffffffffffffffffffffffffff)
+xmm1           {
+  v4_float = {4.36077665e+27, 5.53400971e-11, 4.54066202e+24, 58738.4336}, 
+  v2_double = {7.6984701747209278e+218, 1.195771886996551e+195}, 
+  v16_int8 = {109, 97, 114, 102, 46, 115, 99, 105, 104, 112, 97, 114, 71, 101, 114, 111}, 
+  v8_int16 = {28001, 29286, 11891, 25449, 26736, 24946, 18277, 29295}, 
+  v4_int32 = {1835102822, 779314025, 1752195442, 1197830767}, 
+  v2_int64 = {7881706606066623337, 7525622120788095599}, 
+  uint128 = 0x6d6172662e736369687061724765726f
+}	(raw 0x6f726547726170686963732e6672616d)
+xmm2           {
+  v4_float = {4.74312041e+30, 4.36077665e+27, 5.53418526e-11, 1.86209978e+25}, 
+  v2_double = {1.678546816435662e+243, 6.2401421807529308e-85}, 
+  v16_int8 = {114, 111, 119, 101, 109, 97, 114, 102, 46, 115, 101, 99, 105, 118, 114, 101}, 
+  v8_int16 = {29295, 30565, 28001, 29286, 11891, 25955, 26998, 29285}, 
+  v4_int32 = {1919907685, 1835102822, 779314531, 1769370213}, 
+  v2_int64 = {8245940720249172582, 3347130425711948389}, 
+  uint128 = 0x726f77656d6172662e73656369767265
+}	(raw 0x657276696365732e6672616d65776f72)
+xmm3           {
+  v4_float = {2.79323083e+20, 10.9656811, 7.22495721e+28, 6.32163209e+22}, 
+  v2_double = {2.5691832492883629e+161, 4.8233743322713844e+228}, 
+  v16_int8 = {97, 114, 70, 47, 65, 47, 115, 110, 111, 105, 115, 114, 101, 86, 47, 107}, 
+  v8_int16 = {24946, 17967, 16687, 29550, 28521, 29554, 25942, 12139}, 
+  v4_int32 = {1634879023, 1093628782, 1869181810, 1700147051}, 
+  v2_int64 = {7021751937795060590, 8028074745928232811}, 
+  uint128 = 0x6172462f412f736e6f69737265562f6b
+}	(raw 0x6b2f56657273696f6e732f412f467261)
+xmm4           {
+  v4_float = {0, 0, 0, 1}, 
+  v2_double = {0, 5.2635442471208903e-315}, 
+  v16_int8 = {0 <repeats 12 times>, 63, -128, 0, 0}, 
+  v8_int16 = {0, 0, 0, 0, 0, 0, 16256, 0}, 
+  v4_int32 = {0, 0, 0, 1065353216}, 
+  v2_int64 = {0, 1065353216}, 
+  uint128 = 141008071294976
+}	(raw 0x0000803f000000000000000000000000)
+xmm5           {
+  v4_float = {0, 0, 0, 0}, 
+  v2_double = {0, 0}, 
+  v16_int8 = {0 <repeats 16 times>}, 
+  v8_int16 = {0, 0, 0, 0, 0, 0, 0, 0}, 
+  v4_int32 = {0, 0, 0, 0}, 
+  v2_int64 = {0, 0}, 
+  uint128 = 0
+}	(raw 0x00000000000000000000000000000000)
+xmm6           {
+  v4_float = {0, 0, 0, 0}, 
+  v2_double = {0, 0}, 
+  v16_int8 = {0 <repeats 16 times>}, 
+  v8_int16 = {0, 0, 0, 0, 0, 0, 0, 0}, 
+  v4_int32 = {0, 0, 0, 0}, 
+  v2_int64 = {0, 0}, 
+  uint128 = 0
+}	(raw 0x00000000000000000000000000000000)
+xmm7           {
+  v4_float = {0, 0, 0, 0}, 
+  v2_double = {0, 0}, 
+  v16_int8 = {0 <repeats 16 times>}, 
+  v8_int16 = {0, 0, 0, 0, 0, 0, 0, 0}, 
+  v4_int32 = {0, 0, 0, 0}, 
+  v2_int64 = {0, 0}, 
+  uint128 = 0
+}	(raw 0x00000000000000000000000000000000)
+mxcsr          0x1fa0	8096
+mm0            {
+  uint64 = 0, 
+  v2_int32 = {0, 0}, 
+  v4_int16 = {0, 0, 0, 0}, 
+  v8_int8 = {0, 0, 0, 0, 0, 0, 0, 0}
+}	(raw 0x0000000000000000)
+mm1            {
+  uint64 = 256, 
+  v2_int32 = {256, 0}, 
+  v4_int16 = {256, 0, 0, 0}, 
+  v8_int8 = {0, 1, 0, 0, 0, 0, 0, 0}
+}	(raw 0x0000000000000100)
+mm2            {
+  uint64 = 0, 
+  v2_int32 = {0, 0}, 
+  v4_int16 = {0, 0, 0, 0}, 
+  v8_int8 = {0, 0, 0, 0, 0, 0, 0, 0}
+}	(raw 0x0000000000000000)
+mm3            {
+  uint64 = 26, 
+  v2_int32 = {26, 0}, 
+  v4_int16 = {26, 0, 0, 0}, 
+  v8_int8 = {26, 0, 0, 0, 0, 0, 0, 0}
+}	(raw 0x000000000000001a)
+mm4            {
+  uint64 = 4293518592, 
+  v2_int32 = {-1448704, 0}, 
+  v4_int16 = {-6912, -23, 0, 0}, 
+  v8_int8 = {0, -27, -23, -1, 0, 0, 0, 0}
+}	(raw 0x00000000ffe9e500)
+mm5            {
+  uint64 = -3419718171610701489, 
+  v2_int32 = {-47046321, -796215184}, 
+  v4_int16 = {8527, -718, -18320, -12150}, 
+  v8_int8 = {79, 33, 50, -3, 112, -72, -118, -48}
+}	(raw 0xd08ab870fd32214f)
+mm6            {
+  uint64 = -5064526660527980544, 
+  v2_int32 = {-742653952, -1179177003}, 
+  v4_int16 = {0, -11332, 12245, -17993}, 
+  v8_int8 = {0, 0, -68, -45, -43, 47, -73, -71}
+}	(raw 0xb9b72fd5d3bc0000)
+mm7            {
+  uint64 = -2134345935403425792, 
+  v2_int32 = {343597056, -496941138}, 
+  v4_int16 = {-8192, 5242, 18350, -7583}, 
+  v8_int8 = {0, -32, 122, 20, -82, 71, 97, -30}
+}	(raw 0xe26147ae147ae000)
+The DYLD shared library state has been initialized from the executable's shared library information.  All symbols should be present, but the addresses of some symbols may move when the program is executed, as DYLD may relocate library load addresses if necessary.
+                                                  Requested State Current State
+Num Basename                        Type Address         Reason | | Source     
+  | |                                  | |                    | | | |          
+  1 dyld                               - 0x8fe00000        dyld Y Y /usr/lib/dyld at 0x8fe00000 (offset 0x0) with prefix "__dyld_"
+  2 smc                                - 0x1000            exec Y Y /opt/local/bin/smc (offset 0x0)
+                                                       (objfile is) /Applications/MacPorts/SecretMaryo.app/Contents/MacOS/SecretMaryo
+  3 libCEGUINullRenderer-0.7.9.dylib   - 0x2b9000          dyld Y Y /opt/local/lib/libCEGUINullRenderer-0.7.9.dylib at 0x2b9000 (offset 0x2b9000)
+  4 libSDL_ttf-2.0.0.dylib             - 0x2c6000          dyld Y Y /opt/local/lib/libSDL_ttf-2.0.0.dylib at 0x2c6000 (offset 0x2c6000)
+  5 libSDL_mixer-1.2.0.dylib           - 0x2cd000          dyld Y Y /opt/local/lib/libSDL_mixer-1.2.0.dylib at 0x2cd000 (offset 0x2cd000)
+  6 libSDL_image-1.2.0.dylib           - 0x319000          dyld Y Y /opt/local/lib/libSDL_image-1.2.0.dylib at 0x319000 (offset 0x319000)
+  7 libpng15.15.dylib                  - 0x323000          dyld Y Y /opt/local/lib/libpng15.15.dylib at 0x323000 (offset 0x323000)
+  8 libboost_system-mt.dylib           - 0x34b000          dyld Y Y /opt/local/lib/libboost_system-mt.dylib at 0x34b000 (offset 0x34b000)
+  9 libboost_thread-mt.dylib           - 0x351000          dyld Y Y /opt/local/lib/libboost_thread-mt.dylib at 0x351000 (offset 0x351000)
+ 10 libboost_filesystem-mt.dylib       - 0x37a000          dyld Y Y /opt/local/lib/libboost_filesystem-mt.dylib at 0x37a000 (offset 0x37a000)
+ 11 OpenGL                             F 0x399000          dyld Y Y /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL at 0x399000 (offset 0x399000)
+ 12 Carbon                             F 0x3af000          dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Carbon at 0x3af000 (offset 0x3af000)
+ 13 libintl.8.dylib                    - 0x3b2000          dyld Y Y /opt/local/lib/libintl.8.dylib at 0x3b2000 (offset 0x3b2000)
+ 14 AppKit                             F 0x3bf000          dyld Y Y /System/Library/Frameworks/AppKit.framework/Versions/C/AppKit at 0x3bf000 (offset 0x3bf000)
+ 15 Cocoa                              F 0x132e000         dyld Y Y /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa at 0x132e000 (offset 0x132e000)
+ 16 libSDL-1.2.0.dylib                 - 0x1331000         dyld Y Y /opt/local/lib/libSDL-1.2.0.dylib at 0x1331000 (offset 0x1331000)
+ 17 libCEGUIOpenGLRenderer-0.7.9.dylib - 0x1398000         dyld Y Y /opt/local/lib/libCEGUIOpenGLRenderer-0.7.9.dylib at 0x1398000 (offset 0x1398000)
+ 18 libCEGUIBase-0.7.9.dylib           - 0x1416000         dyld Y Y /opt/local/lib/libCEGUIBase-0.7.9.dylib at 0x1416000 (offset 0x1416000)
+ 19 libstdc++.6.0.9.dylib              - 0x174e000         dyld Y Y /usr/lib/libstdc++.6.0.9.dylib at 0x174e000 (offset 0x174e000)
+ 20 libSystem.B.dylib                  - 0x1807000         dyld Y Y /usr/lib/libSystem.B.dylib at 0x1807000 (offset 0x1807000)
+ 21 ApplicationServices                F 0x1842000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices at 0x1842000 (offset 0x1842000)
+ 22 libobjc.A.dylib                    - 0x184a000         dyld Y Y /usr/lib/libobjc.A.dylib at 0x184a000 (offset 0x184a000)
+ 23 Foundation                         F 0x1937000         dyld Y Y /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation at 0x1937000 (offset 0x1937000)
+ 24 CoreFoundation                     F 0x1d9d000         dyld Y Y /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation at 0x1d9d000 (offset 0x1d9d000)
+ 25 libfreetype.6.dylib                - 0x2094000         dyld Y Y /opt/local/lib/libfreetype.6.dylib at 0x2094000 (offset 0x2094000)
+ 26 libz.1.2.7.dylib                   - 0x2118000         dyld Y Y /opt/local/lib/libz.1.2.7.dylib at 0x2118000 (offset 0x2118000)
+ 27 libbz2.1.0.6.dylib                 - 0x212b000         dyld Y Y /opt/local/lib/libbz2.1.0.6.dylib at 0x212b000 (offset 0x212b000)
+ 28 libpcre.1.dylib                    - 0x213b000         dyld Y Y /opt/local/lib/libpcre.1.dylib at 0x213b000 (offset 0x213b000)
+ 29 libfribidi.0.dylib                 - 0x219b000         dyld Y Y /opt/local/lib/libfribidi.0.dylib at 0x219b000 (offset 0x219b000)
+ 30 libcache.dylib                     - 0x21b3000         dyld Y Y /usr/lib/system/libcache.dylib at 0x21b3000 (offset 0x21b3000)
+ 31 libcommonCrypto.dylib              - 0x21bc000         dyld Y Y /usr/lib/system/libcommonCrypto.dylib at 0x21bc000 (offset 0x21bc000)
+ 32 libcompiler_rt.dylib               - 0x2209000         dyld Y Y /usr/lib/system/libcompiler_rt.dylib at 0x2209000 (offset 0x2209000)
+ 33 libcopyfile.dylib                  - 0x2213000         dyld Y Y /usr/lib/system/libcopyfile.dylib at 0x2213000 (offset 0x2213000)
+ 34 libdispatch.dylib                  - 0x2221000         dyld Y Y /usr/lib/system/libdispatch.dylib at 0x2221000 (offset 0x2221000)
+ 35 libdnsinfo.dylib                   - 0x223e000         dyld Y Y /usr/lib/system/libdnsinfo.dylib at 0x223e000 (offset 0x223e000)
+ 36 libdyld.dylib                      - 0x2242000         dyld Y Y /usr/lib/system/libdyld.dylib at 0x2242000 (offset 0x2242000)
+ 37 libkeymgr.dylib                    - 0x224a000         dyld Y Y /usr/lib/system/libkeymgr.dylib at 0x224a000 (offset 0x224a000)
+ 38 liblaunch.dylib                    - 0x224e000         dyld Y Y /usr/lib/system/liblaunch.dylib at 0x224e000 (offset 0x224e000)
+ 39 libmacho.dylib                     - 0x225c000         dyld Y Y /usr/lib/system/libmacho.dylib at 0x225c000 (offset 0x225c000)
+ 40 libmathCommon.A.dylib              - 0x2266000         dyld Y Y /usr/lib/system/libmathCommon.A.dylib at 0x2266000 (offset 0x2266000)
+ 41 libquarantine.dylib                - 0x226c000         dyld Y Y /usr/lib/system/libquarantine.dylib at 0x226c000 (offset 0x226c000)
+ 42 libremovefile.dylib                - 0x2272000         dyld Y Y /usr/lib/system/libremovefile.dylib at 0x2272000 (offset 0x2272000)
+ 43 libsystem_blocks.dylib             - 0x2278000         dyld Y Y /usr/lib/system/libsystem_blocks.dylib at 0x2278000 (offset 0x2278000)
+ 44 libsystem_c.dylib                  - 0x227e000         dyld Y Y /usr/lib/system/libsystem_c.dylib at 0x227e000 (offset 0x227e000)
+ 45 libsystem_dnssd.dylib              - 0x2383000         dyld Y Y /usr/lib/system/libsystem_dnssd.dylib at 0x2383000 (offset 0x2383000)
+ 46 libsystem_info.dylib               - 0x2390000         dyld Y Y /usr/lib/system/libsystem_info.dylib at 0x2390000 (offset 0x2390000)
+ 47 libsystem_kernel.dylib             - 0x23d3000         dyld Y Y /usr/lib/system/libsystem_kernel.dylib at 0x23d3000 (offset 0x23d3000)
+ 48 libsystem_network.dylib            - 0x2402000         dyld Y Y /usr/lib/system/libsystem_network.dylib at 0x2402000 (offset 0x2402000)
+ 49 libsystem_notify.dylib             - 0x240d000         dyld Y Y /usr/lib/system/libsystem_notify.dylib at 0x240d000 (offset 0x240d000)
+ 50 libsystem_sandbox.dylib            - 0x241b000         dyld Y Y /usr/lib/system/libsystem_sandbox.dylib at 0x241b000 (offset 0x241b000)
+ 51 libunc.dylib                       - 0x2421000         dyld Y Y /usr/lib/system/libunc.dylib at 0x2421000 (offset 0x2421000)
+ 52 libunwind.dylib                    - 0x2427000         dyld Y Y /usr/lib/system/libunwind.dylib at 0x2427000 (offset 0x2427000)
+ 53 libxpc.dylib                       - 0x2436000         dyld Y Y /usr/lib/system/libxpc.dylib at 0x2436000 (offset 0x2436000)
+ 54 libc++abi.dylib                    - 0x245e000         dyld Y Y /usr/lib/libc++abi.dylib at 0x245e000 (offset 0x245e000)
+ 55 libXrandr.2.dylib                  - 0x246f000         dyld Y Y /opt/local/lib/libXrandr.2.dylib at 0x246f000 (offset 0x246f000)
+ 56 libXext.6.dylib                    - 0x2478000         dyld Y Y /opt/local/lib/libXext.6.dylib at 0x2478000 (offset 0x2478000)
+ 57 libXrender.1.dylib                 - 0x2488000         dyld Y Y /opt/local/lib/libXrender.1.dylib at 0x2488000 (offset 0x2488000)
+ 58 libX11.6.dylib                     - 0x2491000         dyld Y Y /opt/local/lib/libX11.6.dylib at 0x2491000 (offset 0x2491000)
+ 59 libxcb.1.dylib                     - 0x25a9000         dyld Y Y /opt/local/lib/libxcb.1.dylib at 0x25a9000 (offset 0x25a9000)
+ 60 libXau.6.dylib                     - 0x25c6000         dyld Y Y /opt/local/lib/libXau.6.dylib at 0x25c6000 (offset 0x25c6000)
+ 61 libXdmcp.6.dylib                   - 0x25ca000         dyld Y Y /opt/local/lib/libXdmcp.6.dylib at 0x25ca000 (offset 0x25ca000)
+ 62 AudioToolbox                       F 0x25d0000         dyld Y Y /System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox at 0x25d0000 (offset 0x25d0000)
+ 63 AudioUnit                          F 0x279d000         dyld Y Y /System/Library/Frameworks/AudioUnit.framework/Versions/A/AudioUnit at 0x279d000 (offset 0x279d000)
+ 64 IOKit                              F 0x27a3000         dyld Y Y /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit at 0x27a3000 (offset 0x27a3000)
+ 65 CoreServices                       F 0x282e000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices at 0x282e000 (offset 0x282e000)
+ 66 CarbonSound                        F 0x2836000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/CarbonSound.framework/Versions/A/CarbonSound at 0x2836000 (offset 0x2836000)
+ 67 CommonPanels                       F 0x2848000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/CommonPanels.framework/Versions/A/CommonPanels at 0x2848000 (offset 0x2848000)
+ 68 Help                               F 0x2854000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Help.framework/Versions/A/Help at 0x2854000 (offset 0x2854000)
+ 69 HIToolbox                          F 0x285d000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/HIToolbox at 0x285d000 (offset 0x285d000)
+ 70 HTMLRendering                      F 0x2cf9000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HTMLRendering.framework/Versions/A/HTMLRendering at 0x2cf9000 (offset 0x2cf9000)
+ 71 ImageCapture                       F 0x2d78000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/ImageCapture.framework/Versions/A/ImageCapture at 0x2d78000 (offset 0x2d78000)
+ 72 Ink                                F 0x2da3000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Ink.framework/Versions/A/Ink at 0x2da3000 (offset 0x2da3000)
+ 73 NavigationServices                 F 0x2e69000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/NavigationServices.framework/Versions/A/NavigationServices at 0x2e69000 (offset 0x2e69000)
+ 74 OpenScripting                      F 0x2ed1000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/OpenScripting.framework/Versions/A/OpenScripting at 0x2ed1000 (offset 0x2ed1000)
+ 75 Print                              F 0x64b00000        dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Print at 0x64b00000 (offset 0x0)
+ 76 SecurityHI                         F 0x2efe000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SecurityHI.framework/Versions/A/SecurityHI at 0x2efe000 (offset 0x2efe000)
+ 77 SpeechRecognition                  F 0x2f05000         dyld Y Y /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SpeechRecognition.framework/Versions/A/SpeechRecognition at 0x2f05000 (offset 0x2f05000)
+ 78 CoreAudio                          F 0x2f18000         dyld Y Y /System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio at 0x2f18000 (offset 0x2f18000)
+ 79 CarbonCore                         F 0x2f9f000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/CarbonCore at 0x2f9f000 (offset 0x2f9f000)
+ 80 CFNetwork                          F 0x3316000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/Versions/A/CFNetwork at 0x3316000 (offset 0x3316000)
+ 81 Metadata                           F 0x34d6000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Metadata at 0x34d6000 (offset 0x2cd6000)
+ 82 OSServices                         F 0x3590000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/OSServices.framework/Versions/A/OSServices at 0x3590000 (offset 0x3590000)
+ 83 SearchKit                          F 0x36c2000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SearchKit.framework/Versions/A/SearchKit at 0x36c2000 (offset 0x36c2000)
+ 84 AE                                 F 0x3782000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/AE.framework/Versions/A/AE at 0x3782000 (offset 0x3782000)
+ 85 LaunchServices                     F 0x37d2000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/LaunchServices at 0x37d2000 (offset 0x37d2000)
+ 86 DictionaryServices                 F 0x38ab000         dyld Y Y /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/DictionaryServices.framework/Versions/A/DictionaryServices at 0x38ab000 (offset 0x38ab000)
+ 87 libicucore.A.dylib                 - 0x38f5000         dyld Y Y /usr/lib/libicucore.A.dylib at 0x38f5000 (offset 0x38f5000)
+ 88 DiskArbitration                    F 0x3b28000         dyld Y Y /System/Library/Frameworks/DiskArbitration.framework/Versions/A/DiskArbitration at 0x3b28000 (offset 0x3b28000)
+ 89 libbsm.0.dylib                     - 0x3b3a000         dyld Y Y /usr/lib/libbsm.0.dylib at 0x3b3a000 (offset 0x3b3a000)
+ 90 NetFS                              F 0x3b53000         dyld Y Y /System/Library/Frameworks/NetFS.framework/Versions/A/NetFS at 0x3b53000 (offset 0x3b53000)
+ 91 libz.1.2.5.dylib                   - 0x3b61000         dyld Y Y /usr/lib/libz.1.2.5.dylib at 0x3b61000 (offset 0x3b61000)
+ 92 libkxld.dylib                      - 0x3b74000         dyld Y Y /usr/lib/system/libkxld.dylib at 0x3b74000 (offset 0x3b74000)
+ 93 libauto.dylib                      - 0x3b84000         dyld Y Y /usr/lib/libauto.dylib at 0x3b84000 (offset 0x3b84000)
+ 94 libDiagnosticMessagesClient.dylib  - 0x3bda000         dyld Y Y /usr/lib/libDiagnosticMessagesClient.dylib at 0x3bda000 (offset 0x3bda000)
+ 95 libc++.1.dylib                     - 0x3be0000         dyld Y Y /usr/lib/libc++.1.dylib at 0x3be0000 (offset 0x3be0000)
+ 96 Security                           F 0x3c9d000         dyld Y Y /System/Library/Frameworks/Security.framework/Versions/A/Security at 0x3c9d000 (offset 0x3c9d000)
+ 97 libOpenScriptingUtil.dylib         - 0x4068000         dyld Y Y /usr/lib/libOpenScriptingUtil.dylib at 0x4068000 (offset 0x4068000)
+ 98 libpam.2.dylib                     - 0x406c000         dyld Y Y /usr/lib/libpam.2.dylib at 0x406c000 (offset 0x406c000)
+ 99 libsqlite3.dylib                   - 0x4074000         dyld Y Y /usr/lib/libsqlite3.dylib at 0x4074000 (offset 0x4074000)
+100 libxar-nossl.dylib                 - 0x4195000         dyld Y Y /usr/lib/libxar-nossl.dylib at 0x4195000 (offset 0x4195000)
+101 libbz2.1.0.dylib                   - 0x41ab000         dyld Y Y /usr/lib/libbz2.1.0.dylib at 0x41ab000 (offset 0x41ab000)
+102 libxml2.2.dylib                    - 0x41bb000         dyld Y Y /usr/lib/libxml2.2.dylib at 0x41bb000 (offset 0x41bb000)
+103 SystemConfiguration                F 0x42c7000         dyld Y Y /System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration at 0x42c7000 (offset 0x42c7000)
+104 NetAuth                            F 0x4331000         dyld Y Y /System/Library/PrivateFrameworks/NetAuth.framework/Versions/A/NetAuth at 0x4331000 (offset 0x4331000)
+105 DataDetectorsCore                  F 0x4347000         dyld Y Y /System/Library/PrivateFrameworks/DataDetectorsCore.framework/Versions/A/DataDetectorsCore at 0x4347000 (offset 0x4347000)
+106 libcrypto.0.9.8.dylib              - 0x43d6000         dyld Y Y /usr/lib/libcrypto.0.9.8.dylib at 0x43d6000 (offset 0x43d6000)
+107 liblangid.dylib                    - 0x450e000         dyld Y Y /usr/lib/liblangid.dylib at 0x450e000 (offset 0x450e000)
+108 libCRFSuite.dylib                  - 0x4513000         dyld Y Y /usr/lib/libCRFSuite.dylib at 0x4513000 (offset 0x4513000)
+109 GenerationalStorage                F 0x452a000         dyld Y Y /System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/GenerationalStorage at 0x452a000 (offset 0x452a000)
+110 TrustEvaluationAgent               F 0x4550000         dyld Y Y /System/Library/PrivateFrameworks/TrustEvaluationAgent.framework/Versions/A/TrustEvaluationAgent at 0x4550000 (offset 0x4550000)
+111 CFOpenDirectory                    F 0x4556000         dyld Y Y /System/Library/Frameworks/OpenDirectory.framework/Versions/A/Frameworks/CFOpenDirectory.framework/Versions/A/CFOpenDirectory at 0x4556000 (offset 0x4556000)
+112 libxslt.1.dylib                    - 0x4580000         dyld Y Y /usr/lib/libxslt.1.dylib at 0x4580000 (offset 0x4580000)
+113 CoreGraphics                       F 0x45b3000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics at 0x45b3000 (offset 0x45b3000)
+114 ImageIO                            F 0x4fbb000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/ImageIO at 0x4fbb000 (offset 0x4fbb000)
+115 CoreText                           F 0x50c9000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreText.framework/Versions/A/CoreText at 0x50c9000 (offset 0x50c9000)
+116 ATS                                F 0x51a0000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/ATS at 0x51a0000 (offset 0x51a0000)
+117 ColorSync                          F 0x5244000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ColorSync.framework/Versions/A/ColorSync at 0x5244000 (offset 0x5244000)
+118 HIServices                         F 0x5340000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices at 0x5340000 (offset 0x5340000)
+119 LangAnalysis                       F 0x53ca000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/LangAnalysis.framework/Versions/A/LangAnalysis at 0x53ca000 (offset 0x53ca000)
+120 PrintCore                          F 0xfa100000        dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/PrintCore at 0xfa100000 (offset 0x0)
+121 QD                                 F 0x53e7000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/QD at 0x53e7000 (offset 0x53e7000)
+122 SpeechSynthesis                    F 0x54b8000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/SpeechSynthesis.framework/Versions/A/SpeechSynthesis at 0x54b8000 (offset 0x54b8000)
+123 IOSurface                          F 0x54dc000         dyld Y Y /System/Library/Frameworks/IOSurface.framework/Versions/A/IOSurface at 0x54dc000 (offset 0x54dc000)
+124 Accelerate                         F 0x54e8000         dyld Y Y /System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate at 0x54e8000 (offset 0x54e8000)
+125 libJPEG.dylib                      - 0x54eb000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib at 0x54eb000 (offset 0x54eb000)
+126 libTIFF.dylib                      - 0x5518000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib at 0x5518000 (offset 0x5518000)
+127 libPng.dylib                       - 0x5575000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib at 0x5575000 (offset 0x5575000)
+128 libGIF.dylib                       - 0x5599000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib at 0x5599000 (offset 0x5599000)
+129 libJP2.dylib                       - 0x55a2000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJP2.dylib at 0x55a2000 (offset 0x55a2000)
+130 libRadiance.dylib                  - 0x56de000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libRadiance.dylib at 0x56de000 (offset 0x56de000)
+131 vImage                             F 0x56e4000         dyld Y Y /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/vImage at 0x56e4000 (offset 0x56e4000)
+132 vecLib                             F 0x581c000         dyld Y Y /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/vecLib at 0x581c000 (offset 0x581c000)
+133 libvDSP.dylib                      - 0x581f000         dyld Y Y /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvDSP.dylib at 0x581f000 (offset 0x581f000)
+134 libvMisc.dylib                     - 0x588e000         dyld Y Y /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvMisc.dylib at 0x588e000 (offset 0x588e000)
+135 libLAPACK.dylib                    - 0x5925000         dyld Y Y /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib at 0x5925000 (offset 0x5925000)
+136 libBLAS.dylib                      - 0x5d7f000         dyld Y Y /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib at 0x5d7f000 (offset 0x5d7f000)
+137 libFontParser.dylib                - 0x6290000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontParser.dylib at 0x6290000 (offset 0x6290000)
+138 libFontRegistry.dylib              - 0x63cf000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontRegistry.dylib at 0x63cf000 (offset 0x63cf000)
+139 libcups.2.dylib                    - 0x6441000         dyld Y Y /usr/lib/libcups.2.dylib at 0x6441000 (offset 0x6441000)
+140 Kerberos                           F 0x648d000         dyld Y Y /System/Library/Frameworks/Kerberos.framework/Versions/A/Kerberos at 0x648d000 (offset 0x648d000)
+141 GSS                                F 0x64c1000         dyld Y Y /System/Library/Frameworks/GSS.framework/Versions/A/GSS at 0x64c1000 (offset 0x64c1000)
+142 libresolv.9.dylib                  - 0x6502000         dyld Y Y /usr/lib/libresolv.9.dylib at 0x6502000 (offset 0x6502000)
+143 libiconv.2.dylib                   - 0x6529000         dyld Y Y /usr/lib/libiconv.2.dylib at 0x6529000 (offset 0x6529000)
+144 Heimdal                            F 0x6626000         dyld Y Y /System/Library/PrivateFrameworks/Heimdal.framework/Versions/A/Heimdal at 0x6626000 (offset 0x6626000)
+145 OpenDirectory                      F 0x66b9000         dyld Y Y /System/Library/Frameworks/OpenDirectory.framework/Versions/A/OpenDirectory at 0x66b9000 (offset 0x66b9000)
+146 CommonAuth                         F 0x66c5000         dyld Y Y /System/Library/PrivateFrameworks/CommonAuth.framework/Versions/A/CommonAuth at 0x66c5000 (offset 0x66c5000)
+147 CoreUI                             F 0x66d4000         dyld Y Y /System/Library/PrivateFrameworks/CoreUI.framework/Versions/A/CoreUI at 0x66d4000 (offset 0x66d4000)
+148 QuartzCore                         F 0x6761000         dyld Y Y /System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore at 0x6761000 (offset 0x6761000)
+149 DesktopServicesPriv                F 0x6954000         dyld Y Y /System/Library/PrivateFrameworks/DesktopServicesPriv.framework/Versions/A/DesktopServicesPriv at 0x6954000 (offset 0x6954000)
+150 FamilyControls                     F 0x6ab9000         dyld Y Y /System/Library/PrivateFrameworks/FamilyControls.framework/Versions/A/FamilyControls at 0x6ab9000 (offset 0x6ab9000)
+151 MultitouchSupport                  F 0x6aef000         dyld Y Y /System/Library/PrivateFrameworks/MultitouchSupport.framework/Versions/A/MultitouchSupport at 0x6aef000 (offset 0x6aef000)
+152 CoreVideo                          F 0x6b10000         dyld Y Y /System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo at 0x6b10000 (offset 0x6b10000)
+153 CoreImage                          F 0x6b4a000         dyld Y Y /System/Library/Frameworks/QuartzCore.framework/Versions/A/Frameworks/CoreImage.framework/Versions/A/CoreImage at 0x6b4a000 (offset 0x6b4a000)
+154 ScalableUserInterface              F 0x6e63000         dyld Y Y /System/Library/Frameworks/QuartzCore.framework/Versions/A/Frameworks/ScalableUserInterface.framework/Versions/A/ScalableUserInterface at 0x6e63000 (offset 0x6e63000)
+155 libGLU.dylib                       - 0x6ecd000         dyld Y Y /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib at 0x6ecd000 (offset 0x6ecd000)
+156 libGFXShared.dylib                 - 0x6f24000         dyld Y Y /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGFXShared.dylib at 0x6f24000 (offset 0x6f24000)
+157 libGL.dylib                        - 0x6f30000         dyld Y Y /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib at 0x6f30000 (offset 0x6f30000)
+158 libGLImage.dylib                   - 0x6f4e000         dyld Y Y /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib at 0x6f4e000 (offset 0x6f4e000)
+159 libCVMSPluginSupport.dylib         - 0x6f93000         dyld Y Y /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCVMSPluginSupport.dylib at 0x6f93000 (offset 0x6f93000)
+160 libCoreVMClient.dylib              - 0x6f99000         dyld Y Y /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreVMClient.dylib at 0x6f99000 (offset 0x6f99000)
+161 OpenCL                             F 0x6fa1000         dyld Y Y /System/Library/Frameworks/OpenCL.framework/Versions/A/OpenCL at 0x6fa1000 (offset 0x6fa1000)
+162 FaceCoreLight                      F 0x6ff8000         dyld Y Y /System/Library/PrivateFrameworks/FaceCoreLight.framework/Versions/A/FaceCoreLight at 0x6ff8000 (offset 0x6ff8000)
+163 vecLib                             F 0x780d000         dyld Y Y /System/Library/Frameworks/vecLib.framework/Versions/A/vecLib at 0x780d000 (offset 0x780d000)
+164 SecurityFoundation                 F 0x7810000         dyld Y Y /System/Library/Frameworks/SecurityFoundation.framework/Versions/A/SecurityFoundation at 0x7810000 (offset 0x7810000)
+165 CommerceCore                       F 0x78e5000         dyld Y Y /System/Library/PrivateFrameworks/CommerceKit.framework/Versions/A/Frameworks/CommerceCore.framework/Versions/A/CommerceCore at 0x78e5000 (offset 0x78e5000)
+166 CoreData                           F 0x78f3000         dyld Y Y /System/Library/Frameworks/CoreData.framework/Versions/A/CoreData at 0x78f3000 (offset 0x78f3000)
+167 RemoteViewServices                 F 0x7b8c000         dyld Y Y /System/Library/PrivateFrameworks/RemoteViewServices.framework/Versions/A/RemoteViewServices at 0x7b8c000 (offset 0x7b8c000)
+168 PerformanceAnalysis                F 0x7bc4000         dyld Y Y /System/Library/PrivateFrameworks/PerformanceAnalysis.framework/Versions/A/PerformanceAnalysis at 0x7bc4000 (offset 0x7bc4000)
+169 CoreSymbolication                  F 0x7bfb000         dyld Y Y /System/Library/PrivateFrameworks/CoreSymbolication.framework/Versions/A/CoreSymbolication at 0x7bfb000 (offset 0x7bfb000)
+170 Symbolication                      F 0x7cab000         dyld Y Y /System/Library/PrivateFrameworks/Symbolication.framework/Versions/A/Symbolication at 0x7cab000 (offset 0x7cab000)
+171 DebugSymbols                       F 0x7d30000         dyld Y Y /System/Library/PrivateFrameworks/DebugSymbols.framework/Versions/A/DebugSymbols at 0x7d30000 (offset 0x7d30000)
+172 libmikmod.3.dylib                  - 0x7d7f000         dyld Y Y /opt/local/lib/libmikmod.3.dylib at 0x7d7f000 (offset 0x7d7f000)
+173 libvorbisfile.3.dylib              - 0x7db4000         dyld Y Y /opt/local/lib/libvorbisfile.3.dylib at 0x7db4000 (offset 0x7db4000)
+174 libvorbis.0.dylib                  - 0x7dbe000         dyld Y Y /opt/local/lib/libvorbis.0.dylib at 0x7dbe000 (offset 0x7dbe000)
+175 libFLAC.8.dylib                    - 0x7deb000         dyld Y Y /opt/local/lib/libFLAC.8.dylib at 0x7deb000 (offset 0x7deb000)
+176 libogg.0.dylib                     - 0x7e1c000         dyld Y Y /opt/local/lib/libogg.0.dylib at 0x7e1c000 (offset 0x7e1c000)
+177 libsmpeg-0.4.0.dylib               - 0x7e21000         dyld Y Y /opt/local/lib/libsmpeg-0.4.0.dylib at 0x7e21000 (offset 0x7e21000)
+178 libtiff.5.dylib                    - 0x7e7d000         dyld Y Y /opt/local/lib/libtiff.5.dylib at 0x7e7d000 (offset 0x7e7d000)
+179 liblzma.5.dylib                    - 0x7ee6000         dyld Y Y /opt/local/lib/liblzma.5.dylib at 0x7ee6000 (offset 0x7ee6000)
+180 libjpeg.9.dylib                    - 0x7f07000         dyld Y Y /opt/local/lib/libjpeg.9.dylib at 0x7f07000 (offset 0x7f07000)
+181 libiconv.2.dylib                   - 0x7f3e000         dyld Y Y /opt/local/lib/libiconv.2.dylib at 0x7f3e000 (offset 0x7f3e000)
+182 libglut.3.dylib                    - 0x803e000         dyld Y Y /opt/local/lib/libglut.3.dylib at 0x803e000 (offset 0x803e000)
+183 libXi.6.dylib                      - 0x8081000         dyld Y Y /opt/local/lib/libXi.6.dylib at 0x8081000 (offset 0x8081000)
+184 libXxf86vm.1.dylib                 - 0x808e000         dyld Y Y /opt/local/lib/libXxf86vm.1.dylib at 0x808e000 (offset 0x808e000)
+185 libGLU.1.dylib                     - 0x8094000         dyld Y Y /opt/local/lib/libGLU.1.dylib at 0x8094000 (offset 0x8094000)
+186 libGL.1.dylib                      - 0x8126000         dyld Y Y /opt/local/lib/libGL.1.dylib at 0x8126000 (offset 0x8126000)
+187 libSM.6.dylib                      - 0x81a6000         dyld Y Y /opt/local/lib/libSM.6.dylib at 0x81a6000 (offset 0x81a6000)
+188 libICE.6.dylib                     - 0x81ae000         dyld Y Y /opt/local/lib/libICE.6.dylib at 0x81ae000 (offset 0x81ae000)
+189 libXplugin.1.dylib                 - 0x81c5000         dyld Y Y /usr/lib/libXplugin.1.dylib at 0x81c5000 (offset 0x81c5000)
+190 libX11-xcb.1.dylib                 - 0x81d9000         dyld Y Y /opt/local/lib/libX11-xcb.1.dylib at 0x81d9000 (offset 0x81d9000)
+191 CoreServicesInternal               F 0x839f000         dyld Y Y /System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal at 0x839f000 (offset 0x839f000)
+192 libCSync.A.dylib                   - 0x876a000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCSync.A.dylib at 0x876a000 (offset 0x876a000)
+193 libRIP.A.dylib                     - 0x877f000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libRIP.A.dylib at 0x877f000 (offset 0x877f000)
+194 libCGXType.A.dylib                 - 0x87cc000         dyld Y Y /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCGXType.A.dylib at 0x87cc000 (offset 0x87cc000)
+Region from 0x0 to 0x1000 (---, max ---; copy, private, not-reserved)
+   ... from 0x1000 to 0x22d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x22d000 to 0x236000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x236000 to 0x2b9000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2b9000 to 0x2bf000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2bf000 to 0x2c0000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2c0000 to 0x2c6000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2c6000 to 0x2ca000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2ca000 to 0x2cb000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2cb000 to 0x2cd000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2cd000 to 0x2e8000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2e8000 to 0x313000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x313000 to 0x319000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x319000 to 0x31f000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x31f000 to 0x321000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x321000 to 0x323000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x323000 to 0x344000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x344000 to 0x345000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x345000 to 0x34b000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x34b000 to 0x34e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x34e000 to 0x34f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x34f000 to 0x351000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x351000 to 0x361000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x361000 to 0x362000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x362000 to 0x37a000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x37a000 to 0x38a000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x38a000 to 0x38b000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x38b000 to 0x399000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x399000 to 0x3a8000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3a8000 to 0x3a9000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3a9000 to 0x3af000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3af000 to 0x3b0000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3b0000 to 0x3b2000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3b2000 to 0x3bb000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3bb000 to 0x3bc000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3bc000 to 0x3bf000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3bf000 to 0xe55000 (r-x, max rwx; copy, private, not-reserved) (7 sub-regions)
+   ... from 0xe55000 to 0xf58000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0xf58000 to 0x132e000 (r--, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x132e000 to 0x132f000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x132f000 to 0x1331000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x1331000 to 0x1381000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x1381000 to 0x1389000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x1389000 to 0x1398000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x1398000 to 0x13e8000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x13e8000 to 0x13eb000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x13eb000 to 0x1416000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x1416000 to 0x161e000 (r-x, max rwx; copy, private, not-reserved) (9 sub-regions)
+   ... from 0x161e000 to 0x1657000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x1657000 to 0x174e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x174e000 to 0x17b1000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x17b1000 to 0x17b6000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x17b6000 to 0x1807000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x1807000 to 0x1836000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x1836000 to 0x1837000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x1837000 to 0x1842000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x1842000 to 0x1843000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x1843000 to 0x184a000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x184a000 to 0x1921000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x1921000 to 0x1924000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x1924000 to 0x1925000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x1925000 to 0x1937000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x1937000 to 0x1c42000 (r-x, max rwx; copy, private, not-reserved) (9 sub-regions)
+   ... from 0x1c42000 to 0x1c9e000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x1c9e000 to 0x1d9d000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x1d9d000 to 0x1f75000 (r-x, max rwx; copy, private, not-reserved) (9 sub-regions)
+   ... from 0x1f75000 to 0x1f9b000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x1f9b000 to 0x2094000 (r--, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x2094000 to 0x2108000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2108000 to 0x210b000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x210b000 to 0x2118000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2118000 to 0x2128000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2128000 to 0x2129000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2129000 to 0x212b000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x212b000 to 0x2138000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2138000 to 0x2139000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2139000 to 0x213b000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x213b000 to 0x2198000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2198000 to 0x2199000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2199000 to 0x219b000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x219b000 to 0x21b0000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x21b0000 to 0x21b1000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x21b1000 to 0x21b3000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x21b3000 to 0x21b8000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x21b8000 to 0x21b9000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x21b9000 to 0x21bc000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x21bc000 to 0x2200000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2200000 to 0x2203000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x2203000 to 0x2209000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2209000 to 0x220d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x220d000 to 0x220e000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x220e000 to 0x2213000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2213000 to 0x221c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x221c000 to 0x221d000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x221d000 to 0x2221000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2221000 to 0x2230000 (r-x, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x2230000 to 0x2233000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x2233000 to 0x223d000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x223d000 to 0x223e000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x223e000 to 0x223f000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x223f000 to 0x2240000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2240000 to 0x2242000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2242000 to 0x2245000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2245000 to 0x2246000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2246000 to 0x224a000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x224a000 to 0x224b000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x224b000 to 0x224c000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x224c000 to 0x224e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x224e000 to 0x2257000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2257000 to 0x2258000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2258000 to 0x225c000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x225c000 to 0x2262000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2262000 to 0x2263000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2263000 to 0x2266000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2266000 to 0x226a000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x226a000 to 0x226c000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x226c000 to 0x226e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x226e000 to 0x226f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x226f000 to 0x2272000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2272000 to 0x2274000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2274000 to 0x2275000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2275000 to 0x2278000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2278000 to 0x227a000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x227a000 to 0x227b000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x227b000 to 0x227e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x227e000 to 0x234a000 (r-x, max rwx; copy, private, not-reserved) (5 sub-regions)
+   ... from 0x234a000 to 0x2356000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x2356000 to 0x2383000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2383000 to 0x238b000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x238b000 to 0x238c000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x238c000 to 0x2390000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2390000 to 0x23c0000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x23c0000 to 0x23c2000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x23c2000 to 0x23d3000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x23d3000 to 0x23f2000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x23f2000 to 0x23f4000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x23f4000 to 0x2401000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2401000 to 0x2402000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2402000 to 0x2407000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2407000 to 0x2408000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2408000 to 0x240d000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x240d000 to 0x2415000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2415000 to 0x2416000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2416000 to 0x241b000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x241b000 to 0x241d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x241d000 to 0x241e000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x241e000 to 0x2421000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2421000 to 0x2423000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2423000 to 0x2424000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2424000 to 0x2427000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2427000 to 0x2430000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2430000 to 0x2431000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2431000 to 0x2436000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2436000 to 0x244d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x244d000 to 0x244f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x244f000 to 0x245e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x245e000 to 0x2468000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2468000 to 0x2469000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2469000 to 0x246f000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x246f000 to 0x2475000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2475000 to 0x2476000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2476000 to 0x2478000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2478000 to 0x2483000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2483000 to 0x2484000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2484000 to 0x2488000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2488000 to 0x248e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x248e000 to 0x248f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x248f000 to 0x2491000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2491000 to 0x258b000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x258b000 to 0x258e000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x258e000 to 0x25a9000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x25a9000 to 0x25b9000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x25b9000 to 0x25ba000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x25ba000 to 0x25c6000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x25c6000 to 0x25c8000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x25c8000 to 0x25c9000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x25c9000 to 0x25ca000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x25ca000 to 0x25ce000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x25ce000 to 0x25cf000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x25cf000 to 0x25d0000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x25d0000 to 0x2727000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2727000 to 0x2731000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x2731000 to 0x279d000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x279d000 to 0x279e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x279e000 to 0x279f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x279f000 to 0x27a3000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x27a3000 to 0x2808000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2808000 to 0x280c000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x280c000 to 0x282e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x282e000 to 0x282f000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x282f000 to 0x2836000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2836000 to 0x2841000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2841000 to 0x2842000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2842000 to 0x2848000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2848000 to 0x284d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x284d000 to 0x284f000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x284f000 to 0x2854000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2854000 to 0x2858000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2858000 to 0x2859000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2859000 to 0x285d000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x285d000 to 0x2ba4000 (r-x, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x2ba4000 to 0x2bc9000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x2bc9000 to 0x2cf9000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x2cf9000 to 0x2d57000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2d57000 to 0x2d5b000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2d5b000 to 0x2d78000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2d78000 to 0x2d8e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2d8e000 to 0x2d91000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2d91000 to 0x2da3000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2da3000 to 0x2e40000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2e40000 to 0x2e4a000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x2e4a000 to 0x2e69000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2e69000 to 0x2eaa000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2eaa000 to 0x2eae000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2eae000 to 0x2ed1000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2ed1000 to 0x2eef000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2eef000 to 0x2ef1000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2ef1000 to 0x2efe000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2efe000 to 0x2f01000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2f01000 to 0x2f02000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2f02000 to 0x2f05000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2f05000 to 0x2f11000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2f11000 to 0x2f12000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2f12000 to 0x2f18000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2f18000 to 0x2f7a000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x2f7a000 to 0x2f7c000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x2f7c000 to 0x2f9f000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x2f9f000 to 0x32a2000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x32a2000 to 0x32b0000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x32b0000 to 0x3316000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x3316000 to 0x3443000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3443000 to 0x3456000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x3456000 to 0x34d6000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x34d6000 to 0x354d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x354d000 to 0x3568000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x3568000 to 0x3590000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3590000 to 0x3654000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3654000 to 0x3661000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x3661000 to 0x36c2000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x36c2000 to 0x374d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x374d000 to 0x3753000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3753000 to 0x3782000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3782000 to 0x37b9000 (r-x, max rwx; copy, private, not-reserved) (5 sub-regions)
+   ... from 0x37b9000 to 0x37bb000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x37bb000 to 0x37d2000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x37d2000 to 0x3869000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3869000 to 0x3871000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x3871000 to 0x38ab000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x38ab000 to 0x38da000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x38da000 to 0x38de000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x38de000 to 0x38f5000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x38f5000 to 0x3aaa000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3aaa000 to 0x3abb000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x3abb000 to 0x3b28000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3b28000 to 0x3b31000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3b31000 to 0x3b32000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3b32000 to 0x3b3a000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3b3a000 to 0x3b4c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3b4c000 to 0x3b4e000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x3b4e000 to 0x3b53000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3b53000 to 0x3b5b000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3b5b000 to 0x3b5c000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3b5c000 to 0x3b61000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3b61000 to 0x3b70000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3b70000 to 0x3b71000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3b71000 to 0x3b74000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3b74000 to 0x3b80000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3b80000 to 0x3b81000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3b81000 to 0x3b84000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3b84000 to 0x3bc5000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3bc5000 to 0x3bc6000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3bc6000 to 0x3bda000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3bda000 to 0x3bdc000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3bdc000 to 0x3bdd000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x3bdd000 to 0x3be0000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3be0000 to 0x3c49000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3c49000 to 0x3c4e000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x3c4e000 to 0x3c9d000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x3c9d000 to 0x3f6d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x3f6d000 to 0x3f87000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x3f87000 to 0x4068000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x4068000 to 0x4069000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4069000 to 0x406a000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x406a000 to 0x406c000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x406c000 to 0x4070000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4070000 to 0x4071000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x4071000 to 0x4074000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x4074000 to 0x4185000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4185000 to 0x4187000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x4187000 to 0x4195000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x4195000 to 0x41a4000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x41a4000 to 0x41a5000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x41a5000 to 0x41ab000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x41ab000 to 0x41b7000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x41b7000 to 0x41b8000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x41b8000 to 0x41bb000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x41bb000 to 0x42a4000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x42a4000 to 0x42aa000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x42aa000 to 0x42c7000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x42c7000 to 0x4310000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4310000 to 0x4316000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x4316000 to 0x4331000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x4331000 to 0x433d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x433d000 to 0x433f000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x433f000 to 0x4347000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x4347000 to 0x43aa000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x43aa000 to 0x43b5000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x43b5000 to 0x43d6000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x43d6000 to 0x44ba000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x44ba000 to 0x44d2000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x44d2000 to 0x450e000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x450e000 to 0x4510000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4510000 to 0x4511000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x4511000 to 0x4513000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x4513000 to 0x4524000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4524000 to 0x4525000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x4525000 to 0x452a000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x452a000 to 0x4547000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4547000 to 0x4548000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x4548000 to 0x4550000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x4550000 to 0x4552000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4552000 to 0x4553000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x4553000 to 0x4556000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x4556000 to 0x456b000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x456b000 to 0x456f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x456f000 to 0x4580000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x4580000 to 0x45a9000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x45a9000 to 0x45aa000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x45aa000 to 0x45b3000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x45b3000 to 0x4edf000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x4edf000 to 0x4f01000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x4f01000 to 0x4fbb000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x4fbb000 to 0x508c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x508c000 to 0x5096000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x5096000 to 0x50c9000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x50c9000 to 0x5157000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x5157000 to 0x515f000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x515f000 to 0x51a0000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x51a0000 to 0x521c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x521c000 to 0x5220000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x5220000 to 0x5244000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x5244000 to 0x5305000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x5305000 to 0x530b000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x530b000 to 0x5340000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x5340000 to 0x539a000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x539a000 to 0x53a0000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x53a0000 to 0x53ca000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x53ca000 to 0x53db000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x53db000 to 0x53dc000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x53dc000 to 0x53e7000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x53e7000 to 0x548c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x548c000 to 0x548e000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x548e000 to 0x54b8000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x54b8000 to 0x54ce000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x54ce000 to 0x54d1000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x54d1000 to 0x54dc000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x54dc000 to 0x54e1000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x54e1000 to 0x54e2000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x54e2000 to 0x54e8000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x54e8000 to 0x54e9000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x54e9000 to 0x54eb000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x54eb000 to 0x5511000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x5511000 to 0x5512000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x5512000 to 0x5518000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x5518000 to 0x5569000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x5569000 to 0x556c000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x556c000 to 0x5575000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x5575000 to 0x5592000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x5592000 to 0x5593000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x5593000 to 0x5599000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x5599000 to 0x559e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x559e000 to 0x559f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x559f000 to 0x55a2000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x55a2000 to 0x56b4000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x56b4000 to 0x56b7000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x56b7000 to 0x56de000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x56de000 to 0x56e1000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x56e1000 to 0x56e2000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x56e2000 to 0x56e4000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x56e4000 to 0x5803000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x5803000 to 0x5805000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x5805000 to 0x581c000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x581c000 to 0x581d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x581d000 to 0x581f000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x581f000 to 0x5885000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x5885000 to 0x5886000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x5886000 to 0x588e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x588e000 to 0x591c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x591c000 to 0x591d000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x591d000 to 0x5925000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x5925000 to 0x5d28000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x5d28000 to 0x5d2d000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x5d2d000 to 0x5d7f000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x5d7f000 to 0x625c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x625c000 to 0x625e000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x625e000 to 0x6290000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6290000 to 0x6389000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6389000 to 0x639d000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x639d000 to 0x63cf000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x63cf000 to 0x6422000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6422000 to 0x6426000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6426000 to 0x6441000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6441000 to 0x647f000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x647f000 to 0x6482000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6482000 to 0x648d000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x648d000 to 0x64a8000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x64a8000 to 0x64aa000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x64aa000 to 0x64c1000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x64c1000 to 0x64ed000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x64ed000 to 0x64f0000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x64f0000 to 0x6502000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6502000 to 0x6520000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6520000 to 0x6522000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x6522000 to 0x6529000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6529000 to 0x661a000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x661a000 to 0x661b000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x661b000 to 0x6626000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6626000 to 0x6696000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6696000 to 0x66a0000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x66a0000 to 0x66b9000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x66b9000 to 0x66be000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x66be000 to 0x66c0000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x66c0000 to 0x66c5000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x66c5000 to 0x66cf000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x66cf000 to 0x66d0000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x66d0000 to 0x66d4000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x66d4000 to 0x6733000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6733000 to 0x6742000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x6742000 to 0x6761000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6761000 to 0x68c4000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x68c4000 to 0x68d7000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x68d7000 to 0x6954000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x6954000 to 0x6a64000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6a64000 to 0x6a69000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x6a69000 to 0x6ab9000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x6ab9000 to 0x6adc000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6adc000 to 0x6ae2000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x6ae2000 to 0x6aef000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6aef000 to 0x6b03000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6b03000 to 0x6b04000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6b04000 to 0x6b10000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6b10000 to 0x6b34000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6b34000 to 0x6b37000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6b37000 to 0x6b4a000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6b4a000 to 0x6dbf000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6dbf000 to 0x6de5000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x6de5000 to 0x6e63000 (r--, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x6e63000 to 0x6eb5000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6eb5000 to 0x6ec1000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x6ec1000 to 0x6ecd000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6ecd000 to 0x6f17000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6f17000 to 0x6f18000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6f18000 to 0x6f24000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6f24000 to 0x6f2b000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6f2b000 to 0x6f2c000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6f2c000 to 0x6f30000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6f30000 to 0x6f3e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6f3e000 to 0x6f3f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6f3f000 to 0x6f4e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6f4e000 to 0x6f8c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6f8c000 to 0x6f8d000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6f8d000 to 0x6f93000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6f93000 to 0x6f95000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6f95000 to 0x6f96000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6f96000 to 0x6f99000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6f99000 to 0x6f9d000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6f9d000 to 0x6f9e000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x6f9e000 to 0x6fa1000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6fa1000 to 0x6fe9000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x6fe9000 to 0x6fef000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x6fef000 to 0x6ff8000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x6ff8000 to 0x746e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x746e000 to 0x77fe000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x77fe000 to 0x780d000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x780d000 to 0x780e000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x780e000 to 0x7810000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7810000 to 0x78a8000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x78a8000 to 0x78b5000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x78b5000 to 0x78e5000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x78e5000 to 0x78ec000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x78ec000 to 0x78ee000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x78ee000 to 0x78f3000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x78f3000 to 0x7aec000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7aec000 to 0x7b16000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7b16000 to 0x7b8c000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7b8c000 to 0x7bad000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7bad000 to 0x7bb3000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7bb3000 to 0x7bc4000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7bc4000 to 0x7be7000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7be7000 to 0x7bee000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7bee000 to 0x7bfb000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7bfb000 to 0x7c70000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7c70000 to 0x7c79000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7c79000 to 0x7cab000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7cab000 to 0x7d07000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7d07000 to 0x7d13000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7d13000 to 0x7d30000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7d30000 to 0x7d68000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7d68000 to 0x7d6b000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7d6b000 to 0x7d7f000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7d7f000 to 0x7da9000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7da9000 to 0x7dab000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7dab000 to 0x7db4000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7db4000 to 0x7dba000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7dba000 to 0x7dbb000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x7dbb000 to 0x7dbe000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7dbe000 to 0x7de3000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7de3000 to 0x7de4000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x7de4000 to 0x7deb000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7deb000 to 0x7e11000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7e11000 to 0x7e12000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x7e12000 to 0x7e1c000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7e1c000 to 0x7e1f000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7e1f000 to 0x7e20000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x7e20000 to 0x7e21000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7e21000 to 0x7e59000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7e59000 to 0x7e76000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x7e76000 to 0x7e7d000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7e7d000 to 0x7edb000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7edb000 to 0x7ede000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x7ede000 to 0x7ee6000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7ee6000 to 0x7f03000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7f03000 to 0x7f04000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x7f04000 to 0x7f07000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7f07000 to 0x7f38000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x7f38000 to 0x7f39000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x7f39000 to 0x7f3e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x7f3e000 to 0x8034000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x8034000 to 0x8035000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x8035000 to 0x803e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x803e000 to 0x8064000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x8064000 to 0x8069000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x8069000 to 0x8081000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x8081000 to 0x808b000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x808b000 to 0x808c000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x808c000 to 0x808e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x808e000 to 0x8092000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x8092000 to 0x8093000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x8093000 to 0x8094000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x8094000 to 0x80f6000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x80f6000 to 0x80f7000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x80f7000 to 0x8126000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x8126000 to 0x816c000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x816c000 to 0x8174000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x8174000 to 0x81a6000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x81a6000 to 0x81ab000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x81ab000 to 0x81ac000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x81ac000 to 0x81ae000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x81ae000 to 0x81be000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x81be000 to 0x81c1000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x81c1000 to 0x81c5000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x81c5000 to 0x81d1000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x81d1000 to 0x81d2000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x81d2000 to 0x81d9000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x81d9000 to 0x81da000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x81da000 to 0x81dc000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x81dc000 to 0x81dd000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x81dd000 to 0x81de000 (---, max rwx; copy, private, not-reserved)
+   ... from 0x81de000 to 0x81e9000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x81e9000 to 0x81eb000 (---, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x81eb000 to 0x81f6000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x81f6000 to 0x81f7000 (---, max rwx; copy, private, not-reserved)
+   ... from 0x81f7000 to 0x81f8000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x81f8000 to 0x81f9000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x81f9000 to 0x81fa000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x81fa000 to 0x81fb000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x81fb000 to 0x81fc000 (r--, max rw-; share, private, not-reserved)
+   ... from 0x81fc000 to 0x81fd000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x81fd000 to 0x81fe000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x81fe000 to 0x8200000 (r--, max rw-; share, private, not-reserved) (2 sub-regions)
+   ... from 0x8200000 to 0x8366000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x8366000 to 0x8367000 (---, max rwx; copy, private, not-reserved)
+   ... from 0x8367000 to 0x8372000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x8372000 to 0x8374000 (---, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x8374000 to 0x837f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x837f000 to 0x8381000 (---, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x8381000 to 0x838c000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x838c000 to 0x838e000 (---, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x838e000 to 0x8399000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x8399000 to 0x839a000 (---, max rwx; copy, private, not-reserved)
+   ... from 0x839a000 to 0x839f000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x839f000 to 0x83ca000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x83ca000 to 0x83cd000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x83cd000 to 0x83e1000 (r--, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x83e1000 to 0x83e2000 (rw-, max rw-; none, private, not-reserved)
+   ... from 0x83e2000 to 0x83eb000 (r--, max r--; none, private, not-reserved) (2 sub-regions)
+   ... from 0x83eb000 to 0x83ed000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x83ed000 to 0x83ee000 (r--, max rw-; share, private, not-reserved)
+   ... from 0x83ee000 to 0x83ef000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x83ef000 to 0x83f0000 (r--, max r--; none, shared, not-reserved)
+   ... from 0x83f0000 to 0x83f1000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x83f1000 to 0x83f2000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x83f2000 to 0x83f7000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x83f7000 to 0x83f9000 (rw-, max rw-; share, private, not-reserved) (2 sub-regions)
+   ... from 0x83f9000 to 0x83fa000 (r--, max rw-; share, private, not-reserved)
+   ... from 0x83fa000 to 0x83fb000 (rw-, max rw-; share, private, not-reserved)
+   ... from 0x83fb000 to 0x83fe000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x8400000 to 0x8700000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x8700000 to 0x8740000 (r--, max r--; none, private, not-reserved)
+   ... from 0x8740000 to 0x876a000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x876a000 to 0x8776000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x8776000 to 0x8778000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x8778000 to 0x877f000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x877f000 to 0x87be000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x87be000 to 0x87c0000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x87c0000 to 0x87cc000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x87cc000 to 0x87d0000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x87d0000 to 0x87d1000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x87d1000 to 0x87d6000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x8800000 to 0xa400000 (rw-, max rwx; copy, private, not-reserved) (9 sub-regions)
+   ... from 0xa400000 to 0xa5b0000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0xa5b0000 to 0xa6b0000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0xa800000 to 0xb000000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0xb000000 to 0xbfa5000 (r--, max r-x; share, private, not-reserved)
+   ... from 0xbfa5000 to 0xc6a4000 (rw-, max rwx; copy, private, not-reserved) (92 sub-regions)
+   ... from 0xc6a4000 to 0xde26000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0xdf00000 to 0xe000000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x64b00000 to 0x64b07000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0x64b07000 to 0x64b08000 (rw-, max rwx; copy, private, not-reserved)
+   ... from 0x64b08000 to 0x64b0e000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x8fe00000 to 0x8fe33000 (r-x, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0x8fe33000 to 0x8fe5e000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0x8fe5e000 to 0x8fe71000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0x90000000 to 0xb0000000 (r--, max rwx; share, private, reserved)
+   ... from 0xb0000000 to 0xb0001000 (---, max rwx; copy, private, not-reserved)
+   ... from 0xb0001000 to 0xb0082000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0xb0082000 to 0xb0083000 (---, max rwx; copy, private, not-reserved)
+   ... from 0xb0083000 to 0xb0104000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0xb0104000 to 0xb0105000 (---, max rwx; copy, private, not-reserved)
+   ... from 0xb0105000 to 0xb0186000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0xb0186000 to 0xb0187000 (---, max rwx; copy, private, not-reserved)
+   ... from 0xb0187000 to 0xb0208000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0xb0208000 to 0xb0209000 (---, max rwx; copy, private, not-reserved)
+   ... from 0xb0209000 to 0xb028a000 (rw-, max rwx; copy, private, not-reserved) (3 sub-regions)
+   ... from 0xbc000000 to 0xbf800000 (---, max rwx; copy, private, not-reserved)
+   ... from 0xbf800000 to 0xc0000000 (rw-, max rwx; copy, private, not-reserved) (5 sub-regions)
+   ... from 0xc0003000 to 0xc000b000 (r--, max r--; none, private, not-reserved)
+   ... from 0xc000c000 to 0xc0014000 (rw-, max rw-; none, private, not-reserved)
+   ... from 0xc080d000 to 0xc0815000 (rw-, max rw-; none, private, not-reserved)
+   ... from 0xc094d000 to 0xc094e000 (rw-, max rw-; none, private, not-reserved)
+   ... from 0xc09cc000 to 0xc09d4000 (r--, max r--; none, private, not-reserved)
+   ... from 0xc09e7000 to 0xc09e9000 (rw-, max rw-; none, private, not-reserved)
+   ... from 0xc0e26000 to 0xc0e5b000 (rw-, max rw-; none, private, not-reserved)
+   ... from 0xc2b3e000 to 0xc2b46000 (rw-, max rw-; none, private, not-reserved)
+   ... from 0xc2b47000 to 0xc2b4f000 (r--, max r--; none, private, not-reserved)
+   ... from 0xfa100000 to 0xfa188000 (r-x, max rwx; copy, private, not-reserved)
+   ... from 0xfa188000 to 0xfa18e000 (rw-, max rwx; copy, private, not-reserved) (2 sub-regions)
+   ... from 0xfa18e000 to 0xfa1bb000 (r--, max rwx; copy, private, not-reserved)
+   ... from 0xffff0000 to 0xffff2000 (r-x, max r-x; share, private, reserved)
+Continuing.
+
+Program received signal EXC_BAD_ACCESS, Could not access memory.
+Reason: KERN_PROTECTION_FAILURE at address: 0x00000008
+0x01dcb27a in CFBundleCopyBundleURL ()
+No symbol table is loaded.  Use the "file" command.
+A program is being debugged already.  Kill it? (y or n) No executable file now.
+Discard symbol table from `/Applications/MacPorts/SecretMaryo.app/Contents/MacOS/SecretMaryo'? (y or n) Not confirmed.

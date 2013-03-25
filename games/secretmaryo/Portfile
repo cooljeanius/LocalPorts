@@ -8,6 +8,7 @@ PortGroup           github 1.0
 github.setup        FluXy SMC 1817d550feb2e78339fc0ac1bf92bd58456852ed
 name                secretmaryo
 version             20121121
+revision            1
 categories          games
 platforms           darwin
 license             GPL-3+
