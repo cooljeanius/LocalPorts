@@ -1,0 +1,59 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           app 1.0
+PortGroup           github 1.0
+
+github.setup        FluXy SMC 1817d550feb2e78339fc0ac1bf92bd58456852ed
+name                secretmaryo
+version             20121121
+categories          games
+platforms           darwin
+maintainers         ryandesign openmaintainer
+
+# Uses Carbon Scrap Manager which is 32-bit only.
+supported_archs     i386 ppc
+
+description         Secret Maryo Chronicles
+
+homepage            http://www.secretmaryo.org/
+
+checksums           rmd160  f51355c7da6c9b7178d468afcf851171ae4ed7ef \
+                    sha256  6710fbdf7081b8caeab4c8108fbc3bae0d093459370d937ca5014d65f961c081
+
+depends_build       port:autoconf \
+                    port:automake \
+                    port:libtool \
+                    port:pkgconfig
+
+depends_lib         port:boost \
+                    port:cegui \
+                    port:gettext \
+                    port:libsdl \
+                    port:libsdl_image \
+                    port:libsdl_mixer \
+                    port:libsdl_ttf
+
+patch.dir           ${worksrcpath}/smc
+
+patchfiles          patch-autogen.sh.diff \
+                    patch-configure.ac.diff
+
+post-patch {
+    reinplace "s|@PREFIX@|${prefix}|g" ${patch.dir}/autogen.sh
+}
+
+use_autoreconf      yes
+autoreconf.dir      ${patch.dir}
+autoreconf.cmd      ./autogen.sh
+autoreconf.pre_args
+
+configure.dir       ${autoreconf.dir}
+configure.args      --disable-silent-rules
+
+build.dir           ${configure.dir}
+
+app.name            Secret Maryo
+app.executable      ${prefix}/bin/smc
+app.identifier      org.secretmaryo.smc

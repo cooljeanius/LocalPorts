@@ -1,0 +1,29 @@
+--- configure.ac.orig	2012-11-21 14:34:27.000000000 -0600
++++ configure.ac	2013-03-25 04:50:23.000000000 -0500
+@@ -19,22 +19,22 @@
+ ### Check for libraries ###
+ 
+ # Check for the Boost Filesystem library
+-AC_CHECK_LIB([boost_filesystem], [main], ,
++AC_CHECK_LIB([boost_filesystem-mt], [main], ,
+ 	[AC_MSG_ERROR([Unable to find Boost Filesystem library])])
+ 
+ # Check for the Boost Thread library
+-AC_CHECK_LIB([boost_thread], [main], ,
++AC_CHECK_LIB([boost_thread-mt], [main], ,
+ 	[AC_MSG_ERROR([Unable to find Boost Thread library])])
+ 
+ # Check for the Boost System library
+-AC_CHECK_LIB([boost_system], [main], ,
++AC_CHECK_LIB([boost_system-mt], [main], ,
+ 	[AC_MSG_ERROR([Unable to find Boost System library])])
+ 
+ # Check for the OpenGL and GLU library
+ case "${host}" in
+ *darwin*|*macosx*)
+ 	# Mac OS X
+-	LIBS="$LIBS -framework OpenGL -framework Carbon -lintl -lboost_system"
++	LIBS="$LIBS -framework OpenGL -framework Carbon -lintl -lboost_system-mt"
+ 	;;
+ *)
+ 	# Other Unix (Linux)

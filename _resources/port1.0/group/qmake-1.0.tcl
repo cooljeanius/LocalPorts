@@ -2,7 +2,6 @@
 # $Id: qt4-1.0.tcl 97988 2012-09-21 12:52:02Z michaelld@macports.org $
 
 #
-# Copyright (c) 2013 Eric Gallager <egall@gwmail.gwu.edu>
 # Copyright (c) 2013 The MacPorts Project
 # All rights reserved.
 #
