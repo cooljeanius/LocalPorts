@@ -1,0 +1,304 @@
+--- configure.in	2011-06-13 17:54:16.000000000 -0400
++++ configure.ac	2013-03-29 00:20:01.000000000 -0400
+@@ -1,11 +1,14 @@
+ dnl
+-dnl autoconf source file for objc-2.x.x configure script
+-dnl $Id: configure.in,v 1.41 2011/06/13 21:54:16 stes Exp $
++dnl autoconf source file for objc-x.y.z configure script
++dnl $Id: configure.ac,v 1.41 2011/06/13 21:54:16 stes Exp $
+ dnl
+ dnl note: we're in the process of converting the old configure script
+ dnl (configure.orig) to an autoconf script
+ 
+-AC_INIT()
++AC_PREREQ([2.69])
++AC_INIT([objc],[3.2.11],[stes@pandora.be])
++AC_CONFIG_SRCDIR([browse.h])
++AC_CONFIG_HEADERS([config.h])
+ 
+ dnl normally we check for _objcInit() (to see if it's not in the syslibs)
+ dnl if it is, we should be using some other prefixed name (oc_objcInit)
+@@ -53,8 +56,10 @@
+   [ac_cv_informix=no]
+ )
+ 
+-AC_CONFIG_AUX_DIR(util)
+-AC_CANONICAL_SYSTEM
++AC_CONFIG_AUX_DIR([util])
++AC_CANONICAL_HOST
++AC_CANONICAL_TARGET
++AC_USE_SYSTEM_EXTENSIONS
+ 
+ TARGET=$target;AC_SUBST(TARGET)
+ NAME=objc-3.2.11;AC_SUBST(NAME)
+@@ -83,33 +88,39 @@
+ btrap=0
+ fi
+ 
+-AC_CHECK_PROG(OBJC,objc,objc -q)
++AC_CHECK_PROG([OBJC],[objc],[objc -q])
+ case $btrap in
+ 0)	if test -z "$OBJC"
+ 	then
+-	  AC_MSG_ERROR(Can't find bootstrap compiler)
++	  AC_MSG_ERROR([Can't find bootstrap compiler])
+ 	fi
+ 	;;
+ 1)	;;
+ esac
+ 
+ dnl for compiling in src/objc, must specify full path
+-AC_PATH_PROG(XOBJC,objc,objc -q)
++AC_PATH_PROG([XOBJC],[objc],[objc -q])
+ 
+ case $CC in
+- *objc*) AC_MSG_ERROR(do not set CC to objc itself) ;;
++ *objc*) AC_MSG_ERROR([do not set CC to objc itself]) ;;
+  *) ;;
+ esac
+ 
++AM_PROG_AR
+ AC_PROG_CC
+ AC_PROG_CPP
++AC_PROG_AWK
++AC_PROG_INSTALL
++AC_PROG_OBJC
++AC_PROG_LEX
++AC_PROG_YACC
+ 
+ dnl
+ dnl many compilers (e.g. IRIX cc) don't accept .m
+ dnl some gcc installations also don't accept .m files
+ dnl
+ 
+-AC_MSG_CHECKING(whether preprocessor processes .m files)
++AC_MSG_CHECKING([whether preprocessor processes .m files])
+ cat <<EOF >foo.m 
+ bar
+ EOF
+@@ -144,7 +155,7 @@
+ CPPIMPORTFLAG="";
+ CCDOLLARFLAG="";
+ 
+-case $ac_cv_prog_gcc in
++case $ac_cv_c_compiler_gnu in
+  yes) 
+   CPPIMPORTFLAG="-x objective-c -Wno-import";
+   CCDOLLARFLAG="-fdollars-in-identifiers";
+@@ -168,7 +179,7 @@
+ dnl BeOS for PowerPC has a weird linker (on Intel they use something else)
+ case $target in
+   *beos*)
+-    AC_CHECK_PROG(LD,mwld,mwld,[$CC])
++    AC_CHECK_PROG([LD],[mwld],[mwld],[$CC])
+     ;;
+   *) 
+     LD=$CC
+@@ -197,8 +208,8 @@
+ # Workshop 6 (Forte) on Solaris requires -shortTags
+ # GCC 3.1 requires -shortTags (support for long tags was removed in 3.1)
+ 
+-AC_MSG_CHECKING(testing whether C compiler supports short line tags)
+-AC_CACHE_VAL(ac_cv_shortlinetags,[
++AC_MSG_CHECKING([testing whether C compiler supports short line tags])
++AC_CACHE_VAL([ac_cv_shortlinetags],[
+ t="st$$.i"
+ e="st$$.o"
+ ac_clean_files="$t $e"
+@@ -220,10 +231,10 @@
+ 
+ rm -rf $ac_clean_files
+ ],ac_cv_shortlinetags=yes,ac_cv_shortlinetags=no)
+-AC_MSG_RESULT($ac_cv_shortlinetags)
++AC_MSG_RESULT([$ac_cv_shortlinetags])
+ 
+-AC_MSG_CHECKING(testing whether C compiler supports long line tags)
+-AC_CACHE_VAL(ac_cv_longlinetags,[
++AC_MSG_CHECKING([testing whether C compiler supports long line tags])
++AC_CACHE_VAL([ac_cv_longlinetags],[
+ t="lt$$.i"
+ e="lt$$.o"
+ ac_clean_files="$t $e"
+@@ -245,7 +256,7 @@
+ 
+ rm -rf $ac_clean_files
+ ],ac_cv_longlinetags=yes,ac_cv_longlinetags=no)
+-AC_MSG_RESULT($ac_cv_longlinetags)
++AC_MSG_RESULT([$ac_cv_longlinetags])
+ 
+ dnl again some old stuff
+ case $target in
+@@ -284,17 +295,17 @@
+ esac
+ AC_SUBST(PLLDARGS)
+ 
+-AC_CHECK_PROG(RM,rm,rm -f,del)
+-AC_CHECK_PROG(CP,cp,cp -p,copy)
+-AC_CHECK_PROG(CAT,cat,cat,Catenate)
+-AC_CHECK_PROG(MKDIR,mkdir,mkdir,mkdir)
+-AC_CHECK_PROG(TAR,tar,tar)
++AC_CHECK_PROG([RM],[rm],[rm -f],[del])
++AC_CHECK_PROG([CP],[cp],[cp -p],[copy])
++AC_CHECK_PROG([CAT],[cat],[cat],[Catenate])
++AC_CHECK_PROG([MKDIR],[mkdir],[mkdir],[mkdir])
++AC_CHECK_PROG([TAR],[tar],[tar])
+ TARARGS='';AC_SUBST(TARARGS)
+-AC_CHECK_PROG(AR,ar,ar cr,:)
++AC_CHECK_PROG([AR],[ar],[ar cr],[:])
+ dnl BeOS for PPC has a mwld -xml which is not a real 'ar'
+ case $target in
+  *beos*)
+-   AC_CHECK_PROG(FINAL_AR,mwld,mwld -xml -o,:)
++   AC_CHECK_PROG([FINAL_AR],[mwld],[mwld -xml -o],[:])
+    ;;
+  *)
+    FINAL_AR='echo'
+@@ -312,7 +323,7 @@
+ 
+ dnl flags for compiling the compiler
+ MFLAGS=OPT_MFLAGS;AC_SUBST(MFLAGS)
+-case $ac_cv_prog_gcc in
++case $ac_cv_c_compiler_gnu in
+   yes) OPT_MFLAGS='-DNDEBUG -O2';;
+   *) OPT_MFLAGS='-DNDEBUG';;
+ esac
+@@ -355,12 +366,12 @@
+ AC_CHECK_PROG(LEX,flex,flex)
+ if test -z "$LEX"
+ then
+-  AC_MSG_ERROR(Can't find flex)
++  AC_MSG_ERROR([Can't find flex])
+ fi
+-AC_CHECK_PROG(YACC,byacc,byacc -d)
++AC_CHECK_PROG([YACC],[byacc],[byacc -d])
+ if test -z "$YACC"
+ then
+-  AC_MSG_ERROR(Can't find Berkeley yacc (byacc))
++  AC_MSG_ERROR([Can't find Berkeley yacc (byacc)])
+ fi
+ LEXYYC=lex.yy.c; AC_SUBST(LEXYYC)
+ YTABH=y.tab.h; AC_SUBST(YTABH)
+@@ -373,7 +384,7 @@
+ NM='nm -p';AC_SUBST(NM)
+ ;;
+ 	*)
+-AC_CHECK_PROG(NM,nm,nm)
++AC_CHECK_PROG([NM],[nm],[nm])
+ ;;
+ esac
+ 
+@@ -409,7 +420,7 @@
+ 	*netbsd*)  DLARGS="-Bshareable";
+ 		   ;;
+ 	*sysv*uw*|*sco*)
+-            case $ac_cv_prog_gcc in
++            case $ac_cv_c_compiler_gnu in
+                yes)
+                    DLARGS="-shared";
+ 	           DLXLDARGS="-Xlinker --export-dynamic -ldl";
+@@ -427,7 +438,7 @@
+ 	*sunos*|*solaris*) DLARGS="-G";DLXLDARGS="-ldl";
+ 		   ;;
+ 	*hpux*)
+-            case $ac_cv_prog_gcc in
++            case $ac_cv_c_compiler_gnu in
+ 	       yes)
+ 	           DLARGS="-shared";
+ 	           DLXLDARGS="-Wl,-E -ldld";
+@@ -441,7 +452,7 @@
+             esac
+ 	    ;;
+ 	*osf*)
+-            case $ac_cv_prog_gcc in
++            case $ac_cv_c_compiler_gnu in
+ 	       yes)
+ 	           DLARGS="-shared";
+ 		   ;;
+@@ -454,7 +465,7 @@
+             esac
+             ;;
+         *irix*)
+-            case $ac_cv_prog_gcc in
++            case $ac_cv_c_compiler_gnu in
+ 	       yes)
+ 	           DLARGS="-shared";
+ 		   ;;
+@@ -511,13 +522,22 @@
+ 
+ AC_SUBST(LINKFORMAT)
+ 
++dnl Checks for header files.
+ AC_HEADER_STDC
+-AC_CHECK_HEADERS(string.h stdarg.h)
++AC_CHECK_HEADERS([secure/_stdio.h string.h stdarg.h stddef.h stdio.h stdlib.h string.h unistd.h utmp.h])
+ 
+-AC_PROG_CC_C_O
++dnl Checks for typedefs, structures, and compiler characteristics.
++AC_TYPE_OFF_T
++AC_TYPE_PID_T
++AC_TYPE_SIZE_T
++AM_PROG_CC_C_O
++AC_PROG_GCC_TRADITIONAL
+ AC_C_CONST
+ 
+-AC_CHECK_FUNCS(memcpy memset snprintf)
++dnl Checks for library functions.
++AC_FUNC_MALLOC
++AC_FUNC_REALLOC
++AC_CHECK_FUNCS([alarm atexit memcpy memset snprintf strdup strerror strstr])
+ 
+ dnl some old crap
+ 
+@@ -557,8 +577,8 @@
+ dnl (common storage or strict definition reference)
+ dnl
+ 
+-AC_MSG_CHECKING(whether to use postlink)
+-AC_CACHE_VAL(ac_cv_postlink,[
++AC_MSG_CHECKING([whether to use postlink])
++AC_CACHE_VAL([ac_cv_postlink],[
+ t1="x$$.c"
+ t2="y$$.c"
+ e1="x$$"
+@@ -609,7 +629,7 @@
+ case $ac_cv_postlink in
+   no) POSTLINK=0;OBJCRT_SCOPE_OBJCMODULES_EXTERN=0;;
+   yes) POSTLINK=1;OBJCRT_SCOPE_OBJCMODULES_EXTERN=1;;
+-  *) AC_MSG_ERROR(you must use --with-postlink or --without-postlink);;
++  *) AC_MSG_ERROR([you must use --with-postlink or --without-postlink]);;
+ esac
+ AC_SUBST(POSTLINK)
+ AC_SUBST(OBJCRT_SCOPE_OBJCMODULES_EXTERN)
+@@ -624,10 +644,10 @@
+ 
+ if test -z "$ac_cv_prefixed_names"
+ then
+-AC_CHECK_FUNC(_objcInit,ac_cv_prefixed_names=yes,ac_cv_prefixed_names=no)
++AC_CHECK_FUNC([_objcInit],[ac_cv_prefixed_names=yes],[ac_cv_prefixed_names=no])
+ else
+-AC_MSG_CHECKING(for _objcInit)
+-AC_MSG_RESULT((cached) $ac_cv_prefixed_names)
++AC_MSG_CHECKING([for _objcInit])
++AC_MSG_RESULT([(cached) $ac_cv_prefixed_names])
+ fi
+ 
+ case $ac_cv_prefixed_names in
+@@ -646,7 +666,7 @@
+ yes)
+   if test ! -x "$INFORMIXDIR/bin/esql"
+   then
+-    AC_MSG_ERROR(Can't find Informix esql.  Maybe INFORMIXDIR is not set ?)
++    AC_MSG_ERROR([Can't find Informix esql.  Maybe INFORMIXDIR is not set ?])
+   fi
+   SQLCC="$INFORMIXDIR/bin/esql -e"
+   SQLINC="-I$INFORMIXDIR/incl -I$INFORMIXDIR/incl/esql"
+@@ -668,7 +688,8 @@
+ 	;;
+ esac
+ 
+-AC_OUTPUT($list)
++AC_CONFIG_FILES([$list])
++AC_OUTPUT
+ 
+ if test -f BOOTSTRAP
+ then
