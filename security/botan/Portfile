@@ -1,12 +1,14 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id: Portfile 85280 2011-10-12 08:17:48Z mww@macports.org $
 
-PortSystem 1.0
+PortSystem          1.0
 
 name                botan
 version             1.10.5
+revision            1
 categories          security devel
 platforms           darwin
-maintainers         mww
+maintainers         mww openmaintainer
 license             BSD
 description         cryptographic algorithms and formats library in C++
 long_description    Botan is a C++ library implementing a variety of \
@@ -23,16 +25,25 @@ checksums           md5     df8868e54d4d763a90ea9ea967272df0 \
                     rmd160  db3822469698fdba198bacd3da013c545495002f
 use_bzip2           yes
 
-depends_lib         port:openssl port:zlib port:bzip2
+depends_build-append bin:python:python27
+depends_lib-append  port:openssl \
+                    port:zlib \
+                    port:bzip2
 
 worksrcdir          Botan-${version}
 
 configure.cmd       ./configure.py
-configure.args      --docdir=share/doc --cc=gcc --with-openssl --with-zlib --with-bzip2
+configure.args      --docdir=share/doc \
+                    --cc=gcc \
+                    --with-openssl \
+                    --with-zlib \
+                    --with-bzip2
 
 destroot.destdir    DESTDIR=${destroot}${prefix}
 
-platform darwin { configure.args-append --os=darwin }
+platform darwin {
+    configure.args-append --os=darwin
+}
 
 if {[info exists build_arch] && ${os.platform} == "darwin"} {
     if {(${build_arch} == "i386")} {
