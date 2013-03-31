@@ -14,9 +14,13 @@ license           Permissive
 supported_archs   noarch
 universal_variant no
 
+homepage          http://www.${name}.org
+
 description       An attempt at building a self-hosting Darwin using MacPorts
 
 long_description  ${description}.
+
+use_xz            yes
 
 use_configure     no
 
@@ -28,7 +32,9 @@ depends_lib-append port:darwinbuild \
                    port:apple-gcc40 \
                    port:apple-gcc42 \
                    port:bootstrap_cmds \
+                   port:CarbonHeaders \
                    port:csu \
+                   port:dtrace \
                    port:gdb-apple \
                    port:libc-headers \
                    port:libm-headers \
@@ -74,6 +80,10 @@ depends_lib-append port:darwinbuild \
                    port:webkit-gtk \
                    port:apache2 \
                    port:mod_perl2 \
+                   port:mod_security2 \
+                   port:mod_dnssd \
+                   port:mod_jk \
+                   port:mod_python \
                    port:apr \
                    port:apr-util \
                    port:gawk \
@@ -103,6 +113,7 @@ depends_lib-append port:darwinbuild \
                    port:mdocml \
                    port:afsctool \
                    port:dmg2img \
+                   port:gss \
                    port:hfstar \
                    port:hunspell \
                    port:libiodbc \
@@ -113,9 +124,183 @@ depends_lib-append port:darwinbuild \
                    port:alac_decoder \
                    port:less \
                    port:lesspipe \
-                   port:AquaLess \
                    port:libarchive \
-                   port:renameutils
+                   port:renameutils \
+                   port:libcxx \
+                   port:libcxxabi \
+                   port:libedit \
+                   port:libevent \
+                   port:libevent1 \
+                   port:libffi \
+                   port:xorg-libFS \
+                   port:libiconv \
+                   port:libpcap \
+                   port:libpcapnav \
+                   port:libbind \
+                   port:libdnsres \
+                   port:libudns \
+                   port:unbound \
+                   port:xml-commons-resolver \
+                   port:xml-security-c \
+                   port:cryptlib \
+                   port:fuzz \
+                   port:flawfinder \
+                   port:libnasl \
+                   port:libstdcxx \
+                   port:p5.12-net-telnet \
+                   port:p5.12-net-telnet-cisco \
+                   port:putty \
+                   port:spinner \
+                   port:libxml2 \
+                   port:libxslt \
+                   port:xmlsec \
+                   port:sloth \
+                   port:mdnsd \
+                   port:p5.12-net-bonjour \
+                   port:avahi \
+                   port:rb-dnssd \
+                   port:rb-easyjour \
+                   port:man \
+                   port:apr_memcache \
+                   port:java_memcached \
+                   port:libmemcache \
+                   port:libmemcached \
+                   port:memcached \
+                   port:memcachedb \
+                   port:memcacheq \
+                   port:p5.12-cache-memcached \
+                   port:rb-memcache \
+                   port:spymemcached \
+                   port:lrzsz \
+                   port:scud \
+                   port:sendpage \
+                   port:cclient \
+                   port:dte \
+                   port:arc \
+                   port:arj \
+                   port:dos2unix \
+                   port:dosmacux \
+                   port:mtools \
+                   port:unarj \
+                   port:nano \
+                   port:ncurses \
+                   port:p5.12-net-snmp \
+                   port:p5.12-snmp_session \
+                   port:rb-snmp \
+                   port:scotty \
+                   port:snmptt \
+                   port:cryptcat \
+                   port:gnetcat \
+                   port:nc6 \
+                   port:netcat \
+                   port:sbd \
+                   port:socat \
+                   port:ntfs-3g \
+                   port:ntfsprogs \
+                   port:openntpd \
+                   port:objc \
+                   port:cyrus-sasl2 \
+                   port:libgsasl \
+                   port:bsdiff \
+                   port:cvsdiff2patch \
+                   port:cvsps \
+                   port:diffball \
+                   port:quilt \
+                   port:wiggle \
+                   port:xmlpatch \
+                   port:pcre \
+                   port:pcrexx \
+                   port:perl5 \
+                   port:perl5.12 \
+                   port:mailqfmt \
+                   port:pflogsumm \
+                   port:postfix \
+                   port:postfixadmin \
+                   port:postgrey \
+                   port:sqlgrey \
+                   port:vm-pop3d \
+                   port:p5.12-devel-ppport \
+                   port:slirp \
+                   port:procmail \
+                   port:spambnc \
+                   port:python27 \
+                   port:py27-openssl \
+                   port:py27-pyobjc \
+                   port:py27-dateutil \
+                   port:arrsync \
+                   port:dirvish \
+                   port:librsync \
+                   port:murk \
+                   port:p5.12-file-rsyncp \
+                   port:rsnapshot \
+                   port:rsync \
+                   port:rsync-lart \
+                   port:rsyncrypto \
+                   port:ruby \
+                   port:screen \
+                   port:watch \
+                   port:p5.12-mozilla-ca \
+                   port:p5.12-csp \
+                   port:curl-ca-bundle \
+                   port:dirmngr \
+                   port:keychain \
+                   port:SSHKeychain \
+                   port:p5.12-authen-smb \
+                   port:samba3 \
+                   port:srm \
+                   port:sudo \
+                   port:swig \
+                   port:eventlog \
+                   port:ossp-fsl \
+                   port:p5.12-net-syslog \
+                   port:p5.12-unix-syslog \
+                   port:tcl \
+                   port:libnetdude \
+                   port:p5.12-net-frame-dump \
+                   port:tcpdstat \
+                   port:tcpdump \
+                   port:docbook2x \
+                   port:sicp \
+                   port:texi2html \
+                   port:texinfo \
+                   port:ftidy \
+                   port:jtidy \
+                   port:p5.12-perl-tidy \
+                   port:tidy \
+                   port:uucp \
+                   port:vim \
+                   port:litmus \
+                   port:neon \
+                   port:xar \
+                   port:findutils \
+                   port:zip \
+                   port:unzip \
+                   port:zlib \
+                   port:zsh \
+                   port:metakit \
+                   port:airctl \
+                   port:airport \
+                   port:wirouterkeyrec \
+                   port:tiff \
+                   port:amavisd-new \
+                   port:freetype \
+                   port:jpeg \
+                   port:jpegoptim \
+                   port:jpeg2ps \
+                   port:jpegpixi \
+                   port:libpng \
+                   port:autoconf \
+                   port:automake \
+                   port:bison \
+                   port:bsdmake \
+                   port:cctools \
+                   port:jabberd \
+                   port:libidn \
+                   port:libudns \
+                   port:pop3proxy \
+                   port:proxsmtp \
+                   port:proxytunnel
+depends_run-append port:qemu
  
 require_active_variants MacPorts only_mp_deps
 require_active_variants MacPorts mp_bundle
