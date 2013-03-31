@@ -6,18 +6,19 @@ PortSystem        1.0
 name              kernel-tools-slim
 version           8J2135
 categories        sysutils
-maintainers       sfiera
+maintainers       sfiera gwmail.gwu.edu:egall openmaintainer
 license           BSD
-description       Tools required to build xnu for Intel
+description       Tools required to build xnu for Darwin 8 on Intel
 long_description \
-  Installs a number of tools needed to build the xnu kernel on Intel, \
-  including (but not limited to) relpath and seg_hack
+  Installs a number of tools needed to build the xnu kernel for Darwin 8 on Intel, \
+  including (but not limited to) relpath, decomment, and seg_hack
 
 homepage          http://kernel.macosforge.org/
 master_sites      http://www.macosforge.org/files
 distfiles         kernel-tools-${version}.root.tar.gz
 checksums         md5  e47e75b43211a9094875d60502cc4e35 \
                   sha1 c91733821d9bb2420c228099fa85437b347fbe2c
+
 platforms         darwin
 
 default_variants  universal
