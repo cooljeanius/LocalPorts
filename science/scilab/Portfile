@@ -90,9 +90,14 @@ configure.args-append --without-tk \
                       --without-openmp \
                       --without-arpack-ng \
                       --without-umfpack \
-                      --with-pcre=${prefix}
+                      --with-pcre=${prefix} \
+                      --without-gfortran \
+                      --with-eigen-include=/opt/local/include/eigen3 \
+                      --with-hdf5-include=/opt/local/include \
+                      --with-hdf5-library=/opt/local/lib
 
 if {[tbool configure.ccache]} {
+    depends.build-append  port:ccache
     configure.args-delete --disable-ccache
     configure.args-append --enable-ccache
     configure.env-append  CCACHE=${prefix}/bin/ccache
@@ -102,7 +107,7 @@ if {[tbool configure.ccache]} {
 configure.env-append XMKMF=${prefix}/bin/xmkmf \
                      PKG_CONFIG=${prefix}/bin/pkg-config \
                      PCRE_CFLAGS=-I${prefix}/include \
-                     PCRE_LIBS=-L${prefix}/lib
+                     PCRE_LIBS=-L${prefix}/lib -lpcreposix -lpcre
 
 # This is to disable checking for jgraphx, which MacPorts does not have yet
 # (it has just jgraph without the "x", but I think that's different)
@@ -112,36 +117,43 @@ configure.env-append XCOS_ENABLE="no"
 variant gcc43 conflicts gcc44 gcc45 gcc46 gcc47 description {Build with GCC 4.3} {
     configure.compiler  macports-gcc-4.3
     depends_lib-append  port:gcc43
+    configure.args-delete --without-gfortran
     configure.args-append --with-gfortran
 }
 
 variant gcc44 conflicts gcc43 gcc45 gcc46 gcc47 description {Build with GCC 4.4} {
     configure.compiler  macports-gcc-4.4
     depends_lib-append  port:gcc44
+    configure.args-delete --without-gfortran
     configure.args-append --with-gfortran
 }
 
 variant gcc45 conflicts gcc43 gcc44 gcc46 gcc47 description {Build with GCC 4.5} {
     configure.compiler  macports-gcc-4.5
     depends_lib-append  port:gcc45
+    configure.args-delete --without-gfortran
     configure.args-append --with-gfortran
 }
 
 variant gcc46 conflicts gcc43 gcc44 gcc45 gcc47 description {Build with GCC 4.6} {
     configure.compiler  macports-gcc-4.6
     depends_lib-append  port:gcc46
+    configure.args-delete --without-gfortran
     configure.args-append --with-gfortran
 }
 
 variant gcc47 conflicts gcc43 gcc44 gcc45 gcc46 description {Build with GCC 4.7} {
     configure.compiler  macports-gcc-4.7
     depends_lib-append  port:gcc47
+    configure.args-delete --without-gfortran
     configure.args-append --with-gfortran
 }
 
 variant ocaml description {Build OCaml module (modelica)} {
     depends_lib-append  port:ocaml \
                         port:swig-ocaml
-    configure.args-delete --without-modelica
+    configure.args-delete --without-modelica \
+                          --disable-build-swig \
+                          --disable-build-giws
     configure.args-append --with-modelica
 }

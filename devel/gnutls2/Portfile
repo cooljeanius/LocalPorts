@@ -3,15 +3,16 @@
 
 PortSystem      1.0
 
-name            gnutls
+name            gnutls2
+set my_name     gnutls
 version         2.12.19
 revision        1
 categories      devel security net
 # yes, some of the libs are GPL only
 license         LGPL-2.1+ GPL-3+
 maintainers     nomaintainer
-description     GNU Transport Layer Security Library
-homepage        http://www.gnutls.org/
+description     GNU Transport Layer Security Library, old version
+homepage        http://www.${my_name}.org/
 platforms       darwin
 
 long_description \
@@ -19,7 +20,8 @@ long_description \
     SSL 3.0 protocols. The library does not include any patented algorithms \
     and is available under the GNU Lesser General Public License (LGPL).
 
-master_sites    gnu
+master_sites    gnu:${my_name}
+distname        ${my_name}-${version}
 
 checksums       md5     14228b34e3d8ed176a617df40693b441 \
                 rmd160  077d62ab00780a6798cee92e80d542f1e74891f2 \
@@ -54,10 +56,12 @@ configure.args  --with-lzo \
                 --with-libpth-prefix=${prefix} \
                 --with-libreadline-prefix=${prefix} \
                 --disable-valgrind-tests \
-                --disable-gtk-doc
+                --disable-gtk-doc \
+                --program-suffix=2
 
 variant tests description {Run tests} {
-    depends_build-append path:bin/valgrind:valgrind
+    depends_build-append path:bin/valgrind:valgrind \
+                         port:dejagnu
     configure.args-delete --disable-valgrind-tests
     configure.args-append --enable-valgrind-tests
     test.run        yes
@@ -65,7 +69,7 @@ variant tests description {Run tests} {
 }
 
 post-destroot {
-    move ${destroot}${prefix}/bin/certtool ${destroot}${prefix}/bin/gnutls-certtool
+    move ${destroot}${prefix}/bin/certtool2 ${destroot}${prefix}/bin/gnutls2-certtool
 }
 
 variant guile description {Adds guile support - currently broken} {
@@ -110,5 +114,5 @@ platform darwin 8 {
 }
 
 livecheck.type  regex
-livecheck.url   http://ftp.gnu.org/gnu/gnutls/
-livecheck.regex ${name}-(\\d+\\.\\d*\[02468\]+(?:\\.\\d+)*)
+livecheck.url   http://ftp.gnu.org/gnu/${my_name}/
+livecheck.regex ${my_name}-(\\d+\\.\\d*\[02468\]+(?:\\.\\d+)*)
