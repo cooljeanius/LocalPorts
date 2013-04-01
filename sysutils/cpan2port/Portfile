@@ -28,7 +28,9 @@ depends_lib-append  port:p5.12-module-depends \
                     port:p5.12-file-path \
                     port:p5.12-pod-simple \
                     port:p5.12-carp-clan \
-                    port:p5.12-getopt-simple
+                    port:p5.12-getopt-simple \
+                    port:p5.12-parse-cpan-meta \
+                    port:p5.12-cpan-meta-yaml
 
 worksrcdir          ${name}
 
