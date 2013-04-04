@@ -1,0 +1,123 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 104397 2013-03-24 16:41:31Z devans@macports.org $
+
+PortSystem  1.0
+PortGroup   muniversal 1.0
+
+name        poppler
+conflicts   pdf2json xpdf-tools
+version     0.22.2
+revision    1
+license     GPL-2+
+maintainers devans openmaintainer
+categories  graphics
+platforms   darwin
+homepage    http://${name}.freedesktop.org/
+
+description Poppler is a PDF rendering library based on the xpdf-3.0 code base.
+long_description ${description}
+
+master_sites ${homepage}
+
+checksums    rmd160  cb8dbc3f3d4c09056a3a5d2ea34fcaff06b2a6ca \
+             sha256  108736ef84069317f6c5beacb5268f3b799ecf401e353e239611772eae8a662d
+
+depends_build-append \
+    port:pkgconfig \
+    port:gawk
+
+depends_lib-append \
+    port:bzip2 \
+    port:curl \
+    port:expat \
+    port:fontconfig \
+    port:freetype \
+    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+    path:lib/pkgconfig/cairo.pc:cairo \
+    port:lcms2 \
+    port:libpng \
+    port:openjpeg \
+    port:poppler-data \
+    port:tiff \
+    port:zlib \
+    port:gettext \
+    port:jpeg \
+    port:libiconv \
+    port:libidn \
+    path:lib/pkgconfig/pixman-1.pc:libpixman \
+    port:openssl \
+    port:xz
+
+post-patch {
+    reinplace "s|\$includedir|${prefix}/include|g" \
+        ${worksrcpath}/configure
+    reinplace "s|tests||" \
+        ${worksrcpath}/qt4/Makefile.in
+}
+
+configure.args \
+    --disable-introspection \
+    --disable-poppler-qt4 \
+    --disable-gtk-test \
+    --disable-silent-rules \
+    --disable-gtk-doc \
+    --enable-xpdf-headers \
+    --enable-zlib \
+    --enable-libcurl \
+    --enable-poppler-glib \
+    --mandir=${prefix}/share/man \
+    --with-x
+
+variant quartz {
+    configure.args-delete --with-x
+    configure.args-append --without-x
+}
+
+if {![variant_isset quartz]} {
+    depends_lib-append \
+        port:xorg-libX11 \
+        port:xorg-libXau \
+        port:xorg-libXdmcp \
+        port:xorg-libXext \
+        port:xorg-libxcb \
+        port:xrender
+    if {[file exists ${prefix}/lib/pkgconfig/x11.pc]} {
+        configure.args-append --x-includes=${prefix}/include \
+                              --x-libraries=${prefix}/lib
+    }
+}
+
+variant qt4 description { Support for the QT4 toolkit } {
+    configure.args-delete --disable-poppler-qt4
+    configure.args-append --enable-poppler-qt4
+    if ([variant_isset quartz]) {
+        PortGroup qt4 1.0
+    } else {
+        depends_lib-append  port:qt4-x11
+        set qt_dir ${prefix}/libexec/qt4-x11
+        configure.env-append  QTDIR=${qt_dir}
+        set env(PATH) "${qt_dir}/bin:$env(PATH)"
+        configure.pkg_config_path ${qt_dir}/lib/pkgconfig
+    }
+}
+
+variant docs description {Build gtk-doc documentation} {
+    PortGroup              archcheck 1.0
+    depends_build-append   port:gtk-doc
+    depends_skip_archcheck gtk-doc
+    configure.args-delete  --disable-gtk-doc
+    configure.args-append  --enable-gtk-doc
+}
+
+variant autoreconf description {Regenerate build system with autoreconf before configuring} {
+    use_autoreconf         yes
+    autoreconf.args        -fvi
+}
+
+test.run    yes
+test.dir    ${worksrcpath}/test
+test.target all
+
+livecheck.type  regex
+livecheck.url   ${master_sites}
+livecheck.regex ${name}-(\[0-9\]+\\.\[0-9\]*\[02468\](\\.\[0-9\]+)*)${extract.suffix}

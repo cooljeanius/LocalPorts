@@ -1,11 +1,11 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id: Portfile 104208 2013-03-20 17:08:02Z macsforever2000@macports.org $
+# $Id: Portfile 104022 2013-03-13 02:41:49Z ryandesign@macports.org $
 
 PortSystem      1.0
 PortGroup       github 1.0
 
 epoch           2
-github.setup    cooljeanius macportsscripts 0.2.0 v
+github.setup    cooljeanius macportsscripts 0.1.4 v
 categories      sysutils macports
 platforms       darwin
 maintainers     phw gwmail.gwu.edu:egall openmaintainer
@@ -16,13 +16,12 @@ description     Various scripts to work with MacPorts
 
 long_description ${description}
 
-checksums       rmd160 3d24d9fdf6dacfab405e9ec7772e7969e0771270 \
-                sha256 62261afafd9021876c9e2717e76165e365ef71f9936ada392ee89ed561fc80ca
+checksums       rmd160  62171a4def12655d46fb0469f9b64f0b24bfcff7 \
+                sha256  099ccdef11df77d1b7ef3c8857c9f56ef08d2843182335b72bd708008634b2a3
 
 use_configure   no
 build {}
 
 destroot {
     eval xinstall -m 755 [glob ${worksrcpath}/*.sh] ${destroot}${prefix}/bin
-    eval xinstall -m 755 [glob ${worksrcpath}/*.pl] ${destroot}${prefix}/bin
 }

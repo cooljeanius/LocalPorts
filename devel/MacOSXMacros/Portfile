@@ -17,6 +17,8 @@ platforms           darwin
 fetch.type          git
 git.url             git://github.com/cooljeanius/MacOSXMacros.git
 
+depends_run-append  port:xml2
+
 use_configure       no
 
 build {
@@ -24,7 +26,17 @@ build {
     system -W ${worksrcpath} "chmod -x ./*.m4 ./*.md"
 }
 
-test.cmd            system -W ${worksrcpath}/Testing "autoreconf && ./configure --prefix=${prefix}"
+# Making a variant until https://trac.macports.org/ticket/38208 is fixed
+variant tests description {Run tests} {
+    depends_build-append \
+                    port:autoconf \
+                    port:automake \
+                    port:libtool \
+                    port:gettext \
+                    port:autoconf-archive
+    test.run        yes
+    test.cmd        "cd ${worksrcpath}/Testing && autoreconf -fvi && ./configure --prefix=${prefix} && make"
+}
 
 destroot {
     xinstall -d ${destroot}${prefix}/share/aclocal
