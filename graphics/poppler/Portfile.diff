@@ -1,0 +1,110 @@
+--- /opt/local/var/macports/sources/rsync.macports.org/release/tarballs/ports/graphics/poppler/Portfile	2013-03-24 13:00:16.000000000 -0400
++++ /opt/local/var/macports/sources/LocalPorts/graphics/poppler/Portfile	2013-04-04 01:23:10.000000000 -0400
+@@ -1,12 +1,13 @@
+ # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+ # $Id: Portfile 104397 2013-03-24 16:41:31Z devans@macports.org $
+ 
+-PortSystem 1.0
+-PortGroup  muniversal 1.0
++PortSystem  1.0
++PortGroup   muniversal 1.0
+ 
+ name        poppler
+ conflicts   pdf2json xpdf-tools
+ version     0.22.2
++revision    1
+ license     GPL-2+
+ maintainers devans openmaintainer
+ categories  graphics
+@@ -21,10 +22,11 @@
+ checksums    rmd160  cb8dbc3f3d4c09056a3a5d2ea34fcaff06b2a6ca \
+              sha256  108736ef84069317f6c5beacb5268f3b799ecf401e353e239611772eae8a662d
+ 
+-depends_build \
+-    port:pkgconfig
++depends_build-append \
++    port:pkgconfig \
++    port:gawk
+ 
+-depends_lib \
++depends_lib-append \
+     port:bzip2 \
+     port:curl \
+     port:expat \
+@@ -37,7 +39,14 @@
+     port:openjpeg \
+     port:poppler-data \
+     port:tiff \
+-    port:zlib
++    port:zlib \
++    port:gettext \
++    port:jpeg \
++    port:libiconv \
++    port:libidn \
++    path:lib/pkgconfig/pixman-1.pc:libpixman \
++    port:openssl \
++    port:xz
+ 
+ post-patch {
+     reinplace "s|\$includedir|${prefix}/include|g" \
+@@ -51,25 +60,36 @@
+     --disable-poppler-qt4 \
+     --disable-gtk-test \
+     --disable-silent-rules \
++    --disable-gtk-doc \
+     --enable-xpdf-headers \
+     --enable-zlib \
+     --enable-libcurl \
+     --enable-poppler-glib \
+-    --mandir=${prefix}/share/man
++    --mandir=${prefix}/share/man \
++    --with-x
+ 
+ variant quartz {
++    configure.args-delete --with-x
+     configure.args-append --without-x
+ }
+ 
+ if {![variant_isset quartz]} {
++    depends_lib-append \
++        port:xorg-libX11 \
++        port:xorg-libXau \
++        port:xorg-libXdmcp \
++        port:xorg-libXext \
++        port:xorg-libxcb \
++        port:xrender
+     if {[file exists ${prefix}/lib/pkgconfig/x11.pc]} {
+-            configure.args-append --x-includes=${prefix}/include \
+-                                  --x-libraries=${prefix}/lib
++        configure.args-append --x-includes=${prefix}/include \
++                              --x-libraries=${prefix}/lib
+     }
+ }
+ 
+ variant qt4 description { Support for the QT4 toolkit } {
+     configure.args-delete --disable-poppler-qt4
++    configure.args-append --enable-poppler-qt4
+     if ([variant_isset quartz]) {
+         PortGroup qt4 1.0
+     } else {
+@@ -81,11 +101,19 @@
+     }
+ }
+ 
+-variant docs conflicts universal description {Build gtk-doc documentation} {
++variant docs description {Build gtk-doc documentation} {
++    PortGroup              archcheck 1.0
+     depends_build-append   port:gtk-doc
++    depends_skip_archcheck gtk-doc
++    configure.args-delete  --disable-gtk-doc
+     configure.args-append  --enable-gtk-doc
+ }
+ 
++variant autoreconf description {Regenerate build system with autoreconf before configuring} {
++    use_autoreconf         yes
++    autoreconf.args        -fvi
++}
++
+ test.run    yes
+ test.dir    ${worksrcpath}/test
+ test.target all
