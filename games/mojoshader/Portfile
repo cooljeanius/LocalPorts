@@ -1,0 +1,56 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           cmake 1.0
+
+name                mojoshader
+categories          games graphics devel
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             zlib
+
+description         MojoShader is a library to work with Direct3D shaders on alternate \
+                    3D APIs and non-Windows platforms.
+
+long_description    ${description} The primary motivation is moving shaders to OpenGL \
+                    languages on the fly. The developer deals with profiles that \
+                    represent various target languages, such as GLSL.
+
+homepage            http://icculus.org/${name}/
+
+fetch.type          hg
+hg.url              http://hg.icculus.org/icculus/${name}/
+hg.tag              3de60f597ebd
+version             1125
+
+depends_build-append \
+                    port:re2c \
+                    port:lemon
+depends_lib-append  port:libsdl
+
+# Making a variant for this until ticket #38208 is resolved.
+variant tests description {Build unit tests} {
+    depends_build-append \
+                    port:perl5
+    test.run        yes
+}
+
+destroot {
+    xinstall ${worksrcpath}/lib${name}.a ${destroot}${prefix}/lib
+    xinstall ${worksrcpath}/${name}-compiler ${destroot}${prefix}/bin
+    # Add a prefix to binaries with names that look like they might conflict
+    foreach generic_bin {lemon finderrors glcaps bestprofile availableprofiles} {
+        xinstall ${worksrcpath}/${generic_bin} ${destroot}${prefix}/bin/${name}-${generic_bin}
+    }
+    if {[variant_isset tests]} {
+        foreach test_bin {testparse testoutput} {
+            xinstall ${worksrcpath}/${test_bin} ${destroot}${prefix}/bin/${name}-${test_bin}
+        }
+    }
+    eval xinstall [glob ${worksrcpath}/*.h] ${destroot}${prefix}/include
+    xinstall -d ${destroot}${prefix}/share/${name}
+    foreach doc {README.txt LICENSE.txt} {
+        xinstall ${worksrcpath}/${doc} ${destroot}${prefix}/share/${name}
+    }
+}

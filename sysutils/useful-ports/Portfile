@@ -217,6 +217,7 @@ depends_lib-append port:gawk \
                    port:p7zip \
                    port:flagpoll \
                    port:unsort \
-                   port:unshield
+                   port:unshield \
+                   port:nettee
 
-depends_skip_archcheck getabspath dmg2img alac_decoder man
+depends_skip_archcheck getabspath dmg2img alac_decoder man nettee
