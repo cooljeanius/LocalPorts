@@ -29,28 +29,17 @@ depends_build-append \
                     port:lemon
 depends_lib-append  port:libsdl
 
-# Making a variant for this until ticket #38208 is resolved.
-variant tests description {Build unit tests} {
-    depends_build-append \
-                    port:perl5
-    test.run        yes
-}
+test.run        yes
 
 destroot {
     xinstall ${worksrcpath}/lib${name}.a ${destroot}${prefix}/lib
     xinstall ${worksrcpath}/${name}-compiler ${destroot}${prefix}/bin
     # Add a prefix to binaries with names that look like they might conflict
-    foreach generic_bin {lemon finderrors glcaps bestprofile availableprofiles} {
+    foreach generic_bin {lemon finderrors glcaps bestprofile availableprofiles \
+                         testparse testoutput} {
         xinstall ${worksrcpath}/${generic_bin} ${destroot}${prefix}/bin/${name}-${generic_bin}
-    }
-    if {[variant_isset tests]} {
-        foreach test_bin {testparse testoutput} {
-            xinstall ${worksrcpath}/${test_bin} ${destroot}${prefix}/bin/${name}-${test_bin}
-        }
     }
     eval xinstall [glob ${worksrcpath}/*.h] ${destroot}${prefix}/include
     xinstall -d ${destroot}${prefix}/share/${name}
-    foreach doc {README.txt LICENSE.txt} {
-        xinstall ${worksrcpath}/${doc} ${destroot}${prefix}/share/${name}
-    }
+    xinstall -W ${worksrcpath} -m 644 README.txt LICENSE.txt ${destroot}${prefix}/share/${name}
 }
