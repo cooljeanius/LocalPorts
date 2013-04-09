@@ -49,7 +49,7 @@ depends_lib-append port:gawk \
                    port:cfitsio \
                    port:f2c \
                    port:fpp \
-                   port:py-f2py \
+                   port:py24-f2py \
                    port:autoconf-archive \
                    port:javacc \
                    port:jikespg \
