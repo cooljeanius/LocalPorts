@@ -1,0 +1,51 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 102007 2013-01-24 10:52:00Z jmr@macports.org $
+
+PortSystem              1.0
+PortGroup               python 1.0
+
+name                    py-f2py
+version                 2.45.241_1926
+license                 LGPL-2+
+platforms               darwin
+supported_archs         noarch
+maintainers             nomaintainer
+description             Fortran to Python Interface Generator
+long_description        The Fortran to Python Interface Generator, or F2PY for \
+                        short, is a command line tool (f2py) for generating \
+                        Python C/API modules for wrapping Fortran 77/90/95 \
+                        routines, accessing common blocks from Python, and \
+                        calling Python functions from Fortran (call-backs). \
+                        It also supports interfacing routines from Fortran \
+                        90/95 modules.
+
+homepage                http://cens.ioc.ee/projects/f2py2e
+master_sites            ${homepage}/2.x/
+distname                F2PY-${version}
+checksums               md5    8aedac9cad32afdcddcfb026b6393ece \
+                        sha1   4a567b14b9f1ca97221668531b0d103068e3625b \
+                        rmd160 5cd5150b9fc36f3ef2ec848391cb207a6cab52ff \
+                        sha256 f11525d8a3ec167b53cdb1c3882dff673960268bdf5c701bfb28602b3101075f
+
+python.versions         24
+
+python.move_binaries    no
+python.link_binaries_suffix
+
+if {$subport != $name} {
+    depends_lib-append  port:py${python.version}-numeric \
+                        port:py${python.version}-numpy \
+                        port:py${python.version}-numarray
+    # These would mostly be depends_test dependencies if those existed yet
+    depends_build-append \
+                        port:py${python.version}-checker \
+                        port:py${python.version}-importchecker \
+                        port:py${python.version}-pylint \
+                        port:py${python.version}-fchksum \
+                        port:py${python.version}-distribute
+    test.run            yes
+    test.cmd            cd tests && ./run_all.py
+    test.target         ""
+} else {
+    livecheck.type      none
+}

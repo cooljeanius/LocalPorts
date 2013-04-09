@@ -1,0 +1,441 @@
+--- configure.ac.bak	2013-04-09 02:32:12.000000000 -0400
++++ configure.ac	2013-04-09 03:03:05.000000000 -0400
+@@ -20,29 +20,31 @@
+ #
+ # $Id: configure.ac,v 1.37 2007/05/14 17:23:37 gray Exp $
+ #
++
++AC_PREREQ([2.69])
+ AC_REVISION($Revision: 1.37 $)
+-AC_INIT(dmalloc, 5.5.2, [http://dmalloc.com/])
+-AC_CONFIG_SRCDIR(dmalloc.c)
+-AC_CONFIG_HEADER(conf.h)
++AC_INIT([dmalloc], [5.5.2], [http://dmalloc.com/])
++AC_CONFIG_SRCDIR([dmalloc.c])
++AC_CONFIG_HEADERS([conf.h])
+ 
+ AC_MSG_NOTICE([configurations for the dmalloc library])
+ 
+ ##############################################################################
+ # arguments
+ 
+-AC_ARG_ENABLE(cxx,
++AC_ARG_ENABLE([cxx],
+     [ AC_HELP_STRING([--disable-cxx],
+ 		[do not build in C++ support (enabled by default)] ) ],
+     [ # enable_cxx set by default ],
+     [ enable_cxx=yes ]
+ )
+-AC_ARG_ENABLE(threads,
++AC_ARG_ENABLE([threads],
+     [ AC_HELP_STRING([--enable-threads],
+ 		[build in thread support (disabled by default)] ) ],
+     [ # enable_threads set by default ],
+     [ enable_threads=no ]
+ )
+-AC_ARG_ENABLE(shlib,
++AC_ARG_ENABLE([shlib],
+     [ AC_HELP_STRING([--enable-shlib],
+ 		[build shared libraries (disabled by default)] ) ],
+     [ # enable_shlib set by default ],
+@@ -68,8 +70,11 @@
+ 	AC_MSG_WARN()
+ fi
+ AC_PROG_INSTALL
++AC_PROG_MAKE_SET
+ AC_PROG_RANLIB
+ AC_C_CONST
++AC_FUNC_MALLOC
++AC_FUNC_REALLOC
+ 
+ # we need this for various settings
+ AC_HEADER_STDC
+@@ -129,7 +134,7 @@
+ 
+ # see how the local system builds shared libraries
+ AC_MSG_CHECKING([shared library link args])
+-AC_COMPILE_IFELSE([ int foo(int val) { return val + 1; } ],[
++AC_COMPILE_IFELSE([AC_LANG_SOURCE([ int foo(int val) { return val + 1; } ])],[
+ 	# so now we try to create an archive from the compiled .o file
+ 	(ar cr conftest.a conftest.o) 2>&5
+ 	# see which shared-library ld commands work
+@@ -219,7 +224,7 @@
+ fi
+ 
+ # shlib support
+-AC_MSG_CHECKING(shlib support)
++AC_MSG_CHECKING([shlib support])
+ if test "$enable_shlib" = "yes"; then
+ 	AC_SUBST([SL_ON],[])
+ 	AC_SUBST([SL_OFF],[#])
+@@ -236,16 +241,16 @@
+ #
+ AC_TYPE_SIZE_T
+ if test "$ac_cv_type_size_t" = "yes"; then
+-	AC_DEFINE(DMALLOC_SIZE,size_t)
++	AC_DEFINE([DMALLOC_SIZE], [size_t], [size to use for dmalloc])
+ else
+-	AC_DEFINE(DMALLOC_SIZE,unsigned long)
++	AC_DEFINE([DMALLOC_SIZE], [unsigned long], [size to use for dmalloc])
+ fi
+ 
+ #
+ # check for unsigned-ness
+ #
+ AC_MSG_CHECKING([dmalloc size unsigned])
+-AC_RUN_IFELSE([AC_LANG_SOURCE([[
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ #if HAVE_SYS_TYPES_H
+ #  include <sys/types.h>
+ #endif
+@@ -253,17 +258,17 @@
+ #  include <stdlib.h>
+ #endif
+ main() { DMALLOC_SIZE x = -1; if (x >= 0) exit(0); else exit(1); }
+-]])],
+-[AC_DEFINE(DMALLOC_SIZE_UNSIGNED,1)  AC_MSG_RESULT([yes])],
+-[AC_DEFINE(DMALLOC_SIZE_UNSIGNED,0)  AC_MSG_RESULT([no])],
+-[AC_DEFINE(DMALLOC_SIZE_UNSIGNED,0)  AC_MSG_RESULT([no])]
++])],
++[AC_DEFINE([DMALLOC_SIZE_UNSIGNED], [1], [dmalloc size unsigned 1])  AC_MSG_RESULT([yes])],
++[AC_DEFINE([DMALLOC_SIZE_UNSIGNED], [0], [dmalloc size unsigned 0])  AC_MSG_RESULT([no])],
++[AC_DEFINE([DMALLOC_SIZE_UNSIGNED], [0], [dmalloc size unsigned 0])  AC_MSG_RESULT([no])]
+ )
+ 
+ #
+ # check for strdup macro (linux)
+ #
+ AC_MSG_CHECKING([strdup macro])
+-AC_RUN_IFELSE([AC_LANG_SOURCE([[
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ #if HAVE_STDLIB_H
+ #  include <string.h>
+ #endif
+@@ -273,7 +278,7 @@
+ #else
+ main() { exit(1); }
+ #endif
+-]])],
++])],
+ [ac_cv_strdup_macro=yes],
+ [ac_cv_strdup_macro=no],
+ [ac_cv_strdup_macro=no]
+@@ -283,7 +288,7 @@
+ #
+ # check for existance of mprotect and associated defines
+ #
+-AC_CHECK_FUNCS(mprotect)
++AC_CHECK_FUNCS([mprotect])
+ AC_MSG_CHECKING([mprotect works])
+ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+ #if HAVE_SYS_TYPES_H
+@@ -303,8 +308,8 @@
+ ##############################################################################
+ AC_MSG_NOTICE([important functionality])
+ 
+-AC_CHECK_FUNCS(mmap)
+-AC_CHECK_FUNCS(sbrk)
++AC_CHECK_FUNCS([mmap])
++AC_CHECK_FUNCS([sbrk])
+ 
+ if test x$ac_cv_func_mmap != xyes && x$ac_cv_func_sbrk != xyes; then
+ 	AC_MSG_WARN()
+@@ -313,7 +318,7 @@
+ fi
+ 
+ AC_MSG_CHECKING([mmap usage])
+-AC_RUN_IFELSE([AC_LANG_SOURCE([[
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ #if HAVE_SYS_TYPES_H
+ #  include <sys/types.h>
+ #endif
+@@ -336,39 +341,41 @@
+   }
+   exit(0);
+ }
+-]])],
++])],
+ [ AC_DEFINE(USE_MMAP, 1) ac_cv_use_mmap=yes],
+ [ AC_DEFINE(USE_MMAP, 0) ac_cv_use_mmap=no],
+ [ AC_DEFINE(USE_MMAP, 0) ac_cv_use_mmap=no]
+ )
+ AC_MSG_RESULT([$ac_cv_use_mmap])
+ 
++AC_FUNC_MMAP
++
+ #
+ # check for basic block size
+ #
+-AC_CHECK_FUNCS(getpagesize)
++AC_CHECK_FUNCS([getpagesize])
+ AC_MSG_CHECKING([basic-block size])
+ ac_cv_page_size=0
+ if test $ac_cv_page_size = 0; then
+-   AC_RUN_IFELSE([main() { if (getpagesize()<=2048) exit(0); else exit(1); }],
++   AC_RUN_IFELSE([AC_LANG_SOURCE([main() { if (getpagesize()<=2048) exit(0); else exit(1); }])],
+ 	[ ac_cv_page_size=11 ] )
+ fi
+ if test $ac_cv_page_size = 0; then
+-   AC_RUN_IFELSE([main() { if (getpagesize()<=4096) exit(0); else exit(1); }],
++   AC_RUN_IFELSE([AC_LANG_SOURCE([main() { if (getpagesize()<=4096) exit(0); else exit(1); }])],
+ 	[ ac_cv_page_size=12 ] )
+ fi
+ if test $ac_cv_page_size = 0; then
+-   AC_RUN_IFELSE([main() { if (getpagesize()<=8192) exit(0); else exit(1); }],
++   AC_RUN_IFELSE([AC_LANG_SOURCE([main() { if (getpagesize()<=8192) exit(0); else exit(1); }])],
+ 	[ ac_cv_page_size=13 ] )
+ fi
+ if test $ac_cv_page_size = 0; then
+-   AC_RUN_IFELSE([main() { if (getpagesize()<=16384) exit(0); else exit(1); }],
++   AC_RUN_IFELSE([AC_LANG_SOURCE([main() { if (getpagesize()<=16384) exit(0); else exit(1); }])],
+ 	[ ac_cv_page_size=14 ] )
+ fi
+ if test $ac_cv_page_size = 0; then
+     ac_cv_page_size=15
+ fi
+-AC_DEFINE_UNQUOTED([BASIC_BLOCK],[$ac_cv_page_size])
++AC_DEFINE_UNQUOTED([BASIC_BLOCK],[$ac_cv_page_size],[basic block size])
+ AC_MSG_RESULT([$ac_cv_page_size])
+ 
+ #
+@@ -382,15 +389,15 @@
+ else
+ 	ac_cv_data_align=$ac_cv_sizeof_long
+ fi
+-AC_DEFINE_UNQUOTED([ALLOCATION_ALIGNMENT],[$ac_cv_data_align])
++AC_DEFINE_UNQUOTED([ALLOCATION_ALIGNMENT],[$ac_cv_data_align],[data-alignment size])
+ AC_MSG_RESULT([$ac_cv_data_align])
+ 
+ #
+ # check the safety of the abort function
+ #
+-AC_CHECK_FUNCS(abort)
++AC_CHECK_FUNCS([abort])
+ AC_MSG_CHECKING([abort safe])
+-AC_RUN_IFELSE([[
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ static int main_b = 0;
+ static char heap_mem[102400], *heap_p = heap_mem;
+ free () { if (main_b) _exit(0); }
+@@ -421,13 +428,13 @@
+   return start;
+ }
+ main() { main_b = 1; abort(); _exit(1); }
+-]],
++])],
+ # NOTE: this is reversed because abort core dumps and doesn't exit with
+ # 0 which means that it should fail
+-[ AC_DEFINE(ABORT_OKAY, 0) AC_MSG_RESULT([no]) ],
++[ AC_DEFINE([ABORT_OKAY], [0], [abort_okay 0]) AC_MSG_RESULT([no]) ],
+ # if it succeeds then something called free on the way out
+-[ AC_DEFINE(ABORT_OKAY, 1) AC_MSG_RESULT([yes]) ],
+-[ AC_DEFINE(ABORT_OKAY, 0) AC_MSG_RESULT([no]) ]
++[ AC_DEFINE([ABORT_OKAY], [1], [abort_okay 1]) AC_MSG_RESULT([yes]) ],
++[ AC_DEFINE([ABORT_OKAY], [0], [abort_okay 0]) AC_MSG_RESULT([no]) ]
+ )
+ 
+ AC_TYPE_SIGNAL
+@@ -453,7 +460,7 @@
+ #
+ AC_CHECK_FUNCS(getenv)
+ AC_MSG_CHECKING([getenv safe])
+-AC_RUN_IFELSE([[
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ static char heap_mem[102400], *heap_p = heap_mem;
+ free (char *pnt) {
+ }
+@@ -484,15 +491,15 @@
+   return start;
+ }
+ main() { malloc(10); _exit(0); }
+-]],
+-[ AC_DEFINE(GETENV_SAFE, 1)
++])]],
++[ AC_DEFINE([GETENV_SAFE], [1], [getenv safety 1])
+   AC_MSG_RESULT([yes])
+   getenv_safe=yes ],
+ # if it succeeds then something called free on the way out
+-[ AC_DEFINE(GETENV_SAFE, 0)
++[ AC_DEFINE([GETENV_SAFE], [0], [getenv safety 0])
+   AC_MSG_RESULT([no])
+   getenv_safe=no ],
+-[ AC_DEFINE(GETENV_SAFE, 1)
++[ AC_DEFINE([GETENV_SAFE], [1], [getenv safety 1])
+   AC_MSG_RESULT([yes])
+   getenv_safe=yes ]
+ )
+@@ -512,7 +519,7 @@
+ # include <w32api/windef.h>
+ #endif]])
+ AC_MSG_CHECKING([for GetEnvironmentVariableA])
+-AC_RUN_IFELSE([[
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ #if HAVE_SYS_CYGWIN_H
+ # include <sys/cygwin.h>
+ #endif
+@@ -529,14 +536,14 @@
+   char env_buf[256];
+   GetEnvironmentVariableA("PATH", env_buf, sizeof(env_buf));
+ }
+-]],
+-[ AC_DEFINE(HAVE_GETENVIRONMENTVARIABLEA, 1)
++])],
++[ AC_DEFINE([HAVE_GETENVIRONMENTVARIABLEA], [1], [getenv-related])
+   AC_MSG_RESULT([yes])
+   have_getenvironmentvariablea=yes ],
+-[ AC_DEFINE(HAVE_GETENVIRONMENTVARIABLEA, 0)
++[ AC_DEFINE([HAVE_GETENVIRONMENTVARIABLEA], [0], [getenv-related])
+   AC_MSG_RESULT([no])
+   have_getenvironmentvariablea=no ],
+-[ AC_DEFINE(HAVE_GETENVIRONMENTVARIABLEA, 1)
++[ AC_DEFINE([HAVE_GETENVIRONMENTVARIABLEA], [1], [getenv-related])
+   AC_MSG_RESULT([yes])
+   have_getenvironmentvariablea=yes ]
+ )
+@@ -556,34 +563,34 @@
+ # check for constructor attribute support
+ #
+ AC_MSG_CHECKING([constructor attribute])
+-AC_RUN_IFELSE([[
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ /* if we call the loc_con constructor then exit with error code 0 */
+ static void loc_con() __attribute__((constructor));
+ static void loc_con() { exit(0); }
+ int main() { exit(1); }
+-]],
+-[ AC_DEFINE(CONSTRUCTOR_WORKS, 1) AC_MSG_RESULT([yes]) ],
+-[ AC_DEFINE(CONSTRUCTOR_WORKS, 0) AC_MSG_RESULT([no]) ],
+-[ AC_DEFINE(CONSTRUCTOR_WORKS, 1) AC_MSG_RESULT([yes]) ]
++])],
++[ AC_DEFINE([CONSTRUCTOR_WORKS], [1], [constructor attribute support 1]) AC_MSG_RESULT([yes]) ],
++[ AC_DEFINE([CONSTRUCTOR_WORKS], [0], [constructor attribute support 0]) AC_MSG_RESULT([no]) ],
++[ AC_DEFINE([CONSTRUCTOR_WORKS], [1], [constructor attribute support 1]) AC_MSG_RESULT([yes]) ]
+ )
+ 
+ #
+ # check for destructor attribute support
+ #
+ AC_MSG_CHECKING([destructor attribute])
+-AC_RUN_IFELSE([[
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ /* if we call the loc_decon destructor then exit with error code 0 */
+ static void loc_decon() __attribute__((destructor));
+ static void loc_decon() { exit(0); }
+ int main() { return 1; }
+-]],
+-[ AC_DEFINE(DESTRUCTOR_WORKS, 1)
++])],
++[ AC_DEFINE([DESTRUCTOR_WORKS], [1], [destructor attribute support 1])
+   AC_MSG_RESULT([yes])
+   destructor_works=yes ],
+-[ AC_DEFINE(DESTRUCTOR_WORKS, 0)
++[ AC_DEFINE([DESTRUCTOR_WORKS], [0], [destructor attribute support 0])
+   AC_MSG_RESULT([no])
+   destructor_works=no ],
+-[ AC_DEFINE(DESTRUCTOR_WORKS, 1)
++[ AC_DEFINE([DESTRUCTOR_WORKS], [1], [destructor attribute support 1])
+   AC_MSG_RESULT([yes])
+   destructor_works=yes ],
+ )
+@@ -594,7 +601,7 @@
+ # check if the return.h macros work
+ #
+ AC_MSG_CHECKING([return.h macros work])
+-AC_RUN_IFELSE([
++AC_RUN_IFELSE([AC_LANG_SOURCE([
+ 
+ #define __CONF_H__
+ #define USE_RETURN_MACROS 1
+@@ -613,7 +620,7 @@
+   foo();
+   exit(0);
+ }
+-],
++])],
+ [ AC_DEFINE(RETURN_MACROS_WORK, 1) AC_MSG_RESULT([yes]) ],
+ [ AC_DEFINE(RETURN_MACROS_WORK, 0) AC_MSG_RESULT([no]) ],
+ [ AC_DEFINE(RETURN_MACROS_WORK, 0) AC_MSG_RESULT([no]) ]
+@@ -625,10 +632,10 @@
+ # check to see if ident workds
+ #
+ AC_MSG_CHECKING([if ident works])
+-AC_COMPILE_IFELSE([
++AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+ #ident "$Id: configure.ac,v 1.37 2007/05/14 17:23:37 gray Exp $"
+ static void foo (void) { }
+-],
++])],
+ [AC_DEFINE(IDENT_WORKS, 1) AC_MSG_RESULT([yes])],
+ [AC_DEFINE(IDENT_WORKS, 0) AC_MSG_RESULT([no])]
+ )
+@@ -638,7 +645,7 @@
+ 
+ XX_OLD_LIBS=$LIBS
+ 
+-AC_SEARCH_LIBS(pthread_mutex_init, pthread pthreads c_r)
++AC_SEARCH_LIBS([pthread_mutex_init], [pthread pthreads c_r])
+ AC_CHECK_HEADER([pthread.h],
+ 		[AC_DEFINE(HAVE_PTHREAD_H,1) AC_SUBST([HAVE_PTHREAD_H],1)],
+ 		[AC_DEFINE(HAVE_PTHREAD_H,0) AC_SUBST([HAVE_PTHREAD_H],0)])
+@@ -646,7 +653,7 @@
+ 		[AC_DEFINE(HAVE_PTHREADS_H,1) AC_SUBST([HAVE_PTHREADS_H],1)],
+ 		[AC_DEFINE(HAVE_PTHREADS_H,0) AC_SUBST([HAVE_PTHREADS_H],0)])
+ 
+-AC_CHECK_FUNCS(pthread_mutex_init pthread_mutex_lock pthread_mutex_unlock)
++AC_CHECK_FUNCS([pthread_mutex_init pthread_mutex_lock pthread_mutex_unlock])
+ 
+ AC_MSG_CHECKING([pthread mutex type])
+ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+@@ -700,34 +707,37 @@
+ fi
+ 
+ # other bells and whistles
+-AC_CHECK_FUNCS(fork gethostname getpid getuid time ctime)
+-AC_CHECK_FUNCS(vprintf snprintf vsnprintf)
+-AC_CHECK_FUNCS(recalloc memalign valloc)
++AC_CHECK_HEADERS([fcntl.h])
++AC_FUNC_FORK
++AC_CHECK_FUNCS([fork gethostname getpid getuid time ctime])
++AC_CHECK_FUNCS([vprintf snprintf vsnprintf])
++AC_CHECK_FUNCS([recalloc memalign valloc])
++AC_CHECK_FUNCS([strdup strndup])
+ 
+ # required although we have code for them in compat.c
+-AC_CHECK_FUNCS(memcmp memcpy memmove memset)
+-AC_CHECK_FUNCS(strchr strrchr)
+-AC_CHECK_FUNCS(strlen strcmp strcpy strsep)
++AC_CHECK_FUNCS([memcmp memcpy memmove memset])
++AC_CHECK_FUNCS([strchr strrchr])
++AC_CHECK_FUNCS([strlen strcmp strcpy strsep])
+ 
+ ##############################################################################
+ AC_MSG_NOTICE([various functions for argv files])
+ 
+ # NOTE: some duplicated from above
+-AC_CHECK_FUNCS(atoi atol getenv)
+-AC_CHECK_FUNCS(strchr strcmp strcpy strlen strncmp strncpy strsep)
++AC_CHECK_FUNCS([atoi atol getenv])
++AC_CHECK_FUNCS([strchr strcmp strcpy strlen strncmp strncpy strsep])
+ 
+ ##############################################################################
+ AC_MSG_NOTICE([various functions for argument checking])
+ 
+ # NOTE: some duplicated from above
+-AC_CHECK_FUNCS(atoi atol)
+-AC_CHECK_FUNCS(bcmp bcopy bzero)
++AC_CHECK_FUNCS([atoi atol])
++AC_CHECK_FUNCS([bcmp bcopy bzero])
+ AC_CHECK_FUNCS([[index]])
+-AC_CHECK_FUNCS(memccpy memchr memcmp memcpy memmove memset)
+-AC_CHECK_FUNCS(rindex)
+-AC_CHECK_FUNCS(strcasecmp strcat strchr strcmp strcpy strcspn strlen)
+-AC_CHECK_FUNCS(strncasecmp strncat strncmp strncpy)
+-AC_CHECK_FUNCS(strpbrk strrchr strspn strstr strtok)
++AC_CHECK_FUNCS([memccpy memchr memcmp memcpy memmove memset])
++AC_CHECK_FUNCS([rindex])
++AC_CHECK_FUNCS([strcasecmp strcat strchr strcmp strcpy strcspn strlen])
++AC_CHECK_FUNCS([strncasecmp strncat strncmp strncpy])
++AC_CHECK_FUNCS([strpbrk strrchr strspn strstr strtok])
+ 
+ AC_CONFIG_FILES(Makefile)
+ 
