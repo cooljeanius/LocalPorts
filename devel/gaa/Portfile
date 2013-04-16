@@ -16,13 +16,17 @@ long_description         ${name} simplifies the life of the programmer: you don'
                          language generates C-code which analyses the arguments and creates your \
                          program's help.
 
-homepage                 http://gaa.sf.net
+homepage                 http://${name}.sf.net
 
 fetch.type 	         git
-git.url 	         git://github.com/cooljeanius/gaa.git
+git.url 	         git://github.com/cooljeanius/${name}.git
 
 depends_build-append     port:bison \
                          port:flex
+
+depends_lib-delete       port:gobject-introspection
+
+configure.args-append    --with-bison-bin=${prefix}/bin/bison
 
 variant autoreconf description {Regenerates configure script before building. \
                                 Also pulls in extra dependencies.} {
@@ -33,8 +37,11 @@ variant autoreconf description {Regenerates configure script before building. \
     autoreconf.args      -fvi
     configure.args-append --disable-silent-rules
 }
+
 variant docs description {Generate additional documentation by using latex2html} {
     depends_build-append port:latex2html
+    depends_lib-delete   port:poppler
+    use_parallel_build   no
     post-build {
         system -W ${worksrcpath}/doc "latex2html *.tex"
     }

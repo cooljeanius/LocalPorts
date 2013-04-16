@@ -55,6 +55,7 @@ use_autoreconf      yes
 autoreconf.args     -fvi
 
 use_parallel_build  no
+build.type          gnu
 
 livecheck.type      regex
 livecheck.url       ftp://ftp.astron.com/pub/${name}/

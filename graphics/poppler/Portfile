@@ -22,6 +22,8 @@ master_sites ${homepage}
 checksums    rmd160  cb8dbc3f3d4c09056a3a5d2ea34fcaff06b2a6ca \
              sha256  108736ef84069317f6c5beacb5268f3b799ecf401e353e239611772eae8a662d
 
+build.type   gnu
+
 depends_build-append \
     port:pkgconfig \
     port:gawk
@@ -47,6 +49,9 @@ depends_lib-append \
     path:lib/pkgconfig/pixman-1.pc:libpixman \
     port:openssl \
     port:xz
+
+depends_lib-delete \
+    port:gobject-introspection
 
 post-patch {
     reinplace "s|\$includedir|${prefix}/include|g" \

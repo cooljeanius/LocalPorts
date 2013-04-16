@@ -29,6 +29,8 @@ checksums       md5     14228b34e3d8ed176a617df40693b441 \
 
 use_bzip2       yes
 
+build.type      gnu
+
 depends_build-append \
                 port:pkgconfig \
                 port:gaa
@@ -99,14 +101,19 @@ variant autoreconf description {Runs autoreconf before configuring} {
     depends_build-append    port:gawk \
                             port:grep \
                             port:gsed \
-                            port:gettext
+                            port:gettext \
+                            port:autobuild
+    use_parallel_build      no
 }
 
-# Because poppler's conflicts: https://trac.macports.org/ticket/38525
-variant docs conflicts universal description {Build documentation} {
-    depends_build-append    port:gtk-doc
-    configure.args-delete   --disable-gtk-doc
-    configure.args-append   --enable-gtk-doc
+# conflict with universal is only removed because I patched the poppler
+# portfile in my local portfile repo
+variant docs description {Build gtk-doc documentation} {
+    PortGroup              archcheck 1.0
+    depends_build-append   port:gtk-doc
+    depends_skip_archcheck gtk-doc
+    configure.args-delete  --disable-gtk-doc
+    configure.args-append  --enable-gtk-doc
 }
 
 platform darwin 8 {
