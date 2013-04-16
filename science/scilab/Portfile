@@ -31,7 +31,7 @@ patchfiles-append     patch-configure.ac.diff \
 post-patch {
     reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
-    # run glibtoolize before autoreconf runs it to silence some warnings from aclocal
+    # run glibtoolize before autoreconf runs it, to silence some warnings from aclocal
     system -W ${worksrcpath} "glibtoolize --copy --force"
 }
 
@@ -98,7 +98,7 @@ configure.args-append --without-tk \
                       --with-hdf5-library=${prefix}/lib
 
 if {[tbool configure.ccache]} {
-    depends.build-append  port:ccache
+    depends_build-append  port:ccache
     configure.args-delete --disable-ccache
     configure.args-append --enable-ccache
     configure.env-append  CCACHE=${prefix}/bin/ccache

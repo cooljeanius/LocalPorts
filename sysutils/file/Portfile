@@ -1,0 +1,61 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 104718 2013-04-01 16:00:24Z raimue@macports.org $
+
+PortSystem          1.0
+
+name                file
+version             5.14
+revision            1
+categories          sysutils
+license             BSD
+maintainers         nomaintainer
+description         File - determine file type
+long_description \
+    File tests each argument in an attempt to classify it. There are three  \
+    sets of tests, performed in this order: filesystem tests, magic number  \
+    tests, and language tests. The first test that succeeds causes the file \
+    type to be printed. \
+    Information on Mach-O binaries, it is suggested that one uses the command \
+    `otool -fv`.
+
+
+homepage            http://www.darwinsys.com/${name}/
+platforms           darwin freebsd
+master_sites        freebsd \
+                    gentoo \
+                    ftp://ftp.fu-berlin.de/unix/tools/${name}/ \
+                    ftp://ftp.astron.com/pub/${name}/ \
+                    ftp://ftp.gw.com/mirrors/pub/unix/${name}/
+
+checksums           md5     c26625f1d6773ad4bc5a87c0e315632c \
+                    sha1    064c8f17a5f7ae1e336a9285131e046d3b2d04d7 \
+                    rmd160  51b5deeefd9e62782c31024c56895b988b0a76e6
+
+patchfiles-append   patch-magic-Magdir-msdos.diff \
+                    patch-src-readcdf.c.diff \
+                    patch-magic-Makefile.am.diff \
+                    patch-getline.diff \
+                    patch-configure.ac.diff
+
+configure.args      --enable-fsect-man5 \
+                    --disable-silent-rules \
+                    --disable-elf \
+                    --disable-elf-core
+
+depends_lib-append  port:zlib \
+                    port:rx
+depends_run-append  port:cctools
+
+post-patch {
+    # run glibtoolize before autoreconf runs it, to silence some warnings from aclocal
+    system -W ${worksrcpath} "glibtoolize --copy --force"
+}
+
+use_autoreconf      yes
+autoreconf.args     -fvi
+
+use_parallel_build  no
+
+livecheck.type      regex
+livecheck.url       ftp://ftp.astron.com/pub/${name}/
+livecheck.regex     "${name}-(\\d+(?:\\.\\d+)*)${extract.suffix}"
