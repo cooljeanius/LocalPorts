@@ -24,6 +24,7 @@ git.url 	         git://github.com/cooljeanius/${name}.git
 depends_build-append     port:bison \
                          port:flex
 
+depends_lib-append       port:yydecode
 depends_lib-delete       port:gobject-introspection
 
 configure.args-append    --with-bison-bin=${prefix}/bin/bison

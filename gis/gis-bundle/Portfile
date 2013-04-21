@@ -7,14 +7,14 @@ PortGroup           archcheck 1.0
 
 name                gis-bundle
 version             0.1.0
-categories          replaceme
+categories          gis
 platforms           darwin
-maintainers         replaceme
-license             replaceme
+maintainers         gwmail.gwu.edu:egall
+license             permissive
 
-description         replaceme
+description         A bundle of GIS software
 
-long_description    replaceme
+long_description    ${description} that I thought might be useful for my Dad.
 
 homepage            replaceme
 master_sites        replaceme
@@ -61,8 +61,13 @@ depends_lib-append  port:qt4-mac \
                     port:p5.12-term-gnuplot \
                     port:p5.12-gdgraph \
                     port:p5.12-parse-win32registry \
+                    port:p5.12-spreadsheet-parseexcel \
+                    port:p5.12-spreadsheet-writeexcel \
                     port:pear-Net_UserAgent_Mobile_GPS \
                     port:pear-Image_GIS \
+                    port:pear-Spreadsheet_Excel_Writer \
+                    port:pear-Structures_DataGrid_DataSource_Excel \
+                    port:pear-Structures_DataGrid_Renderer_XLS \
                     port:rgm3800 \
                     port:rgm3800py \
                     port:viking \
@@ -87,7 +92,15 @@ depends_lib-append  port:qt4-mac \
                     port:CocoaDialog \
                     port:cliclick \
                     port:libgweather \
-                    port:network-weathermap
+                    port:network-weathermap \
+                    port:gtkdbfeditor \
+                    port:pg2xbase \
+                    port:catdoc \
+                    port:libxl \
+                    port:libxls \
+                    port:xlsx2csv \
+                    port:gnumeric \
+                    port:sc
 depends_skip_archcheck lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45 gpsd
 require_active_variants qt4-mac {debug demos examples openvg universal}
 require_active_variants cgal {debug demos qt4 universal}
@@ -107,7 +120,10 @@ variant python25 conflicts python26 python27 \
     description {Enable Python 2.5 support} {
     depends_lib-append      port:python25 \
                             port:py25-django \
-                            port:py25-lightblue
+                            port:py25-lightblue \
+                            port:py25-openpyxl \
+                            port:py25-xlutils \
+                            port:py25-xlwt
     require_active_variants gdal {python25}
     require_active_variants py25-django {bash_completion}
     require_active_variants qgis {python25}
@@ -121,7 +137,10 @@ variant python26 conflicts python25 python27 \
                             port:py26-mapnik \
                             port:py26-osmgpsmap \
                             port:py26-rtree \
-                            port:py26-lightblue
+                            port:py26-lightblue \
+                            port:py26-openpyxl \
+                            port:py26-xlutils \
+                            port:py26-xlwt
     require_active_variants gdal {python26}
     require_active_variants mapnik {python26}
     require_active_variants py26-mapnik {cairo gdal postgis sqlite}
@@ -136,7 +155,10 @@ variant python27 conflicts python25 python26 \
                             port:py27-django \
                             port:py27-osmgpsmap \
                             port:py27-rtree \
-                            port:py27-lightblue
+                            port:py27-lightblue \
+                            port:py27-openpyxl \
+                            port:py27-xlutils \
+                            port:py27-xlwt
     require_active_variants gdal {python27}
     require_active_variants postgresql84 {python python27}
     require_active_variants mapnik {python27}
