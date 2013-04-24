@@ -5,7 +5,7 @@ PortSystem            1.0
 PortGroup             archcheck 1.0
 
 name                  scilab
-version               5.4.0
+version               5.4.1
 categories            science
 platforms             darwin
 maintainers           debian.org:sylvestre gwmail.gwu.edu:egall openmaintainer
@@ -19,17 +19,19 @@ homepage              http://www.${name}.org/
 master_sites          ${homepage}download/${version}/
 distname              ${name}-${version}-src
 
-checksums             md5     914b96d9b6534166539e7fea46bfd7f1 \
-                      sha1    f6d3341c683a7e9b87826a5a358f1a893ea948a4 \
-                      rmd160  d8fd874b444f5160931cf5fd7285a15131002fbf \
-                      sha256  d123fb0f091554b6e0621d59fca53ea0fd68c58a339cc40f0b1b4d08531fbb1f
+checksums             md5     5f8746053d645c0d7f220d42d3463f2d \
+                      sha1    594b4a7ef6d8934347e38bf777625857582493c4 \
+                      rmd160  8902d19af0c94ba22d6ff0062b09974df1b2e8c2 \
+                      sha256  f63db4de7daeb68409644b2c32888af4f0bb0ca7ede9c3857f4ccb6289ea861c
 
 worksrcdir            ${name}-${version}
 
-patchfiles-append     patch-configure.ac.diff \
-                      patch-macosx.m4.diff
+patchfiles-append     patch-macosx.m4.diff
+#                     patch-configure.ac.diff
+
 post-patch {
     reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
+    reinplace "s|m4\/|m4|" ${worksrcpath}/configure.ac
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
     # run glibtoolize before autoreconf runs it, to silence some warnings from aclocal
     system -W ${worksrcpath} "glibtoolize --copy --force"
