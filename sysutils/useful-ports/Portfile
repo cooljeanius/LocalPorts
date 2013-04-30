@@ -34,7 +34,7 @@ destroot {
 depends_build-append port:gawk
 depends_lib-append port:gawk \
                    port:mawk \
-                   port:xgawk \
+                   port:macportsscripts \
                    port:fribidi \
                    port:liblinebreak \
                    port:g95 \
@@ -88,7 +88,6 @@ depends_lib-append port:gawk \
                    port:libthai \
                    port:libhangul \
                    port:tftp-hpa \
-                   port:dmalloc \
                    port:google-perftools \
                    port:halloc \
                    port:byacc \
@@ -218,6 +217,7 @@ depends_lib-append port:gawk \
                    port:flagpoll \
                    port:unsort \
                    port:unshield \
-                   port:nettee
+                   port:nettee \
+                   port:wget
 
 depends_skip_archcheck getabspath dmg2img alac_decoder man nettee
