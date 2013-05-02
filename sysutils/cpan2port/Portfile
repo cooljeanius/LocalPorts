@@ -5,9 +5,9 @@ PortSystem          1.0
 
 name                cpan2port
 version             0.1.0
-categories          sysutils macports
+categories          sysutils macports perl
 platforms           darwin
-maintainers         gwmail.gwu.edu:egall openmaintainer
+maintainers         gwmail.gwu.edu:egall macsforever2000 openmaintainer
 license             WTFPL-2 permissive
 supported_archs     noarch
 
