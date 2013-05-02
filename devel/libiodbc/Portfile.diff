@@ -1,0 +1,61 @@
+--- Portfile.orig	2013-05-02 18:53:51.000000000 -0400
++++ Portfile	2013-05-02 18:55:34.000000000 -0400
+@@ -3,14 +3,13 @@
+ 
+ PortSystem          1.0
+ PortGroup           github 1.0
+-PortGroup           active_variants 1.1
+ 
+ github.setup        openlink iODBC 3.52.8 v
+ #override name (keep it lowercase)
+ name                libiodbc
+-conflicts           unixODBC
+-revision            2
+-categories          devel
++conflicts-append    unixODBC
++revision            3
++categories          devel databases
+ maintainers         snc openmaintainer
+ license             BSD
+ description         Independent Open DataBase Connectivity
+@@ -22,22 +21,31 @@
+ checksums           rmd160  b0f091679ab45a0669468b9c85f45863ad54e7bc \
+                     sha256  d37b468c2fbed046c4778aee1f8d9f1e73f1321cc33e2e264998c0d701ca26fb
+ 
+-depends_build       port:automake \
++depends_build-append \
++                    port:automake \
+                     port:autoconf
+ 
+-depends_lib         port:libpng \
+-                    port:libtool \
+-                    port:gtk2
+-
+-patchfiles          patch-iodbcinst-unicode.h.diff
+-patchfiles-append   patch-configure.in.diff
++depends_lib-append  port:libpng \
++                    port:libtool
+ 
+-require_active_variants gtk2 x11
++patchfiles-append   patch-iodbcinst-unicode.h.diff \
++                    patch-configure.in.diff
+ 
+ pre-configure {
+     system -W ${worksrcpath} "sh ./bootstrap.sh"
+ }
+-configure.args-append   --with-iodbc-inidir=${prefix}/etc
++
++configure.args-append   --with-iodbc-inidir=${prefix}/etc \
++                        --disable-gui
+ 
+ # make[2]: *** No rule to make target `../iodbcadm/libiodbcadm.la', needed by `iodbcadm-gtk'.  Stop.
+ use_parallel_build  no
++
++variant gui description {Builds a gtk gui for ${name}} {
++    PortGroup       active_variants 1.1
++    depends_lib-append \
++                    port:gtk2
++    require_active_variants gtk2 x11
++    configure.args-delete --disable-gui
++    configure.args-append --enable-gui
++}
