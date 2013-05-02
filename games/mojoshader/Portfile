@@ -29,7 +29,12 @@ depends_build-append \
                     port:lemon
 depends_lib-append  port:libsdl
 
-test.run        yes
+# Making a variant for this until ticket #38208 is resolved.
+variant tests description {Build unit tests} {
+    depends_build-append \
+                    bin:perl:perl5
+    test.run        yes
+}
 
 destroot {
     xinstall ${worksrcpath}/lib${name}.a ${destroot}${prefix}/lib
