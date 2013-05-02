@@ -34,9 +34,10 @@ checksums           md5     5fb28e4abc830c46a7f54c1f637fb25d \
 depends_build-append port:perl5 \
                      port:texinfo
 
-# It was designed to be built with gcc
+# It was designed to be built with gcc (not sure which versions specifically though)
 compiler.whitelist-append gcc
 
+# The following is a variant until there is a `depends_test`: https://trac.macports.org/ticket/38208
 variant tests description {Run the test suite} {
     depends_build-append port:expect
     test.run             yes
