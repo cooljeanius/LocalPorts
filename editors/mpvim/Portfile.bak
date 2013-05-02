@@ -8,7 +8,7 @@ version             0.1.0
 revision            1
 categories-append   editors macports
 platforms           darwin
-maintainers         gwmail.gwu.edu:egall larryv openmaintainer
+maintainers         gwmail.gwu.edu:egall cal larryv openmaintainer
 license             BSD
 supported_archs     noarch
 
@@ -23,7 +23,7 @@ fetch.type          svn
 svn.url             https://svn.macports.org/repository/macports/contrib/mpvim
 svn.revision        102174
 
-depends_run-append  path:bin/vim:vim
+depends_run-append  bin:vim:vim
 
 worksrcdir          ${name}
 
