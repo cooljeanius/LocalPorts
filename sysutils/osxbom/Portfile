@@ -20,6 +20,7 @@ livecheck.type      none
 fetch.type          svn
 svn.url             ${homepage}
 svn.revision        3
+# Get the version number by applying semantic versioning principles to the svn revision: http://semver.org/
 version             0.0.${svn.revision}
 
 worksrcdir          trunk
