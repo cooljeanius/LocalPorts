@@ -1,17 +1,16 @@
 Ports to create some day:
 - busybox (build system is difficult to wrangle, don't know if I can do it)
 - EasySIMBL
-- OpenCFLite
+- OpenCFLite (opened ticket requesting it)
 - OpenPowerPlant
 - freexl
 - PureDarwin (have stub with deps so far)
 - stress (portfile submitted)
 - PackageMaker
 - Packages
-- FlatCarbon-Headers
+- FlatCarbon-Headers (all of them, i.e. more than are in the CarbonHeaders port)
 - other stuff from opensource.apple.com or from the Apple sample code that comes with Xcode.
 - also other stuff that comes from macosforge
-- db_select (brought it up in a ticket for open-cobol but it got shot down then)
 - pip_select (created ticket asking for it)
 - Jumpcut
 - The Unarchiver
