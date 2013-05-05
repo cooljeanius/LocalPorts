@@ -137,7 +137,7 @@ depends_lib-append port:gawk \
                    port:sudosh \
                    port:rootsh \
                    port:rc \
-                   port:osh \
+                   port:mm-common \
                    port:yajl \
                    port:daemon \
                    port:daemontools \
@@ -220,6 +220,17 @@ depends_lib-append port:gawk \
                    port:nettee \
                    port:wget \
                    port:libcroco \
-                   port:imake
+                   port:imake \
+                   port:gnustep-make \
+                   port:gnustep-make-cocoa \
+                   port:xfce4-dev-tools \
+                   port:xorg-util-macros \
+                   port:sglib \
+                   port:MacOSXMacros \
+                   port:doclifter \
+                   port:cws2fws \
+                   port:gtk-doc \
+                   port:gnome-doc-utils
 
-depends_skip_archcheck getabspath dmg2img alac_decoder man nettee
+depends_skip_archcheck getabspath dmg2img alac_decoder man nettee gnustep-make sglib MacOSXMacros \
+                       gtk-doc gnome-doc-utils

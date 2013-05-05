@@ -1,0 +1,24 @@
+--- bootstrap.sh.bak	2013-05-05 00:44:24.000000000 -0400
++++ bootstrap.sh	2013-05-05 00:46:38.000000000 -0400
+@@ -188,10 +188,10 @@
+ echo "${B}Generating build scripts${N} ..."
+ 
+ RUN $LIBTOOLIZE --force --copy
+-RUN aclocal -I admin
+-RUN autoheader
+-RUN automake --copy --add-missing
+-RUN autoconf
++RUN aclocal --force -I admin
++RUN autoheader --force
++RUN automake --copy --add-missing --force-missing
++RUN autoconf --force
+ 
+ echo
+ echo "Please check the ${B}INSTALL${N} and ${B}README${N} files for instructions to"
+@@ -202,5 +202,6 @@
+ echo "    ./configure --enable-maintainer-mode ..."
+ echo
+ echo "Bootstrap script completed successfully."
++echo
+ 
+ exit 0
