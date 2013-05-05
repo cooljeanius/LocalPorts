@@ -37,9 +37,6 @@ depends_lib-append port:gawk \
                    port:macportsscripts \
                    port:fribidi \
                    port:liblinebreak \
-                   port:g95 \
-                   port:binutils \
-                   port:uni2ascii \
                    port:libuninameslist \
                    port:libuninum \
                    port:libunistring \
@@ -47,9 +44,7 @@ depends_lib-append port:gawk \
                    port:libsigsegv \
                    port:endian \
                    port:cfitsio \
-                   port:f2c \
                    port:fpp \
-                   port:py24-f2py \
                    port:autoconf-archive \
                    port:javacc \
                    port:jikespg \
@@ -62,8 +57,6 @@ depends_lib-append port:gawk \
                    port:jansson \
                    port:libb64 \
                    port:ossp-xds \
-                   port:xorg-encodings \
-                   port:autogen \
                    port:cfv \
                    port:md5sha1sum \
                    port:unhash \
@@ -71,19 +64,16 @@ depends_lib-append port:gawk \
                    port:dc3dd \
                    port:fast-md5 \
                    port:md5deep \
-                   port:gettext-lint \
                    port:pv \
                    port:gmsl \
                    port:remake \
                    port:bootstrap_cmds \
                    port:developer_cmds \
                    port:CoreOSMakefiles \
-                   port:darwinbuild \
                    port:proctools \
                    port:yasm \
                    port:nasm \
                    port:ccache \
-                   port:poll-emulator \
                    port:unsermake \
                    port:libthai \
                    port:libhangul \
@@ -97,17 +87,12 @@ depends_lib-append port:gawk \
                    port:bison \
                    port:bison1 \
                    port:idutils \
-                   port:desktop-file-utils \
                    port:diffutils \
                    port:html-xml-utils \
-                   port:icon-naming-utils \
                    port:patchutils \
-                   port:renameutils \
                    port:sharutils \
                    port:spellutils \
                    port:t1utils \
-                   port:xdg-utils \
-                   port:xml-coreutils \
                    port:gpp \
                    port:mcpp \
                    port:vbpp \
@@ -123,8 +108,6 @@ depends_lib-append port:gawk \
                    port:re2c \
                    port:ed \
                    port:splint \
-                   port:xmlto \
-                   port:asciidoc \
                    port:boehmgc \
                    port:aamath \
                    port:e \
@@ -137,7 +120,6 @@ depends_lib-append port:gawk \
                    port:sudosh \
                    port:rootsh \
                    port:rc \
-                   port:mm-common \
                    port:yajl \
                    port:daemon \
                    port:daemontools \
@@ -165,72 +147,94 @@ depends_lib-append port:gawk \
                    port:genext2fs \
                    port:autobook \
                    port:cuetools \
-                   port:elftoolchain \
                    port:gtgt \
-                   port:moreutils \
                    port:mtools \
-                   port:opensp \
                    port:pssh \
                    port:volatility \
-                   port:openssh \
                    port:vim \
                    port:bash-completion \
                    port:chgrep \
                    port:grep \
                    port:lv \
                    port:ngrep \
-                   port:pdfgrep \
                    port:sgrep \
                    port:sgrep2 \
-                   port:exec-wrapper \
-                   port:docbook2x \
                    port:fmscripts \
                    port:macutil \
                    port:html \
-                   port:sgml-common \
-                   port:libsgml \
                    port:xorg-sgml-doctools \
-                   port:linuxdoc \
                    port:util-linux \
                    port:uucp \
                    port:rx \
-                   port:svn2cl \
-                   port:pthsem \
-                   port:plotutils \
-                   port:libtool \
                    port:hfstar \
                    port:afsctool \
                    port:gtime \
-                   port:groff \
-                   port:man \
                    port:gperf \
-                   port:gnutar \
                    port:gnetcat \
                    port:glances \
                    port:findutils \
                    port:diction \
-                   port:dejagnu \
                    port:ddrescue \
-                   port:coreutils \
                    port:argtable \
                    port:p7zip \
                    port:flagpoll \
                    port:unsort \
                    port:unshield \
                    port:nettee \
-                   port:wget \
-                   port:libcroco \
                    port:imake \
                    port:gnustep-make \
                    port:gnustep-make-cocoa \
-                   port:xfce4-dev-tools \
                    port:xorg-util-macros \
                    port:sglib \
-                   port:MacOSXMacros \
                    port:doclifter \
                    port:cws2fws \
-                   port:gtk-doc \
-                   port:gnome-doc-utils
+                   port:autobuild
 
-depends_skip_archcheck getabspath dmg2img alac_decoder man nettee gnustep-make sglib MacOSXMacros \
-                       gtk-doc gnome-doc-utils
+depends_skip_archcheck getabspath dmg2img alac_decoder nettee gnustep-make sglib
+
+variant long_deps_chain description {Add ports with longer dependency chains} {
+    depends_lib-append \
+                   port:MacOSXMacros \
+                   port:xfce4-dev-tools \
+                   port:groff \
+                   port:sgml-common \
+                   port:pdfgrep \
+                   port:openssh \
+                   port:mm-common \
+                   port:xdg-utils \
+                   port:xml-coreutils \
+                   port:darwinbuild \
+                   port:xorg-encodings \
+                   port:f2c \
+                   port:g95 \
+                   port:binutils \
+                   port:gtk-doc \
+                   port:wget \
+                   port:dejagnu \
+                   port:man \
+                   port:moreutils \
+                   port:xmlto \
+                   port:icon-naming-utils \
+                   port:desktop-file-utils \
+                   port:autogen \
+                   port:py24-f2py \
+                   port:uni2ascii \
+                   port:gnome-doc-utils \
+                   port:docbook2x \
+                   port:elftoolchain \
+                   port:asciidoc \
+                   port:renameutils \
+                   port:gettext-lint \
+                   port:libcroco \
+                   port:svn2cl \
+                   port:linuxdoc \
+                   port:opensp \
+                   port:exec-wrapper \
+                   port:libsgml \
+                   port:pthsem \
+                   port:plotutils \
+                   port:libtool \
+                   port:gnutar \
+                   port:coreutils
+    depends_skip_archcheck MacOSXMacros gtk-doc man gnome-doc-utils
+}
