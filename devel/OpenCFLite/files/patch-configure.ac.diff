@@ -1,0 +1,294 @@
+--- configure.ac.bak	2013-05-05 02:51:11.000000000 -0400
++++ configure.ac	2013-05-05 03:09:25.000000000 -0400
+@@ -4,7 +4,7 @@
+ #
+ # Declare autoconf version requirements
+ #
+-AC_PREREQ(2.61)
++AC_PREREQ([2.61])
+ 
+ #
+ # Initialize autoconf for the package
+@@ -19,7 +19,7 @@
+ # Interface number, revision and age of the library interface passed to
+ # libtool when the library is linked.
+ #
+-AC_SUBST(CF_VERSION_INFO, [476:19:0])
++AC_SUBST([CF_VERSION_INFO], [476:19:0])
+ 
+ #
+ # Check the sanity of thes source directory by checking for the
+@@ -103,17 +103,20 @@
+ #
+ # Checks for programs
+ #
++AC_PROG_AWK
+ AC_PROG_CC
+ AC_PROG_CXX
+ CF_BSD_SOURCE
+ AC_GNU_SOURCE
++AM_PROG_AR
+ AM_PROG_CC_C_O
+ AC_PROG_CPP
+ AC_PROG_INSTALL
+ AC_PROG_LIBTOOL
+ AC_PROG_LN_S
++AC_PROG_MAKE_SET
+ AC_PROG_RANLIB
+-AC_PATH_PROG(CMP, cmp)
++AC_PATH_PROG([CMP], [cmp])
+ 
+ # Support building DLLs on Windows
+ AC_LIBTOOL_WIN32_DLL
+@@ -134,7 +137,7 @@
+ # If using GCC specify some additional parameters
+ 
+ test_gcc_flag() {
+-    AC_LANG_CONFTEST([int main() {}])
++    AC_LANG_CONFTEST([AC_LANG_SOURCE([int main() {}])])
+     $CC -c conftest.c $CFLAGS $@ > /dev/null 2> /dev/null
+     ret=$?
+     rm -f conftest.o
+@@ -173,7 +176,7 @@
+ 		])
+ 
+ if test "x${cf_cv_have_sync_fetch_and_add}" != "xno"; then
+-	AC_DEFINE(HAVE___SYNC_FETCH_AND_ADD, 1,
++	AC_DEFINE([HAVE___SYNC_FETCH_AND_ADD], [1],
+ 		  [Define this if your target compiler supports __sync_fetch_and_add])
+ else
+ 	AC_MSG_ERROR([Support for __sync_fetch_and_add is required.])
+@@ -193,7 +196,7 @@
+ 		])
+ 
+ if test "x${cf_cv_have_sync_bool_compare_and_swap}" != "xno"; then
+-	AC_DEFINE(HAVE___SYNC_BOOL_COMPARE_AND_SWAP, 1,
++	AC_DEFINE([HAVE___SYNC_BOOL_COMPARE_AND_SWAP], [1],
+ 		  [Define this if your target compiler supports __sync_bool_compare_and_swap])
+ else
+ 	AC_MSG_ERROR([Support for __sync_bool_compare_and_swap is required.])
+@@ -212,7 +215,7 @@
+ 		])
+ 
+ if test "x${cf_cv_have_sync_synchronize}" != "xno"; then
+-	AC_DEFINE(HAVE___SYNC_SYNCHRONIZE, 1,
++	AC_DEFINE([HAVE___SYNC_SYNCHRONIZE], [1],
+ 		  [Define this if your target compiler supports __sync_synchronize])
+ else
+ 	AC_MSG_ERROR([Support for __sync_synchronize is required.])
+@@ -226,7 +229,7 @@
+ AC_MSG_NOTICE([checking library build options])
+ 
+ AC_MSG_CHECKING([whether to build a debug library instance])
+-AC_ARG_ENABLE(debug,
++AC_ARG_ENABLE([debug],
+ 	AS_HELP_STRING([--disable-debug], [Disable the generation of a debug library instance @<:@default=no@:>@.]),
+ 	[build_debug=${enableval}],
+ 	[build_debug=yes])
+@@ -234,7 +237,7 @@
+ AM_CONDITIONAL([CF_BUILD_DEBUG], [test "x${build_debug}" = "xyes"])
+ 
+ AC_MSG_CHECKING([whether to build a profile library instance])
+-AC_ARG_ENABLE(profile,
++AC_ARG_ENABLE([profile],
+ 	AS_HELP_STRING([--disable-profile], [Disable the generation of a profile library instance @<:@default=no@:>@.]),
+ 	[build_profile=${enableval}],
+ 	[build_profile=yes])
+@@ -242,7 +245,7 @@
+ AM_CONDITIONAL([CF_BUILD_PROFILE], [test "x${build_profile}" = "xyes"])
+ 
+ AC_MSG_CHECKING([whether to build tests and examples])
+-AC_ARG_ENABLE(tests,
++AC_ARG_ENABLE([tests],
+ 	AS_HELP_STRING([--disable-tests],[Disable building of tests and examples @<:@default=no@:>@.]),
+ 	[build_tests=${enableval}],
+ 	[build_tests=yes])
+@@ -265,9 +268,13 @@
+ #   * rt
+ #
+ 
++# FIXME: Replace `main' with a function in `-ldns_sd':
++AC_CHECK_LIB([dns_sd], [main])
++
+ AC_MSG_NOTICE([checking required package dependencies])
+ 
+ AC_PATH_PROG([PKG_CONFIG],[pkg-config])
++PKG_PROG_PKG_CONFIG
+ 
+ #
+ # Sort out where the ICU components are at.
+@@ -277,7 +284,7 @@
+ 
+ AC_PATH_PROG([ICU_CONFIG],[icu-config])
+ 
+-AC_ARG_WITH(icu,
++AC_ARG_WITH([icu],
+ 	AS_HELP_STRING([--with-icu=DIR],
+ 		       [Specify location of the International Components for Unicode (ICU) headers and libraries.]),
+ 	[
+@@ -288,12 +295,12 @@
+ 		fi
+ 	],
+ 	[icu_dir=])
+-AC_ARG_WITH(icu-includes,
++AC_ARG_WITH([icu-includes],
+ 	AS_HELP_STRING([--with-icu-includes=DIR],
+ 		       [Specify location of International Components for Unicode (ICU) headers.]),
+ 	[icu_header_dir=${withval}],
+ 	[icu_header_dir=])
+-AC_ARG_WITH(icu-libs,
++AC_ARG_WITH([icu-libs],
+ 	AS_HELP_STRING([--with-icu-libs=DIR],
+ 		       [Specify location of International Components for Unicode (ICU) libraries.]),
+ 	[icu_library_dir=${withval}],
+@@ -391,7 +398,7 @@
+ 
+ AC_PATH_PROG([UUID_CONFIG],[uuid-config])
+ 
+-AC_ARG_WITH(uuid,
++AC_ARG_WITH([uuid],
+ 	AS_HELP_STRING([--with-uuid=DIR],
+ 		       [Specify location of Universally Unique Identifier (UUID) headers and libraries.]),
+ 	[
+@@ -401,12 +408,12 @@
+ 		uuid_dir=${withval}
+ 	],
+ 	[uuid_dir=])
+-AC_ARG_WITH(uuid-includes,
++AC_ARG_WITH([uuid-includes],
+ 	AS_HELP_STRING([--with-uuid-includes=DIR],
+ 		       [Specify location of Universally Unique Identifier (UUID) headers.]),
+ 	[uuid_header_dir=${withval}],
+ 	[uuid_header_dir=])
+-AC_ARG_WITH(uuid-libs,
++AC_ARG_WITH([uuid-libs],
+ 	AS_HELP_STRING([--with-uuid-libs=DIR],
+ 		       [Specify location of Universally Unique Identifier (UUID) libraries.]),
+ 	[uuid_library_dir=${withval}],
+@@ -493,7 +500,7 @@
+ #
+ # Check for POSIX thread support.
+ #
+-ACX_PTHREAD([],AC_MSG_ERROR([${PACKAGE_NAME} requires POSIX threads.]))
++ACX_PTHREAD([],[AC_MSG_ERROR([${PACKAGE_NAME} requires POSIX threads.])])
+ 
+ CFLAGS="${PTHREAD_CFLAGS} ${CFLAGS}"
+ CPPFLAGS="${PTHREAD_CPPFLAGS} ${CPPFLAGS}"
+@@ -504,19 +511,19 @@
+ # Check for where clock_gettime and friends are located.
+ #
+ 
+-AC_CHECK_LIB(rt, clock_gettime)
++AC_CHECK_LIB([rt], [clock_gettime])
+ 
+ #
+ # Check for DLFCN support.
+ #
+-AC_CHECK_LIB(dl, dlopen)
++AC_CHECK_LIB([dl], [dlopen])
+ 
+ AC_CHECK_HEADERS([dlfcn.h])
+ 
+ #
+ # Check for math support.
+ #
+-AC_CHECK_LIB(m, floor)
++AC_CHECK_LIB([m], [floor])
+ 
+ AC_CHECK_HEADERS([math.h])
+ 
+@@ -527,7 +534,7 @@
+ #
+ 
+ AC_MSG_CHECKING([where to find the default local time zone data file])
+-AC_ARG_WITH(tz-default,
++AC_ARG_WITH([tz-default],
+ 	AS_HELP_STRING([--with-tz-default=FILE],
+ 		       [Specify the location of the default local time zone data file on the target system @<:@default=/etc/localtime@:>@.]),
+ 	[tz_default_file=${withval}],
+@@ -536,7 +543,7 @@
+ AC_DEFINE_UNQUOTED([TZDEFAULT],["${tz_default_file}"],[Define this to the location of the default local time zone data file (e.g. /etc/localtime) on the target system.])
+ 
+ AC_MSG_CHECKING([where to find the time zone data files])
+-AC_ARG_WITH(tz-data,
++AC_ARG_WITH([tz-data],
+ 	AS_HELP_STRING([--with-tz-data=DIR],
+ 		       [Specify the location of the time zone data files on the target system @<:@default=/usr/share/zoneinfo@:>@.]),
+ 	[tz_data_dir=${withval}],
+@@ -552,7 +559,7 @@
+ # needed. Check if it exists. If it doesn't let the user point us at it.
+ #
+ 
+-AC_ARG_WITH(tz-includes,
++AC_ARG_WITH([tz-includes],
+ 	AS_HELP_STRING([--with-tz-includes=DIR],
+ 		       [Specify location of Time Zone (tzcode) headers @<:@default=/usr/include@:>@.]),
+ 	[
+@@ -572,7 +579,7 @@
+ # errors.
+ #
+ 
+-AC_ARG_WITH(warnings-as-errors,
++AC_ARG_WITH([warnings-as-errors],
+ 	AS_HELP_STRING([--with-warnings-as-errors=OPTION],
+ 		       [Compile the source code treating compiler warnings as errors.]),
+ 	[
+@@ -594,16 +601,20 @@
+ AC_HEADER_STDC
+ AC_HEADER_TIME
+ 
++AC_CHECK_HEADERS([arpa/inet.h])
+ AC_CHECK_HEADERS([alloca.h])
+ AC_CHECK_HEADERS([arpa/nameser.h])
+ AC_CHECK_HEADERS([assert.h])
+ AC_CHECK_HEADERS([dns_sd.h])
+ AC_CHECK_HEADERS([errno.h])
+ AC_CHECK_HEADERS([fcntl.h])
++AC_CHECK_HEADERS([float.h])
+ AC_CHECK_HEADERS([limits.h])
+ AC_CHECK_HEADERS([locale.h])
++AC_CHECK_HEADERS([mach/mach.h])
+ AC_CHECK_HEADERS([malloc.h])
+ AC_CHECK_HEADERS([malloc/malloc.h])
++AC_CHECK_HEADERS([netdb.h])
+ AC_CHECK_HEADERS([netinet/in.h])
+ AC_CHECK_HEADERS([objc/objc.h])
+ AC_CHECK_HEADERS([objc/runtime.h])
+@@ -634,10 +645,12 @@
+ AC_CHECK_HEADERS([sys/time.h])
+ AC_CHECK_HEADERS([sys/types.h])
+ AC_CHECK_HEADERS([sys/uio.h])
++AC_CHECK_HEADERS([wchar.h])
+ 
+ #
+ # Checks for types and structures
+ #
++AC_CHECK_HEADER_STDBOOL
+ AC_TYPE_INT8_T
+ AC_TYPE_INT16_T
+ AC_TYPE_INT32_T
+@@ -661,9 +674,13 @@
+ AC_FUNC_ALLOCA
+ AC_FUNC_CHOWN
+ AC_FUNC_CLOSEDIR_VOID
++AC_FUNC_ERROR_AT_LINE
+ AC_FUNC_FORK
++AC_FUNC_MALLOC
+ AC_FUNC_MMAP
++AC_FUNC_REALLOC
+ AC_FUNC_SELECT_ARGTYPES
++AC_FUNC_STRTOD
+ 
+ AC_CHECK_FUNCS([getcwd])
+ AC_CHECK_FUNCS([gethostname])
+@@ -685,6 +702,10 @@
+ AC_CHECK_FUNCS([readlink])
+ AC_CHECK_FUNCS([lstat stat])
+ AC_CHECK_FUNCS([snprintf])
++AC_CHECK_FUNCS([clock_gettime])
++AC_CHECK_FUNCS([floor])
++AC_CHECK_FUNCS([gettimeofday])
++AC_CHECK_FUNCS([inet_ntoa])
+ 
+ # Figure out how to map strlcat and strlcpy if they don't exist by
+ # either simply redefining them or by using a local compatibility
