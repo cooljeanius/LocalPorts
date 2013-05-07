@@ -38,15 +38,16 @@ depends_run-append  bin:gnutar:gnutar \
 distname            ${name}_${version}
 worksrcdir          ${name}-${version}
 
-patchfiles          patch-lib_tarfn.c.diff \
+patchfiles-append   patch-lib_tarfn.c.diff \
                     patch-main_remove.c.diff \
                     patch-main_archives.c.diff \
                     patch-scripts-Makefile.diff \
                     patch-lib_${name}.h.diff \
                     patch-ncurses.diff
 
-configure.env       PERL=${prefix}/bin/perl5
-configure.args      --without-sgml-doc --with-libintl-prefix=${prefix} \
+configure.env-append PERL=${prefix}/bin/perl5
+configure.args-append \
+                    --without-sgml-doc --with-libintl-prefix=${prefix} \
                     --with-libiconv-prefix=${prefix} --with-admindir=${prefix}/var/db/${name} \
                     --mandir=${prefix}/share/man \
                     --with-zlib --with-bz2 \
