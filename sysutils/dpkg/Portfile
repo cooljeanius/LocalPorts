@@ -16,10 +16,12 @@ long_description    ${name} is the basis of the ${description}. Installing this 
 homepage            http://wiki.debian.org/Teams/Dpkg
 
 master_sites        debian:d/${name}/
-checksums           md5    4326172a959b5b6484b4bc126e9f628d \
-                    sha1   15a35dd96dac6a99f24844b2eff85f8fad37ab06 \
-                    rmd160 1234a \
-                    sha256 5678b
+checksums           md5     a20a06a5272717274a8b009368f237da \
+                    sha1    bd67ce10236a674a2349d13feaa096b41fea4c9c \
+                    rmd160  e04b3834056cd97c1cb955007f02e1358a8e8fa0 \
+                    sha256  aeaacf0884039940d9463901102194f9a42eb5702157b9e7a23f43e0d9f65cf2
+
+use_xz              yes
 
 # Use MacPorts versions explicitly
 depends_lib-append  port:gettext \

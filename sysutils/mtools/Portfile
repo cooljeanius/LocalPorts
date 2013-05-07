@@ -18,7 +18,7 @@ master_sites        ${homepage}
 checksums           md5    3c0ae05b0d98a5d3bd06d3d72fcaf80d \
                     sha1   964b8af11ac6441e832f2bc4737f35cc3ed0226e \
                     rmd160 f8498768a432f28689a58840baa11d80a2ba8532 \
-                    sha256 1234a
+                    sha256 3415d425d37338aa4e18e7d60147db23cfbe6192565c697f201f44426665ce42
 
 configure.args-append \
                     --mandir=${prefix}/share/man \
