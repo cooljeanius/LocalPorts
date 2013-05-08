@@ -1,0 +1,64 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                MusicKit
+version             5.6.2
+categories          multimedia audio
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             Permissive
+
+description         The ${name} is an object-oriented software system for building \
+                    music, sound, signal processing, and MIDI applications.
+
+long_description    ${description} An early version of it was originally included with \
+                    the original releases of NeXT.
+
+homepage            http://musickit.sourceforge.net/
+# sourceforge fetchgroup wasn't working for me, so I'm just using the full URL
+master_sites        http://sourceforge.net/projects/musickit/files/MK/${version}
+distname            MK-${version}.s
+
+checksums           rmd160  2c24133ef7fefb4af70af8df7be2304d4c7fd183 \
+                    sha256  0fc6d1404eb8c2432ef3b4115e19abba8f13187b79004645a978f2e53a611913
+
+worksrcdir          ${name}-${version}
+
+# Not sure which libshout to use, so just using a `lib:`-style dependency for now...
+depends_lib-append  port:portaudio \
+                    port:libogg \
+                    port:libvorbis \
+                    path:include/sndfile.h:libsndfile \
+                    lib:libshout:libshout \
+                    port:lame
+#TODO: This depends on libmp3hip, which doesn't have a port yet, so write one
+# https://launchpad.net/ubuntu/+source/libmp3hip/0.1.2.1
+
+# Turning off the universal variant until I figure out how to get precompiled headers to work with multiple arch flags
+universal_variant   no
+use_parallel_build  no
+# Actually turning these off still don't work so idk...
+
+platform macosx {
+    PortGroup       xcode 1.0
+    PortGroup       xcodeversion 1.0
+# Overwrite some defaults from the Xcode portgroup
+    categories      multimedia audio aqua
+    use_configure   yes
+    universal_variant no
+    use_parallel_build no
+# For some reason xcodebuild has a hard time finding libsndfile's header...
+    pre-build {
+        file copy ${prefix}/include/sndfile.h ${worksrcpath}
+    }
+    build.env-append ${configure.env}
+}
+
+variant docs description {Build documentation} {
+    depends_build-append \
+                    port:openjade \
+                    path:bin/pdfjadetex:texlive-htmlxml \
+                    port:doxygen
+}

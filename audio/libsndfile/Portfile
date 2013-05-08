@@ -7,37 +7,42 @@ name                libsndfile
 version             1.0.25
 revision            1
 categories          audio
-maintainers         stare.cz:hans
+maintainers         stare.cz:hans openmaintainer
 platforms           darwin
 
-description         libsndfile is a C library for reading and writing files \
+description         ${name} is a C library for reading and writing files \
                     containing sampled sound (such as MS Windows WAV and the \
                     Apple/SGI AIFF format) through one standard library \
                     interface.
 long_description    ${description}
 license             LGPL-2.1+
-homepage            http://www.mega-nerd.com/libsndfile/
+homepage            http://www.mega-nerd.com/${name}/
 
 livecheck.regex     {Updates for (\d+\.\d+\.\d+)}
 livecheck.type      regex
 livecheck.url       ${homepage}ChangeLog
 
-depends_build       port:pkgconfig port:ed
-depends_lib         port:flac port:libogg port:libvorbis
+depends_build-append \
+                    port:pkgconfig \
+                    path:bin/ed:ed
+depends_lib-append  port:flac \
+                    port:libogg \
+                    port:libvorbis
 
 master_sites        ${homepage}files/
 
 checksums           rmd160  7330ea9fc1cfa3809fa7d2a6e2a0593b6e0233c7 \
                     sha256  59016dbd326abe7e2366ded5c344c853829bebfd1702ef26a07ef662d6aa4882
 
-patchfiles          fix-include.patch configure.patch
+patchfiles-append   patch-fix-include.diff patch-configure.diff
 
-configure.args \
+configure.args-append \
     --disable-alsa \
     --disable-octave \
     --disable-silent-rules \
     --disable-sqlite \
-    --enable-external-libs
+    --enable-external-libs \
+    --disable-experimental
 
 post-configure {
     system "ed - ${worksrcpath}/src/config.h < ${filespath}/src__config.h.ed"
@@ -48,14 +53,16 @@ if {[variant_isset no_external_libs] && ![variant_isset sqlite]} {
 }
 
 variant no_external_libs description {Disable support for FLAC, Ogg and Vorbis} {
-    depends_lib-delete    port:flac port:libogg port:libvorbis
+    depends_lib-delete    port:flac \
+                          port:libogg \
+                          port:libvorbis
 
     configure.args-append --disable-external-libs
     configure.args-delete --enable-external-libs
 }
 
 variant octave description {Enable support for Octave} {
-    depends_build-append  port:gsed
+    depends_build-append  path:bin/gsed:gsed
     depends_lib-append    path:bin/octave:octave
 
     configure.args-append --enable-octave
@@ -69,7 +76,7 @@ variant sqlite description {Enable support for SQLite} {
     configure.args-delete --disable-sqlite
 }
 
-variant egallager description {Use my personal fork} {
+variant egallager requires sqlite experimental description {Use my personal fork} {
     PortGroup            github 1.0
     github.setup         cooljeanius libsndfile 0.1.1 v
     maintainers-append   gwmail.gwu.edu:egall
@@ -77,7 +84,8 @@ variant egallager description {Use my personal fork} {
     git.url              git://github.com/cooljeanius/libsndfile.git
 
     # Couldn't get these patches to apply correctly against my fork.
-    patchfiles-delete    fix-include.patch configure.patch
+    patchfiles-delete    patch-fix-include.diff \
+                         patch-configure.diff
 
     depends_build-append port:autogen \
                          port:autoconf \
@@ -88,16 +96,18 @@ variant egallager description {Use my personal fork} {
                          path:bin/awk:gawk \
                          path:bin/make:gmake \
                          path:bin/install:coreutils \
-                         port:endian
+                         path:include/endian.h:endian
 
     pre-configure {
         system -W ${worksrcpath} "sh ./autogen.sh"
     }
 
     configure.args-delete --enable-silent-rules
+    configure.args-append --disable-silent-rules
 }
 
 variant experimental conflicts no_external_libs description {Enable experimental code} {
     depends_lib-append   path:bin/speexenc:speex
+    configure.args-delete --disable-experimental
     configure.args-append --enable-experimental
 }

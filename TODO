@@ -13,7 +13,8 @@ Ports to create some day:
 - also other stuff that comes from macosforge
 - pip_select (created ticket asking for it)
 - Jumpcut
-- The Unarchiver
+- The Unarchiver (work from Homebrew's `unar` formula)
+- libmp3hip (for MusicKit below)
 
 Stuff I've downloaded from SourceForge randomly in the past:
 - Open64
