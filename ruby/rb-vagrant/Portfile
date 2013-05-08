@@ -1,0 +1,59 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           ruby 1.0
+
+ruby.setup          vagrant 1.0.7 gem {} rubygems
+set myname          vagrant
+categories-append   devel emulators
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             MIT
+
+description         ${myname} is a tool for building and distributing virtualized \
+                    development environments.
+
+long_description    ${description}
+homepage            http://www.vagrantup.com/
+
+checksums           rmd160  d8e23b7e44bcf0dfe0b68b23c8749bed49eedcf3 \
+                    sha256  9e2647d2a3401078392480d13fe78ea126135010714120b82dcf20c0215374a9
+
+# rb-rake is not universal
+universal_variant   no
+
+depends_build-append \
+                    port:rb-rake
+depends_lib-append  port:rb-archive-tar-minitar \
+                    port:rb-erubis \
+                    port:rb-json \
+                    port:rb-log4r \
+                    port:rb-net-scp \
+                    port:rb-net-ssh \
+                    port:libffi
+depends_run-append  bin:VBoxManage:VirtualBox
+
+# Making a variant for this until ticket #38208 is resolved.
+# Note: this variant doesn't actually work yet
+variant test description {Build tests} {
+# Need to fetch entire source from GitHub to be able to run tests
+# (for some reason it doesn't work when I put it in a variant like this...)
+    PortGroup       github 1.0
+    github.setup    mitchellh ${myname} ${version} v
+    set name        rb-${myname}
+# The rb19-bundler is unfortunate, as it's generally not a good
+# idea to mix ruby versions, but it's actually necessary for testing,
+# and there's no just-regular rb-bundler port.
+    depends_build-append \
+                    port:rb-minitest \
+                    port:rb-mocha \
+                    port:rb-rspec \
+                    bin:bundle:rb19-bundler
+    test.run        yes
+    test.cmd        bundle install && rake
+    test.target
+    pre-test {
+        file mkdir ${workpath}/.home
+    }
+}
