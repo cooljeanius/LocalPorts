@@ -90,11 +90,17 @@ http://www.gnu.org/software/software.html#allgnupkgs
 
 AMD has opensource stuff; the only one they confirm to work on Mac though is Aparapi
 
-Things that don't exist on MacPorts, but that Homebrew and Fink use as dependencies for things that do also exist on MacPorts. For example:
-- Homebrew's curl uses libmetalink, but MacPorts doesn't have libmetalink
-- Homebrew's mysql uses pidof, but MacPorts doesn't have pidof
-
 Projects I've forked on GitHub but haven't made ports for yet (or updated their existing ports):
 - libmspack
 - pict2pdf
 - bap
+
+Existing ports to fix/save:
+- libnotify
+- gnome-common
+- thunderbird-x11
+- firefox-x11
+- firefox-x11-devel
+- dpkg
+- apt
+

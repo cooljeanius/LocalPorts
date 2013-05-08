@@ -1,0 +1,89 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 104946 2013-04-05 22:26:23Z devans@macports.org $
+
+PortSystem          1.0
+PortGroup           active_variants 1.1
+
+name                libnotify
+version             0.7.5
+revision            0
+set branch          [join [lrange [split ${version} .] 0 1] .]
+categories          devel gnome
+maintainers         gwmail.gwu.edu:egall openmaintainer
+description         pop-up notification library
+long_description \
+   The Desktop Notifications framework provides a standard way of doing \
+   passive pop-up notifications for Gtk3+ applications.
+
+platforms           darwin
+license             LGPL-2.1+
+
+homepage            http://library.gnome.org/devel/${name}/
+master_sites        gnome:sources/${name}/${branch}
+
+use_xz              yes
+
+checksums           sha1    729d1382617fee7e82eac17d808c11469ab2b7e1 \
+                    rmd160  9f166a6b17f1f00e85e658e2effa8da93ac5497f \
+                    sha256  4378cb47874ba4d5f759b7890d8d28d086e81d3f0bd4f6e84e5ab66d82ffb652
+
+depends_build-append \
+                    port:pkgconfig \
+                    port:gnome-common \
+                    port:autoconf \
+                    port:automake \
+                    port:libtool
+
+depends_lib-append  port:dbus-glib \
+                    port:gtk3 \
+                    port:libpng \
+                    port:gobject-introspection \
+                    port:gdk-pixbuf2 \
+                    port:gettext \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    port:libffi \
+                    port:libiconv \
+                    port:zlib
+
+configure.args-append \
+                    --disable-silent-rules \
+                    --disable-gtk-doc \
+                    --disable-docbook-docs
+configure.env-append \
+                    PKG_CONFIG=${prefix}/bin/pkg-config
+
+variant docs description {Build documentation} {
+    depends_build-append \
+                    port:gtk-doc \
+                    port:xmlto \
+                    path:bin/docbook2man:docbook2X \
+                    path:share/xml/docbook/4.1.2/docbookx.dtd:docbook-xml
+    configure.args-delete \
+                    --disable-gtk-doc \
+                    --disable-docbook-docs
+    configure.args-append \
+                    --enable-gtk-doc
+    configure.env-append \
+                    XMLTO=${prefix}/bin/xmlto
+}
+
+variant quartz conflicts x11 {
+    require_active_variants gtk3 quartz x11
+}
+variant x11 conflicts quartz {
+    require_active_variants gtk3 x11 quartz
+    require_active_variants gdk-pixbuf2 x11 ""
+}
+
+if {![variant_isset quartz]} {
+    default_variants +x11
+}
+
+pre-activate {
+	if {${os.major} == 11 && [lindex [split ${os.version} .] 1] < 2 && ${os.platform} == "darwin"} {
+		ui_error "You must first update to OS X 10.7.2."
+		return -code error "You must first update to OS X 10.7.2."
+	}
+}
+
+livecheck.type      gnome-with-unstable
