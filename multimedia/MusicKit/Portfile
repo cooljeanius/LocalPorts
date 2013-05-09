@@ -52,6 +52,7 @@ platform macosx {
     pre-build {
         file copy ${prefix}/include/sndfile.h ${worksrcpath}
         file copy ${prefix}/include/hip.h ${worksrcpath}
+        reinplace "s|/sw/|/opt/local/|" ${worksrcpath}/${name}.xcodeproj/project.pbxproj
     }
     build.env-append ${configure.env}
 }
