@@ -32,9 +32,8 @@ depends_lib-append  port:portaudio \
                     port:libvorbis \
                     path:include/sndfile.h:libsndfile \
                     lib:libshout:libshout \
-                    port:lame
-#TODO: This depends on libmp3hip, which doesn't have a port yet, so write one
-# https://launchpad.net/ubuntu/+source/libmp3hip/0.1.2.1
+                    port:lame \
+                    path:include/hip.h:libmp3hip
 
 # Turning off the universal variant until I figure out how to get precompiled headers to work with multiple arch flags
 universal_variant   no
@@ -52,6 +51,7 @@ platform macosx {
 # For some reason xcodebuild has a hard time finding libsndfile's header...
     pre-build {
         file copy ${prefix}/include/sndfile.h ${worksrcpath}
+        file copy ${prefix}/include/hip.h ${worksrcpath}
     }
     build.env-append ${configure.env}
 }
