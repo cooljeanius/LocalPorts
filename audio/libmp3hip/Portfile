@@ -42,19 +42,10 @@ configure.args-append \
                     --disable-python \
                     --disable-silent-rules \
                     --enable-maintainer-mode
-configure.universal_args-delete \
-                    --disable-dependency-tracking
 
-use_parallel_build  no
+universal_variant   no
 
-# Reset build stuff because it builds normally manually, but fails with MacPorts's settings
-configure.optflags  {}
-configure.cflags-delete -pipe
+configure.compiler  gcc
 build.type          gnu
-build.cmd           make
-build.target        {}
-build.args          {}
-build.pre_args      {}
-build.post_args     {}
 
 depends_lib-append  port:mpg123
