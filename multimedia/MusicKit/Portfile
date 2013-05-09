@@ -26,6 +26,10 @@ checksums           rmd160  2c24133ef7fefb4af70af8df7be2304d4c7fd183 \
 
 worksrcdir          ${name}-${version}
 
+post-patch {
+    reinplace "s|/sw/|${prefix}/|" ${worksrcpath}/autogen.sh
+}
+
 # Not sure which libshout to use, so just using a `lib:`-style dependency for now...
 depends_lib-append  port:portaudio \
                     port:libogg \
@@ -52,7 +56,7 @@ platform macosx {
     pre-build {
         file copy ${prefix}/include/sndfile.h ${worksrcpath}
         file copy ${prefix}/include/hip.h ${worksrcpath}
-        reinplace "s|/sw/|/opt/local/|" ${worksrcpath}/${name}.xcodeproj/project.pbxproj
+        reinplace "s|/sw/|${prefix}/|" ${worksrcpath}/${name}.xcodeproj/project.pbxproj
     }
     build.env-append ${configure.env}
 }
