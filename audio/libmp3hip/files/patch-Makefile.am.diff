@@ -1,0 +1,10 @@
+--- Makefile.am.bak	2013-05-08 19:41:55.000000000 -0400
++++ Makefile.am	2013-05-08 19:42:41.000000000 -0400
+@@ -1,5 +1,7 @@
+ ## Process this file with automake to produce Makefile.in
+ 
++ACLOCAL_AMFLAGS = -I m4
++
+ AUTOMAKE_OPTIONS = foreign dist-zip 
+ 
+ SUBDIRS = lib include doc examples debian python

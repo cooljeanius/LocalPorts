@@ -1,0 +1,60 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                libmp3hip
+version             0.1.2.1
+set branch          [join [lrange [split ${version} .] 0 2] .]
+categories          audio devel
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmainter
+license             LGPL-2+
+
+description         hip - Hip Isn't a Player
+
+long_description    ${description} \
+                    A LGPLed mpeg audio decoding library.
+
+homepage            https://launchpad.net/ubuntu/+source/${name}/${version}
+master_sites        https://launchpad.net/ubuntu/+archive/primary/+files/
+distname            ${name}_${version}
+
+checksums           rmd160  69b5b5e95e98f487b8c7864fef2fd5ee87ff93fb \
+                    sha256  a7bbed8178c64e29f93f8de436f3701637f5e28cc8417384ba9fa4bfcf6011ad
+
+worksrcdir          ${name}-${branch}
+
+patchfiles-append   patch-configure.ac.diff \
+                    patch-Makefile.am.diff \
+                    patch-lib-hip.c.diff
+
+post-patch {
+    file mkdir ${worksrcpath}/m4
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/Makefile.am]
+    file copy ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
+
+use_autoreconf      yes
+autoreconf.args     -fvi
+
+configure.args-append \
+                    --disable-python \
+                    --disable-silent-rules \
+                    --enable-maintainer-mode
+configure.universal_args-delete \
+                    --disable-dependency-tracking
+
+use_parallel_build  no
+
+# Reset build stuff because it builds normally manually, but fails with MacPorts's settings
+configure.optflags  {}
+configure.cflags-delete -pipe
+build.type          gnu
+build.cmd           make
+build.target        {}
+build.args          {}
+build.pre_args      {}
+build.post_args     {}
+
+depends_lib-append  port:mpg123
