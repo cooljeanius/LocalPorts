@@ -8,7 +8,7 @@ name            firefox-x11
 set component   firefox
 categories      www x11
 version         7.0.1
-revision        2
+revision        3
 platforms       darwin
 maintainers     gwmail.gwu.edu:egall openmaintainer
 license         MPL
@@ -82,6 +82,7 @@ depends_lib-append \
         port:zlib
 
 # The following were listed as dependencies in build instructions I found for Firefox online
+# They're also turned on by configure.args set below
 depends_lib-append \
         port:libevent \
         port:libvpx \
@@ -255,7 +256,6 @@ variant debug description {build for debugging} {
         configure.args-append \
             --enable-dtrace
     }
-    test.run                yes
 }
 
 variant docs description {Build documentation} {
