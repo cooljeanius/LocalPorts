@@ -66,4 +66,5 @@ port-whatsnew 49801
 portfile-gen 50281
 stress 50774
 useful-ports 51347
-wine-crossover 53914
+firefox-x11 53902
+wine-crossover 55381

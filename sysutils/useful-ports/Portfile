@@ -148,7 +148,6 @@ depends_lib-append port:gawk \
                    port:autobook \
                    port:cuetools \
                    port:gtgt \
-                   port:mtools \
                    port:pssh \
                    port:volatility \
                    port:vim \
@@ -235,6 +234,7 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:plotutils \
                    port:libtool \
                    port:gnutar \
-                   port:coreutils
+                   port:coreutils \
+                   port:mtools
     depends_skip_archcheck MacOSXMacros gtk-doc man gnome-doc-utils
 }
