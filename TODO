@@ -7,14 +7,15 @@ Ports to create some day:
 - PureDarwin (have stub with deps so far)
 - stress (portfile submitted)
 - PackageMaker
-- Packages
+- "Packages" i.e. http://s.sudre.free.fr/Software/Packages/resources.html
 - FlatCarbon-Headers (all of them, i.e. more than are in the CarbonHeaders port)
 - other stuff from opensource.apple.com or from the Apple sample code that comes with Xcode.
 - also other stuff that comes from macosforge
 - pip_select (created ticket asking for it)
 - Jumpcut
 - The Unarchiver (work from Homebrew's `unar` formula)
-- libmp3hip (for MusicKit below)
+- libmp3hip (for MusicKit below) (in progress)
+- GNS3: http://training.gns3.net/download/
 
 Stuff I've downloaded from SourceForge randomly in the past:
 - Open64
@@ -39,7 +40,7 @@ Stuff I've downloaded from SourceForge randomly in the past:
 - clamtk
 - hspell-gui
 - db2html
-- MusicKit
+- MusicKit (in progress)
 
 From gnome-desktop-suite's comments hidden in its portfile:
 #
@@ -97,11 +98,10 @@ Projects I've forked on GitHub but haven't made ports for yet (or updated their 
 - bap
 
 Existing ports to fix/save:
-- libnotify
+- libnotify (in progress)
 - gnome-common
 - thunderbird-x11
-- firefox-x11
-- firefox-x11-devel
-- dpkg
+- firefox-x11 (in progress)
+- dpkg (in progress)
 - apt
 
