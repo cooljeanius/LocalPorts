@@ -88,7 +88,7 @@ depends_lib-append port:darwinbuild \
                    port:apr-util \
                    port:gawk \
                    port:mawk \
-                   port:bash \
+                   path:bin/bash:bash \
                    port:bc \
                    port:bind9 \
                    port:bzip2 \
@@ -160,7 +160,7 @@ depends_lib-append port:darwinbuild \
                    port:avahi \
                    port:rb-dnssd \
                    port:rb-easyjour \
-                   port:man \
+                   path:bin/man:man \
                    port:apr_memcache \
                    port:java_memcached \
                    port:libmemcache \
@@ -198,7 +198,7 @@ depends_lib-append port:darwinbuild \
                    port:ntfs-3g \
                    port:ntfsprogs \
                    port:openntpd \
-                   port:objc \
+                   path:bin/objc:objc \
                    port:cyrus-sasl2 \
                    port:libgsasl \
                    port:bsdiff \
@@ -210,8 +210,8 @@ depends_lib-append port:darwinbuild \
                    port:xmlpatch \
                    port:pcre \
                    port:pcrexx \
-                   port:perl5 \
-                   port:perl5.12 \
+                   path:bin/perl:perl5 \
+                   path:bin/perl5:perl5.12 \
                    port:mailqfmt \
                    port:pflogsumm \
                    port:postfix \
@@ -223,7 +223,7 @@ depends_lib-append port:darwinbuild \
                    port:slirp \
                    port:procmail \
                    port:spambnc \
-                   port:python27 \
+                   path:bin/python:python27 \
                    port:py27-openssl \
                    port:py27-pyobjc \
                    port:py27-dateutil \
@@ -236,8 +236,8 @@ depends_lib-append port:darwinbuild \
                    port:rsync \
                    port:rsync-lart \
                    port:rsyncrypto \
-                   port:ruby \
-                   port:screen \
+                   path:bin/ruby:ruby \
+                   path:bin/screen:screen \
                    port:watch \
                    port:p5.12-mozilla-ca \
                    port:p5.12-csp \
@@ -247,8 +247,8 @@ depends_lib-append port:darwinbuild \
                    port:SSHKeychain \
                    port:p5.12-authen-smb \
                    port:samba3 \
-                   port:srm \
-                   port:sudo \
+                   path:bin/srm:srm \
+                   path:bin/sudo:sudo \
                    port:swig \
                    port:eventlog \
                    port:ossp-fsl \
@@ -268,15 +268,15 @@ depends_lib-append port:darwinbuild \
                    port:p5.12-perl-tidy \
                    port:tidy \
                    port:uucp \
-                   port:vim \
+                   path:bin/vim:vim \
                    port:litmus \
                    port:neon \
-                   port:xar \
-                   port:findutils \
-                   port:zip \
-                   port:unzip \
+                   path:bin/xar:xar \
+                   path:bin/xargs:findutils \
+                   path:bin/zip:zip \
+                   path:bin/unzip:unzip \
                    port:zlib \
-                   port:zsh \
+                   path:bin/zsh:zsh \
                    port:metakit \
                    port:airctl \
                    port:airport \
@@ -289,11 +289,11 @@ depends_lib-append port:darwinbuild \
                    port:jpeg2ps \
                    port:jpegpixi \
                    port:libpng \
-                   port:autoconf \
-                   port:automake \
-                   port:bison \
-                   port:bsdmake \
-                   port:cctools \
+                   path:bin/autoconf:autoconf \
+                   path:bin/automake:automake \
+                   path:bin/bison:bison \
+                   path:bin/bsdmake:bsdmake \
+                   path:bin/nm:cctools \
                    port:jabberd \
                    port:libidn \
                    port:libudns \
