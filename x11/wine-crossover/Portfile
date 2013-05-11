@@ -257,7 +257,7 @@ configure.args-append       --with-gphoto \
                             --with-gnutls \
                             --with-mpg123 \
                             --with-sane
-depends_build-append        port:cctools \
+depends_build-append        path:bin/nm:cctools \
                             port:byacc \
                             port:coreutils \
                             port:gettext-lint
