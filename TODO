@@ -3,10 +3,10 @@ Ports to create some day:
 - EasySIMBL
 - OpenCFLite (opened ticket requesting it)
 - OpenPowerPlant
-- freexl
-- PureDarwin (have stub with deps so far)
+- freexl (for gdal)
+- PureDarwin (yes, the entire OS - make an image that can be run with qemu) (have stub with deps so far)
 - stress (portfile submitted)
-- PackageMaker
+- PackageMaker (the one from developer.apple.com - so `port pkg` can work more easily)
 - "Packages" i.e. http://s.sudre.free.fr/Software/Packages/resources.html
 - FlatCarbon-Headers (all of them, i.e. more than are in the CarbonHeaders port)
 - other stuff from opensource.apple.com or from the Apple sample code that comes with Xcode.
