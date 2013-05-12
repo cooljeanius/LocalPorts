@@ -11,6 +11,7 @@ diff -urN sysbench-0.4.12/Makefile.am sysbench-0.4.12-yalla/Makefile.am
  SUBDIRS = doc sysbench
  
  EXTRA_DIST = autogen.sh README README-WIN.txt ChangeLog
++ACLOCAL_AMFLAGS = -I m4
 +
 diff -urN sysbench-0.4.12/NEWS sysbench-0.4.12-yalla/NEWS
 --- sysbench-0.4.12/NEWS	2013-03-13 18:02:25.000000000 +0100
@@ -22,12 +23,13 @@ diff -urN sysbench-0.4.12/configure.ac sysbench-0.4.12-yalla/configure.ac
 +++ sysbench-0.4.12-yalla/configure.ac	2013-03-13 17:59:40.000000000 +0100
 @@ -6,7 +6,9 @@
  AC_CANONICAL_TARGET
- AM_INIT_AUTOMAKE()
+ AM_INIT_AUTOMAKE([foreign])
  AC_CONFIG_SRCDIR([sysbench/sysbench.c])
 -AM_CONFIG_HEADER([config/config.h])
 +
 +# Modified for Macports
 +AC_CONFIG_HEADERS([config/config.h])
++AC_CONFIG_MACRO_DIR([m4])
  
  # Checks for user arguments
  

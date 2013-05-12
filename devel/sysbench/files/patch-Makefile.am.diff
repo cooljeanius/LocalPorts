@@ -1,0 +1,8 @@
+--- Makefile.am.bak	2013-05-12 10:22:42.000000000 -0400
++++ Makefile.am	2013-05-12 10:23:11.000000000 -0400
+@@ -17,3 +17,5 @@
+ SUBDIRS = doc sysbench
+ 
+ EXTRA_DIST = autogen.sh README README-WIN.txt ChangeLog
++
++ACLOCAL_AMFLAGS = -I m4

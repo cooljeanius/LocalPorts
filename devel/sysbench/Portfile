@@ -5,7 +5,7 @@ PortSystem        1.0
 
 name              sysbench
 version           0.4.12
-revision          1
+revision          2
 
 categories        devel
 platforms         darwin
@@ -25,21 +25,32 @@ checksums         rmd160 b77c8bf31d84f075ec69ef3972afb8baed02e6bc \
                   sha256 83fa7464193e012c91254e595a89894d8e35b4a38324b52a5974777e3823ea9e
 
 depends_build-append \
-                  port:libxslt
+                  path:bin/xsltproc:libxslt \
+                  port:zlib \
+                  port:openssl \
+                  port:autoconf-archive
 
 depends_lib-append \
                   port:mysql55 \
-                  port:zlib \
-                  port:openssl
+                  port:umem
 
-patch.pre_args    -p1
-patchfiles        patch-${name}-${version}.diff
+patchfiles-append patch-configure.ac.diff \
+                  patch-Makefile.am.diff
+
+post-patch {
+    file mkdir ${worksrcpath}/m4
+    eval file copy [glob ${prefix}/share/aclocal/ax_check_docbook*.m4] ${worksrcpath}/m4
+    file copy ${prefix}/share/aclocal/ax_pthread.m4 ${worksrcpath}/m4
+}
 
 autoreconf.pre_args     -vfi
 use_autoreconf          yes
 
-configure.args    --with-mysql-includes=${prefix}/include/mysql55/mysql \
-                  --with-mysql-libs=${prefix}/lib/mysql55/mysql
+configure.args-append \
+                  --with-mysql \
+                  --with-mysql-includes=${prefix}/include/mysql55/mysql \
+                  --with-mysql-libs=${prefix}/lib/mysql55/mysql \
+                  --disable-silent-rules
 
 variant mysql4 conflicts mysql5 description {Use MySQL4 libraries} {
       depends_lib-delete      port:mysql55
