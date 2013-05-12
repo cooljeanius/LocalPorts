@@ -45,6 +45,7 @@ configure.env-append \
 build.env-append    ${configure.env} 
 
 # OpenAL fails on Mountain Lion: http://trac.macports.org/ticket/39008
+# And Lion: http://trac.macports.org/ticket/34012
 platform darwin < 11 {
     depends_lib-append \
                     port:OpenAL

@@ -22,11 +22,11 @@ use_bzip2              yes
 checksums              sha1    ef93235588eb443e4c4a77f229a8d131bccaecc6 \
                        rmd160  8d2ebab3287a6283267879074b808d20fe9112b0
 
-depends_build-append   port:intltool port:texinfo
-depends_lib-append     port:zlib port:libiconv port:gettext port:autoconf264 \
-                       port:flex port:byacc port:bison port:gmake port:cloog \
-                       path:bin/nm:cctools port:gawk port:polylib port:gmp-ecm \
-                       port:boehmgc path:lib/.libstdcxx:libstdcxx port:gsed port:automake17
+depends_build-append   port:intltool port:texinfo port:autoconf264 port:gsed \
+                       port:automake17 port:flex port:byacc port:bison port:gmake \
+                       path:bin/nm:cctools port:gawk
+depends_lib-append     port:zlib port:libiconv port:gettext port:cloog port:polylib \
+                       port:gmp-ecm port:boehmgc path:lib/.libstdcxx:libstdcxx
 
 configure.args         --infodir='${prefix}/share/info' \
                        --mandir='${prefix}/share/man' \
@@ -82,9 +82,10 @@ pre-configure {
 
 post-configure {
     if {![catch "registry_active libc-headers"]} {
-        ui_msg "Having libc-headers active can cause a lot of warnings when building ${name}."
-        ui_msg "You might want to deactivate the libc-headers port while building ${name}, and then \
-               reactivate it later."
+        ui_msg "Having libc-headers active can cause a lot of warnings when \
+               building ${name}."
+        ui_msg "You might want to deactivate the libc-headers port while building \
+               ${name}, and then reactivate it later."
         ui_msg "Continuing building anyway for now though..."
     }
 }
@@ -132,6 +133,7 @@ post-destroot {
         system -W ${worksrcpath}/gas "make install"
     }
     system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${destroot}${prefix}/lib ${destroot}${prefix} ${destroot}${prefix} x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 \"\" \"\" no \"\" x86_64-apple-darwin11.4.2 ppcmacos"
+# Commented out because the ld directory currently fails to "make install" properly
 #    system -W ${worksrcpath}/ld "make install"
     file rename ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/${name}-standards.info
     file rename ${destroot}${prefix}/share/info/configure.info ${destroot}${prefix}/share/info/${name}-configure.info

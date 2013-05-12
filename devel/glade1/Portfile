@@ -21,7 +21,7 @@ description            Glade is a RAD tool to enable quick & easy development of
 
 long_description       ${description} This version is outdated and has been replaced by port 'glade2'.
 
-homepage               http://glade.gnome.org/
+homepage               http://${real_name}.gnome.org/
 master_sites           gnome:sources/${real_name}/${branch}/
 distname               ${real_name}-${version}
 
@@ -38,7 +38,8 @@ post-extract {
     reinplace "s|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|" ${worksrcpath}/configure.ac
 }
 
-use_autoconf           yes
+use_autoreconf         yes
+autoreconf.args        -fvi
 
 depends_build-append   port:gettext \
                        port:rarian \
@@ -57,10 +58,10 @@ depends_lib-append     port:gtk1 \
                        port:libbonobo \
                        port:libbonoboui \
                        port:atk \
-                       port:cairo \
-                       port:pango \
+                       path:lib/pkgconfig/cairo.pc:cairo \
+                       path:lib/pkgconfig/pango.pc:pango \
                        port:gdk-pixbuf2 \
-                       port:glib2 \
+                       path:lib/pkgconfig/glib-2.0.pc:glib2 \
                        path:lib/pkgconfig/pixman-1.pc:libpixman \
                        port:freetype \
                        port:libpng \

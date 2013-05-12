@@ -239,6 +239,8 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:libtool \
                    port:gnutar \
                    port:coreutils \
-                   port:mtools
+                   port:mtools \
+                   port:wiggle \
+                   port:quilt
     depends_skip_archcheck MacOSXMacros gtk-doc man gnome-doc-utils
 }

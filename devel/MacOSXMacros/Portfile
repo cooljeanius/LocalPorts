@@ -31,7 +31,8 @@ variant tests description {Run tests} {
     depends_build-append \
                     port:autoconf \
                     port:automake \
-                    port:xml2
+                    port:xml2 \
+                    port:gawk
     test.run        yes
     test.cmd        "cd ${worksrcpath}/Testing && autoreconf -fvi && ./configure --prefix=${prefix} && make"
 }

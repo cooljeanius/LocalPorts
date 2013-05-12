@@ -21,11 +21,12 @@ description            Glade is a RAD tool to enable quick & easy development of
 
 long_description       ${description} This version is outdated and has been replaced by port 'glade2'.
 
-homepage               http://glade.gnome.org/
+homepage               http://${real_name}.gnome.org/
 master_sites           gnome:sources/${real_name}/${branch}/
 distname               ${real_name}-${version}
 
-checksums              md5    6bae18e2fd323d64168992e126e27efb
+checksums              md5     6bae18e2fd323d64168992e126e27efb \
+                       sha1    cfd8fda994da6fc1dd301333e33fe9322723615d
 
 depends_extract-append port:gzip \
                        port:gnutar
