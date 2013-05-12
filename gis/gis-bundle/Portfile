@@ -23,6 +23,8 @@ supported_archs     noarch
 checksums           rmd160  12345 \
                     sha256  6789a
 
+depends_build-append \
+                    port:gawk
 #TODO: make app bundles for some of these ones that have guis
 depends_lib-append  port:qt4-mac \
                     port:cgal \

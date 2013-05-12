@@ -23,15 +23,15 @@ long_description    GDAL is a translator library for raster geospatial \
                     (which lives within the GDAL source tree) provides a \
                     similar capability for simple features vector data.
 
-homepage            http://www.gdal.org/
-master_sites        http://www.gdal.org/dl/ \
-                    http://download.osgeo.org/gdal/
+homepage            http://www.${name}.org/
+master_sites        http://www.${name}.org/dl/ \
+                    http://download.osgeo.org/${name}/
 
 checksums           rmd160  1ab34a85946bae4313cbd925cdbbf728d23d7b57 \
                     sha256  9f3b9ae968eaa8d06ee5448e5b65e7bfa940e2e345282a29d95275421f36c688
 
-depends_build-append        port:ed \
-                            port:libtool
+depends_build-append        path:bin/ed:ed \
+                            path:bin/glibtool:libtool
 depends_lib-append          port:zlib \
                             port:libpng \
                             port:tiff \
@@ -95,7 +95,7 @@ configure.args-append       --with-local=${prefix} \
                             --mandir=${prefix}/share/man
 
 # Patch to ensure that the python installation respects DESTDIR
-patchfiles                  patch-swig_python_GNUmakefile \
+patchfiles                  patch-swig_python_GNUmakefile.diff \
                             patch-gdalwarpkernel_opencl_c.diff \
                             patch-gdalwarpkernel_opencl_h.diff
 
@@ -158,7 +158,7 @@ variant curl description {Enable curl support} {
                             port:tclcurl
     if {[variant_isset framework]} {
         depends_lib-append  port:curlftpfs \
-        platform darwin > 11 {
+        platform darwin > 10 {
             depends_lib-append port:curlhandle
         }
     }
@@ -187,8 +187,8 @@ variant mrsid description {Enable MrSID file format} {
     configure.args-append       --with-mrsid=${prefix}/share/Geo_DSDK
 
     # Fixes for Geo_DSDK 7.x - http://trac.osgeo.org/gdal/ticket/2410
-    patchfiles-append       patch-frmts_mrsid_mrsiddataset.cpp \
-                            patch-mrsid-configure
+    patchfiles-append       patch-frmts_mrsid_mrsiddataset.cpp.diff \
+                            patch-mrsid-configure.diff
 }
 
 variant hdf4 description {Enable HDF4 file format} {
@@ -583,5 +583,5 @@ post-destroot {
 }
 
 livecheck.type  regex
-livecheck.url   http://download.osgeo.org/gdal/
+livecheck.url   http://download.osgeo.org/${name}/
 livecheck.regex ${name}-(\\d+(?:\\.\\d+)*)\\.tar

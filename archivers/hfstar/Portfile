@@ -6,7 +6,7 @@ PortSystem      1.0
 name            hfstar
 version         1.13.19
 categories      archivers
-revision        4
+revision        5
 maintainers     gwmail.gwu.edu:egall openmaintainer
 license         GPL-2+
 description     gnutar with HFS+ support
@@ -22,19 +22,27 @@ master_sites    http://www.metaobject.com/downloads/macos-x
 distname        ${name}.${version}-1.s
 extract.suffix  .tgz
 
-checksums       md5  67641190e4b3946c201a48310fe2e581 \
-                sha1 71441ca5b270e41ee1e0e2aa47f97a825a0675a0
+checksums       md5    67641190e4b3946c201a48310fe2e581 \
+                sha1   71441ca5b270e41ee1e0e2aa47f97a825a0675a0  \
+                rmd160  3445dfb7bde65ba3dce75eef76b0f314402f601b \
+                sha256  560d74121e36bcdfea2e03f32039fdcdc068b7ddd1dce475a0fe64a7c103f527
 
 worksrcdir      ${name}
 
-patchfiles      patch-po_Makefile.in.in patch-lib-getline.h.diff
+patchfiles      patch-po_Makefile.in.in.diff \
+                patch-lib-getline.h.diff
 
-configure.args  --program-prefix=hfs --mandir=${prefix}/share/man \
+configure.args  --program-prefix=hfs \
+                --mandir=${prefix}/share/man \
                 --infodir=${prefix}/share/info
 
-build.env       LANG=C
+build.env-append \
+                LANG=C
 
-depends_lib-append port:gettext
+depends_build-append \
+                port:gawk
+depends_lib-append \
+                port:gettext
 
 post-destroot {
     foreach message [glob ${destroot}${prefix}/share/locale/*/LC_MESSAGES/*.mo] {

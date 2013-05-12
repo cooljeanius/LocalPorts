@@ -24,14 +24,17 @@ git.url           git://github.com/cooljeanius/LocalPorts.git
 
 use_configure     no
 
-build {}
+build {
+    system "echo \"Nothing to build\""
+}
 
 destroot {
     xinstall -d ${destroot}${prefix}/share/doc/${name}
     xinstall -m 640 ${worksrcpath}/README.md ${destroot}${prefix}/share/doc/${name}
 }
 
-depends_build-append port:gawk
+depends_build-append \
+                   port:gawk
 depends_lib-append port:gawk \
                    port:mawk \
                    port:macportsscripts \
@@ -188,6 +191,7 @@ depends_lib-append port:gawk \
                    port:doclifter \
                    port:cws2fws \
                    port:autobuild
+depends_run-append port:gawk
 
 depends_skip_archcheck getabspath dmg2img alac_decoder nettee gnustep-make sglib
 

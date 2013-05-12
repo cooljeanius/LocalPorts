@@ -73,8 +73,8 @@ depends_build-append        port:bison \
 # interferes with the wine build (which uses parts of them if present).
 extract.post_args-append    ${worksrcdir}
 
-patchfiles                  BOOL.patch \
-                            mach_machine.patch
+patchfiles                  patch-BOOL.diff \
+                            patch-mach_machine.diff
 
 configure.ldflags-append    -framework CoreServices \
                             -lz
@@ -260,7 +260,8 @@ configure.args-append       --with-gphoto \
 depends_build-append        path:bin/nm:cctools \
                             port:byacc \
                             port:coreutils \
-                            port:gettext-lint
+                            port:gettext-lint \
+                            port:gawk
 depends_lib-append          port:gphoto2 \
                             port:gnutls \
                             port:mpg123 \

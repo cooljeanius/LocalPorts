@@ -26,9 +26,10 @@ checksums               md5     ead6b7c6cdb21f35a3d4aa1d5fa596f1 \
 livecheck.type          regex
 livecheck.regex         fish-(.*?).tar.bz2
 
-depends_build           port:doxygen
+depends_build-append    port:doxygen \
+                        port:gawk
 
-depends_lib             port:libiconv \
+depends_lib-append      port:libiconv \
                         port:ncurses \
                         port:gettext
 
@@ -51,7 +52,7 @@ post-patch {
 
 platform darwin {
     # there's something wonky about the libiconv headers installed by
-    # macports that prevents autoconf from detecting libiconv, so i
+    # macports that prevents autoconf from detecting libiconv, so I
     # have to fake it. See
     # <http://permalink.gmane.org/gmane.comp.shells.fish.user/1217>
     # for details.
