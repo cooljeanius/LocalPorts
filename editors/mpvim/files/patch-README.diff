@@ -1,0 +1,17 @@
+--- /opt/local/var/macports/build/_opt_local_var_macports_sources_LocalPorts_editors_mpvim/mpvim/work/mpvim/README.bak	2009-12-08 22:34:22.000000000 -0500
++++ /opt/local/var/macports/build/_opt_local_var_macports_sources_LocalPorts_editors_mpvim/mpvim/work/mpvim/README	2013-05-13 10:44:02.000000000 -0400
+@@ -2,8 +2,12 @@
+ mpvim adds MacPorts support to vim. This currently includes syntax coloring for
+ Portfiles and running lint from vim.
+ 
+-=== Installation
+-run 'make install' or copy the files in this directory into ~/.vim
++=== Manual installation
++Run 'make install' or copy the files in this directory into ~/.vim
++
++=== Installation with MacPorts
++Do `sudo port install mpvim`, which will put the files in @PREFIX@/share/vim/vimfiles
++(vim will pick them up there)
+ 
+ === Usage
+ * :make runs 'port lint' on the Portfile in the current buffer

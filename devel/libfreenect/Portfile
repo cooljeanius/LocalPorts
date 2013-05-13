@@ -1,0 +1,86 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           cmake 1.0
+PortGroup           github 1.0
+
+github.setup        OpenKinect libfreenect 0.1.2 v
+categories          devel graphics games
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             {apache GPL-2+}
+
+description         ${name}, aka OpenKinect, is the core library for accessing the \
+                    Microsoft Kinect USB camera
+
+long_description    ${description}. It is the main part of the OpenKinect project.
+
+homepage            http://www.openkinect.org/
+
+checksums           rmd160  2687003673e95ca8cc7d27d9d1f155d389424ffe \
+                    sha256  88cadbea8fb28838bd56a1ec86808325a8f531e93f2bba171e368137d6b1f6e9
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  port:libtool \
+                    port:libusb
+
+variant python25 conflicts python26 python27 {
+    depends_build-append \
+                    port:py25-distribute
+    depends_lib-append \
+                    path:
+}
+
+variant python26 conflicts python25 python27 {
+    depends_build-append \
+                    port:py26-distribute
+    depends_lib-append \
+                    path:lib/python2.5/site-packages/pyusb-0.4.3-py2.5.egg-info:py25-pyusb 
+}
+
+variant python27 conflicts python25 python26 {
+    depends_build-append \
+                    port:py27-distribute
+    depends_lib-append \
+                    path:
+}
+
+variant java {
+    PortGroup       java 1.0
+    depends_build-append \
+                    bin:mvn:maven2
+}
+
+variant ruby {
+    depends_build-append \
+                    bin:rake:rb-rake \
+    depends_lib-append \
+                    port:libffi
+}
+
+variant csharp {
+}
+
+variant opencv {
+    depends_lib-append \
+                    port:opencv
+}
+
+variant cpp {
+}
+
+variant c_sync {
+}
+
+variant actionscript {
+}
+
+variant docs {
+    depends_build-append \
+                    port:doxygen
+}
+
+variant examples {
+}

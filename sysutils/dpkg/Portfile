@@ -24,7 +24,8 @@ checksums           md5     a20a06a5272717274a8b009368f237da \
 use_xz              yes
 
 depends_build-append \
-                    port:pkgconfig
+                    port:pkgconfig \
+                    port:autoconf-archive
 
 # Use MacPorts versions explicitly
 depends_lib-append  port:gettext \
@@ -34,6 +35,7 @@ depends_lib-append  port:gettext \
                     port:bzip2 \
                     port:zlib \
                     port:ncurses \
+                    port:gnutar \
                     lib:liblzma:xz
 
 depends_run-append  bin:gnutar:gnutar \
@@ -46,7 +48,8 @@ worksrcdir          ${name}-${version}
 
 configure.env-append \
                     PERL=${prefix}/bin/perl5 \
-                    PKG_CONFIG=${prefix}/bin/pkg-config
+                    PKG_CONFIG=${prefix}/bin/pkg-config \
+                    TAR=${prefix}/bin/gnutar
 configure.args-append \
                     --with-libintl-prefix=${prefix} \
                     --with-libiconv-prefix=${prefix} \
@@ -68,6 +71,7 @@ post-patch {
     reinplace s|/etc/${name}/|${prefix}/etc/${name}/| \
             ${scripts}/${name}-shlibdeps.pl \
             ${scripts}/${name}-source.pl
+    file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcdir}/m4
 }
 
 pre-destroot {
