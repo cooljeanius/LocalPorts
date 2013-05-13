@@ -1,0 +1,97 @@
+--- configure.ac.bak	2013-05-13 08:32:13.000000000 -0400
++++ configure.ac	2013-05-13 13:16:02.000000000 -0400
+@@ -2,8 +2,8 @@
+ 
+ m4_pattern_forbid([^_?DPKG_])
+ 
+-AC_PREREQ(2.60)
+-AC_INIT([dpkg], m4_esyscmd([./get-version]), [debian-dpkg@lists.debian.org])
++AC_PREREQ([2.60])
++AC_INIT([dpkg], [m4_esyscmd([./get-version])], [debian-dpkg@lists.debian.org])
+ AC_CONFIG_SRCDIR([lib/dpkg/dpkg.h])
+ AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_AUX_DIR([build-aux])
+@@ -35,11 +35,15 @@
+ # Checks for programs.
+ AC_PROG_CC
+ AC_PROG_CXX
++AC_PROG_INSTALL
+ AC_PROG_LEX
+ DPKG_DIST_CHECK([test "$LEX" = ":"], [lex program required])
+ AC_PROG_RANLIB
+ AC_CHECK_PROGS([DOXYGEN], [doxygen])
+ AC_CHECK_PROG([HAVE_DOT], [dot], [YES], [NO])
++AX_CHECK_GNU_MAKE
++AC_PATH_PROG([TAR], [gnutar tar])
++
+ DPKG_PROG_PO4A
+ DPKG_PROG_PERL
+ DPKG_PROG_POD2MAN
+@@ -62,18 +66,34 @@
+ 
+ # Checks for header files.
+ AC_HEADER_STDC
+-AC_CHECK_HEADERS([stddef.h error.h locale.h libintl.h kvm.h \
+-                  sys/syscall.h linux/fiemap.h])
++AC_CHECK_HEADERS([error.h fcntl.h libintl.h limits.h \
++                 linux/fiemap.h locale.h kvm.h \
++                 stddef.h stdio.h sys/file.h sys/ioctl.h \
++                 sys/time.h sys/syscall.h sys/vfs.h utime.h])
+ 
+ # Checks for typedefs, structures, and compiler characteristics.
++AC_HEADER_STDBOOL
+ AC_C_BIGENDIAN
+ AC_C_CONST
+ AC_C_INLINE
+ AC_C_VOLATILE
+ DPKG_C_C99
++AC_TYPE_INT16_T
++AC_TYPE_INT32_T
++AC_TYPE_INT8_T
+ AC_TYPE_MODE_T
++AC_FUNC_OBSTACK
++AC_TYPE_OFF_T
+ AC_TYPE_PID_T
+ AC_TYPE_SIZE_T
++AC_TYPE_SSIZE_T
++AC_CHECK_MEMBERS([struct stat.st_rdev])
++AC_CHECK_DECLS([sys_siglist])
++AC_TYPE_UINT16_T
++AC_TYPE_UINT32_T
++AC_TYPE_UINT64_T
++AC_TYPE_UINT8_T
++AC_TYPE_UID_T
+ DPKG_TYPES_U_INT_T
+ DPKG_TYPE_PTRDIFF_T
+ AC_CHECK_SIZEOF([unsigned int])
+@@ -91,16 +111,27 @@
+ DPKG_CHECK_COMPAT_FUNCS([getopt getopt_long obstack_free \
+                          strnlen strndup strerror strsignal asprintf \
+                          scandir alphasort unsetenv])
++AC_FUNC_CHOWN
++AC_FUNC_ERROR_AT_LINE
++AC_FUNC_FORK
++AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
++AC_FUNC_MALLOC
++AC_FUNC_MMAP
++AC_FUNC_REALLOC
++AC_FUNC_STRNLEN
+ AC_CHECK_DECLS([strnlen], [[#include <string.h>]])
+ AC_CHECK_FUNCS([memcpy lchown],
+                [], [AC_ERROR([missing required function])])
+-AC_CHECK_FUNCS([strtoimax isascii setsid getdtablesize \
+-                getprogname getexecname lutimes posix_fadvise])
++AC_CHECK_FUNCS([dup2 ftruncate getdtablesize getexecname \
++                getprogname gettimeofday isascii lutimes memchr memmove memset mkdir \
++                mkfifo munmap posix_fadvise putenv regcomp rmdir select setenv setlocale \
++                setsid strcasecmp strchr strcspn strdup strncasecmp \
++                strpbrk strrchr strspn strstr strtoimax strtol])
+ 
+ DPKG_MMAP
+ 
+ # Checks for the build machinery.
+-AC_DEFINE(LIBDPKG_VOLATILE_API, 1, [Acknowledge the volatility of the API.])
++AC_DEFINE([LIBDPKG_VOLATILE_API], [1], [Acknowledge the volatility of the API.])
+ DPKG_COMPILER_WARNINGS
+ DPKG_COMPILER_OPTIMISATIONS
+ DPKG_LINKER_OPTIMISATIONS

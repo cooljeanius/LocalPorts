@@ -4,8 +4,7 @@
 PortSystem          1.0
 
 name                mpvim
-version             104461
-revision            1
+version             106019
 categories-append   editors macports
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall larryv cal openmaintainer
@@ -25,15 +24,9 @@ fetch.type          svn
 svn.url             https://svn.macports.org/repository/macports/contrib/mpvim
 svn.revision        ${version}
 
-patchfiles-append   patch-README.diff
-
-depends_run-append  bin:vim:vim
+depends_run-append  path:bin/vim:vim
 
 worksrcdir          ${name}
-
-post-patch {
-    reinplace "s|@PREFIX@|${prefix}|" ${worksrcpath}/README
-}
 
 use_configure       no
 

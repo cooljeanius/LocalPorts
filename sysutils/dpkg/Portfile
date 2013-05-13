@@ -66,6 +66,8 @@ build.type          gnu
 set vardpkg ${destroot}${prefix}/var/db/${name}
 destroot.keepdirs ${vardpkg} ${vardpkg}/updates ${vardpkg}/info ${prefix}/var/log
 
+patchfiles-append   patch-configure.ac.diff
+
 post-patch {
     set scripts ${worksrcpath}/scripts
     reinplace s|/etc/${name}/|${prefix}/etc/${name}/| \
@@ -73,6 +75,9 @@ post-patch {
             ${scripts}/${name}-source.pl
     file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcdir}/m4
 }
+
+use_autoreconf      yes
+autoreconf.args     -fvi
 
 pre-destroot {
     file mkdir ${destroot}${prefix}/share/doc/${name}
