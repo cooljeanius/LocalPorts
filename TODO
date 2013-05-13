@@ -16,7 +16,8 @@ Ports to create some day:
 - The Unarchiver (work from Homebrew's `unar` formula)
 - libmp3hip (for MusicKit below) (in progress)
 - GNS3: http://training.gns3.net/download/
-- libfreenect: https://github.com/OpenKinect/libfreenect
+- libfreenect: https://github.com/OpenKinect/libfreenect (submitted: https://trac.macports.org/ticket/39092)
+- xctool: https://github.com/facebook/xctool 
 
 Stuff I've downloaded from SourceForge randomly in the past (check https://sourceforge.net/user/updates for full list):
 - Open64
