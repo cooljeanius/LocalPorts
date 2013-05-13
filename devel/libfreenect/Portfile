@@ -32,58 +32,68 @@ configure.args-append \
                     -DBUILD_CV=OFF \
                     -DBUILD_PYTHON=OFF
 
-variant python25 conflicts python26 python27 {
-    depends_build-append \
-                    port:py25-distribute
-    depends_lib-append \
-                    path:lib/python2.5/site-packages/pyusb-0.4.3-py2.5.egg-info:py25-pyusb \
-                    port:py25-cython \
-                    port:py25-numpy
-    configure.args-delete \
-                    -DBUILD_PYTHON=OFF
-    configure.args-append \
-                    -DBUILD_PYTHON=ON
-}
+# The python variants are all commented out because they currently fail to compile
+#variant python25 conflicts python26 python27 description {Enable python25 bindings} {
+#    depends_build-append \
+#                    port:py25-distribute
+#    depends_lib-append \
+#                    path:lib/python2.5/site-packages/pyusb-0.4.3-py2.5.egg-info:py25-pyusb \
+#                    port:py25-cython \
+#                    port:py25-numpy
+#    configure.args-delete \
+#                    -DBUILD_PYTHON=OFF
+#    configure.args-append \
+#                    -DBUILD_PYTHON=ON \
+#                    -DPYTHON_EXECUTABLE=${prefix}/bin/python2.5 \
+#                    -DPYTHON_LIBRARY=${prefix}/lib/libpython2.5.dylib \
+#                    -DPYTHON_INCLUDE_DIR=${prefix}/include/python2.5
+#}
 
-variant python26 conflicts python25 python27 {
-    depends_build-append \
-                    port:py26-distribute
-    depends_lib-append \
-                    path:share/doc/py26-pyusb/README:py26-pyusb \
-                    port:py26-cython \
-                    port:py26-numpy \
-                    port:py26-matplotlib
-    configure.args-delete \
-                    -DBUILD_PYTHON=OFF
-    configure.args-append \
-                    -DBUILD_PYTHON=ON
-}
+#variant python26 conflicts python25 python27 description {Enable python26 bindings} {
+#    depends_build-append \
+#                    port:py26-distribute
+#    depends_lib-append \
+#                    path:share/doc/py26-pyusb/README:py26-pyusb \
+#                    port:py26-cython \
+#                    port:py26-numpy \
+#                    port:py26-matplotlib
+#    configure.args-delete \
+#                    -DBUILD_PYTHON=OFF
+#    configure.args-append \
+#                    -DBUILD_PYTHON=ON \
+#                    -DPYTHON_EXECUTABLE=${prefix}/bin/python2.6 \
+#                    -DPYTHON_LIBRARY=${prefix}/lib/libpython2.6.dylib \
+#                    -DPYTHON_INCLUDE_DIR=${frameworks_dir}/Python.framework/Versions/2.6/Headers
+#}
 
-variant python27 conflicts python25 python26 {
-    depends_build-append \
-                    port:py27-distribute
-    depends_lib-append \
-                    path:share/doc/py27-pyusb/README:py27-pyusb \
-                    port:py27-numpy \
-                    port:py27-cython \
-                    port:py27-matplotlib
-    configure.args-delete \
-                    -DBUILD_PYTHON=OFF
-    configure.args-append \
-                    -DBUILD_PYTHON=ON
-}
+#variant python27 conflicts python25 python26 description {Enable python27 bindings} {
+#    depends_build-append \
+#                    port:py27-distribute
+#    depends_lib-append \
+#                    path:share/doc/py27-pyusb/README:py27-pyusb \
+#                    port:py27-numpy \
+#                    port:py27-cython \
+#                    port:py27-matplotlib
+#    configure.args-delete \
+#                    -DBUILD_PYTHON=OFF
+#    configure.args-append \
+#                    -DBUILD_PYTHON=ON \
+#                    -DPYTHON_EXECUTABLE=${prefix}/bin/python2.7 \
+#                    -DPYTHON_LIBRARY=${prefix}/lib/libpython2.7.dylib \
+#                    -DPYTHON_INCLUDE_DIR=${frameworks_dir}/Python.framework/Versions/2.7/Headers
+#}
 
-# Not sure how exactly I'm going to get this variant to work...
-variant java {
+# Not sure how exactly I'm going to get this variant to work, so right now it doesn't really do anything...
+variant java conflicts universal description {Enable java bindings} {
     PortGroup       java 1.0
     depends_build-append \
                     bin:mvn:maven2
 }
 
 # This variant needs a port for rb-jeweler before it can actually work and do anything
-variant ruby {
+variant ruby description {Enable ruby bindings} {
     depends_build-append \
-                    bin:rake:rb-rake \
+                    bin:rake:rb-rake
     depends_lib-append \
                     port:libffi
 }
@@ -93,16 +103,23 @@ variant ruby {
 #variant csharp {
 #}
 
-variant opencv {
+variant opencv description {Enable opencv bindings} {
     depends_lib-append \
                     port:opencv
     configure.args-delete \
                     -DBUILD_CV=OFF
     configure.args-append \
-                    -DBUILD_CV=ON
+                    -DBUILD_CV=ON \
+                    -DCMAKE_MODULE_PATH=${prefix}/lib/cmake \
+                    -DCMAKE_PREFIX_PATH=${prefix} \
+                    -DOpenCV_DIR=${prefix}/lib/cmake
+    configure.env-append \
+                    CMAKE_MODULE_PATH=${prefix}/lib/cmake \
+                    CMAKE_PREFIX_PATH=${prefix} \
+                    OpenCV_DIR=${prefix}/lib/cmake
 }
 
-variant actionscript {
+variant actionscript description {Enable actionscript bindings} {
     depends_lib-append \
                     port:jpeg
     configure.args-delete \
@@ -111,19 +128,34 @@ variant actionscript {
                     -DBUILD_AS3_SERVER=ON
 }
 
-variant docs {
+variant docs description {Build documentation} {
     depends_build-append \
-                    port:doxygen
+                    port:doxygen \
+                    path:bin/astyle:astyle
     post-build {
         system -W ${worksrcpath}/doc "doxygen"
+        system -W ${worksrcpath}/doc "astyle"
+    }
+    post-destroot {
+        xinstall -d ${destroot}${prefix}/share/doc/${name}
+        file copy ${worksrcpath}/doc/html ${destroot}${prefix}/share/doc/${name}
     }
 }
 
-variant examples {
+variant examples description {Build examples} {
     configure.args-delete \
                     -DBUILD_EXAMPLES=OFF
     configure.args-append \
                     -DBUILD_EXAMPLES=ON
+}
+
+# The default debug variant that the cmake portgroup provides doesn't build properly:
+# Undefined symbols for architecture x86_64:
+#   "_unpack_8_pixels", referenced from:
+#      _freenect_apply_registration in registration.c.o
+#      _freenect_apply_depth_to_mm in registration.c.o
+variant debug description {Dummy variant} {
+    use_parallel_build no
 }
 
 default_variants    +examples
