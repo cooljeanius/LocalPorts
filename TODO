@@ -1,23 +1,24 @@
 Ports to create some day:
 - busybox (build system is difficult to wrangle, don't know if I can do it)
-- EasySIMBL
-- OpenCFLite (opened ticket requesting it)
-- OpenPowerPlant
+- EasySIMBL: https://github.com/norio-nomura/EasySIMBL/
+- OpenCFLite (opened ticket requesting it: https://trac.macports.org/ticket/38903)
+- OpenPowerPlant: https://sourceforge.net/projects/open-powerplant/
 - freexl (for gdal)
 - PureDarwin (yes, the entire OS - make an image that can be run with qemu) (have stub with deps so far)
-- stress (portfile submitted)
+- stress (portfile submitted - https://trac.macports.org/ticket/38111) (should probably just patch the original source instead of using my own GitHub fork though)
 - PackageMaker (the one from developer.apple.com - so `port pkg` can work more easily)
 - "Packages" i.e. http://s.sudre.free.fr/Software/Packages/resources.html
 - FlatCarbon-Headers (all of them, i.e. more than are in the CarbonHeaders port)
 - other stuff from opensource.apple.com or from the Apple sample code that comes with Xcode.
 - also other stuff that comes from macosforge
-- pip_select (created ticket asking for it)
-- Jumpcut
+- pip_select (created ticket asking for it: https://trac.macports.org/ticket/38016)
+- Jumpcut: http://jumpcut.sourceforge.net/
 - The Unarchiver (work from Homebrew's `unar` formula)
 - libmp3hip (for MusicKit below) (in progress)
 - GNS3: http://training.gns3.net/download/
+- libfreenect: https://github.com/OpenKinect/libfreenect
 
-Stuff I've downloaded from SourceForge randomly in the past:
+Stuff I've downloaded from SourceForge randomly in the past (check https://sourceforge.net/user/updates for full list):
 - Open64
 - ucc
 - Prime Mover
@@ -42,15 +43,13 @@ Stuff I've downloaded from SourceForge randomly in the past:
 - db2html
 - MusicKit (in progress)
 
-From gnome-desktop-suite's comments hidden in its portfile:
+Copied and pasted from gnome-desktop-suite's comments hidden in its portfile:
 #
 # TODO
 #
 # The following modules are included in the current GNOME desktop
 # environment specification but have not yet been ported to MacPorts
 #
-# at-spi2-atk
-# at-spi2-core
 # brasero  (no support for darwin Mac OS X, requires Linux SG or BSD CAM)
 # cheese   (requires Video4Linux or  V4L2)
 # deskbar-applet
@@ -91,17 +90,18 @@ Make sure every GNU package has a port:
 http://www.gnu.org/software/software.html#allgnupkgs
 
 AMD has opensource stuff; the only one they confirm to work on Mac though is Aparapi
+I have been working on their CodeAnalyst though: https://github.com/cooljeanius/CodeAnalyst-3_4_18_0413-Public
 
 Projects I've forked on GitHub but haven't made ports for yet (or updated their existing ports):
-- libmspack
-- pict2pdf
-- bap
+- libmspack (https://github.com/cooljeanius/libmspack)
+- pict2pdf (https://github.com/cooljeanius/pict2pdf)
+- bap (https://github.com/cooljeanius/bap)
 
 Existing ports to fix/save:
-- libnotify (in progress)
-- gnome-common
-- thunderbird-x11
-- firefox-x11 (in progress)
-- dpkg (in progress)
-- apt
+- libnotify (in progress - https://trac.macports.org/ticket/39032)
+- gnome-common (https://trac.macports.org/ticket/39037)
+- thunderbird-x11 (https://trac.macports.org/ticket/39022)
+- firefox-x11 (in progress - https://trac.macports.org/ticket/39023)
+- dpkg (in progress - https://trac.macports.org/ticket/39018)
+- apt (https://trac.macports.org/ticket/13425) 
 
