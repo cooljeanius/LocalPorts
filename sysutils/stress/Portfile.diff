@@ -1,0 +1,59 @@
+--- /opt/local/var/macports/sources/LocalPorts/sysutils/stress/Portfile.bak	2013-05-12 08:31:32.000000000 -0400
++++ /opt/local/var/macports/sources/LocalPorts/sysutils/stress/Portfile	2013-05-13 16:34:42.000000000 -0400
+@@ -2,9 +2,9 @@
+ # $Id: Portfile 78632 2011-05-14 22:50:58Z ryandesign@macports.org $
+ 
+ PortSystem               1.0
+-PortGroup                github 1.0
+ 
+-github.setup             cooljeanius stress 1.0.4
++name                     stress
++version                  1.0.4
+ revision                 0
+ platforms	         darwin
+ categories	         sysutils benchmarks
+@@ -14,22 +14,39 @@
+ long_description         ${description} It imposes a configurable amount of \
+                          CPU, memory, I/O, and disk stress on the system.
+ 
+-homepage                 http://weather.ou.edu/%7Eapw/projects/stress/
++homepage                 http://weather.ou.edu/%7Eapw/projects/${name}/
++master_sites             ${homepage}
+ 
+-fetch.type 	         git
+-git.url 	         git://github.com/cooljeanius/stress-1.0.4.git
++checksums                rmd160  2fc0896ae9039776dee3351205d7e2496a36cfe4 \
++                         sha256  369c997f65e8426ae8b318d4fdc8e6f07a311cfa77cc4b25dace465c582163c0
+ 
+ variant autoreconf description {Regenerates configure script before building. \
+                                 Also pulls in extra dependencies.} {
+     depends_build-append port:autoconf-archive \
+                          port:gawk \
+                          port:grep \
+-                         lib:librpm:rpm \
++                         bin:rpmbuild:rpm \
++                         bin:rcs2log:cvs \
+                          port:texinfo \
+-                         port:pkgconfig
++                         port:pkgconfig \
++                         bin:help2man:help2man
+     use_autoreconf       yes
+     autoreconf.args      -fvi
+     configure.args-append --disable-silent-rules
++    post-extract {
++        xinstall -m 644 ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
++        file delete ${worksrcpath}/configure.in
++        file mkdir ${worksrcpath}/m4
++        file copy ${prefix}/share/aclocal/ax_spec_package_version.m4 ${worksrcpath}/m4
++        file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
++        file mkdir ${worksrcpath}/build-aux
++        file copy ${filespath}/Makefile.spec ${worksrcpath}
++    }
++    patchfiles-append    patch-configure.ac.diff \
++                         patch-Makefile.am.diff \
++                         patch-src-Makefile.am.diff
++    test.run             yes
++    test.target          test
+ }
+ 
+ livecheck.type	         none
