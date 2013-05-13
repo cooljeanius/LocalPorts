@@ -22,6 +22,7 @@ checksums           md5     a20a06a5272717274a8b009368f237da \
                     sha256  aeaacf0884039940d9463901102194f9a42eb5702157b9e7a23f43e0d9f65cf2
 
 use_xz              yes
+extract.asroot      yes
 
 depends_build-append \
                     port:pkgconfig \
@@ -73,7 +74,7 @@ post-patch {
     reinplace s|/etc/${name}/|${prefix}/etc/${name}/| \
             ${scripts}/${name}-shlibdeps.pl \
             ${scripts}/${name}-source.pl
-    file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcdir}/m4
+    file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
 }
 
 use_autoreconf      yes
