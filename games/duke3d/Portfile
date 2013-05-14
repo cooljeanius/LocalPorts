@@ -2,6 +2,7 @@
 # $Id: Portfile 71533 2010-09-15 20:26:12Z ryandesign@macports.org $
 
 PortSystem      1.0
+PortGroup       archcheck 1.0
 
 name            duke3d
 version         0.1
@@ -36,12 +37,14 @@ depends_lib-append \
                 port:physfs \
                 port:libsockets \
                 port:socket \
-                port:bochs \
+                port:bochs
+depends_run-append \
                 port:dosbox
+depends_skip_archcheck dosbox
 
-worksrcdir       trunk/source/
-use_configure    no
-build.args       macosx=true
+worksrcdir      trunk/source/
+use_configure   no
+build.args      macosx=true
 
 platform i386 x86_64 {
     reinplace "s|\-faltivec||" ${worksrcdir}/buildengine/Makefile
