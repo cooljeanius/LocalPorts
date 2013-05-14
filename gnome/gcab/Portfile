@@ -19,14 +19,15 @@ homepage
 master_sites         gnome:sources/${name}/${branch}/
 
 checksums            md5     27c9f182bd279bedae3ba2fc5734c651 \
-                     sha     d81dfe35125e611e3a94c0d4def37ebf62b9187c \
+                     sha1    d81dfe35125e611e3a94c0d4def37ebf62b9187c \
                      rmd160  00426e186ff7920dcf55ad3a2b544d396cbeac29 \
                      sha256  f907b16f1246fbde9397363d9c4ad2291f2a8a53dcd4f5979d3912bb856991b8
 
 use_xz               yes
 depends_build-append port:pkgconfig \
                      port:valabind \
-                     port:intltool
+                     port:intltool \
+                     port:p5.12-xml-parser
 post-patch {
     reinplace "s|m4\_esyscmd\(build-aux\/git-version-gen\ \.tarball-version\)|${version}|" ${worksrcpath}/configure.ac
     reinplace "s|\,\-\-version\-script\=\$\{srcdir\}\/libgcab\.syms||" ${worksrcpath}/Makefile.am
@@ -46,10 +47,13 @@ depends_lib-append   path:lib/pkgconfig/glib-2.0.pc:glib2 \
                      port:gobject-introspection
 
 configure.ldflags-delete --version-script=./libgcab.syms
-configure.args-append    --disable-gtk-doc
+configure.args-append    --disable-gtk-doc \
+                         --disable-silent-rules
 
 variant docs description {Builds documentation} {
-    depends_build-append port:gtk-doc
-    configure.args-delete --disable-gtk-doc
-    configure.args-append --enable-gtk-doc
+    PortGroup              archcheck 1.0
+    depends_build-append   port:gtk-doc
+    depends_skip_archcheck gtk-doc
+    configure.args-delete  --disable-gtk-doc
+    configure.args-append  --enable-gtk-doc
 }
