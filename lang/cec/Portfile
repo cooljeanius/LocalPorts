@@ -20,8 +20,10 @@ fetch.type 	    git
 git.url 	    git://github.com/cooljeanius/cec.git
 
 use_autoreconf      yes
+autoreconf.args     -fvi
 
-depends_build-append port:autoconf-archive
+depends_build-append \
+                    port:autoconf-archive
 depends_lib-append  port:expat \
                     port:antlr
 

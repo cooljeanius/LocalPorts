@@ -9,7 +9,7 @@ version             1.0.3
 categories          science
 platforms           darwin
 license             LGPL-2.1
-maintainers         gmail.com:dstrubbe
+maintainers         gmail.com:dstrubbe openmaintainer
 description         A library of F90 routines to read/write the ETSF_IO file format.
 long_description    A library of F90 routines to read/write the common ETSF_IO file format developed by \
                     the European Theoretical Spectroscopy Facility (ETSF) for electronic-structure codes.
@@ -19,7 +19,7 @@ master_sites        http://www.etsf.eu/system/files
 checksums           rmd160  df90acd34b0de104a07844ae2c9694edf27519c6 \
                     sha1    ab3c4cb22ea2fc2498b396f186f221edd2463fcc
 
-depends_lib         port:netcdf-fortran
+depends_lib-append  port:netcdf-fortran
 
 configure.args      --with-netcdf-module-path=${prefix}/include \
                     --with-netcdf-ldflags=-L${prefix}/lib \

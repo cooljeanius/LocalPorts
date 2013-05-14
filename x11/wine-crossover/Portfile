@@ -256,13 +256,15 @@ configure.args-delete       --without-alsa \
 configure.args-append       --with-gphoto \
                             --with-gnutls \
                             --with-mpg123 \
-                            --with-sane
+                            --with-sane \
+                            --with-ldap
 depends_build-append        path:bin/nm:cctools \
                             port:byacc \
                             port:coreutils \
                             port:gettext-lint \
                             port:gawk
 depends_lib-append          port:gphoto2 \
+                            port:libgphoto2 \
                             port:gnutls \
                             port:mpg123 \
                             port:libidl \
@@ -281,7 +283,12 @@ depends_lib-append          port:gphoto2 \
                             port:p5.12-lwp-protocol-https \
                             port:psutils \
                             port:cmdftp \
-                            port:unrtf
+                            port:unrtf \
+                            port:gettext \
+                            port:openldap \
+                            port:xorg-libX11 \
+                            port:xorg-libXext \
+                            port:xorg-libice
     platform darwin {
         depends_lib-append  port:rmtrash \
                             port:xorg-libAppleWM \
@@ -289,15 +296,15 @@ depends_lib-append          port:gphoto2 \
     }
 }
 
-variant broken description {Don't use this} requires big {
+variant broken description {Don't use this} requires huge {
+PortGroup                   archcheck 1.0
 pre-fetch {
     ui_error "No seriously, don't use this variant. It doesn't work at all yet."
 }
 configure.args-append       --with-openal \
-                            --with-oss \
-                            --with-ldap
+                            --with-oss
 depends_build-append        port:i386-elf-gcc \
-                            port:binutils \
+                            path:bin/gar:binutils \
                             port:elftoolchain
 depends_lib-append          port:i386-mingw32-libunicows \
                             port:nsis \
@@ -309,12 +316,15 @@ depends_lib-append          port:i386-mingw32-libunicows \
                             port:mono-addins \
                             port:mono-basic \
                             port:netcat \
-                            port:openldap \
                             port:png2ico \
                             port:openal \
                             port:ttf2pt1 \
                             port:pev \
                             port:rtfreader
+depends_skip_archcheck binutils elftoolchain linuxdoc i386-elf-gcc \
+                       i386-mingw32-libunicows nsis dbus-glib-sharp \
+                       gecko-sharp2 mono-addins mono-basic netcat png2ico ttf2pt1 \
+                       rtfreader i386-mingw32-gcc i386-mingw32-w32api
 }
 
 livecheck.type              regex

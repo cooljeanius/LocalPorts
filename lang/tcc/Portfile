@@ -43,6 +43,7 @@ variant tests description {Run the test suite} {
     test.run             yes
     test.cmd             make
     test.target          test
+    test.env-append      CC=${worksrcpath}/tcc
     post-build {
         system -W ${worksrcpath} "${test.cmd} ${test.target}"
     }

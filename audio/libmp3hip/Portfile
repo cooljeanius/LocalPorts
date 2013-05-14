@@ -13,7 +13,7 @@ license             LGPL-2+
 
 description         hip - Hip Isn't a Player
 
-long_description    ${description} \
+long_description    ${description}: \
                     A LGPLed mpeg audio decoding library.
 
 homepage            https://launchpad.net/ubuntu/+source/${name}/${version}
@@ -23,6 +23,7 @@ distname            ${name}_${version}
 checksums           rmd160  69b5b5e95e98f487b8c7864fef2fd5ee87ff93fb \
                     sha256  a7bbed8178c64e29f93f8de436f3701637f5e28cc8417384ba9fa4bfcf6011ad
 
+# The underscore turns back into a hyphen
 worksrcdir          ${name}-${branch}
 
 patchfiles-append   patch-configure.ac.diff \
