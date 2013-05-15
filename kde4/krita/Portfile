@@ -9,15 +9,15 @@ version             2.6.0
 categories          kde4 graphics
 platforms           darwin
 license             GPL
-maintainers         gmail.com:patrik.andersson.se
+maintainers         gmail.com:patrik.andersson.se openmaintainer
 description         Krita ${version} (without Vc)
 long_description    Krita is the full-featured free digital painting studio for \
                     artists who want to create professional work from start to end. \
                     Krita is used by comic book artists, illustrators, concept \
                     artists, matte and texture painters and in the digital VFX \
                     industry.
-homepage            http://www.krita.org
-master_sites        http://download.kde.org/stable/calligra-latest/\
+homepage            http://www.${name}.org
+master_sites        http://download.kde.org/stable/calligra-latest/ \
                     http://www.patriksmediedesign.se/
 
 checksums           rmd160 b25805f91372295d127be7ef229c3b575c662071 \
@@ -27,13 +27,12 @@ checksums           rmd160 b25805f91372295d127be7ef229c3b575c662071 \
 depends_lib-append  port:kdelibs4 \
                     port:kde4-runtime \
                     port:eigen \
-                    port:qt4-mac \
                     port:cmake \
                     port:lcms \
                     port:libpng \
                     port:exiv2
 
-configure.args-append   -DCMAKE_BUILD_TYPE=RelWithDebInfo\
+configure.args-append   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
                         -DCREATIVEONLY=ON
 
 # It would be better to do this by setting configure.args instead
