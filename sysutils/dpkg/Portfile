@@ -26,7 +26,8 @@ extract.asroot      yes
 
 depends_build-append \
                     port:pkgconfig \
-                    port:autoconf-archive
+                    path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
+                    bin:git:git-core
 
 # Use MacPorts versions explicitly
 depends_lib-append  port:gettext \
@@ -37,13 +38,13 @@ depends_lib-append  port:gettext \
                     port:zlib \
                     port:ncurses \
                     port:gnutar \
-                    lib:liblzma:xz
+                    path:lib/pkgconfig/liblzma.pc:xz
 
 depends_run-append  bin:gnutar:gnutar \
                     bin:lzma:xz \
                     port:debianutils
 
-
+# got to do some underscore-to-hyphen twiddling...
 distname            ${name}_${version}
 worksrcdir          ${name}-${version}
 
@@ -61,13 +62,20 @@ configure.args-append \
                     --disable-linker-optimisations \
                     --disable-silent-rules \
                     --disable-start-stop-daemon
+# The start-stop-daemon patch now applies again, but now it leads to build errors,
+# so disabling it with a configure flag again
 
 build.type          gnu
 
 set vardpkg ${destroot}${prefix}/var/db/${name}
 destroot.keepdirs ${vardpkg} ${vardpkg}/updates ${vardpkg}/info ${prefix}/var/log
 
-patchfiles-append   patch-configure.ac.diff
+patchfiles-append   patch-configure.ac.diff \
+                    patch-lib_dpkg_dpkg.h.diff \
+                    patch-lib_dpkg_tarfn.c.diff \
+                    patch-src_remove.c.diff \
+                    patch-src_archives.c.diff \
+                    patch-utils_start-stop-daemon.c.diff
 
 post-patch {
     set scripts ${worksrcpath}/scripts
@@ -75,6 +83,7 @@ post-patch {
             ${scripts}/${name}-shlibdeps.pl \
             ${scripts}/${name}-source.pl
     file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
+    system -W ${worksrcpath} "git init"
 }
 
 use_autoreconf      yes
@@ -110,6 +119,9 @@ variant docs description {Build documentation} {
                             --pdfdir=${docdir}/pdf \
                             --psdir=${docdir}/ps
     build.target-append     doc
+    post-build {
+        system -W ${worksrcpath}/doc "doxygen"
+    }
 }
 
 # Tests currently fail, this needs to be fixed
