@@ -1,0 +1,71 @@
+--- configure.ac.bak	2013-05-16 11:10:58.000000000 -0400
++++ configure.ac	2013-05-16 11:17:00.000000000 -0400
+@@ -9,7 +9,7 @@
+ AC_CONFIG_HEADERS([config.h])
+ AC_CONFIG_MACRO_DIR([m4])
+ dnl Make automake keep quiet about wildcards & other GNUmake-isms
+-AM_INIT_AUTOMAKE([-Wno-portability tar-ustar])
++AM_INIT_AUTOMAKE([-Wno-portability tar-ustar foreign])
+ AM_MAINTAINER_MODE([enable])
+ 
+ # Maintainer note - comment this line out if you plan to rerun
+@@ -108,6 +108,8 @@
+ AC_PROG_CC
+ AC_PROG_INSTALL
+ AC_PROG_CPP
++AC_PROG_CXX
++AX_CHECK_GNU_MAKE
+ 
+ dnl Setting AB_VERSION makes the 'autobuild' lines of configure output
+ dnl slightly more useful
+@@ -127,6 +129,41 @@
+ AM_PROG_CC_C_O
+ AM_PROG_LD
+ 
++# Checks for libraries.
++# FIXME: Replace `main' with a function in `-lrt':
++AC_CHECK_LIB([rt], [main])
++# FIXME: Replace `main' with a function in `-ltasn1':
++AC_CHECK_LIB([tasn1], [main])
++
++# Checks for header files.
++AC_CHECK_HEADERS([OS.h fcntl.h float.h limits.h locale.h malloc.h mntent.h nl_types.h paths.h stdio.h sys/mount.h sys/statfs.h sys/statvfs.h sys/systeminfo.h sys/timeb.h syslog.h])
++
++# Checks for typedefs, structures, and compiler characteristics.
++AC_TYPE_INT16_T
++AC_TYPE_INT32_T
++AC_TYPE_INT64_T
++AC_TYPE_INT8_T
++AC_FUNC_OBSTACK
++AC_TYPE_OFF_T
++AC_TYPE_SSIZE_T
++AC_CHECK_MEMBERS([struct stat.st_blksize])
++AC_STRUCT_ST_BLOCKS
++AC_CHECK_MEMBERS([struct stat.st_rdev])
++AC_TYPE_UINT16_T
++AC_TYPE_UINT32_T
++AC_TYPE_UINT64_T
++AC_TYPE_UINT8_T
++
++# Checks for library functions.
++AC_FUNC_FORK
++AC_FUNC_FSEEKO
++AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
++AC_HEADER_MAJOR
++AC_FUNC_MBRTOWC
++AC_FUNC_MKTIME
++AC_FUNC_STRTOD
++AC_CHECK_FUNCS([atexit bzero dup2 endgrent isascii iswprint localeconv mblen mbrlen memchr memmove memset mkdir pathconf re_comp regcomp rmdir select socket strchr strcspn strerror strpbrk strrchr strspn strstr strtol strtoull sysinfo tzset])
++
+ AC_MSG_CHECKING([for how to mark DSO non-deletable at runtime])
+ LIBVIRT_NODELETE=
+ `$LD --help 2>&1 | grep -- "-z nodelete" >/dev/null` && \
+@@ -140,8 +177,6 @@
+     VERSION_SCRIPT_FLAGS="-Wl,-M -Wl,"
+ AC_MSG_RESULT([$VERSION_SCRIPT_FLAGS])
+ 
+-LIBVIRT_COMPILE_WARNINGS
+-
+ LIBVIRT_CHECK_APPARMOR
+ LIBVIRT_CHECK_ATTR
+ LIBVIRT_CHECK_AUDIT

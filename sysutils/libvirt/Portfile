@@ -2,6 +2,10 @@
 # $Id: Portfile 106088 2013-05-14 17:27:47Z macsforever2000@macports.org $
 
 PortSystem          1.0
+PortGroup           muniversal 1.0
+
+# Had some trouble with arch flags, so I figured it'd be better to use muniversal
+# than to remove the universal variant
 
 name                libvirt
 version             1.0.3
@@ -24,14 +28,36 @@ checksums           rmd160  645705d59260733b0afe2de8054748d866c65dcf \
 
 depends_build-append \
                     port:pkgconfig \
-                    port:xhtml1
+                    port:xhtml1 \
+                    path:share/aclocal/autobuild.m4:autobuild \
+                    path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
+                    path:share/aclocal/glib-2.0.m4:glib2 \
+                    bin:xsltproc:libxslt \
+                    bin:rpcgen:developer_cmds \
+                    bin:augparse:augeas \
+                    bin:dnsmasq:dnsmasq
+# glib is just needed for some autoconf macros; libvirt doesn't actually link against it.
+
+patchfiles-append   patch-configure.ac.diff
+
+use_autoreconf      yes
+autoreconf.args     -fvi
+
+post-patch {
+    file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
+    file copy ${prefix}/share/aclocal/autobuild.m4 ${worksrcpath}/m4
+    file copy ${prefix}/share/aclocal/glib-2.0.m4 ${worksrcpath}/m4
+    file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/Makefile.am]
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/*/Makefile.am]
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/*/*/Makefile.am]
+}
 
 depends_lib-append  port:curl \
                     port:gnutls \
                     port:libgcrypt \
                     port:libiconv \
                     port:libpcap \
-                    port:libssh2 \
                     port:libxml2 \
                     port:readline \
                     port:yajl \
@@ -42,14 +68,24 @@ depends_lib-append  port:curl \
                     port:libgpg-error \
                     port:nettle \
                     port:openssl \
-                    port:xz
+                    port:xz \
+                    port:pth \
+                    port:policykit \
+                    port:libtasn1 \
+                    port:gmp \
+                    port:libidn
+
+depends_run-append  port:logrotate \
+                    port:augeas
 
 configure.args-append \
                     --without-apparmor \
                     --without-audit \
+                    --without-attr \
                     --without-avahi \
                     --without-capng \
                     --without-dtrace \
+                    --without-fuse \
                     --without-hal \
                     --with-init-script=none \
                     --without-lxc \
@@ -59,26 +95,81 @@ configure.args-append \
                     --without-numactl \
                     --without-openvz \
                     --without-phyp \
-                    --without-polkit \
                     --without-python \
                     --without-qemu \
                     --without-sasl \
                     --without-selinux \
+                    --without-ssh2 \
+                    --without-test \
                     --without-udev \
                     --without-uml \
                     --without-virtualport \
                     --without-xen \
                     --without-xenapi \
                     --without-xen-inotify \
+                    --with-curl \
+                    --with-dbus \
                     --with-esx \
-                    --with-libpcap \
+                    --with-gnutls \
+                    --with-libpcap=${prefix} \
                     --with-libvirtd \
+                    --with-polkit \
                     --with-remote \
-                    --with-test \
                     --with-vbox=check \
                     --with-vmware \
                     --with-xml-catalog-file=${prefix}/etc/xml/catalog \
-                    --with-yajl
+                    --with-yajl \
+                    --disable-silent-rules \
+                    --disable-werror \
+                    --enable-debug=no \
+                    --with-libpth-prefix=${prefix} \
+                    --with-libxml=${prefix} \
+                    --with-libiconv-prefix=${prefix} \
+                    --with-libintl-prefix=${prefix}
+
+variant debug description {Enable debugging} {
+    configure.args-delete \
+                    --enable-debug=no
+    configure.args-append \
+                    --enable-debug=yes
+}
+
+# Tests currently fail:
+# fatal-signal.c:29:10: fatal error: 'sig-handler.h' file not found
+variant test requires debug description {Enable tests} {
+    configure.args-delete \
+                    --without-test
+    configure.args-append \
+                    --with-test-suite \
+                    --enable-test-coverage \
+                    --enable-test-oom \
+                    --enable-test-locking \
+                    --with-test
+    test.run        yes
+    test.target     check
+}
+
+platform macosx {
+    variant dtrace description {Enable dtrace support} {
+        depends_build-append \
+                    port:dtrace
+        depends_run-append \
+                    port:dtrace
+        configure.args-delete \
+                    --without-dtrace
+        configure.args-append \
+                    --with-dtrace
+    }
+    variant fuse description {Enable fuse support} {
+        depends_lib-append \
+                    port:fuse4x
+        configure.args-delete \
+                    --without-fuse
+        configure.args-append \
+                    --with-fuse
+        categories-append fuse
+    }
+}
 
 variant avahi description {Use Avahi to advertise remote daemon} {
     depends_lib-append      port:avahi
@@ -92,6 +183,7 @@ variant python24 conflicts python25 python26 python27 \
     configure.args-delete   --without-python
     configure.args-append   --with-python
     configure.env-append    PYTHON=${prefix}/bin/python2.4
+    configure.cppflags-append -I${prefix}/include/python2.4
 }
 
 variant python25 conflicts python24 python26 python27 \
@@ -100,6 +192,7 @@ variant python25 conflicts python24 python26 python27 \
     configure.args-delete   --without-python
     configure.args-append   --with-python
     configure.env-append    PYTHON=${prefix}/bin/python2.5
+    configure.cppflags-append -I${prefix}/include/python2.5
 }
 
 variant python26 conflicts python24 python25 python27 \
@@ -108,6 +201,7 @@ variant python26 conflicts python24 python25 python27 \
     configure.args-delete   --without-python
     configure.args-append   --with-python
     configure.env-append    PYTHON=${prefix}/bin/python2.6
+    configure.cppflags-append -I${prefix}/Library/Frameworks/Python.framework/Versions/2.6/Headers
 }
 
 variant python27 conflicts python24 python25 python26 \
@@ -116,6 +210,7 @@ variant python27 conflicts python24 python25 python26 \
     configure.args-delete   --without-python
     configure.args-append   --with-python
     configure.env-append    PYTHON=${prefix}/bin/python2.7
+    configure.cppflags-append -I${prefix}/Library/Frameworks/Python.framework/Versions/2.7/Headers
 }
 
 variant sasl description {Use Cyrus SASL for authentication} {
@@ -123,6 +218,17 @@ variant sasl description {Use Cyrus SASL for authentication} {
                             port:openldap
     configure.args-delete   --without-sasl
     configure.args-append   --with-sasl
+}
+
+variant ssh description {Enable ssh support} {
+    PortGroup       active_variants 1.1
+    require_active_variants curl sftp_scp
+    depends_lib-append \
+                    port:libssh2
+    configure.args-delete \
+                    --without-ssh2
+    configure.args-append \
+                    --with-ssh2
 }
 
 livecheck.type      regex
