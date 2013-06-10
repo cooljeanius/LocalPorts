@@ -191,7 +191,9 @@ depends_lib-append port:gawk \
                    port:doclifter \
                    port:cws2fws \
                    port:autobuild \
-                   port:cmph
+                   port:cmph \
+                   port:colordiff \
+                   port:colorer
 depends_run-append port:gawk
 
 depends_skip_archcheck getabspath dmg2img alac_decoder nettee gnustep-make sglib
@@ -243,6 +245,9 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:mtools \
                    port:wiggle \
                    port:quilt \
-                   port:compare
+                   port:compare \
+                   port:highlight \
+                   port:source-highlight \
+                   port:valgrind
     depends_skip_archcheck MacOSXMacros gtk-doc man gnome-doc-utils compare
 }
