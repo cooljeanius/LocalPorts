@@ -1,0 +1,125 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 102865 2013-02-09 19:16:59Z jeremyhu@macports.org $
+
+PortSystem      1.0
+
+name            imlib2
+version         1.4.5
+revision	4
+categories      graphics devel
+license         Permissive
+platforms       darwin
+maintainers     nomaintainer
+description     Image loading and rendering library
+
+long_description \
+   Imlib is a general Image loading and rendering library designed to \
+   make the task of loading images, and obtaining X-Windows drawables a \
+   simple task, as well as a quick one. It also aims to provide simple \
+   manipulation routines that might be desired for common operations.
+
+homepage        http://docs.enlightenment.org/api/imlib2/html/
+master_sites    sourceforge:enlightenment
+
+checksums           md5     8406786d3852b1b1322c2e4bee3c9e5c \
+                    sha1    a4c0329d152fff9cb87463709f0e4b54cf1f6121 \
+                    rmd160  efc669592971c9b5dd3cd8959bdcafa41c9f1ece
+
+depends_build-append \
+    bin:rpmbuild:rpm \
+    port:pkgconfig \
+    path:bin/xmkmf:imake \
+    bin:mv:coreutils \
+    bin:nm:cctools \
+    bin:ld:ld64 \
+    bin:grep:grep \
+    bin:awk:gawk \
+    bin:m4:m4 \
+    port:xorg-util-macros
+
+depends_lib-append \
+    port:bzip2 \
+    port:giflib \
+    port:libid3tag \
+    port:libpng \
+    port:jpeg \
+    port:freetype \
+    port:tiff \
+    port:xorg-libsm \
+    port:xorg-libX11 \
+    port:xorg-libXext \
+    port:xorg-libice \
+    port:zlib
+
+patchfiles-append \
+    patch-configure.ac.diff \
+    patch-Makefile.am.diff
+
+post-patch {
+    file mkdir ${worksrcpath}/m4
+    file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    file copy ${prefix}/share/aclocal/xorg-macros.m4 ${worksrcpath}/m4
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/src/*/Makefile.am]
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/src/modules/*/Makefile.am]
+}
+
+use_autoreconf  yes
+autoreconf.args -fvi
+
+configure.ccache no
+configure.args-append \
+    --disable-amd64 \
+    --disable-silent-rules \
+    --with-x \
+    --with-jpeg \
+    --with-png \
+    --with-tiff \
+    --with-gif \
+    --with-zlib \
+    --with-bzip2 \
+    --with-id3 \
+    --x-includes=${prefix}/include \
+    --x-libraries=${prefix}/lib \
+    --with-freetype-config=${prefix}/bin/freetype-config \
+    --without-doxygen
+
+configure.env-append \
+    XMKMF=${prefix}/bin/xmkmf \
+    PKG_CONFIG=${prefix}/bin/pkg-config
+
+use_parallel_build no
+
+post-destroot {
+    set docdir ${prefix}/share/doc/${name}
+    xinstall -d ${destroot}${docdir}
+    xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING ChangeLog README \
+        TODO ${destroot}${docdir}
+
+    xinstall -d ${destroot}${docdir}/html
+    eval xinstall -m 644 [glob -directory ${worksrcpath}/doc *.{html,gif}] \
+        ${destroot}${docdir}/html
+}
+
+variant docs description {Build documentation} {
+    depends_build-append \
+        port:doxygen \
+        bin:svn2cl:svn2cl
+    configure.env-append \
+        DOXYGEN=${prefix}/bin/doxygen
+    configure.args-delete \
+        --without-doxygen
+    configure.args-append \
+        --with-doxygen
+    post-build {
+        system -W ${worksrcpath} "./gendoc"
+    }
+}
+
+platform darwin 8 {
+    configure.args-append --disable-mmx
+}
+platform ppc {
+    configure.args-append --disable-mmx
+}
+
+livecheck.distname ${name}-src

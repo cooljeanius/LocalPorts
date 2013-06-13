@@ -9,10 +9,12 @@ revision                 0
 platforms	         darwin
 categories	         sysutils benchmarks
 maintainers	         gwmail.gwu.edu:egall openmaintainer
-description	         ${name} is a deliberately simple workload generator for POSIX systems.
+description	         ${name} is a deliberately simple workload \
+                         generator for POSIX systems.
 license                  GPL-2+
-long_description         ${description} It imposes a configurable amount of \
-                         CPU, memory, I/O, and disk stress on the system.
+long_description         ${description} It imposes a configurable amount \
+                         of CPU, memory, I/O, and disk stress on the \
+                         system.
 
 homepage                 http://weather.ou.edu/%7Eapw/projects/${name}/
 master_sites             ${homepage}
@@ -20,8 +22,9 @@ master_sites             ${homepage}
 checksums                rmd160  2fc0896ae9039776dee3351205d7e2496a36cfe4 \
                          sha256  369c997f65e8426ae8b318d4fdc8e6f07a311cfa77cc4b25dace465c582163c0
 
-variant autoreconf description {Regenerates configure script before building. \
-                                Also pulls in extra dependencies.} {
+variant autoreconf description {Regenerates configure script \
+                                before building. Also pulls in extra \
+                                dependencies.} {
     depends_build-append port:autoconf-archive \
                          port:gawk \
                          port:grep \

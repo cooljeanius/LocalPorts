@@ -7,16 +7,16 @@ name              sysbench
 version           0.4.12
 revision          2
 
-categories        devel
+categories        devel benchmarks
 platforms         darwin
 license           GPL-2
 
 maintainers       gmail.com:alexander.janssen openmaintainer
 description       SysBench: a system performance benchmark
-long_description  SysBench is a modular, cross-platform and multi-threaded \
-                  benchmark tool for evaluating OS parameters that are \
-                  important for a system running a database under intensive \
-                  load. \
+long_description  SysBench is a modular, cross-platform and \
+                  multi-threaded benchmark tool for evaluating OS \
+                  parameters that are important for a system running a \
+                  database under intensive load. \
                   Builds by default against MySQL 5.5.
 
 homepage          http://${name}.sourceforge.net/

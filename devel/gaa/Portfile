@@ -11,10 +11,11 @@ categories	         devel
 maintainers	         gwmail.gwu.edu:egall openmaintainer
 description	         ${name} Argument Analyser
 license                  GPL-2+
-long_description         ${name} simplifies the life of the programmer: you don't have to \
-                         worry about the arguments given to it! A short text written in GAA \
-                         language generates C-code which analyses the arguments and creates your \
-                         program's help.
+long_description         ${name} simplifies the life of the programmer: \
+                         you don't have to worry about the arguments \
+                         given to it! A short text written in GAA \
+                         language generates C-code which analyses \
+                         the arguments and creates your program's help.
 
 homepage                 http://${name}.sf.net
 
@@ -29,8 +30,9 @@ depends_lib-delete       port:gobject-introspection
 
 configure.args-append    --with-bison-bin=${prefix}/bin/bison
 
-variant autoreconf description {Regenerates configure script before building. \
-                                Also pulls in extra dependencies.} {
+variant autoreconf description {Regenerates configure script before \
+                                building. Also pulls in extra \
+                                dependencies.} {
     depends_build-append port:gawk \
                          port:grep \
                          port:autoconf-archive
@@ -39,7 +41,8 @@ variant autoreconf description {Regenerates configure script before building. \
     configure.args-append --disable-silent-rules
 }
 
-variant docs description {Generate additional documentation by using latex2html} {
+variant docs description {Generate additional documentation by \
+                          using latex2html} {
     depends_build-append port:latex2html
     depends_lib-delete   port:poppler
     use_parallel_build   no
