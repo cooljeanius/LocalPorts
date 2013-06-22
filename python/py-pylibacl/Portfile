@@ -1,0 +1,38 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 106911 2013-06-11 14:40:14Z jmr@macports.org $
+
+PortSystem         1.0
+PortGroup          python 1.0
+
+name               py-pylibacl
+set myname         pylibacl
+version            0.4.0
+license            {MIT PSF}
+platforms          darwin linux
+maintainers        nomaintainer
+description        py-pylibacl for bup
+long_description   POSIX.1e ACLs for python. This is a C extension \
+                   module for Python which implements POSIX ACLs \
+                   manipulation. It is a wrapper on top of the \
+                   systems's acl C library - see acl(5) (acl(3) on Darwin).
+
+homepage           http://${myname}.k1024.org/
+master_sites       https://pypi.python.org/packages/source/p/${myname}/
+distname           ${myname}-${version}
+checksums          md5 0c8c7fd673527fd63d970a6bac15779a \
+                   rmd160 1234 \
+                   sha256 5678
+
+python.versions     25 26 27
+python.default_version 27
+
+if {$subport != $name} {
+    depends_build-append \
+                        port:py${python.version}-setuptools
+    depends_lib-append  port:py${python.version}-cython
+    livecheck.type      none
+} else {
+    livecheck.type      regex
+    livecheck.url       http://pypi.python.org/pypi/${myname}/
+    livecheck.regex     ${myname}-(\[0-9.\]+)
+}

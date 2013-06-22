@@ -1,0 +1,65 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: $
+
+PortSystem          1.0
+
+name                megatools
+version             1.9.91
+revision            1
+categories          net fuse
+license             GPL-2+
+installs_libs       no
+platforms           darwin
+maintainers         nomaintainer
+description         Command line client application for Mega.
+long_description    Megatools is a collection of programs for accessing \
+                    Mega service from the command line on your desktop \
+                    or server. Includes a filesystem for Mega known as \
+                    megafs.
+
+homepage            http://${name}.megous.com/
+master_sites        http://${name}.megous.com/builds/
+
+checksums           md5     36ad490129c775cad0e2b6a3af279d45 \
+                    sha1    8e3ecab2020ec31444ed75ca4e92ea75ad4c9354 \
+                    rmd160  e447e2b966227f17088468d1e9829105b7d5d3e4 \
+                    sha256  31d0e55a25ba8420889a0ab6f43b04bdc4a919a2301c342b7baf1aab311f6841
+
+depends_build-append \
+                    port:pkgconfig \
+                    port:gawk \
+                    port:grep \
+                    port:gsed \
+                    port:gmake
+
+depends_lib-append  path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    port:libffi \
+                    port:db46 \
+                    port:libtool \
+                    port:gobject-introspection \
+                    port:curl \
+                    port:c-ares \
+                    port:libidn \
+                    port:gettext \
+                    port:libiconv \
+                    port:libssh2 \
+                    port:openldap \
+                    port:cyrus-sasl2 \
+                    port:libcomerr \
+                    port:zlib \
+                    port:openssl \
+                    port:libfetch \
+                    port:fuse4x
+
+# This is only temporary until I fix my problems with fuse4x
+universal_variant   no
+
+depends_run-append  port:glib-networking
+
+configure.args-append \
+                    --disable-silent-rules \
+                    --disable-glibtest
+configure.env-append \
+                    PKG_CONFIG=${prefix}/bin/pkg-config
+
+build.type          gnu

@@ -9,7 +9,7 @@ version             1.9.2
 revision            5
 categories          gis
 license             MIT BSD
-platforms           darwin
+platforms           darwin macosx
 
 maintainers         gmail.com:seanasy openmaintainer
 
@@ -92,6 +92,7 @@ configure.args-append       --with-local=${prefix} \
                             --without-xerces \
                             --without-expat \
                             --without-poppler \
+                            --without-macosx-framework \
                             --mandir=${prefix}/share/man
 
 # Patch to ensure that the python installation respects DESTDIR
@@ -139,13 +140,19 @@ variant geos description {Enable GEOS geometry engine functionality} {
     if {![variant_isset universal]} {
         depends_lib-append  port:geos2
     }
-    if {[variant_isset python25]} {
+    if {[variant_isset python25] && ![variant_isset postgresql83] && \
+        ![variant_isset postgresql84] && ![variant_isset postgresql91] && \
+        ![variant_isset postgresql92]} {
         depends_lib-append  port:py25-geoalchemy
     }
-    if {[variant_isset python26]} {
+    if {[variant_isset python26] && ![variant_isset postgresql83] && \
+        ![variant_isset postgresql84] && ![variant_isset postgresql91] && \
+        ![variant_isset postgresql92]} {
         depends_lib-append  port:py26-geoalchemy
     }
-    if {[variant_isset python27]} {
+    if {[variant_isset python27] && ![variant_isset postgresql83] && \
+        ![variant_isset postgresql84] && ![variant_isset postgresql91] && \
+        ![variant_isset postgresql92]} {
         depends_lib-append  port:py27-geoalchemy
     }
     configure.args-delete   --without-geos
@@ -157,7 +164,7 @@ variant curl description {Enable curl support} {
                             port:flickcurl \
                             port:tclcurl
     if {[variant_isset framework]} {
-        depends_lib-append  port:curlftpfs \
+        depends_lib-append  port:curlftpfs
         platform darwin > 10 {
             depends_lib-append port:curlhandle
         }
@@ -184,7 +191,7 @@ variant curl description {Enable curl support} {
 variant mrsid description {Enable MrSID file format} {
     depends_lib-append      port:geoexpress-sdk
     configure.args-delete   --without-mrsid
-    configure.args-append       --with-mrsid=${prefix}/share/Geo_DSDK
+    configure.args-append   --with-mrsid=${prefix}/share/Geo_DSDK
 
     # Fixes for Geo_DSDK 7.x - http://trac.osgeo.org/gdal/ticket/2410
     patchfiles-append       patch-frmts_mrsid_mrsiddataset.cpp.diff \
@@ -417,8 +424,11 @@ variant opencl description {Use OpenCL for parallel computations} {
 }
 
 # OS X Framework
-variant framework description {Build as a Mac OS X framework} {
-    configure.args-append   --with-macosx-framework
+platform macosx {
+    variant framework description {Build as a Mac OS X framework} {
+        configure.args-delete   --without-macosx-framework
+        configure.args-append   --with-macosx-framework
+    }
 }
 
 variant huge requires curl expat geos hdf5 mysql5 netcdf opencl postgresql82 postgresql84 \
@@ -538,18 +548,19 @@ variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresq
                             --with-msg \
                             --with-oci
 }
-variant broken requires postgreql81 extra_nonuniversal poppler xerces description {dependencies that don't even work even when not building universal} {
-    depends_lib-append      port:pamtester \
-                            port:svdlibc \
-                            port:sam2p
-    depends_skip_archcheck pamtester sam2p tif22pnm svdlibc xercesc
-    configure.args-delete   --without-xerces
-    configure.args-append   --with-pam
-    if {[variant_isset xerces]} {
-        depends_lib-append  port:xalanj
-        depends_skip_archcheck xalanj
-    }
-}
+
+#variant broken requires postgreql81 extra_nonuniversal poppler xerces conflicts universal description {dependencies that don't even work even when not building universal} {
+#    depends_lib-append      port:pamtester \
+#                            port:svdlibc \
+#                            port:sam2p
+#    depends_skip_archcheck pamtester sam2p tif22pnm svdlibc xercesc
+#    configure.args-delete   --without-xerces
+#    configure.args-append   --with-pam
+#    if {[variant_isset xerces]} {
+#        depends_lib-append  port:xalanj
+#        depends_skip_archcheck xalanj
+#    }
+#}
 
 variant autoreconf description {Runs autoreconf before configuring} {
     pre-patch {
@@ -564,8 +575,11 @@ variant autoreconf description {Runs autoreconf before configuring} {
                             port:gsed
 }
 
-default_variants            +expat \
-                            +geos
+default_variants            +expat
+if {![variant_isset postgresql83] && ![variant_isset postgresql84] && \
+    ![variant_isset postgresql91] && ![variant_isset postgresql92]} {
+    default_variants-append +geos
+}
 
 # Postconfigure hack to avoid read ${include} .h files before
 # GDAL own include directories

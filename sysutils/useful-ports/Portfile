@@ -193,7 +193,8 @@ depends_lib-append port:gawk \
                    port:autobuild \
                    port:cmph \
                    port:colordiff \
-                   port:colorer
+                   port:colorer \
+                   port:sortu
 depends_run-append port:gawk
 
 depends_skip_archcheck getabspath dmg2img alac_decoder nettee gnustep-make sglib
