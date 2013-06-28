@@ -13,9 +13,11 @@ categories          devel databases
 maintainers         snc openmaintainer
 license             BSD
 description         Independent Open DataBase Connectivity
-long_description    iODBC is the acronym for Independent Open DataBase Connectivity, \
-                    an Open Source platform independent implementation of both the \
-                    ODBC and X/Open specifications.
+long_description    iODBC is the acronym for Independent Open DataBase \
+                    Connectivity, an Open Source platform independent \
+                    implementation of both the ODBC and X/Open \
+                    specifications.
+
 platforms           darwin
 
 checksums           rmd160  b0f091679ab45a0669468b9c85f45863ad54e7bc \

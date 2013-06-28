@@ -1,11 +1,12 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id: Portfile 99304 2012-10-31 22:42:34Z jmr@macports.org $
+# $Id: Portfile 106262 2013-05-20 20:55:10Z sean@macports.org $
 
 PortSystem      1.0
 PortGroup       muniversal 1.0
+PortGroup       archcheck 1.0
 
 name            gdb
-version         7.5
+version         7.6
 revision        1
 categories      devel
 license         GPL-3+
@@ -13,15 +14,18 @@ maintainers     dweber openmaintainer
 description     GDB: The GNU Project Debugger
 
 long_description \
-GDB, the GNU Project debugger, allows you to see what is going on 'inside' \
-another program while it executes -- or what another program was doing at the \
-moment it crashed.  GDB can do four main kinds of things (plus other things \
-in support of these) to help you catch bugs in the act: \
-    a) start your program, specifying anything that might affect its behavior, \
+GDB, the GNU Project debugger, allows you to see what is going on \
+'inside' another program while it executes -- or what another program \
+was doing at the moment it crashed.  GDB can do four main kinds of \
+things (plus other things in support of these) to help you catch bugs \
+in the act: \
+    a) start your program, specifying anything that might affect \
+       its behavior, \
     b) make your program stop on specified conditions, \
     c) examine what has happened, when your program has stopped, \
-    d) change things in your program, so you can experiment with correcting \
-       the effects of one bug and go on to learn about another. \
+    d) change things in your program, so you can experiment with \
+       correcting the effects of one bug and go on to learn about \
+       another. \
 The program being debugged can be written in Ada, C, C++, Objective-C, \
 Pascal (and many other languages). Those programs might be executing on \
 the same machine as GDB (native) or on another machine (remote). GDB \
@@ -35,31 +39,44 @@ master_sites    gnu
 
 use_bzip2       yes
 
-checksums       sha1    79b61152813e5730fa670c89e5fc3c04b670b02c \
-                rmd160  0eff835dde6e059a6e4e5c63586939fb2e74e4f1 \
-                sha256  d178c45c328369ae4f24f9a0ec53b7d009e2bfa1d41b7027280b24f58ae61932
+checksums           sha1    b64095579a20e011beeaa5b264fe23a9606ee40f \
+                    rmd160  9a3bb92415a3785da15a60bc7e5707051c8bebcf \
+                    sha256  a410e8f35ee70cce83dbbf1da9e2a8373f271ac0e4b71db4336ae293fc7bdf1b
 
-depends_build-append   port:gettext port:zlib port:gawk port:bison port:flex \
-                       port:texinfo port:expect path:bin/nm:cctools \
-                       path:bin/perl:perl5 port:intltool port:gsed \
-                       port:bootstrap_cmds port:python27 port:gnuregex port:gmake \
-                       port:byacc
-depends_lib-append     port:readline port:expat port:libiconv port:ncurses port:ppl \
-                       port:gettext port:zlib port:python27
+depends_build-append   port:gettext port:zlib port:gawk port:bison \
+                       port:flex path:bin/makeinfo:texinfo port:expect \
+                       path:bin/nm:cctools path:bin/perl:perl5 \
+                       port:intltool port:gsed bin:mig:bootstrap_cmds \
+                       port:gnuregex port:gmake port:byacc
+
+depends_lib-append     port:readline port:expat port:libiconv \
+                       port:ncurses port:ppl port:gettext \
+                       port:zlib
+
 depends_run-append     port:gcc_select port:exec-wrapper
 
-configure.args \
+depends_skip_archcheck bootstrap_cmds exec-wrapper
+
+platform macosx {
+    depends_run-append path:etc/openssl/cert.pem:certsync
+}
+
+configure.args-append \
     --infodir=${prefix}/share/info \
     --mandir=${prefix}/share/man \
     --with-docdir=${prefix}/share/doc \
     --program-prefix=g \
     --disable-werror \
-    --enable-64-bit-bfd \
     --enable-tui \
     --enable-multi-ice \
     --with-gnu-ld \
     --with-curses \
     --with-expat
+
+platform x86_64 {
+    configure.args-append \
+            --enable-64-bit-bfd
+}
 
 build.type             gnu
 use_parallel_build     no
@@ -69,8 +86,8 @@ test.run               yes
 post-destroot {
     system "chgrp procmod ${destroot}${prefix}/bin/ggdb*"
     system "chmod g+s ${destroot}${prefix}/bin/ggdb*"
-# This part is commented out because codesigning requires getting certificates and 
-# stuff set up, and that's difficult
+# This part is commented out because codesigning requires getting
+# certificates and stuff set up, and that's difficult
 #    if [file executable /usr/bin/codesign] {
 #        system "codesign ${destroot}${prefix}/bin/ggdb*"
 #    }
@@ -84,6 +101,30 @@ post-destroot {
     foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {
         ln -s ${prefix}/bin/${binary} ${destroot}${prefix}/libexec/gnubin/[string range $binary 1 end]
     }
+}
+
+set pythons_suffixes {25 26 27 31 32 33}
+
+set pythons_ports {}
+foreach s ${pythons_suffixes} {
+    lappend pythons_ports python${s}
+}
+
+foreach s ${pythons_suffixes} {
+    set p python${s}
+    set v [string index ${s} 0].[string index ${s} 1]
+    set i [lsearch -exact ${pythons_ports} ${p}]
+    set c [lreplace ${pythons_ports} ${i} ${i}]
+    eval [subst {
+        variant ${p} description "Build GDB with Python ${v} Scripting" \
+        conflicts ${c} {
+            depends_build-append    port:${p}
+            depends_lib-append      port:${p}
+            depends_run-append      port:${p}
+            configure.args-append   --with-python=${prefix}/bin/python${v}
+            patchfiles-append       patch-python-config.py.diff
+        }
+    }]
 }
 
 livecheck.type  regex
