@@ -5,9 +5,9 @@ PortSystem          1.0
 
 name                libwmf
 version             0.2.8.4
-revision            7
+revision            8
 categories          graphics fonts
-license             LGPL
+license             LGPL-2+
 maintainers         nomaintainer
 description         Library for converting WMF (Window Metafile Format) files
 long_description \
@@ -25,7 +25,8 @@ checksums           rmd160  98cd631adb5bb332d9224d04bc8a265c105435f2 \
                     sha256  5b345c69220545d003ad52bfd035d5d6f4f075e65204114a9e875e84895a7cf8
 
 depends_build-append \
-    port:pkgconfig
+    port:pkgconfig \
+    port:gmake
 
 depends_lib-append \
     port:bzip2 \
@@ -50,6 +51,8 @@ configure.args      --with-jpeg \
                     --without-x \
                     --with-fontdir=${prefix}/share/fonts/${name}
 
+build.type          gnu
+build.cmd           ${prefix}/bin/gmake
 use_parallel_build  no
 
 post-destroot {
@@ -61,8 +64,9 @@ post-destroot {
 variant x11 {
     categories-append   x11
     depends_lib-append  port:xorg-libX11
-    depends_build-append    bin:mkfontdir:mkfontdir \
-                            bin:mkfontscale:mkfontscale
+    depends_build-append \
+                        bin:mkfontdir:mkfontdir \
+                        bin:mkfontscale:mkfontscale
 
     configure.args-delete   --without-x
     configure.args-append   --with-x

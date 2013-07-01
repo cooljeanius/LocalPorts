@@ -1,0 +1,106 @@
+# -*- Mode: Tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:et:sw=4:ts=4:sts=4
+# $Id: Portfile 97550 2012-09-08 18:14:12Z blair@macports.org $
+
+PortSystem          1.0
+
+name                libtool
+version             2.4.2
+revision            5
+categories          devel sysutils
+# Scripts are GPL-2+, libltdl is LGPL-2+, but all parts that tend to be
+# distributed with dependents have a licensing exception that allows
+# distrbution under the same terms as the rest of the program.
+license             libtool
+maintainers         ram openmaintainer
+description         GNU Libtool - The GNU Portable Library Tool
+
+long_description \
+    GNU libtool is a generic library support script. Libtool hides the  \
+    complexity of using shared libraries behind a consistent, portable  \
+    interface.
+
+homepage            http://www.gnu.org/software/${name}/
+platforms           darwin freebsd
+master_sites        gnu
+
+checksums           md5     d2f3b7d4627e69e13514a40e72a24d50 \
+                    sha1    22b71a8b5ce3ad86e1094e7285981cae10e6ff88 \
+                    rmd160  b7153f3f1e1c50d8c04787cafccd4e19af62ec7d \
+                    sha256  b38de44862a987293cd3d8dfae1c409d514b6c4e794ebc93648febf9afc38918
+
+depends_build-append \
+                    port:automake \
+                    port:autoconf \
+                    port:autobuild
+
+if {${os.platform} != "darwin"} {
+    depends_lib-append \
+                    port:grep \
+                    port:gsed
+}
+
+depends_run-append  bin:m4:m4
+
+#worksrcdir          [strsed $distname {s/[a-z]*$//}]
+
+configure.args-append \
+                    F77=no \
+                    FC=no \
+                    GCJ=no \
+                    --program-prefix=g \
+                    --enable-ltdl-install
+
+configure.env-append \
+                    F77=no \
+                    FC=no \
+                    GCJ=no
+
+# Patch to allow -stdlib=* for the linker
+# See ticket 32982 on trac.
+# committed upstream -> remove for libtool 2.4.3
+patchfiles-append   patch-ltmain.m4sh-allow-clang-stdlib.diff
+
+build.type          gnu
+use_parallel_build  yes
+
+# A lot of these tests currently fail for me...
+# Also they take a while to run, too...
+test.run            yes
+test.target         check
+
+post-destroot {
+    set gnubin ${prefix}/libexec/gnubin
+    xinstall -d ${destroot}${gnubin}
+    ln -s ../../bin/glibtool ${destroot}${gnubin}/${name}
+    ln -s ../../bin/glibtoolize ${destroot}${gnubin}/libtoolize
+
+    set docdir ${prefix}/share/doc/${name}
+    xinstall -d ${destroot}${docdir}
+    xinstall -m 0644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS README THANKS \
+        TODO ${destroot}${docdir}
+}
+
+platform darwin {
+    configure.env-append GREP=/usr/bin/grep \
+                         SED=/usr/bin/sed
+    post-destroot {
+        foreach {neededfile} "${prefix}/lib/libltdl.dylib" {
+            if {![file exists ${destroot}${neededfile}]} {
+                ui_error "${neededfile} is not in the destroot. Please clean ${name} and try again."
+                return -code error "missing ${neededfile} in destroot"
+            }
+        }
+    }
+}
+
+platform macosx {
+    post-destroot {
+        if {[file exists ${destroot}${prefix}/.DS_Store]} {
+            delete ${destroot}${prefix}/.DS_Store
+        }
+    }
+}
+
+livecheck.type  regex
+livecheck.url   http://ftp.gnu.org/gnu/${name}/?C=M&O=D
+livecheck.regex ${name}-(\\d+(?:\\.\\d+)*\[a-z\]?)

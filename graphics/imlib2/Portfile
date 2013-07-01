@@ -1,16 +1,17 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
 # $Id: Portfile 102865 2013-02-09 19:16:59Z jeremyhu@macports.org $
 
-PortSystem      1.0
+PortSystem          1.0
+PortGroup           archcheck 1.0
 
-name            imlib2
-version         1.4.5
-revision	4
-categories      graphics devel
-license         Permissive
-platforms       darwin
-maintainers     nomaintainer
-description     Image loading and rendering library
+name                imlib2
+version             1.4.5
+revision	    4
+categories          graphics devel
+license             Permissive
+platforms           darwin
+maintainers         nomaintainer
+description         Image loading and rendering library
 
 long_description \
    Imlib is a general Image loading and rendering library designed to \
@@ -18,12 +19,15 @@ long_description \
    simple task, as well as a quick one. It also aims to provide simple \
    manipulation routines that might be desired for common operations.
 
-homepage        http://docs.enlightenment.org/api/imlib2/html/
-master_sites    sourceforge:enlightenment
+homepage            http://docs.enlightenment.org/api/imlib2/html/
+master_sites        sourceforge:enlightenment
 
 checksums           md5     8406786d3852b1b1322c2e4bee3c9e5c \
                     sha1    a4c0329d152fff9cb87463709f0e4b54cf1f6121 \
-                    rmd160  efc669592971c9b5dd3cd8959bdcafa41c9f1ece
+                    rmd160  efc669592971c9b5dd3cd8959bdcafa41c9f1ece \
+                    sha256  6e809413a571f82b9e67aeaf5577a1245a034c866ae5fa83c191a227f60cc7a0
+
+archcheck.files     ${prefix}/lib/libXext.dylib
 
 depends_build-append \
     bin:rpmbuild:rpm \
@@ -35,7 +39,9 @@ depends_build-append \
     bin:grep:grep \
     bin:awk:gawk \
     bin:m4:m4 \
-    port:xorg-util-macros
+    port:xorg-util-macros \
+    port:gmake \
+    port:autoconf-archive
 
 depends_lib-append \
     port:bzip2 \
@@ -59,12 +65,18 @@ post-patch {
     file mkdir ${worksrcpath}/m4
     file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
     file copy ${prefix}/share/aclocal/xorg-macros.m4 ${worksrcpath}/m4
+    file copy ${prefix}/share/aclocal/ax_c___attribute__.m4 ${worksrcpath}/m4
     eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/src/*/Makefile.am]
     eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/src/modules/*/Makefile.am]
 }
 
 use_autoreconf  yes
 autoreconf.args -fvi
+
+pre-configure {
+    file copy ${worksrcpath}/src/lib/image.h ${worksrcpath}/src/modules/loaders
+    file copy ${worksrcpath}/src/lib/common.h ${worksrcpath}/src/modules/loaders
+}
 
 configure.ccache no
 configure.args-append \
@@ -87,7 +99,13 @@ configure.env-append \
     XMKMF=${prefix}/bin/xmkmf \
     PKG_CONFIG=${prefix}/bin/pkg-config
 
-use_parallel_build no
+pre-build {
+    file copy ${worksrcpath}/config.h ${worksrcpath}/src/modules/loaders
+}
+
+build.type             gnu
+build.cmd              ${prefix}/bin/gmake
+use_parallel_build     no
 
 post-destroot {
     set docdir ${prefix}/share/doc/${name}
@@ -104,6 +122,8 @@ variant docs description {Build documentation} {
     depends_build-append \
         port:doxygen \
         bin:svn2cl:svn2cl
+    depends_skip_archcheck \
+        svn2cl
     configure.env-append \
         DOXYGEN=${prefix}/bin/doxygen
     configure.args-delete \
@@ -118,7 +138,7 @@ variant docs description {Build documentation} {
 platform darwin 8 {
     configure.args-append --disable-mmx
 }
-platform ppc {
+platform powerpc {
     configure.args-append --disable-mmx
 }
 
