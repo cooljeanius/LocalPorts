@@ -11,8 +11,10 @@ categories          sysutils archivers
 license             GPL-2+
 maintainers         gwmail.gwu.edu:egall openmaintainer
 description         Debian package maintenance system
-long_description    ${name} is the basis of the ${description}. Installing this \
-                    port allows the usage of the `port dpkg` command.
+long_description    ${name} is the basis of the ${description}. \
+                    Installing this port allows the usage of the \
+                    \`port dpkg\` command.
+
 homepage            http://wiki.debian.org/Teams/Dpkg
 
 master_sites        debian:d/${name}/
@@ -27,7 +29,9 @@ extract.asroot      yes
 depends_build-append \
                     port:pkgconfig \
                     path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
-                    bin:git:git-core
+                    path:share/aclocal/xorg-macros.m4:xorg-util-macros \
+                    bin:git:git-core \
+                    bin:perl:perl5
 
 # Use MacPorts versions explicitly
 depends_lib-append  port:gettext \
@@ -63,7 +67,23 @@ configure.args-append \
                     --disable-silent-rules \
                     --disable-start-stop-daemon
 # The start-stop-daemon patch now applies again, but now it leads to build errors,
-# so disabling it with a configure flag again
+# so disabling it with a configure flag again (as done above)
+
+# ccache is trouble
+configure.ccache          no
+configure.cflags-delete   -Wvla
+configure.cppflags-delete -Wvla
+configure.ldflags-delete  -Wvla
+
+post-configure {
+    reinplace "s|-Wvla||" ${worksrcpath}/Makefile
+    eval reinplace "s|-Wvla||" [glob ${worksrcpath}/*/Makefile]
+    eval reinplace "s|-Wvla||" [glob ${worksrcpath}/lib/*/Makefile]
+    reinplace "s|-Wvla||" ${worksrcpath}/lib/dpkg/test/Makefile
+    reinplace "s|-Wmissing-declarations||" ${worksrcpath}/dselect/Makefile
+}
+
+compiler.blacklist-append cc gcc-3.3 gcc-4.0 apple-gcc-4.0
 
 build.type          gnu
 
@@ -108,8 +128,8 @@ platform freebsd {
     depends_build-append    bin:gmake:gmake
 }
 
-# This variant currently hangs while building and fails to actually install the documentation,
-# not entirely sure why...
+# This variant currently hangs while building and fails to actually install the
+# documentation, not entirely sure why...
 variant docs description {Build documentation} {
     depends_build-append    port:doxygen path:bin/dot:graphviz
     set docdir ${prefix}/share/doc/${name}
@@ -127,6 +147,13 @@ variant docs description {Build documentation} {
 # Tests currently fail, this needs to be fixed
 test.run            yes
 test.target         check
+
+pre-test {
+    elevateToRoot "test"
+}
+post-test {
+    dropPrivileges
+}
 
 livecheck.type      regex
 livecheck.url       http://ftp.debian.org/debian/pool/main/d/${name}/

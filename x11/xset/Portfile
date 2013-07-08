@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 97140 2012-08-28 00:53:11Z rmstonecipher@macports.org $
+
+PortSystem          1.0
+
+name                xset
+version             1.2.2
+revision            1
+categories          x11
+maintainers         jeremyhu openmaintainer
+description         User preference utility for X11
+license             MIT
+long_description    ${description}
+
+platforms           darwin
+
+homepage            http://www.x.org/
+master_sites        xorg:individual/app/
+use_bzip2           yes
+
+checksums           md5     d44e0057d6722b25d5a314e82e0b7e7c \
+                    sha1    e48d628259dbe1ff413ec8408b4fee9561c8815c \
+                    rmd160  ec3e0ac304f36163b3fc312674b29810310d3612 \
+                    sha256  61371c140030b8b05075a1378b34a4d7c438ed9159496a95f10782c6f4aec1e8
+
+depends_build-append \
+                    port:pkgconfig
+
+depends_lib-append  port:xorg-libX11 \
+                    port:xorg-libXext \
+                    port:xorg-libXfontcache \
+                    port:xorg-libXmu \
+                    port:xorg-libXp \
+                    port:xorg-libXxf86misc
+
+depends_run-append  port:fontconfig
+
+livecheck.type      regex
+livecheck.regex     ${name}-(\[\\d.\]+)${extract.suffix}
+livecheck.url       http://xorg.freedesktop.org/archive/individual/app/?C=M&O=D

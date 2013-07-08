@@ -1,0 +1,89 @@
+--- m4/check_cxx0x.m4.bak	2011-05-20 23:30:16.000000000 -0400
++++ m4/check_cxx0x.m4	2013-07-01 20:47:57.000000000 -0400
+@@ -1,8 +1,8 @@
+-dnl Checks C++0x support, in particular we look for unordered_map
++dnl# Checks C++0x support: in particular we look for "unordered_map"
+ 
+ AC_DEFUN([CHECK_CXX0X], [
+   
+-  AC_LANG_PUSH(C++)
++  AC_LANG_PUSH([C++])
+ 
+   cxx_has_cxx0x=""
+   if test "X$GCC" = "Xyes"; then
+@@ -13,10 +13,10 @@
+     CXXFLAGS="$CXXFLAGS -std=gnu++0x"
+  
+     AC_COMPILE_IFELSE([
+-      AC_LANG_PROGRAM([[
+-      ]], [[
++      AC_LANG_PROGRAM([
++      ], [
+         return 0;
+-      ]])
++      ])
+     ], [
+       AC_MSG_RESULT([yes])
+       cxx_has_cxx0x="-std=gnu++0x"
+@@ -30,10 +30,10 @@
+       CXXFLAGS="$CXXFLAGS -std=c++0x"
+    
+       AC_COMPILE_IFELSE([
+-        AC_LANG_PROGRAM([[
+-        ]], [[
++        AC_LANG_PROGRAM([
++        ], [
+           return 0;
+-        ]])
++        ])
+       ], [
+         AC_MSG_RESULT([yes])
+         cxx_has_cxx0x="-std=c++0x"
+@@ -57,11 +57,11 @@
+ 
+   has_unordered_map=""
+   AC_PREPROC_IFELSE([
+-      AC_LANG_PROGRAM([[
++      AC_LANG_PROGRAM([
+         #include <unordered_map>
+-      ]], [[
++      ], [
+         return 0;
+-      ]])
++      ])
+     ], [
+       has_unordered_map=std
+       AC_MSG_RESULT([yes])
+@@ -71,11 +71,11 @@
+       AC_MSG_CHECKING([for whether we can include <tr1/unordered_map>])
+ 
+       AC_PREPROC_IFELSE([
+-          AC_LANG_PROGRAM([[
++          AC_LANG_PROGRAM([
+            #include <tr1/unordered_map>
+-        ]], [[
++        ], [
+           return 0;
+-        ]])
++        ])
+       ], [
+         has_unordered_map=tr1
+         AC_MSG_RESULT([yes])
+@@ -84,14 +84,14 @@
+       ])
+     ])
+ 
+-  AH_TEMPLATE(HAVE_TR1_UNORDERED_MAP, [Define HAVE_TR1_UNORDERED_MAP on systems where unordered_map is in tr1/ subdirectory.])
++  AH_TEMPLATE([HAVE_TR1_UNORDERED_MAP], [Define HAVE_TR1_UNORDERED_MAP on systems where unordered_map is in tr1/ subdirectory.])
+   if test "$has_unordered_map" = "tr1"; then
+-    AC_DEFINE(HAVE_TR1_UNORDERED_MAP)
++    AC_DEFINE([HAVE_TR1_UNORDERED_MAP],[1],[Define HAVE_TR1_UNORDERED_MAP on systems where unordered_map is in tr1/ subdirectory.])
+   fi
+ 
+   CPPFLAGS="$old_cppflags"
+ 
+-  AC_LANG_POP(C++)
++  AC_LANG_POP([C++])
+ 
+ ])
+ 

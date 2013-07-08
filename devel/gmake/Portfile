@@ -50,17 +50,18 @@ variant tests description {Build tests} {
 
     configure.ccache    no
     platform macosx {
-        # The HFS filesystem is case-insensitive by default, and I don't know how to check
-        # if people have changed this, so assume case insensitivity on OS X to try to make
-        # the tests pass
+        # The HFS filesystem is case-insensitive by default, and I don't 
+        # know how to check if people have changed this, so assume case 
+        # insensitivity on OS X to try to make the tests pass
         configure.args-append \
             --enable-case-insensitive-file-system
     }
 
     use_parallel_build  no
 
-    # the "default_names" test currently fails; I originally thought it was possibly due to
-    # case-sensitivity or something, but telling the configure script that didn't seem to work...
+    # the "default_names" test currently fails; I originally thought it was 
+    # possibly due to case-sensitivity or something, but telling the 
+    # configure script that didn't seem to work...
     test.run            yes
     test.target         check
 }
@@ -73,8 +74,8 @@ post-destroot {
 
     set docdir ${prefix}/share/doc/${name}
     xinstall -d ${destroot}${docdir}
-    xinstall -m 0644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS README \
-        ${destroot}${docdir}
+    xinstall -m 0644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS \
+        README ${destroot}${docdir}
 
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
     foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {

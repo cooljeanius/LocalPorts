@@ -1,0 +1,431 @@
+--- configure.in	2011-08-28 16:36:18.000000000 -0400
++++ configure.ac	2013-07-01 21:24:49.000000000 -0400
+@@ -1,26 +1,71 @@
+-AC_INIT(FileZilla, 3.5.1, tim.kosse@filezilla-project.org)
++#                                               -*- Autoconf -*-
++# Process this file with autoconf to produce a configure script.
++
++AC_PREREQ([2.69])
++AC_INIT([FileZilla], [3.5.1], [tim.kosse@filezilla-project.org])
++AC_CONFIG_SRCDIR([autogen.sh])
+ AC_CONFIG_HEADERS([src/include/config.h])
+ AC_CONFIG_MACRO_DIR([m4])
+-AC_CONFIG_AUX_DIR(config)
+-AM_INIT_AUTOMAKE([dist-bzip2])
++AC_CONFIG_AUX_DIR([config])
++AM_INIT_AUTOMAKE([foreign dist-bzip2])
+ 
+ AC_CANONICAL_HOST
+ 
++# Checks for programs.
+ AC_PROG_CXX
+ AM_PROG_CC_C_O
+ AC_PROG_INSTALL
+ AC_PROG_LIBTOOL
++AX_CHECK_GNU_MAKE
++PKG_PROG_PKG_CONFIG
++
++# Checks for libraries.
++# FIXME: Replace `main' with a function in `-lmpr':
++AC_CHECK_LIB([mpr], [main])
++# FIXME: Replace `main' with a function in `-lnetapi32':
++AC_CHECK_LIB([netapi32], [main])
++# FIXME: Replace `main' with a function in `-lole32':
++AC_CHECK_LIB([ole32], [main])
++# FIXME: Replace `main' with a function in `-luuid':
++AC_CHECK_LIB([uuid], [main])
++
++# Checks for header files.
++AC_CHECK_HEADERS([arpa/inet.h fcntl.h langinfo.h limits.h locale.h \
++netdb.h netinet/in.h stddef.h stdio.h sys/ioctl.h sys/param.h \
++sys/socket.h sys/time.h sys/timeb.h termios.h utime.h])
++
++# Checks for typedefs, structures, and compiler characteristics.
++AC_CHECK_HEADER_STDBOOL
++AC_C_INLINE
++AC_TYPE_OFF_T
++AC_C_RESTRICT
++AC_TYPE_SIZE_T
++AC_TYPE_SSIZE_T
++AC_TYPE_UID_T
++AC_TYPE_UINT32_T
++AC_CHECK_TYPES([ptrdiff_t])
++
++# Checks for library functions.
++AC_FUNC_ERROR_AT_LINE
++AC_FUNC_FORK
++AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
++AC_FUNC_MALLOC
++AC_FUNC_REALLOC
++AC_CHECK_FUNCS([atexit dup2 endpwent getcwd gethostbyname gethostname \
++inet_ntoa memchr memmove memset mkdir nl_langinfo putenv select setenv \
++setlocale socket strchr strcspn strdup \
++strerror strrchr strspn strstr strtol strtoul utime])
+ 
+ AC_CACHE_SAVE
+ 
+-AC_ARG_ENABLE(locales, AC_HELP_STRING([--enable-locales], [Build message catalogs]), \
++AC_ARG_ENABLE([locales], [AC_HELP_STRING([--enable-locales], [Build message catalogs])], \
+ 		[locales="$enableval"], [locales="yes"])
+ 
+ # Todo: Investigate using sub-configure scripts
+-AC_ARG_ENABLE(localesonly, AC_HELP_STRING([--enable-localesonly], [Just build locales]), \
++AC_ARG_ENABLE([localesonly], [AC_HELP_STRING([--enable-localesonly], [Just build locales])], \
+ 		[localesonly="$enableval"], [localesonly="no"])
+ 
+-AC_ARG_ENABLE(shellextonly, AC_HELP_STRING([--enable-shellextonly], [Just build Explorer shell extension (MSW specific flag)]), \
++AC_ARG_ENABLE([shellextonly], [AC_HELP_STRING([--enable-shellextonly], [Just build Explorer shell extension (MSW specific flag)])], \
+ 		[shellextonly="$enableval"], [shellextonly="no"])
+ 
+ if test "$locales" != "yes" -a "$localesonly" = "yes"; then
+@@ -61,13 +106,13 @@
+   AC_DEFINE_UNQUOTED(USED_CXXFLAGS, ["$CXXFLAGS"], [Define to the used CXXFLAGS to compile this package.])
+ 
+   # Get compiler (version)
+-  AH_TEMPLATE(USED_COMPILER, [Define to name and version of used compiler])
++  AH_TEMPLATE([USED_COMPILER], [Define to name and version of used compiler])
+   if COMPILER=`$CC --version | head -n 1`; then
+     AC_DEFINE_UNQUOTED(USED_COMPILER, ["$COMPILER"])
+   fi
+ 
+   # Get buildtype.
+-  AC_ARG_ENABLE(buildtype, AC_HELP_STRING([--enable-buildtype=TYPE], [DO NOT USE. Reserved for use by official maintainer. TYPE can either be 'official' or 'nightly'.]),
++  AC_ARG_ENABLE([buildtype], [AC_HELP_STRING([--enable-buildtype=TYPE], [DO NOT USE. Reserved for use by official maintainer. TYPE can either be 'official' or 'nightly'.])],
+ 	[buildtype=$enableval], [buildtype=])
+   buildtype_valid=false
+   if test -z "$buildtype"; then
+@@ -95,7 +140,7 @@
+   AM_OPTIONS_WXCONFIG
+ 
+   MIN_WX_VERSION="2.8.9"
+-  AM_PATH_WXCONFIG($MIN_WX_VERSION, wxWin=1, , [aui,xrc,adv,core,xml,net,base], [--unicode=yes --universal=no])
++  AM_PATH_WXCONFIG([$MIN_WX_VERSION], [wxWin=1], [], [aui,xrc,adv,core,xml,net,base], [--unicode=yes --universal=no])
+   if test "$wxWin" != 1; then
+ 	AC_MSG_ERROR([
+         	wxWidgets must be installed on your system
+@@ -120,27 +165,26 @@
+     AC_MSG_ERROR([wxUniversal is not acceptable as flavour of wxWidgets. Please recompile wxWidgets with --disable-universal])
+   fi
+ 
+-  AC_LANG_PUSH(C++)
++  AC_LANG_PUSH([C++])
+   CPPFLAGS_OLD="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
+   AC_MSG_CHECKING([positional printf argument support in wxWidgets])
+-  AC_PREPROC_IFELSE(
+-	AC_LANG_PROGRAM([[
++  AC_PREPROC_IFELSE([
++	AC_LANG_PROGRAM([
+ 		  #include <wx/wx.h>
+ 		  #if !wxUSE_PRINTF_POS_PARAMS
+ 			#error wx compiled without wxUSE_PRINTF_POS_PARAMS
+ 		  #endif
+-		]]),
+-	  AC_MSG_RESULT([yes]),
++		])],
++	  [AC_MSG_RESULT([yes])],
+ 	  [
+ 		AC_MSG_RESULT([no])
+ 		AC_MSG_FAILURE([Positional printf argument support in wxWidgets is required by FileZilla. Please rebuild wxWidgets and pass --enable-printfposparam to its configure script.])
+-	  ]
+-	)
++	  ])
+   CPPFLAGS="$CPPFLAGS_OLD"
+   AC_LANG_POP
+ 
+-  AC_SUBST(WX_CONFIG_WITH_ARGS)
++  AC_SUBST([WX_CONFIG_WITH_ARGS])
+ 
+   AC_CACHE_SAVE
+ 
+@@ -155,7 +199,7 @@
+   # Checks for PuTTY
+   # ----------------
+ 
+-  AC_CHECK_HEADERS([utmpx.h sys/select.h],,,[
++  AC_CHECK_HEADERS([utmpx.h sys/select.h],[],[],[
+   #include <sys/types.h>
+   #include <utmp.h>])
+ 
+@@ -213,8 +257,8 @@
+   else
+ 	AC_MSG_RESULT([no])
+   fi
+-  AC_SUBST(WINDRES)
+-  AC_SUBST(WINDRESFLAGS)
++  AC_SUBST([WINDRES])
++  AC_SUBST([WINDRESFLAGS])
+ 
+   # version.rc.in needs a major, minor and micro version number
+   vnumber=${PACKAGE_VERSION%-*}
+@@ -242,10 +286,10 @@
+     PACKAGE_VERSION_NANO=0
+   fi
+ 
+-  AC_SUBST(PACKAGE_VERSION_MAJOR)
+-  AC_SUBST(PACKAGE_VERSION_MINOR)
+-  AC_SUBST(PACKAGE_VERSION_MICRO)
+-  AC_SUBST(PACKAGE_VERSION_NANO)
++  AC_SUBST([PACKAGE_VERSION_MAJOR])
++  AC_SUBST([PACKAGE_VERSION_MINOR])
++  AC_SUBST([PACKAGE_VERSION_MICRO])
++  AC_SUBST([PACKAGE_VERSION_NANO])
+ 
+ fi
+ 
+@@ -272,19 +316,19 @@
+   fi
+ 
+   if echo $host_os | grep "mingw" > /dev/null 2>&1; then
+-    AC_CONFIG_FILES(data/install.nsi)
+-    AC_CONFIG_FILES(data/makezip.sh)
++    AC_CONFIG_FILES([data/install.nsi])
++    AC_CONFIG_FILES([data/makezip.sh])
+   fi
+ 
+   # Libidn checks
+   # -------------
+ 
+-  AC_CHECK_HEADER(idna.h,, 
++  AC_CHECK_HEADER([idna.h],[], 
+   [
+     AC_MSG_ERROR([idna.h not found which is part of GNU libidn.])
+   ])
+ 
+-  AC_ARG_WITH(idn-lib,
++  AC_ARG_WITH([idn-lib],
+   	AC_HELP_STRING([--with-idn-lib=FILE], [Use the given path to the idn library.]),
+   [
+ 	if test "$withval" != "yes" -a "$withval" != ""; then
+@@ -293,25 +337,25 @@
+   ])
+ 
+   if test "x$IDN_LIB" = "x"; then
+-    AC_CHECK_LIB(idn, stringprep_check_version, IDN_LIB="-lidn",
++    AC_CHECK_LIB([idn], [stringprep_check_version], [IDN_LIB="-lidn"],[
+                  AC_MSG_ERROR([GNU libidn not found. Try using --with-idn-lib=FILE to specify the library path.])
+-                 )
++                 ])
+   fi
+ 
+-  AC_SUBST(IDN_LIB)
++  AC_SUBST([IDN_LIB])
+ 
+   # Binreloc
+   # --------
+ 
+   # Check if we should use BinReloc
+-  AH_TEMPLATE(ENABLE_BINRELOC, [Define ENABLE_BINRELOC on systems where the executable
++  AH_TEMPLATE([ENABLE_BINRELOC], [Define ENABLE_BINRELOC on systems where the executable
+                                 location can be obtained using /proc/self/maps])
+   AC_MSG_CHECKING([whether to use BinReloc])
+   if echo $host_os | grep -i "cygwin\|mingw\|mac\|apple" > /dev/null 2>&1 ; then
+     use_binreloc=no
+   else
+     use_binreloc=yes
+-    AC_DEFINE(ENABLE_BINRELOC)
++    AC_DEFINE([ENABLE_BINRELOC])
+   fi
+ 
+   AC_MSG_RESULT([$use_binreloc])
+@@ -321,8 +365,8 @@
+ 
+   AC_MSG_CHECKING([whether to use precompiled headers])
+   use_precomp=""
+-  AC_ARG_ENABLE(precomp, AC_HELP_STRING([--enable-precomp], [Use precompiled headers]), \
+-                use_precomp="$enableval")
++  AC_ARG_ENABLE([precomp], [AC_HELP_STRING([--enable-precomp], [Use precompiled headers])], \
++                [use_precomp="$enableval"])
+   if test "x$enable_dependency_tracking" = "xno"; then
+     use_precomp="no"
+   fi
+@@ -360,7 +404,7 @@
+   # Updatecheck related flags
+   # -------------------------
+ 
+-  AC_ARG_ENABLE(manualupdatecheck, AC_HELP_STRING([--disable-manualupdatecheck], [Disallow the user to manually check for new versions. Implies --disable-autoupdatecheck]),
++  AC_ARG_ENABLE([manualupdatecheck], [AC_HELP_STRING([--disable-manualupdatecheck], [Disallow the user to manually check for new versions. Implies --disable-autoupdatecheck])],
+ 	[manualupdatecheck=$enableval], [manualupdatecheck="yes"])
+ 
+   if test "$manualupdatecheck" = "no"; then
+@@ -370,7 +414,7 @@
+   fi
+   AC_DEFINE_UNQUOTED(FZ_MANUALUPDATECHECK, $manualupdatecheck, [Set to 1 to enable user initiated update checks])
+ 
+-  AC_ARG_ENABLE(autoupdatecheck, AC_HELP_STRING([--disable-autoupdatecheck], [Disables the ability of FileZilla to check for new versions automatically.]),
++  AC_ARG_ENABLE([autoupdatecheck], [AC_HELP_STRING([--disable-autoupdatecheck], [Disables the ability of FileZilla to check for new versions automatically.])],
+ 	[autoupdatecheck=$enableval], [autoupdatecheck="yes"])
+ 
+   if test "$manualupdatecheck" = "1" -a "$autoupdatecheck" != "no"; then
+@@ -383,26 +427,26 @@
+   # GnuTLS
+   # ------
+ 
+-  PKG_CHECK_MODULES(LIBGNUTLS, gnutls >= 2.8.3,, [ 
++  PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 2.8.3],[], [ 
+ 							   
+-    AM_PATH_LIBGNUTLS(2.8.3,, AC_MSG_ERROR([[
++    AM_PATH_LIBGNUTLS([2.8.3],[], [AC_MSG_ERROR([
+ ***
+ *** libgnutls 2.8.3 or greater was not found. You may want to get it from
+-*** ftp://ftp.gnutls.org/pub/gnutls/]]))
++*** ftp://ftp.gnutls.org/pub/gnutls/])])
+     ])
+ 
+-  AC_SUBST(LIBGNUTLS_LIBS)
+-  AC_SUBST(LIBGNUTLS_CFLAGS)
++  AC_SUBST([LIBGNUTLS_LIBS])
++  AC_SUBST([LIBGNUTLS_CFLAGS])
+ 
+   # TinyXML
+   # ------
+ 
+-  FZ_CHECK_TINYXML()
++  FZ_CHECK_TINYXML([])
+ 
+   # Libdbus
+   # -------
+ 
+-  AC_ARG_WITH(dbus, AC_HELP_STRING([--with-dbus], [Enable D-Bus support through libdbus. Used for GNOME Session manager D-Bus API. Default: auto]),
++  AC_ARG_WITH([dbus], [AC_HELP_STRING([--with-dbus], [Enable D-Bus support through libdbus. Used for GNOME Session manager D-Bus API. Default: auto])],
+     [
+     ],
+     [
+@@ -428,9 +472,9 @@
+   fi
+ 
+   if test "$with_dbus" != "no"; then
+-    PKG_CHECK_MODULES(LIBDBUS, dbus-1 >= 1.2, [with_dbus_v="2"],
++    PKG_CHECK_MODULES([LIBDBUS], [dbus-1 >= 1.2], [with_dbus_v="2"],
+       [
+-        PKG_CHECK_MODULES(LIBDBUS, dbus-1, [with_dbus_v="1"],
++        PKG_CHECK_MODULES([LIBDBUS], [dbus-1], [with_dbus_v="1"],
+           [
+ 			AC_MSG_ERROR([libdbus not found. Install libdbus or configure with --without-dbus])
+           ])
+@@ -444,41 +488,41 @@
+   # We want xdg-open on *nix
+   if echo "$WX_CPPFLAGS" | grep __WXGTK__ > /dev/null 2>&1; then
+ 
+-    AC_PATH_PROG(xdgopen, xdg-open)
++    AC_PATH_PROG([xdgopen], [xdg-open])
+     if test -z "$xdgopen"; then
+       AC_MSG_ERROR([xdg-open not found. This program is the preferred way to launch the default browser. Please install the xdg-utils.])
+     fi
+ 
+-    PKG_CHECK_MODULES(LIBGTK, gtk+-2.0,, [
++    PKG_CHECK_MODULES([LIBGTK], [gtk+-2.0],[], [
+       AC_MSG_ERROR([gtk+-2.0 was not found, even though the used version of wxWidgets depends on it. Are you missing the gtk+2.0 development files?])
+     ])
+ 
+-    AC_SUBST(LIBGTK_LIBS)
+-    AC_SUBST(LIBGTK_CFLAGS)
++    AC_SUBST([LIBGTK_LIBS])
++    AC_SUBST([LIBGTK_CFLAGS])
+   fi
+ 
+   # Some more obscure platforms (e.g. HP-UX) don't have setenv which is required by POSIX
+-  AC_CHECK_FUNC(setenv, [AC_DEFINE([HAVE_SETENV], [1], [Define to 1 if setenv function is available.])], [])
+-  AC_CHECK_FUNC(putenv, [AC_DEFINE([HAVE_PUTENV], [1], [Define to 1 if putenv function is available.])], [])
++  AC_CHECK_FUNC([setenv], [AC_DEFINE([HAVE_SETENV], [1], [Define to 1 if setenv function is available.])], [])
++  AC_CHECK_FUNC([putenv], [AC_DEFINE([HAVE_PUTENV], [1], [Define to 1 if putenv function is available.])], [])
+ 
+   # SQLite3
+   # -------
+ 
+-  PKG_CHECK_MODULES(LIBSQLITE3, sqlite3 >= 3.7,, [ 
++  PKG_CHECK_MODULES([LIBSQLITE3], [sqlite3 >= 3.7],[], [ 
+ 		
+-    AC_CHECK_HEADER(sqlite3.h,, 
++    AC_CHECK_HEADER([sqlite3.h],[], 
+     [
+       AC_MSG_ERROR([sqlite3.h not found which is part of SQLite3.])
+     ])
+ 
+-    AC_CHECK_LIB(sqlite3, sqlite3_version, LIBSQLITE3_LIBS="-lsqlite3",
++    AC_CHECK_LIB([sqlite3], [sqlite3_version], [LIBSQLITE3_LIBS="-lsqlite3"],
+     [
+       AC_MSG_ERROR([SQLite3 not found.])
+     ])
+   ])
+ 
+-  AC_SUBST(LIBSQLITE3_LIBS)
+-  AC_SUBST(LIBSQLITE3_CFLAGS)
++  AC_SUBST([LIBSQLITE3_LIBS])
++  AC_SUBST([LIBSQLITE3_CFLAGS])
+   
+ fi
+ 
+@@ -491,17 +535,17 @@
+ FILEZILLA_LINGUAS_PO_NEW=
+ 
+ if test "$locales" = "yes"; then
+-  AC_PATH_PROG(xgettext, xgettext)
++  AC_PATH_PROG([xgettext], [xgettext])
+   if test -z "$xgettext"; then
+     AC_MSG_ERROR([xgettext not found, please install the GNU gettext package and make sure xgettext is in the path.])
+   fi
+ 
+-  AC_PATH_PROG(msgfmt, msgfmt)
++  AC_PATH_PROG([msgfmt], [msgfmt])
+   if test -z "$msgfmt"; then
+     AC_MSG_ERROR([ msgfmt not found, please install the GNU gettext package and make sure  msgfmt is in the path.])
+   fi
+ 
+-  FZ_PATH_PROG_VER(msgmerge, msgmerge, 0.11.0)
++  FZ_PATH_PROG_VER([msgmerge], [msgmerge], [0.11.0])
+   if test -z "$msgmerge"; then
+     AC_MSG_ERROR([msgmerge not found or too old, please install a current version of the GNU gettext package and make sure msgmerge is in the path.])
+   fi
+@@ -542,10 +586,10 @@
+   fi
+ fi
+ 
+-AC_SUBST(FILEZILLA_LINGUAS)
+-AC_SUBST(FILEZILLA_LINGUAS_PO)
+-AC_SUBST(FILEZILLA_LINGUAS_PO_NEW)
+-AC_SUBST(FILEZILLA_LINGUAS_MO)
++AC_SUBST([FILEZILLA_LINGUAS])
++AC_SUBST([FILEZILLA_LINGUAS_PO])
++AC_SUBST([FILEZILLA_LINGUAS_PO_NEW])
++AC_SUBST([FILEZILLA_LINGUAS_MO])
+ 
+ 
+ # Output automake conditionals
+@@ -554,18 +598,18 @@
+ AM_CONDITIONAL([MINGW], [echo $host_os | grep "mingw" > /dev/null])
+ AM_CONDITIONAL([LOCALES_ONLY], [test "$localesonly" = "yes"])
+ AM_CONDITIONAL([LOCALES], [test "$locales" = "yes"])
+-AM_CONDITIONAL(SFTP_MINGW, [test "$sftpbuild" = "mingw"])
+-AM_CONDITIONAL(SFTP_UNIX, [test "$sftpbuild" = "unix"])
+-AM_CONDITIONAL(USE_RESOURCEFILE, test "$use_resourcefile" = "true")
+-AM_CONDITIONAL(MACAPPBUNDLE, [test "$macappbundle" = "yes"])
+-AM_CONDITIONAL(MAKENSISSCRIPT, [test "$makensisscript" = "yes"])
+-AM_CONDITIONAL(USE_BINRELOC, test "$use_binreloc" = "yes")
+-AM_CONDITIONAL(ENABLE_PRECOMP, test "x$use_precomp" = "xyes")
+-AM_CONDITIONAL(HAS_CPPUNIT, [test "$has_cppunit" = "yes"])
+-AM_CONDITIONAL(HAVE_LIBTINYXML, [test "x$with_tinyxml" = "xsystem"])
+-AM_CONDITIONAL(HAVE_DBUS, [test "x$with_dbus" = "xyes"])
++AM_CONDITIONAL([SFTP_MINGW], [test "$sftpbuild" = "mingw"])
++AM_CONDITIONAL([SFTP_UNIX], [test "$sftpbuild" = "unix"])
++AM_CONDITIONAL([USE_RESOURCEFILE], [test "$use_resourcefile" = "true"])
++AM_CONDITIONAL([MACAPPBUNDLE], [test "$macappbundle" = "yes"])
++AM_CONDITIONAL([MAKENSISSCRIPT], [test "$makensisscript" = "yes"])
++AM_CONDITIONAL([USE_BINRELOC], [test "$use_binreloc" = "yes"])
++AM_CONDITIONAL([ENABLE_PRECOMP], [test "x$use_precomp" = "xyes"])
++AM_CONDITIONAL([HAS_CPPUNIT], [test "$has_cppunit" = "yes"])
++AM_CONDITIONAL([HAVE_LIBTINYXML], [test "x$with_tinyxml" = "xsystem"])
++AM_CONDITIONAL([HAVE_DBUS], [test "x$with_dbus" = "xyes"])
+ 
+-AC_CONFIG_FILES(Makefile src/Makefile src/engine/Makefile src/tinyxml/Makefile
++AC_CONFIG_FILES([Makefile src/Makefile src/engine/Makefile src/tinyxml/Makefile
+ src/dbus/Makefile
+ src/interface/Makefile src/interface/resources/Makefile src/include/Makefile
+ locales/Makefile src/interface/resources/16x16/Makefile
+@@ -579,5 +623,5 @@
+ src/putty/Makefile src/putty/unix/Makefile src/putty/windows/Makefile
+ tests/Makefile src/interface/resources/version.rc
+ src/interface/resources/MacInfo.plist
+-src/fzshellext/Makefile src/fzshellext/version.rc)
++src/fzshellext/Makefile src/fzshellext/version.rc])
+ AC_OUTPUT

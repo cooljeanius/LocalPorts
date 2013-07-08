@@ -6,7 +6,7 @@ PortGroup           archcheck 1.0
 
 name                imlib2
 version             1.4.5
-revision	    4
+revision	    5
 categories          graphics devel
 license             Permissive
 platforms           darwin
@@ -53,8 +53,12 @@ depends_lib-append \
     port:tiff \
     port:xorg-libsm \
     port:xorg-libX11 \
+    port:xorg-libXau \
+    port:xorg-libXdmcp \
     port:xorg-libXext \
     port:xorg-libice \
+    port:xorg-libxcb \
+    port:xz \
     port:zlib
 
 patchfiles-append \

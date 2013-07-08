@@ -5,7 +5,7 @@ PortSystem               1.0
 PortGroup                github 1.0
 
 github.setup             cooljeanius gaa 1.6.6_1 v
-revision                 2
+revision                 3
 platforms	         darwin
 categories	         devel
 maintainers	         gwmail.gwu.edu:egall openmaintainer
@@ -23,12 +23,18 @@ fetch.type 	         git
 git.url 	         git://github.com/cooljeanius/${name}.git
 
 depends_build-append     port:bison \
-                         port:flex
+                         port:flex \
+                         port:gmake
 
 depends_lib-append       port:yydecode
 depends_lib-delete       port:gobject-introspection
 
+configure.ccache         no
+
 configure.args-append    --with-bison-bin=${prefix}/bin/bison
+
+build.type               gnu
+build.cmd                ${prefix}/bin/gmake
 
 variant autoreconf description {Regenerates configure script before \
                                 building. Also pulls in extra \
@@ -43,7 +49,8 @@ variant autoreconf description {Regenerates configure script before \
 
 variant docs description {Generate additional documentation by \
                           using latex2html} {
-    depends_build-append port:latex2html
+    depends_build-append port:latex2html \
+                         port:texlive-latex
     depends_lib-delete   port:poppler
     use_parallel_build   no
     post-build {

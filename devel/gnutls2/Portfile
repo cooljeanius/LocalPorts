@@ -63,19 +63,21 @@ configure.args  --with-lzo \
                 --disable-gtk-doc \
                 --program-suffix=2
 
+# Keep from conflicting with regular gnutls
+configure.pre_args \
+                --prefix=${prefix}/lib/${name}
+
+configure.env-append \
+                GAA=${prefix}/bin/gaa
+
 variant tests description {Run tests} {
-    depends_build-append path:bin/valgrind:valgrind \
-                         path:bin/runtest:dejagnu
+    depends_build-append  path:bin/valgrind:valgrind \
+                          path:bin/runtest:dejagnu
     configure.args-delete --disable-valgrind-tests
     configure.args-append --enable-valgrind-tests
-    test.run        yes
-    test.target     check
-}
-
-post-destroot {
-    move ${destroot}${prefix}/bin/certtool2 ${destroot}${prefix}/bin/gnutls2-certtool
-    move ${destroot}${prefix}/include/gnutls ${destroot}${prefix}/include/gnutls2
-#TODO: fix rest of conflicts with regular gnutls
+    configure.ccache      no
+    test.run              yes
+    test.target           check
 }
 
 variant guile description {Adds guile support - currently broken} {
@@ -106,7 +108,8 @@ variant autoreconf description {Runs autoreconf before configuring} {
                             port:grep \
                             port:gsed \
                             port:gettext \
-                            port:autobuild
+                            port:autobuild \
+                            bin:perl:perl5
     use_parallel_build      no
 }
 
@@ -115,7 +118,8 @@ variant autoreconf description {Runs autoreconf before configuring} {
 variant docs description {Build gtk-doc documentation} {
     PortGroup              archcheck 1.0
     depends_build-append   port:gtk-doc
-    # texinfo is added unconditionally on Darwin 8, so only adding it on higher platforms in this variant
+    # texinfo is already added unconditionally on Darwin 8, so I'm only 
+    # adding it on higher platforms here in this variant
     platform darwin > 8 {
         depends_build-append \
                            port:texinfo

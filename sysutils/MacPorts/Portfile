@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                MacPorts
 version             2.1.3
-revision            1
+revision            2
 
 categories          sysutils macports
 platforms           darwin freebsd
@@ -15,10 +15,17 @@ license             BSD
 description         The ${name} Infrastructure
 long_description \
    ${name} provides the infrastructure that allows easy installation and \
-   management of freely available software on Mac OS X 10.4 or newer systems.
+   management of freely available software on Mac OS X 10.4 or newer \
+   systems.
 
-notes "This port cannot directly be used to upgrade ${name}; use 'port\
-selfupdate' for that."
+notes "
+This port is only for the ${name} team to be able to make packages of\
+${name} for release. As such, end-users should not try to use this port\
+to directly upgrade their ${name} installation, as the files provided\
+by this port will conflict with the files provided by base. To upgrade\
+your ${name} installation, the ${name} team recommends using\
+'port selfupdate' instead.
+"
 
 homepage            http://www.macports.org/
 master_sites        sourceforge:project/macports/${name}/${version}
@@ -29,12 +36,14 @@ use_bzip2           yes
 checksums           rmd160 ef4acbf38d1a2261d878d30c9c5e85953e1a3d1f \
                     sha256 db1205f30747d0cf6ff96709fe121f077575eea4f6d181796c14f22e35086999
 
-variant keep_prefix description "Use configured prefix instead of enforcing /opt/local" {}
+variant keep_prefix description "Use configured prefix instead of\
+                                 enforcing /opt/local" {}
 if {![variant_isset keep_prefix]} {
     prefix          /opt/local
 }
 
-variant mp_deps description "Use ports supplied by ${name} to fulfill missing dependencies" {
+variant mp_deps description "Use ports supplied by ${name} to fulfill\
+                             missing dependencies" {
 depends_build-append port:bsdmake \
                      port:bzr \
                      port:gpatch \
@@ -43,6 +52,7 @@ depends_build-append port:bsdmake \
                      port:swig-tcl \
                      port:gnustep-make \
                      port:gnustep-make-cocoa
+
 configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
                      BZR=${prefix}/bin/bzr \
                      GPATCH=${prefix}/bin/gpatch \
@@ -53,10 +63,15 @@ configure.env-append BSDMAKE=${prefix}/bin/bsdmake \
                      XZ=${prefix}/bin/xz \
                      GNUSTEP_SYSTEM_ROOT=${prefix}/GNUstep/System \
                      PATH=${prefix}/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
 configure.args-append --prefix=${prefix}
 }
 
-variant mp_shadow_deps requires mp_deps description "Use ports supplied by ${name} as dependencies, even if they shadow standard OS X system tools" {
+variant mp_shadow_deps requires mp_deps description "Use ports supplied\
+                                                     by ${name} as\
+                                                     dependencies, even if\
+                                                     they shadow standard\
+                                                     OS X system tools" {
 depends_build-append port:bzip2 \
                      port:cpio \
                      port:cvs \
@@ -76,13 +91,18 @@ depends_build-append port:bzip2 \
                      port:unzip \
                      path:bin/xar:xar \
                      port:zip
+
 depends_lib-append   port:tclcurl \
                      port:tcl-sqlite3 \
                      port:tclreadline \
                      port:tcllib
+
     pre-configure {
-        ui_msg "Warning: Using this variant could possibly be dangerous, as libraries might cause breakages with upgrades."
+        ui_msg "Warning: Using this variant \(\"\+mp_shadow_deps\"\)\
+                could possibly be dangerous, as libraries might cause\
+                breakages with upgrades."
     }
+
 configure.env-append BZIP2=${prefix}/bin/bzip2 \
                      CVS=${prefix}/bin/cvs \
                      FILE=${prefix}/bin/file \
@@ -97,6 +117,7 @@ configure.env-append BZIP2=${prefix}/bin/bzip2 \
                      XAR=${prefix}/bin/xar \
                      ZIP=${prefix}/bin/zip \
                      PATH=${prefix}/bin:${prefix}/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+
 configure.args-append --with-curlprefix=${prefix} \
                       --with-tcl=${prefix}/lib \
                       --with-tclinclude=${prefix}/include \
@@ -107,6 +128,14 @@ configure.args-append --with-curlprefix=${prefix} \
 variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager description {Makes MacPorts entirely self-hosting} {
     PortGroup            archcheck 1.0
     PortGroup            active_variants 1.1
+    PortGroup            compiler_blacklist_versions 1.0
+
+    depends_extract-append \
+                         port:gzip \
+                         path:bin/bsdtar:libarchive \
+                         path:libexec/gnubin/tar:gnutar \
+                         path:bin/hfstar:hfstar
+
     depends_build-append port:coreutils \
                          port:grep \
                          port:gwhich \
@@ -121,24 +150,63 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
                          port:mtr \
                          port:osxbom \
                          port:pkgconfig \
-                         port:bash
-    depends_lib-append   port:tcl
-    depends_skip_archcheck man cdsclient osxbom
+                         port:bash \
+                         path:bin/gcc:gcc_select \
+                         path:bin/clang:clang_select \
+                         path:bin/llvm:llvm_select
+
+    depends_lib-append   port:tcl \
+                         port:libarchive \
+                         port:libtar
+
+    # blacklist all compilers that come with the system; we want a
+    # MacPorts-provided compiler
+    compiler.blacklist-append cc gcc gcc-3.3 gcc-4.0 gcc-4.2 llvm-gcc-4.2 \
+                              clang
+    # Also blacklist gccs that do not depend on the MacPorts cctools
+    compiler.blacklist-append apple-gcc-4.0 macports-gcc-4.2
+
+    depends_skip_archcheck \
+                         man cdsclient osxbom
+    archcheck.files      ${prefix}/bin/lipo ${prefix}/bin/as
+
     require_active_variants osxbom "" rename
+
     set prefix           ${prefix}
+
     post-extract {
         reinplace "s|\[\$PATH\]\:/usr/sbin|\[\]|" ${worksrcpath}/configure.ac
         reinplace "s|\[\$PATH\]\:/usr/local/bin|\[\]|" ${worksrcpath}/configure.ac
+        system -W ${worksrcpath}/src "${prefix}/bin/gzip -d thread2.6.tar.gz"
+        system -W ${worksrcpath}/src "${prefix}/libexec/gnubin/tar -xvf thread2.6.tar"
+        if {![file isdirectory ${filespath}]} {
+            file mkdir ${filespath}
+        }
+        if {![file exists ${filespath}/patch-src_thread2.6.diff]} {
+            file copy ${worksrcpath}/src/thread2.6.diff ${filespath}/patch-src_thread2.6.diff
+        }
+        patchfiles-append patch-src_thread2.6.diff
+        move ${worksrcpath}/src/thread2.6/configure.in ${worksrcpath}/src/thread2.6/configure.ac
+        system "chmod -x ${worksrcpath}/src/thread2.6/configure.ac"
+        file mkdir ${worksrcpath}/src/thread2.6/m4
+        eval file copy [glob ${worksrcpath}/src/thread2.6/*.m4] ${worksrcpath}/src/thread2.6/m4
     }
-    use_autoconf         yes
+
+    use_autoreconf       yes
+    autoreconf.args      -fvi
+
     pre-configure {
+        system -W ${worksrcpath} "export PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin:${prefix}/libexec/texbin"
         system "echo \"prefix is ${prefix}\""
         system -W ${worksrcpath} "ln -sv `which grep` ."
         reinplace "s|grep \-v|${prefix}/bin/grep \-v|" ${worksrcpath}/configure
         system -W ${worksrcpath} "ln -sv `which gzip` ."
         system -W ${worksrcpath} "ln -sv `which gmake` ."
+        system -W ${worksrcpath} "ln -sv `which as` ."
+        system -W ${worksrcpath} "ln -sv `which lipo` ."
         system -W ${worksrcpath} "export PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin:${prefix}/libexec/texbin"
     }
+
     configure.env-delete PATH=${prefix}/bin:${prefix}/sbin:/usr/bin:/bin:/usr/sbin:/sbin
     configure.env-append PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin:${prefix}/libexec/texbin \
                          GREP=${prefix}/bin/grep \
@@ -154,14 +222,22 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
                          CPPFLAGS=-I${prefix}/include \
                          PKG_CONFIG=${prefix}/bin/pkg-config \
                          SHELL=${prefix}/bin/bash \
-                         SQLITE3_TCL_DIR=${prefix}/lib/sqlite3
+                         SQLITE3_TCL_DIR=${prefix}/lib/sqlite3 \
+                         LIPO=${prefix}/bin/lipo \
+                         AS=${prefix}/bin/as
+
+    configure.pipe       no
+    configure.distcc     no
+
     pre-build {
         reinplace "s|gzip|${prefix}/bin/gzip|" ${worksrcpath}/Makefile
         reinplace "s|gzip|${prefix}/bin/gzip|" ${worksrcpath}/doc/Makefile
         reinplace "s|\$\{STLIB_LD\}|${prefix}/bin/ar|" ${worksrcpath}/src/cregistry/Makefile
     }
+
     build.env-append     ${configure.env}
     use_parallel_build   no
+    build.type           gnu
     build.cmd            ${prefix}/bin/gmake
     build.args
     build.pre_args
@@ -172,12 +248,16 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
 variant docs requires mp_deps description "Builds documentation" {
     depends_build-append port:tcl-dox \
                          port:tcldoc \
-                         path:bin/doxygen:doxygen
+                         path:bin/doxygen:doxygen \
+                         path:bin/dot:graphviz
+
     pre-build {
         system -W ${worksrcpath} "doxygen -u"
     }
+
     build.target-append tcldox
     #build.target-append tcldoc
+
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${name}
         xinstall ${worksrcpath}/doc/INTERNALS ${destroot}${prefix}/share/doc/${name}
@@ -189,7 +269,8 @@ variant docs requires mp_deps description "Builds documentation" {
 }
 
 variant mp_bundle requires mp_deps description "Adds other ports related to ${name}" {
-depends_build-append port:cpan2port \
+    depends_build-append \
+                     port:cpan2port \
                      port:macports-notifier \
                      port:MacPorts_Framework \
                      port:macportsscripts \
@@ -203,6 +284,7 @@ depends_build-append port:cpan2port \
                      port:useful-ports \
                      port:port-whatsnew
 }
+
 variant egallager requires mp_shadow_deps description "Uses my personal fork of MacPorts" {
     PortGroup                github 1.0
     PortGroup                archcheck 1.0
@@ -213,6 +295,7 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
 
     fetch.type               git
     git.url                  git://github.com/cooljeanius/${name}-fork.git
+
     depends_build-append     port:autoconf-archive \
                              port:dylibbundler \
                              port:symlinks \
@@ -221,15 +304,24 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
                              path:bin/perl:perl5 \
                              path:bin/python:python_select \
                              path:bin/javac:jikes \
+                             path:bin/jikespg:jikespg \
                              path:bin/guavac:google-guava \
                              path:bin/ecj:eclipse-ecj32 \
                              path:bin/gcj:swig-gcj \
                              path:bin/gcc:gcc_select \
                              path:bin/flex:flex
     #depends_lib-append      port:tcLex port:readline
+
     depends_skip_archcheck   kaffe eclipse-ecj32 google-guava
-    use_autoconf             yes
-    configure.args-append    --enable-readline
+
+    # Use just autoconf instead of autoreconf because automake fails
+    use_autoconf         yes
+    autoconf.args        --force
+
+    configure.args-append \
+                         --enable-readline
+
+    build.type           gnu
 }
 
 if {![variant_isset mp_deps]} {
