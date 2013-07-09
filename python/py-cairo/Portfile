@@ -1,0 +1,108 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:et:fenc=utf-8::et:sw=4:ts=4:sts=4
+# $Id: Portfile 106520 2013-05-29 18:51:34Z mmoll@macports.org $
+
+PortSystem              1.0
+PortGroup               python 1.0
+PortGroup               active_variants 1.1
+
+name                    py-cairo
+set my_name             pycairo
+version                 1.10.0
+revision                3
+categories-append       graphics
+license                 {LGPL-2.1 MPL-1.1}
+platforms               darwin
+maintainers             sean openmaintainer
+description             Pycairo is set of Python bindings for the cairo graphics library
+
+long_description        ${description}
+
+homepage                http://cairographics.org/pycairo/
+master_sites            http://cairographics.org/releases/
+
+# for python 3; python 2.5 is different, as well as 2.6 and 2.7
+checksums               rmd160  7d1c1c05113e5bbad32dbe96c65c918b170cac33 \
+                        sha256  9aa4078e7eb5be583aeabbe8d87172797717f95e8c4338f0d4a17b683a7253be
+
+python.versions         25 26 27 31 32 33
+
+# fixes ticket 37254; can remove when we drop py25-*gtk*
+subport py25-cairo {
+    version             1.8.2
+    revision            3
+
+    checksums           rmd160  ce48a6b71b802f07d0e0d3cfa140fd39ab5fe4d7 \
+                        sha256  77a8cbe388fd66825056744f2fc5c58b3afc247748bc2c777751cc0c2eb30a2f
+
+    test.run            yes
+    test.cmd            "cd test && python2.5"
+    test.target         test.py
+}
+
+if {${name} != ${subport}} {
+    depends_build-append    port:pkgconfig port:py${python.version}-numpy
+    depends_lib-append      path:lib/pkgconfig/cairo.pc:cairo
+
+    # pycairo distributes python 2.x versions as py2cairo
+    if {${python.version} < 31 && ${python.version} > 25} {
+        set my_name     py2cairo
+
+        checksums       rmd160  ce75db9af32ef1a3e90f6aaa649cbb2493a941a4 \
+                        sha256  d30439f06c2ec1a39e27464c6c828b6eface3b22ee17b2de05dc409e429a7431
+
+        post-patch {
+            reinplace "s|py3cairo|pycairo|g" ${worksrcpath}/setup.py
+        }
+    }
+
+    distname            ${my_name}-${version}
+
+    platform darwin 9 {
+        post-patch {
+           reinplace "s| -export-symbols-regex.*||g" ${worksrcpath}/src/Makefile.in
+        }
+    }
+
+    if {${python.version} > 25} {
+        use_bzip2           yes
+        patchfiles-append   setup.py.patch
+    }
+
+    post-extract {
+        fs-traverse item ${worksrcpath} {
+            if {[file isdirectory ${item}]} {
+                file attributes ${item} -permissions a+rx
+            } elseif {[file isfile ${item}]} {
+                file attributes ${item} -permissions a+r
+            }
+        }
+    }
+
+    variant x11 conflicts quartz {
+        require_active_variants path:lib/pkgconfig/cairo.pc:cairo x11 ""
+    }
+
+    variant quartz conflicts x11 {
+        require_active_variants path:lib/pkgconfig/cairo.pc:cairo quartz ""
+    }
+
+    if {![catch {set result [active_variants path:lib/pkgconfig/cairo.pc:cairo x11 quartz]}]} {
+        if {$result} {
+            default_variants +x11
+        }
+    } else {
+        default_variants +x11
+    }
+
+    if {${python.version} >= 31} {
+        post-destroot {
+            ln -s ${python.prefix}/include/pycairo/py3cairo.h ${destroot}${python.prefix}/include/pycairo/pycairo.h
+            ln -s ${python.prefix}/lib/pkgconfig/py3cairo.pc ${destroot}${python.prefix}/lib/pkgconfig/pycairo.pc
+        }
+    }
+
+    livecheck.type      none
+} else {
+    livecheck.type      regex
+    livecheck.regex     "${my_name}-(\[0-9\\.\]+).tar.bz2"
+}
