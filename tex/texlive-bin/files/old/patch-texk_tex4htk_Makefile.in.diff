@@ -1,6 +1,6 @@
---- texk/tex4htk/Makefile.in.orig	2013-05-07 15:38:38.000000000 -0700
-+++ texk/tex4htk/Makefile.in	2013-05-07 15:39:41.000000000 -0700
-@@ -359,12 +359,12 @@
+--- texk/tex4htk/Makefile.in.orig	2012-06-14 18:12:45.000000000 -0400
++++ texk/tex4htk/Makefile.in	2012-06-14 18:13:55.000000000 -0400
+@@ -316,12 +316,12 @@
  LDADD = $(KPATHSEA_LIBS)
  perl_scripts = mk4ht
  shell_scripts = ht htcontext htlatex htmex httex httexi htxelatex htxetex
@@ -15,22 +15,21 @@
  dist_texmf_SCRIPTS = $(perl_scripts:=.pl) $(shell_scripts:=.sh)
  @WIN32_TRUE@dist_bin_SCRIPTS = $(shell_scripts:=.bat)
  CLEANFILES = $(nodist_bin_SCRIPTS)
-@@ -1015,17 +1015,12 @@
- 	  echo 'script_links.am:install-links: could not find relpath script'; \
- 	  exit 1; \
- 	}; \
--	REL=`$(SHELL) $$relpath '$(DESTDIR)' '$(bindir)' '$(datarootdir)'`; \
+@@ -974,16 +974,11 @@
+ 
+ # We support native builds, multiplatform or not, as well as distro builds.
+ install-links:
+-	@REL=`$(SHELL) $(srcdir)/../../build-aux/relpath '$(DESTDIR)' '$(bindir)' '$(datarootdir)'`; \
 -	if test -z "$$REL"; then \
--	  echo 'script_links.am:install_links: unable to compute relative path for linked $(TYPE) scripts' >&2; \
+-	  echo 'unable to compute relative path for linked $(TYPE) scripts' >&2; \
 -	  exit 1; \
 -	fi; \
  	cd $(DESTDIR)$(bindir) && \
  	  for f in $($(TYPE)_scripts); do \
  	    rm -f $$f; \
--	    if $(AM_V_P); then echo "creating link '$$f' -> '$$REL/$(scriptsdir)/$$f.$(EXT)'"; \
-+	    if $(AM_V_P); then echo "creating link '$$f' -> '$(texmfdir)/$$f.$(EXT)'"; \
- 	      else echo "  LINK     $$f"; fi; \
+-	    echo "creating link '$$f' -> '$$REL/$(scriptsdir)/$$f.$(EXT)'"; \
 -	    $(LN_S) $$REL/$(scriptsdir)/$$f.$(EXT) $$f || exit 1; \
++	    echo "creating link '$$f' -> '$(texmfdir)/$$f.$(EXT)'"; \
 +	    $(LN_S) $(texmfdir)/$$f.$(EXT) $$f || exit 1; \
  	  done  
  

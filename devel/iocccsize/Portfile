@@ -1,0 +1,54 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                iocccsize
+version             2013
+revision            1
+categories          devel
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             public-domain
+
+description         Applies the IOCCC Source Size Rule.
+
+long_description    ${description}
+
+homepage            http://ioccc.org/
+
+distfiles
+
+variant universal   {}
+
+configure {
+    file mkdir "${worksrcpath}"
+    file copy ${filespath}/${name}.c ${worksrcpath}
+}
+
+# Too old
+compiler.blacklist-append gcc-3.3
+# What the header comment says to use
+compiler.whitelist-append cc
+
+build {
+     set build_string "${configure.cc} \
+                       ${configure.cflags} \
+                       ${configure.cppflags} \
+                       -pedantic \
+                       -Wall \
+                       -std=c99 \
+                       ${name}.c -o ${name} \
+                       ${configure.ldflags} \
+                       [get_canonical_archflags ld]"
+    ui_debug "${build_string}"
+    system -W ${worksrcpath} ${build_string}
+}
+
+destroot {
+    file mkdir "${destroot}${prefix}/share/doc/${name}"
+    xinstall -m 755 "${worksrcpath}/${name}" "${destroot}${prefix}/bin/${name}"
+}
+
+# TODO: put docs here
+destroot.keepdirs "${destroot}${prefix}/share/doc/${name}"
