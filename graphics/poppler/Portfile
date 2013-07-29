@@ -162,6 +162,7 @@ variant zlib description {Build with zlib support (poppler's\
 variant gobject description {Build with support for gobject-introspection} {
     configure.args-delete  --disable-introspection
     configure.args-append  --enable-introspection=yes
+    # Only gobject-introspection is really needed here, the others are just to see if they will help
     depends_lib-append     port:gobject-introspection \
                            port:libgee
     depends_build-append   port:python27 \
@@ -179,9 +180,11 @@ variant gobject description {Build with support for gobject-introspection} {
         build.args-append       CC="${configure.cc} ${configure.cc_archflags}"
     }
 
+    # For Tiger, and myself because I have a broken system make...
     depends_build-append    port:gmake
     build.cmd               ${prefix}/bin/gmake
 
+    # Trying disabling these to see if that will get it to build... (nope)
     use_parallel_build      no
     configure.ccache        no
 }
