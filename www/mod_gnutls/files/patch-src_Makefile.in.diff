@@ -1,0 +1,11 @@
+--- src/Makefile.in.orig	2011-07-08 16:31:12.000000000 -0500
++++ src/Makefile.in	2012-01-14 20:47:17.000000000 -0600
+@@ -611,7 +611,7 @@
+ 	rm -fr .libs
+ 
+ install: make_so
+-	@${APXS_BIN} -i -n gnutls mod_gnutls.so
++	@${APXS_BIN} -S LIBEXECDIR=${DESTDIR}`${APXS_BIN} -q LIBEXECDIR`${MODULEPATH} -i -n gnutls mod_gnutls.so
+ 	@echo ""
+ 	@echo ""
+ 	@echo "***********************************************"

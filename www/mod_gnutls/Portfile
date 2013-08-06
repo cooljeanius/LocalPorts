@@ -1,0 +1,80 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 104704 2013-04-01 03:14:41Z jeremyhu@macports.org $
+
+PortSystem          1.0
+
+name                mod_gnutls
+version             0.5.10
+revision            2
+set branch          [join [lrange [split ${version} .] 0 1] .]
+categories          www security crypto
+license             Apache-2
+platforms           darwin
+maintainers         nomaintainer
+
+description         SSL/TLS support for Apache using GnuTLS
+
+long_description    ${name} uses the GnuTLS library to provide \
+                    SSL 3.0, TLS 1.0 and TLS 1.1 encryption for \
+                    Apache HTTPD. It is similar to mod_ssl in purpose, \
+                    but does not use OpenSSL.
+
+homepage            http://modgnutls.sourceforge.net/
+master_sites        sourceforge:project/modgnutls/${branch}
+use_bzip2           yes
+
+checksums           rmd160  1698ddfcd9d831d76a3088d17f8ae7398fad1714 \
+                    sha256  469fea5f2f422c459b4153c1b959d5d62568d3ddf87f90ca6fe880c81b3b8374
+
+depends_build-append \
+                    port:pkgconfig
+
+depends_lib-append  port:apache2 \
+                    port:gnutls2
+
+patchfiles-append   patch-src_Makefile.in.diff
+
+configure.args-append \
+                    --with-apxs=${prefix}/apache2/bin/apxs \
+                    --with-libgnutls-prefix=${prefix}/lib/gnutls2
+configure.cppflags-append \
+                    -I${prefix}/lib/gnutls2/include
+configure.ldflags-append \
+                    -L${prefix}/lib/gnutls2/lib
+# This is the default, but the configure script still gets confused
+configure.pkg_config \
+                    ${prefix}/bin/pkg-config
+
+# apache modules generally violate the mtree
+destroot.violate_mtree yes
+
+pre-destroot {
+    xinstall -m 755 -d ${destroot}${prefix}/apache2/modules
+}
+
+post-destroot {
+    xinstall -m 755 -d ${destroot}${prefix}/share/doc/${name}
+    xinstall -m 644 -W ${worksrcpath} LICENSE NEWS NOTICE README README.ENV \
+        ${destroot}${prefix}/share/doc/${name}
+}
+
+variant memcache description {Distributed SSL Session Cache support} {
+    depends_lib-append      port:apr_memcache
+    configure.args-append   --with-apr-memcache-prefix=${prefix}
+}
+
+livecheck.regex     /${name}-(\[0-9.\]+)${extract.suffix}
+
+notes "
+To enable ${name}, add
+
+    LoadModule gnutls_module modules/mod_gnutls.so
+
+to your ${prefix}/apache2/conf/httpd.conf file.
+
+Please read the documentation at
+
+    ${homepage}?p=docs
+
+for further details on configuration of this module
+"

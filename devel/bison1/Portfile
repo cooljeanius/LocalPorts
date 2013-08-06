@@ -1,0 +1,68 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 65691 2010-03-30 09:17:11Z ryandesign@macports.org $
+
+PortSystem          1.0
+
+name                bison1
+set myname          bison
+version             1.875
+revision            1
+categories          devel lang
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             GPL-2+
+description         General-purpose parser generator
+long_description \
+        Bison is a general-purpose parser generator that converts \
+        a grammar description for an LALR context-free grammar \
+        into a C program to parse that grammar. Once you are \
+        proficient with Bison, you can use it to develop a wide \
+        range of language parsers, from those used in simple desk \
+        calculators to complex programming languages. This version \
+        is deprecated.
+
+homepage            http://www.gnu.org/software/${myname}/
+master_sites        gnu:${myname}
+distname            ${myname}-${version}
+checksums           md5     b7f8027b249ebd4dd0cc948943a71af0 \
+                    rmd160  8debeaf4e910a0e7f9887c419a57ee78599db31a \
+                    sha256  ffe3a491d96daf7c9bad3e999a7470442519a35b129f8a6e30597cbab8146db4
+use_bzip2           yes
+
+configure.args-append \
+                    --infodir=${prefix}/share/info \
+                    --mandir=${prefix}/share/man \
+                    --program-suffix=1 \
+                    --datadir=${prefix}/share/${name} \
+                    --libdir=${prefix}/lib/${name} \
+                    --with-libiconv-prefix=${prefix} \
+                    --with-libintl-prefix=${prefix} \
+                    --without-dmalloc
+
+depends_build-append \
+                    bin:flex:flex \
+                    bin:gm4:m4
+depends_lib-append  port:libiconv \
+                    port:gettext
+
+# Making this a variant until https://trac.macports.org/ticket/38208 is resolved
+variant test description {Enables testing and debugging} {
+    configure.args-delete \
+                    --without-dmalloc
+    configure.args-append \
+                    --enable-gcc-warnings
+    depends_build-append \
+                    bin:valgrind:valgrind
+    depends_lib-append \
+                    lib:dmalloc:dmalloc
+    # some of these tests fail
+    test.run        yes
+    test.target     check
+}
+
+post-destroot {
+    delete ${destroot}${prefix}/share/info
+}
+
+livecheck.type      regex
+livecheck.regex     {bison-(1\.[0-9.]+)\.tar}
