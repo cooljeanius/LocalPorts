@@ -5,17 +5,20 @@ PortSystem           1.0
 
 name                 gcab
 version              0.4
+revision             1
 set branch           [join [lrange [split ${version} .] 0 1] .]
 categories           gnome devel
 platforms            darwin
 maintainers          gwmail.gwu.edu:egall openmaintainer
 license              LGPL-2.1+
 
-description          ${name} is a program to create Microsoft cabinet (.cab) archives
+description          ${name} is a program to create Microsoft \
+                     cabinet (.cab) archives
 
-long_description     ${description}. It also provides a gobject-introspection interface.
+long_description     ${description}. It also provides a \
+                     gobject-introspection interface.
 
-homepage
+homepage             http://freecode.com/projects/${name}
 master_sites         gnome:sources/${name}/${branch}/
 
 checksums            md5     27c9f182bd279bedae3ba2fc5734c651 \
@@ -24,36 +27,60 @@ checksums            md5     27c9f182bd279bedae3ba2fc5734c651 \
                      sha256  f907b16f1246fbde9397363d9c4ad2291f2a8a53dcd4f5979d3912bb856991b8
 
 use_xz               yes
+
 depends_build-append port:pkgconfig \
                      port:valabind \
                      port:intltool \
-                     port:p5.12-xml-parser
+                     bin:valac:vala \
+                     bin:gnutar:gnutar
+
 post-patch {
     reinplace "s|m4\_esyscmd\(build-aux\/git-version-gen\ \.tarball-version\)|${version}|" ${worksrcpath}/configure.ac
     reinplace "s|\,\-\-version\-script\=\$\{srcdir\}\/libgcab\.syms||" ${worksrcpath}/Makefile.am
 }
+
 pre-configure {
     system -W ${worksrcpath} "autoupdate -f"
     reinplace "s|m4\_esyscmd\(build-aux\/git-version-gen\ \.tarball-version\)|${version}|" ${worksrcpath}/configure.ac
+    system -W ${worksrcpath} "autoscan"
 }
+
 use_autoreconf       yes
 autoreconf.args      -fvi
+
 depends_lib-append   path:lib/pkgconfig/glib-2.0.pc:glib2 \
                      port:zlib \
                      port:gettext \
                      port:libffi \
                      port:libiconv \
-                     port:vala \
                      port:gobject-introspection
+
+depends_run-append   bin:cabextract:cabextract \
+                     bin:gnutar:gnutar \
+                     port:vala
 
 configure.ldflags-delete --version-script=./libgcab.syms
 configure.args-append    --disable-gtk-doc \
                          --disable-silent-rules
 
+build.type               gnu
+
 variant docs description {Builds documentation} {
     PortGroup              archcheck 1.0
     depends_build-append   port:gtk-doc
-    depends_skip_archcheck gtk-doc
+    depends_skip_archcheck-append gtk-doc
     configure.args-delete  --disable-gtk-doc
     configure.args-append  --enable-gtk-doc
 }
+
+# these tests currently fail
+test.run             yes
+test.target          check
+
+pre-test {
+    elevateToRoot "test"
+}
+post-test {
+    dropPrivileges
+}
+

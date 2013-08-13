@@ -31,6 +31,7 @@ checksums           rmd160  70a3b67762227c8408b8ca880ea1af15fcc7fe81 \
 
 depends_build-append \
                     port:asciidoc
+
 depends_lib-append  port:gettext \
                     port:libgcrypt \
                     port:libiconv \
@@ -105,6 +106,8 @@ variant ruby description {Bindings for ruby plugins} {
                     -DENABLE_RUBY=OFF
     configure.args-append \
                     -DENABLE_RUBY=ON
+    depends_build-append \
+                    port:ruby_select
     depends_lib-append \
                     path:bin/ruby:ruby \
                     path:bin/ruby:ruby19

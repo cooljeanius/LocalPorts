@@ -6,7 +6,7 @@ PortSystem      1.0
 name            hfstar
 version         1.13.19
 categories      archivers
-revision        5
+revision        6
 maintainers     gwmail.gwu.edu:egall openmaintainer
 license         GPL-2+
 description     gnutar with HFS+ support
@@ -32,12 +32,14 @@ worksrcdir      ${name}
 patchfiles      patch-po_Makefile.in.in.diff \
                 patch-lib-getline.h.diff
 
-configure.args  --program-prefix=hfs \
+configure.args-append \
+                --program-prefix=hfs \
                 --mandir=${prefix}/share/man \
                 --infodir=${prefix}/share/info
 
 build.env-append \
-                LANG=C
+                LANG=C \
+                LC_ALL=C
 
 depends_build-append \
                 port:gawk

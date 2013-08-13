@@ -3,29 +3,35 @@
 
 PortSystem          1.0
 PortGroup           archcheck 1.0
+PortGroup           active_variants 1.1
 
 name                putty
-version             0.62
+version             0.63
+revision            1
 categories          security net comms
 platforms           darwin
 maintainers         nomaintainer
 license             MIT
 
-description         a free implementation of Telnet and SSH, along with an \
-                    xterm terminal emulator
+description         a free implementation of Telnet and SSH, along with \
+                    an xterm terminal emulator
 
 long_description    PuTTY is ${description}
 
-homepage            http://www.chiark.greenend.org.uk/~sgtatham/putty/
-master_sites        ftp://ftp.chiark.greenend.org.uk/users/sgtatham/putty-${version}/ \
-                    http://the.earth.li/~sgtatham/putty/${version}/
+homepage            http://www.chiark.greenend.org.uk/~sgtatham/${name}/
+master_sites        ftp://ftp.chiark.greenend.org.uk/users/sgtatham/${name}-${version}/ \
+                    http://the.earth.li/~sgtatham/${name}/${version}/
 
-checksums           rmd160  48324416005eb4b14654fc9e0e14d39f20971507 \
-                    sha256  8d187e86ee18c839895d263607b61788778564e3720e8d85c5305a04f9da0573
+checksums           rmd160  cf28d88a5f0e1db6c21bb0308bd59ed4d6399e5f \
+                    sha256  81e8eaaf31be7d9a46b4f3fb80d1d9540776f142cd89d0a11f2f8082dc68f8b5
 
 depends_build-append  \
                     port:pkgconfig \
-                    port:gtk1
+                    path:bin/xmkmf:imake \
+                    path:share/aclocal/gtk.m4:gtk1 \
+                    path:share/aclocal/gtk-2.0.m4:gtk2 \
+                    path:share/aclocal/gtk-doc.m4:gtk-doc \
+                    bin:perl:perl5
 
 depends_lib-append  port:gtk1 \
                     port:gdk-pixbuf \
@@ -34,6 +40,8 @@ depends_lib-append  port:gtk1 \
                     port:atk \
                     port:glib1 \
                     path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    port:glib-networking \
+                    path:lib/pkgconfig/pixman-1.pc:libpixman \
                     path:lib/pkgconfig/cairo.pc:cairo \
                     port:harfbuzz \
                     path:lib/pkgconfig/pango.pc:pango \
@@ -41,15 +49,32 @@ depends_lib-append  port:gtk1 \
                     port:fontconfig \
                     port:gettext \
                     port:libiconv \
-                    port:xorg-libX11
+                    port:xorg-libX11 \
+                    port:xorg-libice \
+                    port:xorg-libXcomposite \
+                    port:xorg-libXcursor \
+                    port:xorg-libXdamage \
+                    port:xorg-libXext \
+                    port:xorg-libXfixes \
+                    port:xorg-libXi \
+                    port:xorg-libXinerama \
+                    port:xorg-libXrandr \
+                    port:xrender
+
+depends_run-append  bin:xterm:xterm
 
 depends_skip_archcheck gdk-pixbuf
 
 if {![variant_isset native]} {
+    require_active_variants gtk2 x11
+    require_active_variants gdk-pixbuf2 x11
+    require_active_variants cairo x11
+    require_active_variants pango x11
     worksrcdir          ${worksrcpath}/unix
 
-    patchfiles          patch-Makefile.in.diff \
-                        patch-configure.diff
+    patchfiles-append   patch-Makefile.in.diff \
+                        patch-configure.diff \
+                        patch-configure.ac.diff
 
     post-patch {
         system -W ${worksrcdir} "mkdir m4"
@@ -59,18 +84,45 @@ if {![variant_isset native]} {
         file copy ${prefix}/share/aclocal/gtk.m4 ${worksrcdir}/m4
         file copy ${prefix}/share/aclocal/gtk-2.0.m4 ${worksrcdir}/m4
         file copy ${prefix}/share/aclocal/gtk-doc.m4 ${worksrcdir}/m4
-        file copy ${worksrcdir}/Makefile.in ${worksrcdir}/Makefile.am
+        if {![file exists ${worksrcdir}/Makefile.am]} {
+            file copy ${worksrcdir}/Makefile.in ${worksrcdir}/Makefile.am
+        }
         system -W ${worksrcdir} "echo \"ACLOCAL_AMFLAGS = -I m4 \" >> Makefile.am"
+        system -W ${worksrcdir} "echo \"AM_LDFLAGS = -lgtk \" >> Makefile.am"
+        system -W ${worksrcdir} "${prefix}/bin/autoscan"
     }
     use_autoreconf      yes
     autoreconf.args     -fvi
 
-    configure.cppflags-append -isystem${prefix}/include \
-                              -I${prefix}/include/gtk-1.2 \
-                              -I${prefix}/include/gtk-2.0
+    configure.args-append \
+                        --with-x \
+                        --x-includes=${prefix}/include \
+                        --x-libraries=${prefix}/lib \
+                        --with-gtk-prefix=${prefix} \
+                        --enable-gtk-doc \
+                        --with-gtk=2 \
+                        --disable-gtktest
+
+    configure.env-append \
+                        XMKMF=${prefix}/bin/xmkmf
+
+    configure.cppflags-delete \
+                        -I${prefix}/include
+    configure.cppflags-append \
+                        -isystem${prefix}/include \
+                        -I${prefix}/include/gtk-2.0
+    configure.ldflags-append  \
+                        -L${prefix}/lib/gtk/themes/engines \
+                        -L${prefix}/lib/gtk-2.0/2.10.0/engines \
+                        -L${prefix}/lib/gtk-2.0/2.10.0/immodules \
+                        -L${prefix}/lib/gtk-2.0/2.10.0/printbackends \
+                        -L${prefix}/lib/gtk-2.0/modules \
+                        -L${prefix}/lib/gio/modules \
+                        -L${prefix}/lib/gdk-pixbuf/loaders \
+                        -L${prefix}/lib/gdk-pixbuf-2.0/2.10.0/loaders
 }
 
-configure.cflags-delete   -Werror
+configure.cflags-delete -Werror
 
 post-configure {
     reinplace "s|\-Werror||" Makefile
@@ -78,8 +130,10 @@ post-configure {
 
 platform macosx {
     variant native description {Build a native Mac app version} {
+        require_active_variants cairo quartz
+        require_active_variants pango quartz 
         worksrcdir ${worksrcdir}/macosx
-        patchfiles
+        patchfiles ""
         post-configure {
             reinplace "s|\-Werror||" Makefile
         }

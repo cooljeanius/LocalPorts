@@ -3,6 +3,8 @@
 
 PortSystem          1.0
 
+PortGroup           conflicts_build 1.0
+
 name                cegui
 version             0.7.9
 revision            1
@@ -11,27 +13,32 @@ platforms           darwin
 license             MIT
 maintainers         ryandesign openmaintainer
 
-description         Crazy Eddie’s GUI System
+description         Crazy Eddie's GUI System
 
 long_description    ${description} is a free library for game developers \
                     that provides windowing and widgets for graphics APIs \
                     and engines where such functionality is not natively \
                     available, or is severely lacking.
 
-homepage            http://www.cegui.org.uk/
+homepage            http://www.${name}.org.uk/
 master_sites        sourceforge:project/crayzedsgui/CEGUI%20Mk-2/${version}
 distname            CEGUI-${version}
 
 checksums           rmd160  d776fd49a629248783b0d45b05ef8ad2804cca3b \
                     sha256  7c3b264def08b46de749c2acaba363e907479d924612436f3bd09da2e474bb8c
 
-depends_build-append port:pkgconfig port:imake
+conflicts_build-append \
+                    xnu-headers
+
+depends_build-append \
+                    port:pkgconfig \
+                    path:bin/xmkmf:imake \
+                    bin:gnutar:gnutar \
+                    bin:zip:zip \
+                    bin:unzip:unzip
 
 depends_lib-append  port:expat \
-                    port:freeglut \
-                    port:freeimage \
                     port:freetype \
-                    port:libdevil \
                     port:libxml2 \
                     port:pcre \
                     port:tinyxml \
@@ -46,7 +53,6 @@ depends_lib-append  port:expat \
                     port:xorg-libsm \
                     port:xorg-libxcb \
                     port:xrender \
-                    port:mesa \
                     port:zlib \
                     port:bzip2 \
                     port:jasper \
@@ -58,10 +64,11 @@ depends_lib-append  port:expat \
                     port:tiff \
                     port:xz
 
-patchfiles          patch-cegui-include-CEGUIDynamicModule.h.diff \
+patchfiles-append   patch-cegui-include-CEGUIDynamicModule.h.diff \
                     patch-cegui-src-CEGUIDynamicModule.cpp.diff
 
-configure.args      --disable-corona \
+configure.args-append \
+                    --disable-corona \
                     --disable-external-glew \
                     --disable-irrlicht-renderer \
                     --disable-lua-module \
@@ -74,8 +81,8 @@ configure.args      --disable-corona \
                     --disable-tga \
                     --disable-xerces-c \
                     --disable-bidirectional-text \
-                    --enable-devil \
-                    --enable-freeimage \
+                    --disable-devil \
+                    --disable-freeimage \
                     --enable-freetype \
                     --enable-null-renderer \
                     --enable-pcre \
@@ -86,16 +93,20 @@ configure.args      --disable-corona \
                     --enable-expat \
                     --with-expat-incdir=${prefix}/include \
                     --with-expat-libdir=${prefix}/lib \
-                    --enable-opengl-renderer \
+                    --disable-opengl-renderer \
                     --with-x \
                     --with-zlib=${prefix}
 
-configure.env-append XMKMF=${prefix}/bin/xmkmf
+configure.env-append \
+                    XMKMF=${prefix}/bin/xmkmf
 
-variant huge requires autoreconf bidirectional debug external_glew lua python xerces \
+configure.cppflags-append \
+                    -I${prefix}/include/libxml2
+
+variant huge requires autoreconf bidirectional debug devil external_glew freeimage lua opengl python xerces \
 description {Build with all available features that build universal} {
     pre-fetch {
-        ui_msg "Good luck with this variant..."
+        ui_msg "Good luck with this variant (i.e. \"+huge\")..."
     }
 }
 
@@ -108,12 +119,38 @@ variant autoreconf description {Runs autoreconf before configuring} {
     }
     patchfiles-append       patch-configure.ac.diff \
                             patch-Makefile.am.diff
+    post-patch {
+        eval reinplace "s|AC_HELP_STRING|AS_HELP_STRING|" [glob ${worksrcpath}/*.m4]
+        eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/Samples/*/Makefile.am]
+        eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/Samples/common/*/Makefile.am]
+        eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/cegui/*/Makefile.am]
+        eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/cegui/src/*/Makefile.am]
+        eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/cegui/src/*/*/Makefile.am]
+        eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/cegui/src/ScriptingModules/*ScriptModule/*/Makefile.am]
+        eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/cegui/src/ScriptingModules/*ScriptModule/support/*/Makefile.am]
+    }
     use_autoreconf          yes
-    autoreconf.args         -fvi
+    autoreconf.args         -fvi --warnings=all
     depends_build-append    port:gawk \
                             port:grep \
                             port:gsed
     configure.args-append   --disable-silent-rules
+    configure.cppflags-append \
+                    -I${worksrcpath}/cegui/include \
+                    -I${worksrcpath}/cegui/include/RendererModules/Null \
+                    -I${worksrcpath}/cegui/include/falagard \
+                    -I${worksrcpath}/cegui/include/WindowRendererSets/Falagard \
+                    -I${worksrcpath}/cegui/include/XMLParserModules/TinyXMLParser \
+                    -I${worksrcpath}/cegui/include/XMLParserModules/LibxmlParser \
+                    -I${worksrcpath}/cegui/include/XMLParserModules/ExpatParser \
+                    -I.
+    use_parallel_build      no
+    platform macosx {
+        configure.cppflags-append \
+                    -I${worksrcpath}/cegui/src/implementations/mac
+        configure.ldflags-append \
+                    "-framework CoreFoundation"
+    }
 }
 
 variant debug description {Enable debugging} {
@@ -121,20 +158,70 @@ variant debug description {Enable debugging} {
 }
 
 variant xerces description {Build with xerces support} {
-    depends_lib-append    port:xercesc
+    depends_lib-append    path:lib/libxerces-c.dylib:xercesc
     configure.args-delete --disable-xerces-c
     configure.args-append --enable-xerces-c \
                           --with-xerces-incdir=${prefix}/include \
                           --with-xerces-libdir=${prefix}/lib
+    if {[variant_isset autoreconf]} {
+        configure.cppflags-append \
+                          -I${worksrcpath}/cegui/include/XMLParserModules/XercesParser
+    }
 }
 
-variant external_glew description {Build against an external GLEW} {
+variant devil description {Build with libdevil support} {
+    depends_lib-append    port:libdevil
+    configure.args-delete --disable-devil
+    configure.args-append --enable-devil
+    if {[variant_isset autoreconf]} {
+        configure.cppflags-append \
+                          -I${worksrcpath}/cegui/include/ImageCodecModules/DevILImageCodec
+    }
+}
+
+variant opengl description {Build with OpenGL support} {
+    depends_lib-append    port:mesa \
+                          port:freeglut
+    depends_build-append  port:glui
+    depends_skip_archcheck-append glui
+    configure.args-delete --disable-opengl-renderer
+    configure.args-append --enable-opengl-renderer
+    if {[variant_isset autoreconf]} {
+        configure.cppflags-append \
+                          -I${worksrcpath}/cegui/include/RendererModules/OpenGL
+    }
+}
+
+variant external_glew requires opengl description {Build against an external GLEW} {
     depends_lib-append    port:glew
     configure.args-delete --disable-external-glew
     configure.args-append --enable-external-glew \
                           --with-glew-incdir=${prefix}/include \
                           --with-glew-libdir=${prefix}/lib
+    configure.cppflags-append \
+                          -I${prefix}/include/GL
+    if {[variant_isset autoreconf]} {
+        if {![file exists ${prefix}/include/GL/glew.h]} {
+            configure.cppflags-append \
+                          -I${worksrcpath}/cegui/src/RendererModules/OpenGL/GLEW \
+                          -I${worksrcpath}/cegui/src/RendererModules/OpenGL/GLEW/GL
+        }
+    }
 }
+
+variant freeimage description {Build with libfreeimage support} {
+    depends_lib-append    port:freeimage
+    configure.args-delete --disable-freeimage
+    configure.args-append --enable-freeimage
+    if {[variant_isset autoreconf]} {
+        configure.cppflags-append \
+                          -I${worksrcpath}/cegui/include/ImageCodecModules/FreeImageImageCodec
+    }
+}
+
+# These variants are things that the trunk version of this portfile 
+# enables by default:
+default_variants-append +freeimage+devil
 
 # Ogre is not universal
 variant ogre conflicts universal description {Enable support for the OGRE rendering engine} {
@@ -142,19 +229,29 @@ variant ogre conflicts universal description {Enable support for the OGRE render
                           port:ois
     configure.args-delete --disable-ogre-renderer
     configure.args-append --enable-ogre-renderer
+    if {[variant_isset autoreconf]} {
+        configure.cppflags-append \
+                          -I${worksrcpath}/cegui/include/RendererModules/Ogre
+    }
 }
 
 variant bidirectional description {Enable bidirectional text support} {
     depends_lib-append    port:fribidi
     configure.args-delete --disable-bidirectional-text
     configure.args-append --enable-bidirectional-text
+    configure.cppflags-append \
+                          -I${prefix}/include/fribidi
 }
 
-variant samples description {Build samples with gtk2 (warning: not all work yet)} {
+variant samples requires autoreconf description {Build samples with gtk2 (warning: not all work yet)} {
     depends_lib-append    port:gtk2
     configure.args-delete --disable-samples
     configure.args-append --enable-samples \
                           --with-gtk2
+    if {[variant_isset autoreconf]} {
+        configure.cppflags-append \
+                          -I${worksrcpath}/Samples/common/include
+    }
     pre-build {
         ui_msg "Warning: This will probably fail."
     }
@@ -171,12 +268,21 @@ variant lua description {Enable lua bindings} {
                           --enable-external-toluapp \
                           --with-tolua++-incdir=${prefix}/include \
                           --with-tolua++-libdir=${prefix}/lib
+    if {[variant_isset autoreconf]} {
+        configure.cppflags-append \
+                          -I${worksrcpath}/cegui/include/ScriptingModules/LuaScriptModule \
+                          -I${worksrcpath}/cegui/include/ScriptingModules/LuaScriptModule/support/tolua++
+    }
 }
 
 variant python description {Enable python bindings} {
     depends_lib-append    port:swig-python
     configure.args-delete --disable-python-module
     configure.args-append --enable-python-module
+    if {[variant_isset autoreconf]} {
+        configure.cppflags-append \
+                          -I${worksrcpath}/cegui/src/ScriptingModules/PythonScriptModule/bindings/output/CEGUI
+    }
 }
 
 livecheck.regex     /CEGUI-(\[0-9.\]+)${extract.suffix}

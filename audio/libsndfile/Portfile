@@ -11,9 +11,9 @@ maintainers         stare.cz:hans openmaintainer
 platforms           darwin
 
 description         ${name} is a C library for reading and writing files \
-                    containing sampled sound (such as MS Windows WAV and the \
-                    Apple/SGI AIFF format) through one standard library \
-                    interface.
+                    containing sampled sound (such as MS Windows WAV and \
+                    the Apple/SGI AIFF format) through one standard \
+                    library interface.
 long_description    ${description}
 license             LGPL-2.1+
 homepage            http://www.mega-nerd.com/${name}/
@@ -83,7 +83,7 @@ variant egallager requires sqlite experimental description {Use my personal fork
     fetch.type           git
     git.url              git://github.com/cooljeanius/libsndfile.git
 
-    # Couldn't get these patches to apply correctly against my fork.
+    # I could not get these patches to apply correctly against my fork.
     patchfiles-delete    patch-fix-include.diff \
                          patch-configure.diff
 

@@ -11,20 +11,21 @@ platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
 license             MIT
 
-description         ${myname} is a tool for building and distributing virtualized \
-                    development environments.
+description         ${myname} is a tool for building and distributing \
+                    virtualized development environments.
 
 long_description    ${description}
 homepage            http://www.vagrantup.com/
 
-checksums           rmd160  d8e23b7e44bcf0dfe0b68b23c8749bed49eedcf3 \
-                    sha256  9e2647d2a3401078392480d13fe78ea126135010714120b82dcf20c0215374a9
+checksums           rmd160  1f66b5899b428b9d4a28fdccaeb5c129b604696d \
+                    sha256  8a2fd6f778d4e317f5e82531c4c4d8ba0e7fe41f0fa86e5e8b47256dc5b895b7
 
 # rb-rake is not universal
 universal_variant   no
 
 depends_build-append \
                     port:rb-rake
+
 depends_lib-append  port:rb-archive-tar-minitar \
                     port:rb-erubis \
                     port:rb-json \
@@ -32,6 +33,7 @@ depends_lib-append  port:rb-archive-tar-minitar \
                     port:rb-net-scp \
                     port:rb-net-ssh \
                     port:libffi
+
 depends_run-append  bin:VBoxManage:VirtualBox
 
 # Making a variant for this until ticket #38208 is resolved.
@@ -42,16 +44,17 @@ variant test description {Build tests} {
     PortGroup       github 1.0
     github.setup    mitchellh ${myname} ${version} v
     set name        rb-${myname}
-# The rb19-bundler is unfortunate, as it's generally not a good
-# idea to mix ruby versions, but it's actually necessary for testing,
-# and there's no just-regular rb-bundler port.
+# The rb19-bundler is unfortunate, as it is generally not a good
+# idea to mix ruby versions, but it is actually necessary for testing,
+# and there is no just-regular rb-bundler port.
     depends_build-append \
                     port:rb-minitest \
                     port:rb-mocha \
                     port:rb-rspec \
                     bin:bundle:rb19-bundler
+
     test.run        yes
-    test.cmd        bundle install && rake
+    test.cmd        ${prefix}/bin/bundle-1.9 install && ${prefix}/bin/rake-1.8
     test.target
     pre-test {
         file mkdir ${workpath}/.home

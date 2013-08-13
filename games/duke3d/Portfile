@@ -6,6 +6,7 @@ PortGroup       archcheck 1.0
 
 name            duke3d
 version         0.1
+revision        1
 categories      games
 platforms       darwin
 maintainers     phw openmaintainer
@@ -44,22 +45,68 @@ depends_skip_archcheck dosbox
 
 worksrcdir      trunk/source/
 use_configure   no
-build.args      macosx=true
 
-platform i386 x86_64 {
-    reinplace "s|\-faltivec||" ${worksrcdir}/buildengine/Makefile
+build.args      macosx=true \
+                CC=${configure.cc} \
+                CXX=${configure.cxx} \
+                CPP=${configure.cpp} \
+                ASM=${prefix}/bin/nasm
+
+build.env-append \
+                CC=${configure.cc} \
+                CXX=${configure.cxx} \
+                CPP=${configure.cpp} \
+                ASM=${prefix}/bin/nasm \
+                SDL_CONFIG=${prefix}/bin/sdl-config
+
+if {[lsearch [get_canonical_archs] ppc] == -1} {
+    pre-build {
+        reinplace "s|\-faltivec|${configure.cflags}|" ${worksrcpath}/Makefile
+        eval reinplace "s|\-faltivec|${configure.cflags}|" [glob ${worksrcpath}/*/Makefile]
+        eval reinplace "s|\-faltivec|${configure.cflags}|" [glob ${worksrcpath}/*/*/Makefile]
+    }
 }
+
+variant utils description {Build extra utilities (not all work)} {
+    post-build {
+        ui_msg "This might not work..."
+        system -W ${worksrcpath}/buildengine/utils "${build.cmd} ${build.target} ${build.args}"
+    }
+    post-destroot {
+        ui_msg "TODO"
+    }
+}
+
+# tests currently fail
+test.run        yes
+test.cmd        cd ${worksrcpath}/buildengine/tests && ${build.cmd}
+test.target     ${build.target}
+test.env        ${build.env}
 
 variant docs description {Build documentation} {
     depends_build-append port:doxygen
     post-build {
-        system -W ${worksrcpath}/buildengine "doxygen"
+        system -W ${worksrcpath}/buildengine "${prefix}/bin/doxygen -u"
+        system -W ${worksrcpath}/buildengine "${prefix}/bin/doxygen"
+    }
+    post-destroot {
+        set docdir ${destroot}${prefix}/share/doc/${name}
+        xinstall -m 755 -d ${docdir}
+        copy ${worksrcpath}/buildengine/html ${docdir}/
+        copy ${worksrcpath}/buildengine/latex ${docdir}/
     }
 }
 
 destroot {
-    xinstall -m 755 -d ${destroot}${prefix}/bin
-    file copy ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+    set bindir ${destroot}${prefix}/bin
+    xinstall -m 755 -d ${bindir}
+    copy ${worksrcpath}/${name} ${bindir}/
+    copy ${worksrcpath}/build ${bindir}/${name}-build
+    copy ${worksrcpath}/buildengine/game ${bindir}/${name}-game
+    set libdir ${destroot}${prefix}/lib
+    xinstall -m 755 -d ${libdir}
+    file copy ${worksrcpath}/audiolib/audiolib.a ${libdir}/${name}-audiolib.a
+    #TODO: figure out what to do with the various headers and data files
 }
 
 livecheck.type none

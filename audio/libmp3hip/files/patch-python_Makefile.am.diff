@@ -1,0 +1,28 @@
+--- python/Makefile.am.bak	2013-08-12 20:05:46.000000000 -0400
++++ python/Makefile.am	2013-08-12 20:38:26.000000000 -0400
+@@ -1,17 +1,19 @@
+ ## $Id: Makefile.am,v 1.5 2002/04/23 21:11:42 myers_carpenter Exp $
+ 
++PYTHON = @PYTHON@
++
+ all: 
+ 	if test @BUILD_PYTHON_MOD@ = yes; then \
+-		python2.3 setup.py build; \
++		$(PYTHON) setup.py build; \
+ 	fi
+ 
+ 
+-install: 
++install-python-mod: 
+ 	if test @BUILD_PYTHON_MOD@ = yes; then \
+-		python2.3 setup.py install --prefix ${DESTDIR}${prefix}; \
++		$(PYTHON) setup.py install --prefix ${DESTDIR}${prefix}; \
+ 	fi
+ 
+-distclean: clean
++distclean-local: clean-local
+ 
+-clean:
+-	python2.3 setup.py clean --all
++clean-local:
++	$(PYTHON) setup.py clean --all

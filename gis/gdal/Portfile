@@ -32,6 +32,7 @@ checksums           rmd160  1ab34a85946bae4313cbd925cdbbf728d23d7b57 \
 
 depends_build-append        path:bin/ed:ed \
                             path:bin/glibtool:libtool
+
 depends_lib-append          port:zlib \
                             port:libpng \
                             port:tiff \
@@ -246,7 +247,7 @@ variant openjpeg conflicts jasper \
 
 
 variant xerces conflicts universal description {Enable xerces XML support for GML file format} {
-    depends_lib-append      port:xercesc
+    depends_lib-append      path:lib/libxerces-c.dylib:xercesc
     configure.args-delete   --without-xerces
     configure.args-append   --with-xerces=${prefix}
     depends_skip_archcheck xercesc
@@ -536,7 +537,8 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl postgresql82 pos
     use_parallel_build      no
 }
 
-variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresql83 description {Extra dependencies that aren't universal} {
+variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresql83 \
+description {Extra dependencies that are not universal} {
     depends_lib-append      port:wgrib2 \
                             port:ocilib \
                             port:couchdb \
@@ -549,7 +551,8 @@ variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresq
                             --with-oci
 }
 
-#variant broken requires postgreql81 extra_nonuniversal poppler xerces conflicts universal description {dependencies that don't even work even when not building universal} {
+#variant broken requires postgreql81 extra_nonuniversal poppler xerces conflicts universal \
+#description {dependencies that do not even work even when not building universal} {
 #    depends_lib-append      port:pamtester \
 #                            port:svdlibc \
 #                            port:sam2p

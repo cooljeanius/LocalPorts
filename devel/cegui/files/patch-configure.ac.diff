@@ -1,56 +1,288 @@
---- configure.ac.orig	2013-03-25 16:00:02.000000000 -0400
-+++ configure.ac	2013-03-25 16:05:23.000000000 -0400
-@@ -1,4 +1,4 @@
+--- configure.ac.bak	2013-08-12 14:58:31.000000000 -0400
++++ configure.ac	2013-08-12 14:57:49.000000000 -0400
+@@ -1,43 +1,102 @@
 -AC_PREREQ(2.59)
-+AC_PREREQ([2.59])
++#                                               -*- Autoconf -*-
++# Process this file with autoconf to produce a configure script.
  
- dnl Define the sub-version numbers for this release
- dnl
-@@ -14,13 +14,21 @@
+-dnl Define the sub-version numbers for this release
+-dnl
+-dnl now done like this to save repetition, and make it more explicit where
+-dnl we should define these numbers (we could pick up the same info by other means
+-dnl though this leaves nobody in any doubt about where this is being defined).
++AC_PREREQ([2.59])
++
++dnl# Define the sub-version numbers for this release
++dnl#
++dnl# now done like this to save repetition, and make it more explicit where
++dnl# we should define these numbers (we could pick up the same info by other means
++dnl# though this leaves nobody in any doubt about where this is being defined).
+ m4_define([CEGUI_MAJ_VER], 0)
+ m4_define([CEGUI_MIN_VER], 7)
+ m4_define([CEGUI_REL_VER], 9)
+ 
+-dnl Construct the final version number out of the sub-version values specified above
++dnl# Construct the final version number out of the sub-version values specified above
+ m4_define([CEGUI_RELEASE_VERSION], [CEGUI_MAJ_VER.CEGUI_MIN_VER.CEGUI_REL_VER])
  
  AC_INIT([CEGUI], [CEGUI_RELEASE_VERSION], [http://mantis.cegui.org.uk/], [CEGUI])
++AC_CONFIG_HEADERS([cegui/include/config.h])
++AC_CONFIG_MACRO_DIR([m4])
  AC_CONFIG_SRCDIR([cegui/src/CEGUIBase.cpp])
 -AM_INIT_AUTOMAKE([dist-zip tar-ustar])
 -AC_CONFIG_HEADER([cegui/include/config.h])
-+AM_INIT_AUTOMAKE([foreign dist-zip tar-ustar])
+-AC_CANONICAL_HOST
++AC_CANONICAL_TARGET
++AC_OBJEXT
++AC_EXEEXT
++AC_USE_SYSTEM_EXTENSIONS
++AC_MSG_CHECKING([automake stuff])
++AC_MSG_RESULT([ ])
++AM_INIT_AUTOMAKE([1.11 foreign dejagnu dist-bzip2 dist-lzip dist-xz dist-zip \
++                  tar-ustar -Wall subdir-objects])
 +AM_MAINTAINER_MODE
-+AC_CONFIG_HEADERS([cegui/include/config.h])
-+AC_CONFIG_MACRO_DIR([m4])
- AC_CANONICAL_HOST
  
  # Checks for programs.
++AC_MSG_CHECKING([programs])
++AC_MSG_RESULT([ ])
++AM_PROG_AR
++AM_PROG_AS
  AC_PROG_CXX
-+AC_PROG_AWK
- AC_PROG_CC
-+AC_PROG_CPP
-+AC_PROG_INSTALL
-+AC_PROG_LN_S
-+AC_PROG_MAKE_SET
-+AC_PROG_RANLIB
+-AC_PROG_CC
+-
+-AC_CHECK_PROG([DOXYGEN], [doxygen], [doxygen], [])
+-AC_CHECK_PROG([DOXYGENDOT], [dot], [dot], [])
++AC_PROG_CXXCPP
++if test "x$AWK" = "x"; then
++	AC_PROG_AWK
++else
++	export AWK
++fi
++if test "x$CC" = "x"; then
++	AC_PROG_CC
++else
++	export CC
++fi
++AC_PROG_GCC_TRADITIONAL
++if test "x$CPP" = "x"; then
++	AC_PROG_CPP
++else
++	export CPP
++fi
++if test "x$INSTALL" = "x"; then
++	test -z "$INSTALL"
++	AC_PROG_INSTALL
++else
++	export INSTALL
++fi
++if test "x$LN_S" = "x"; then
++	AC_PROG_LN_S
++else
++	export LN_S
++fi
++AC_PROG_OBJC
++AC_PROG_OBJCPP
++AC_PROG_OBJCXX
++AC_PROG_OBJCXXCPP
++
++AC_LANG([C++])
++
++AC_CHECK_PROG([DOXYGEN],[doxygen],[doxygen],[])
++AC_CHECK_PROG([DOXYGENDOT],[dot],[dot],[])
++AC_PATH_PROG([FRIBIDI_BIN],[fribidi])
++AC_PATH_PROG([GLEWINFO_BIN],[glewinfo])
++if test "x$GLEWINFO_BIN" != "x"; then
++	test -x $GLEWINFOBIN && $GLEWINFO_BIN > glewinfo_output.txt
++fi
  
- AC_CHECK_PROG([DOXYGEN], [doxygen], [doxygen], [])
- AC_CHECK_PROG([DOXYGENDOT], [dot], [dot], [])
-@@ -73,24 +81,30 @@
+-PKG_PROG_PKG_CONFIG
++PKG_PROG_PKG_CONFIG([0.9.1])
+ if test -z "$PKG_CONFIG"; then
+-    AC_MSG_ERROR([pkg-config was not found.  Please ensure pkg-config is installed and / or set the PKG_CONFIG variable])
++    AC_MSG_ERROR([pkg-config was not found.  Please ensure pkg-config is installed and/or set the PKG_CONFIG variable in the environment.])
+ fi
+ 
+ # Disable building static library
+ AC_DISABLE_STATIC
+ 
+-# We want DLLs on Win32 platform
+-AC_LIBTOOL_WIN32_DLL
+-
+-# Initialise libtool
+-AM_PROG_LIBTOOL
++# Initialise libtool (we want DLLs on Win32 platform)
++AC_MSG_CHECKING([libtool stuff])
++AC_MSG_RESULT([ ])
++LT_INIT([win32-dll])
++LT_LANG([C++])
++
++if test "x$RANLIB" = "x"; then
++	AC_PROG_RANLIB
++else
++	export RANLIB
++fi
+ 
+ # Setup some stuff depending on the system we're running on
+ case $host_os in
+@@ -52,15 +111,21 @@
+                 ;;
+ esac
+ 
+-AC_SUBST(cegui_pc_platform_libs)
++AC_SUBST([cegui_pc_platform_libs])
+ 
+ AM_CONDITIONAL([MINGW32_BUILD], [test x$MINGW32 = xyes])
+ AM_CONDITIONAL([MACOSX_BUILD], [test x$MACOSX = xyes])
+ 
+ # Checks for libraries (skip on mingw32).
++AC_MSG_CHECKING([libraries])
++AC_MSG_RESULT([ ])
+ if test x$MINGW32 != xyes; then
+-    AC_CHECK_LIB([dl], [dlopen])
+-    AC_CHECK_LIB([pthread], [pthread_create],, AC_MSG_ERROR([cannot find pthread library]))
++    AC_CHECK_LIB([dl],[dlopen])
++    AC_CHECK_LIB([pthread],[pthread_create],[],[AC_MSG_ERROR([cannot find pthread library])])
++    AC_CHECK_LIB([CF],[CFRelease])
++    AC_CHECK_LIB([fribidi],[main])
++    AC_CHECK_LIB([freeimage],[main])
++    AC_CHECK_LIB([freeimageplus],[main])
+ fi
+ 
+ CEGUI_CODE_OPTIONS
+@@ -72,33 +137,154 @@
+ CEGUI_CHECK_IMAGE_CODECS
  
  # Checks for header files.
- AC_HEADER_STDC
+-AC_HEADER_STDC
 -AC_CHECK_HEADERS([limits.h locale.h malloc.h stddef.h stdlib.h string.h])
 +AC_PATH_X
-+AC_CHECK_HEADERS([limits.h locale.h malloc.h stddef.h stdlib.h string.h sys/time.h wchar.h])
++AC_MSG_CHECKING([external headers])
++AC_MSG_RESULT([ ])
++AC_CHECK_HEADERS([CoreFoundation/CoreFoundation.h FreeImagePlus.h fribidi.h fribidi/fribidi.h \
++gl.h glu.h glx.h glew.h GL/gl.h GL/glu.h GL/glx.h GL/glew.h libxml/parser.h libxml/tree.h \
++libxml/xmlmemory.h libxml/xmlerror.h limits.h locale.h malloc.h \
++stddef.h stdio.h sys/time.h time.h wchar.h])
++AC_MSG_CHECKING([CEGUI internal headers])
++AC_MSG_RESULT([ ])
++AC_CHECK_HEADERS([CEGUIFreeImageImageCodec.h \
++                  CEGUIFreeImageImageCodecModule.h \
++                  CEGUINullGeometryBuffer.h \
++                  CEGUINullTexture.h \
++                  CEGUIOpenGLFBOTextureTarget.h \
++                  CEGUIOpenGLApplePBTextureTarget.h \
++                  CEGUIOpenGLRenderer.h \
++                  CEGUIOpenGLTexture.h \
++                  FalButton.h])
  
  # Checks for typedefs, structures, and compiler characteristics.
  AC_HEADER_STDBOOL
++AC_STRUCT_TM
++AC_MSG_CHECKING([C compiler characteristics])
++AC_MSG_RESULT([ ])
++AC_C_BIGENDIAN
  AC_C_CONST
  AC_C_INLINE
+-AC_TYPE_SIZE_T
+-AC_STRUCT_TM
++AC_C_PROTOTYPES
+ AC_C_VOLATILE
++AC_MSG_CHECKING([types])
++AC_MSG_RESULT([ ])
++AC_TYPE_INT8_T
++AC_TYPE_INT16_T
 +AC_TYPE_INT32_T
 +AC_TYPE_INT64_T
- AC_TYPE_SIZE_T
++AC_TYPE_SIZE_T
++AC_TYPE_SSIZE_T
++AC_TYPE_UINT8_T
++AC_TYPE_UINT16_T
++AC_TYPE_UINT32_T
 +AC_TYPE_UINT64_T
- AC_STRUCT_TM
- AC_C_VOLATILE
  AC_CHECK_TYPES([ptrdiff_t])
++AC_CHECK_TYPES([OSStatus])
++AC_CHECK_TYPES([WindowRef])
++AC_CHECK_TYPES([HIViewRef])
++AC_CHECK_TYPES([UInt8])
++AC_CHECK_TYPES([UInt16])
++AC_CHECK_TYPES([UInt32])
++AC_CHECK_TYPES([UInt64])
++
++# Checks for declarations
++AC_MSG_CHECKING([decls])
++AC_MSG_RESULT([ ])
++AC_CHECK_DECLS([actualStateName])
++AC_CHECK_DECLS([appendGeometry])
++AC_CHECK_DECLS([CEGUI])
++AC_CHECK_DECLS([CFRelease])
++AC_CHECK_DECLS([CFURLRef])
++AC_CHECK_DECLS([cur_node])
++AC_CHECK_DECLS([currAttr])
++AC_CHECK_DECLS([doc])
++AC_CHECK_DECLS([d_activeTexture])
++AC_CHECK_DECLS([d_area])
++AC_CHECK_DECLS([d_CEGUITexture])
++AC_CHECK_DECLS([d_clipRect])
++AC_CHECK_DECLS([d_effect])
++AC_CHECK_DECLS([d_frameBuffer])
++AC_CHECK_DECLS([d_owner])
++AC_CHECK_DECLS([d_pivot])
++AC_CHECK_DECLS([d_rotation])
++AC_CHECK_DECLS([d_supportedFormat])
++AC_CHECK_DECLS([d_texture])
++AC_CHECK_DECLS([d_translation])
++AC_CHECK_DECLS([d_vertices])
++AC_CHECK_DECLS([d_window])
++AC_CHECK_DECLS([err])
++AC_CHECK_DECLS([datafilesURL])
++AC_CHECK_DECLS([FalagardButton])
++AC_CHECK_DECLS([FreeImageImageCodec])
++AC_CHECK_DECLS([FriBidiChar])
++AC_CHECK_DECLS([FriBidiCharType])
++AC_CHECK_DECLS([fribidi_boolean])
++AC_CHECK_DECLS([fribidi_get_type])
++AC_CHECK_DECLS([FRIBIDI_TYPE_LTR])
++AC_CHECK_DECLS([FRIBIDI_TYPE_RTL])
++AC_CHECK_DECLS([FRIBIDI_TYPE_ON])
++AC_CHECK_DECLS([getLookNFeel])
++AC_CHECK_DECLS([glGetPointervEXT])
++AC_CHECK_DECLS([imageCodec])
++AC_CHECK_DECLS([LIBXML_TEST_VERSION])
++AC_CHECK_DECLS([NullGeometryBuffer])
++AC_CHECK_DECLS([NullTexture])
++AC_CHECK_DECLS([OpenGLApplePBTextureTarget])
++AC_CHECK_DECLS([OpenGLFBOTextureTarget])
++AC_CHECK_DECLS([OpenGLRenderTarget])
++AC_CHECK_DECLS([PFNGLBUFFERREGIONENABLEDEXTPROC])
++AC_CHECK_DECLS([PFNGLDELETEBUFFERREGIONEXTPROC])
++AC_CHECK_DECLS([PFNGLDRAWBUFFERREGIONEXTPROC])
++AC_CHECK_DECLS([PFNGLGETPOINTERVEXTPROC])
++AC_CHECK_DECLS([PFNGLNEWBUFFERREGIONEXTPROC])
++AC_CHECK_DECLS([PFNGLREADBUFFERREGIONEXTPROC])
++AC_CHECK_DECLS([res])
++AC_CHECK_DECLS([resizeRenderTexture])
++AC_CHECK_DECLS([root])
++AC_CHECK_DECLS([setArea])
++AC_CHECK_DECLS([UInt8])
++AC_CHECK_DECLS([UInt16])
++AC_CHECK_DECLS([UInt32])
++AC_CHECK_DECLS([UInt64])
++AC_CHECK_DECLS([val])
++AC_CHECK_DECLS([xmlAttrPtr])
++AC_CHECK_DECLS([xmlChar])
++AC_CHECK_DECLS([xmlCleanupParser])
++AC_CHECK_DECLS([xmlDocGetRootElement])
++AC_CHECK_DECLS([xmlDocPtr])
++AC_CHECK_DECLS([xmlFree])
++AC_CHECK_DECLS([xmlFreeDoc])
++AC_CHECK_DECLS([xmlGetLastError])
++AC_CHECK_DECLS([xmlGetProp])
++AC_CHECK_DECLS([xmlNode])
++AC_CHECK_DECLS([XML_ELEMENT_NODE])
++AC_CHECK_DECLS([XML_TEXT_NODE])
  
  # Checks for library functions.
++AC_MSG_CHECKING([functions])
++AC_MSG_RESULT([ ])
  AC_FUNC_ERROR_AT_LINE
 +AC_FUNC_MALLOC
  AC_FUNC_MEMCMP
@@ -59,7 +291,45 @@
  AC_FUNC_STRCOLL
  AC_FUNC_STRFTIME
 -AC_CHECK_FUNCS([atexit floor memchr memmove memset pow regcomp setlocale sqrt strchr strcspn strerror strpbrk strtoul])
-+AC_CHECK_FUNCS([atexit floor gettimeofday memchr memmove memset pow regcomp select setenv setlocale sqrt strchr strcspn strerror strpbrk strrchr strtol strtoul])
++AC_CHECK_FUNCS([atexit CFRelease CFURLRef floor gettimeofday memchr memmove \
++memset pow printf regcomp scanf select setenv setlocale sqrt strchr strcspn \
++strerror strpbrk strrchr strtol strtoul])
  
  # check for renderers
++AC_MSG_CHECKING([renderers])
++AC_MSG_RESULT([ ])
  CEGUI_ENABLE_OPENGL_RENDERER
+ CEGUI_ENABLE_OGRE_RENDERER
+ CEGUI_ENABLE_NULL_RENDERER
+ CEGUI_ENABLE_IRRLICHT_RENDERER
+ CEGUI_ENABLE_DIRECTFB_RENDERER
+ 
++AC_MSG_CHECKING([a few more things])
++AC_MSG_RESULT([ ])
+ # decide whether to use gtk dialog in samples
+ CEGUI_CHECK_GTK_FOR_SAMPLES
+ 
+@@ -121,7 +307,13 @@
+ CEGUI_CHECK_BUILD_SUFFIX
+ CEGUI_CHECK_STATIC
+ 
+-dnl Create the makefiles
++AC_SUBST([AM_CPPFLAGS])
++if test "x$CEGUI_LIB_LINK_FLAGS" != "x"; then
++	export CEGUI_LIB_LINK_FLAGS
++	AC_SUBST([CEGUI_LIB_LINK_FLAGS])
++fi
++
++dnl# Create the makefiles
+ AC_CONFIG_FILES([cegui/CEGUI-NULL.pc
+                  cegui/CEGUI-OGRE.pc
+                  cegui/CEGUI-OPENGL.pc
+@@ -217,7 +409,7 @@
+                  Makefile])
+ AC_OUTPUT
+ 
+-dnl Now generate some output to summarise what we have done here
++dnl# Now generate some output to summarise what we have done here
+ echo
+ echo "********************************************************************************"
+ echo "* Crazy Eddie's GUI System - Configuration Results Summary"

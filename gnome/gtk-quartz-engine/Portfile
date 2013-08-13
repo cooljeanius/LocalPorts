@@ -6,6 +6,7 @@ PortGroup           github 1.0
 PortGroup           active_variants 1.1
 
 github.setup        cooljeanius gtk-quartz-engine 0.2.1 v
+revision            1
 categories          gnome aqua
 platforms           darwin
 license             LGPL-2+

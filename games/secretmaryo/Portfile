@@ -4,6 +4,7 @@
 PortSystem          1.0
 PortGroup           app 1.0
 PortGroup           github 1.0
+PortGroup           active_variants 1.1
 
 github.setup        FluXy SMC 1817d550feb2e78339fc0ac1bf92bd58456852ed
 name                secretmaryo
@@ -55,11 +56,15 @@ depends_lib-append  port:boost \
                     port:libvorbis \
                     port:mesa
 
+require_active_variants cegui opengl
+
 patch.dir           ${worksrcpath}/smc
 
 patchfiles-append   patch-autogen.sh.diff \
                     patch-configure.ac.diff \
                     patch-configure.ac.2.diff
+# TODO: combine the patches for configure.ac into just one patch, for
+# easier maintainenance
 
 post-patch {
     reinplace "s|@PREFIX@|${prefix}|g" ${patch.dir}/autogen.sh

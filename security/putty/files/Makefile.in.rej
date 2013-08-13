@@ -1,0 +1,17 @@
+***************
+*** 835,841 ****
+  	$(CC) $(COMPAT) $(CFLAGS) $(XFLAGS) -c ../unix/xpmputty.c
+  
+  version.o: FORCE
+- 	if test -z "$(VER)" && (cd ..; md5sum -c manifest); then \
+  		$(CC) $(COMPAT) $(XFLAGS) $(CFLAGS) `cat ../version.def` -c ../version.c; \
+  	else \
+  		$(CC) $(COMPAT) $(XFLAGS) $(CFLAGS) $(VER) -c ../version.c; \
+--- 835,841 ----
+  	$(CC) $(COMPAT) $(CFLAGS) $(XFLAGS) -c ../unix/xpmputty.c
+  
+  version.o: FORCE
++ 	if test -z "$(VER)"; then \
+  		$(CC) $(COMPAT) $(XFLAGS) $(CFLAGS) `cat ../version.def` -c ../version.c; \
+  	else \
+  		$(CC) $(COMPAT) $(XFLAGS) $(CFLAGS) $(VER) -c ../version.c; \

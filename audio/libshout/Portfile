@@ -1,0 +1,50 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 82340 2011-08-12 20:59:32Z jmr@macports.org $
+
+PortSystem      1.0
+
+name            libshout
+version         1.0.9
+revision        2
+categories      audio net
+maintainers     nomaintainer
+description     Data and connectivity lib for the icecast server
+long_description \
+    A port of the libshout library. Libshout allows applications to \
+    easily communicate and broadcast to an Icecast streaming media \
+    server. It handles the socket connections, metadata \
+    communication, and data streaming for the calling application, \
+    and lets developers focus on feature sets instead of \
+    implementation details.
+
+homepage        http://developer.icecast.org/${name}/
+platforms       darwin
+
+master_sites    http://developer.icecast.org/libshout/releases/ \
+                fink
+
+checksums       md5     bbe598e28bbf2989a90d78ff33953ea2 \
+                sha1    99c0bad5f1ceed3bda2e6950bd5b405d8e79ea61 \
+                rmd160  b2369212c732bff9565602a47a2a68f9fd4f6e98
+
+depends_build-append \
+                port:autoconf \
+                port:automake \
+                port:libtool \
+                bin:makeinfo:texinfo
+
+patchfiles-append \
+                patch-using-apple-patches.diff
+
+configure.args-append \
+                --with-pic \
+                --enable-shared \
+                --enable-static \
+                --program-suffix=1 \
+                --libdir=${prefix}/lib/shout1 \
+                --includedir=${prefix}/include/shout1 \
+                --x-includes=${prefix}/include \
+                --x-libraries=${prefix}/lib
+
+# ccache: invalid option -- d
+configure.ccache no

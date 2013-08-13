@@ -10,14 +10,17 @@ platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
 license             Permissive
 
-description         The ${name} is an object-oriented software system for building \
-                    music, sound, signal processing, and MIDI applications.
+description         The ${name} is an object-oriented software system for \
+                    building music, sound, signal processing, and MIDI \
+                    applications.
 
-long_description    ${description} An early version of it was originally included with \
-                    the original releases of NeXT.
+long_description    ${description} An early version of it was \
+                    originally included with the original releases of \
+                    NeXT.
 
 homepage            http://musickit.sourceforge.net/
-# sourceforge fetchgroup wasn't working for me, so I'm just using the full URL
+# the Sourceforge fetchgroup was not working for me, so instead I am just
+# using the full URL
 master_sites        http://sourceforge.net/projects/musickit/files/MK/${version}
 distname            MK-${version}.s
 
@@ -30,28 +33,27 @@ post-patch {
     reinplace "s|/sw/|${prefix}/|" ${worksrcpath}/autogen.sh
 }
 
-# Not sure which libshout to use, so just using a `lib:`-style dependency for now...
+# Not sure which libshout to use, so just using a `lib:`-style dependency
+# for now...
 depends_lib-append  port:portaudio \
                     port:libogg \
                     port:libvorbis \
                     path:include/sndfile.h:libsndfile \
                     lib:libshout:libshout \
+                    lib:libshout:libshout2 \
                     port:lame \
                     path:include/hip.h:libmp3hip
 
-# Turning off the universal variant until I figure out how to get precompiled headers to work with multiple arch flags
+# libmp3hip is not universal
 universal_variant   no
-use_parallel_build  no
-# Actually turning these off still don't work so idk...
 
 platform macosx {
-    PortGroup       xcode 1.0
-    PortGroup       xcodeversion 1.0
+    PortGroup           xcode 1.0
+    PortGroup           xcodeversion 1.0
 # Overwrite some defaults from the Xcode portgroup
-    categories      multimedia audio aqua
-    use_configure   yes
-    universal_variant no
-    use_parallel_build no
+    categories          multimedia audio aqua
+    use_configure       yes
+    use_parallel_build  no
 # For some reason xcodebuild has a hard time finding libsndfile's header...
     pre-build {
         file copy ${prefix}/include/sndfile.h ${worksrcpath}
@@ -65,5 +67,6 @@ variant docs description {Build documentation} {
     depends_build-append \
                     port:openjade \
                     path:bin/pdfjadetex:texlive-htmlxml \
-                    port:doxygen
+                    port:doxygen \
+                    port:docbook-dsssl
 }
