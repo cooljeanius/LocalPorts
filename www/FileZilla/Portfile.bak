@@ -2,10 +2,11 @@
 # $Id: Portfile 104704 2013-04-01 03:14:41Z jeremyhu@macports.org $
 
 PortSystem          1.0
+PortGroup           wxWidgets 1.0
 
 name                FileZilla
 version             3.7.3
-revision            0
+revision            1
 categories          www aqua
 platforms           darwin
 maintainers         strasweb.fr:rudloff openmaintainer
@@ -26,38 +27,39 @@ checksums           sha1    34c3dd1943816a916c54e49cbbea51c97ef3f583 \
                     sha256  2b012970a6033d8ffd4629b1d57b50ace62cd3750efad70001109f25e520c042
 
 depends_build-append \
+                    port:wxWidgets_select \
                     port:pkgconfig \
                     path:bin/gmake:gmake \
                     path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
                     bin:uuid:ossp-uuid
 
-depends_lib-append  port:wxWidgets \
-                    port:libidn \
-                    port:gettext \
+depends_lib-append  port:gettext \
+                    port:gmp \
+                    port:gnutls2 \
                     port:libgpg-error \
                     port:libgcrypt \
-                    port:gnutls2 \
-                    port:sqlite3 \
                     port:libiconv \
+                    port:libidn \
                     port:libtasn1 \
+                    port:nettle \
+                    port:sqlite3 \
                     port:zlib \
-                    path:include/tinyxml.h:tinyxml
+                    path:include/tinyxml.h:tinyxml \
+                    path:bin/dbus-launch:dbus
 
 depends_run-append  bin:xdg-open:xdg-utils
 
-# wxWidgets is 32-bit only
-supported_archs     i386 ppc
-
-# wxWidgets is not universal
-# Neither is FileZilla itself for that matter... universal builds are rejected
-# automatically due some lines in the configure.ac file
+# wxWidgets is (was) not universal
+# Neither is FileZilla itself for that matter... universal builds are
+# rejected automatically due some lines in the configure.ac file
 universal_variant   no
 
 distname            ${name}_${version}_src
 use_bzip2           yes
 worksrcdir          filezilla-${version}
 
-patchfiles-append   patch-configure.ac.diff
+patchfiles-append   patch-configure.ac.diff \
+                    patch-src-putty-Makefile.in.diff
 
 pre-patch {
     if {![file exists ${worksrcpath}/configure.ac]} {
@@ -81,14 +83,7 @@ autoreconf.args     -fvi
 configure.args      --with-tinyxml=builtin \
                     --disable-manualupdatecheck \
                     --disable-autoupdatecheck \
-                    --with-wx-config=${prefix}/bin/wx-config \
-                    --with-wx-prefix=${prefix} \
-                    --without-dbus \
-                    --disable-precomp \
                     --with-libgnutls-prefix=${prefix}/lib/gnutls2
-
-configure.env-append \
-                    WXRC=${prefix}/bin/wxrc
 
 configure.cppflags-append \
                     -I${worksrcpath}/src/include \
@@ -101,11 +96,6 @@ configure.ldflags-append \
 configure.pkg_config_path-append \
                     ${prefix}/lib/gnutls2/lib/pkgconfig
 
-configure.ccache    no
-configure.distcc    no
-configure.optflags  ""
-configure.pipe      no
-
 # needs c++11 support
 compiler.blacklist-append \
                     cc gcc gcc-3.3 gcc-4.0 gcc-4.2 clang apple-gcc-4.0 \
@@ -115,9 +105,9 @@ compiler.blacklist-append \
 compiler.fallback-append \
                     macports-gcc-4.9 macports-gcc-4.8 macports-gcc-4.7 \
                     macports-gcc-4.6 macports-gcc-4.5 macports-gcc-4.4 \
-                    macports-gcc-4.3 macports-dragonegg-3.4 \
-                    macports-dragonegg-3.3 macports-dragonegg-3.2 \
-                    macports-dragonegg-3.1
+                    macports-gcc-4.3 macports-dragonegg-3.4* \
+                    macports-dragonegg-3.3* macports-dragonegg-3.2* \
+                    macports-dragonegg-3.1*
 
 build.type          gnu
 build.cmd           ${prefix}/bin/gmake
@@ -130,19 +120,15 @@ post-destroot {
     xinstall -d ${prefix}/share/doc/${name}
     xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS \
         README TODO ${destroot}${docdir}
-
-    copy ${worksrcpath}/${name}.app ${destroot}${applications_dir}
+    if {![file exists ${destroot}${applications_dir}/${name}.app] && \
+        [file exists ${worksrcpath}/${name}.app]} {
+        copy ${worksrcpath}/${name}.app ${destroot}${applications_dir}
+    }
 }
 
 if {${os.platform} != "darwin"} {
-    variant dbus description {Build dbus support} {
-        depends_lib-append \
-                        path:bin/dbus-launch:dbus
-        configure.args-delete \
-                        --without-dbus
-        configure.args-append \
+    configure.args-append \
                         --with-dbus
-    }
     depends_build-append \
                         bin:makensis:nsis
 }
@@ -155,4 +141,47 @@ variant test description {Build tests for cppunit} {
 
     test.run        yes
     test.target     check
+}
+
+variant wxwidgets30 conflicts wxgtk28 wxwidgets28 description {Use wxWidgets 2.9 (not fully functional yet)} {
+    wxWidgets.use           wxWidgets-3.0
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir} \
+                            --with-wx-config=${wxWidgets.wxconfig} \
+                            --with-wx-prefix=${wxWidgets.prefix}
+    configure.env-append    WXRC=${wxWidgets.wxrc}
+    patchfiles-append       patch-wxWidgets-2.9.diff
+}
+
+variant wxwidgets28 conflicts wxgtk28 wxwidgets30 description {Use 32-bit Carbon-based wxWidgets 2.8} {
+    wxWidgets.use           wxWidgets-2.8
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir} \
+                            --with-wx-config=${wxWidgets.wxconfig} \
+                            --with-wx-prefix=${wxWidgets.prefix}
+    configure.env-append    WXRC=${wxWidgets.wxrc}
+}
+
+variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use wxWidgets 2.8 with GTK} {
+    wxWidgets.use           wxGTK-2.8
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir} \
+                            --with-wx-config=${wxWidgets.wxconfig} \
+                            --with-wx-prefix=${wxWidgets.prefix}
+    configure.env-append    WXRC=${wxWidgets.wxrc}
+}
+
+if {![variant_isset wxgtk28]} {
+    # TODO: when FileZilla is built against wxGTK, it does not create an app; this needs fixing
+    destroot {
+        copy ${worksrcpath}/${name}.app ${destroot}${applications_dir}
+    }
+}
+
+if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
+    if {[vercmp $xcodeversion 4.4] >= 0} {
+        default_variants +wxgtk28
+    } else {
+        default_variants +wxwidgets28
+    }
 }

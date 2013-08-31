@@ -7,12 +7,12 @@ PortGroup           github 1.0
 github.setup        cooljeanius cec 0.4 v
 categories          lang
 platforms           darwin
-maintainers         gwmail.gwu.edu:egall
-license             BSD 3-clause
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             BSD
 
 description         The Columbia Esterel Compiler
 
-long_description    ${description}. Warning: doesn't actually work yet
+long_description    ${description}. Warning: does not actually work yet
 
 homepage            http://www.cs.columbia.edu/~sedwards/cec/
 
@@ -24,6 +24,7 @@ autoreconf.args     -fvi
 
 depends_build-append \
                     port:autoconf-archive
+
 depends_lib-append  port:expat \
                     port:antlr
 

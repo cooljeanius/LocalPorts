@@ -31,8 +31,10 @@ depends_build-append \
                     port:m4 \
                     bin:perl:perl5 \
                     bin:flex:flex
+
 depends_lib-append  port:gettext \
                     port:libiconv
+
 depends_run-append  port:m4
 
 configure.args-append \
@@ -46,6 +48,7 @@ configure.args-append \
                     --disable-yacc \
                     --without-dmalloc \
                     --disable-nls
+
 configure.env-append \
                     M4=${prefix}/bin/gm4
 
@@ -56,6 +59,7 @@ variant test description {Enables testing and debugging} {
     configure.args-append \
                     --enable-gcc-warnings \
                     --disable-silent-rules
+
     depends_build-append \
                     bin:valgrind:valgrind \
                     bin:git:git-core \
@@ -63,8 +67,10 @@ variant test description {Enables testing and debugging} {
                     bin:grep:grep \
                     bin:gsed:gsed \
                     bin:gmake:gmake
+
     depends_lib-append \
                     lib:dmalloc:dmalloc
+
     build.type      gnu
     build.cmd       ${prefix}/bin/gmake
     test.run        yes

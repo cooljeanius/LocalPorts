@@ -3,9 +3,10 @@
 
 PortSystem          1.0
 
-name                bison
+name                bison3
+set myname          bison
 version             3.0
-revision            1
+revision            3
 categories          devel lang
 maintainers         mww openmaintainer
 license             GPL-3+
@@ -21,7 +22,8 @@ long_description \
     version breaks backwards compatibility with bison2.
 
 homepage            http://www.gnu.org/software/${name}/
-master_sites        gnu
+master_sites        gnu:${myname}
+distname            ${myname}-${version}
 checksums           rmd160  6b68dfec7e83ab481f3e9d315f779f462dfc3823 \
                     sha256  e9ac5585002b71208aee8a20bbe1ced96c48766e6c4247bc7ef8f3141f7624c8
 
@@ -31,16 +33,23 @@ depends_build-append \
                     port:m4 \
                     bin:perl:perl5 \
                     bin:flex:flex
+
 depends_lib-append  port:gettext \
                     port:libiconv
+
 depends_run-append  port:m4
 
 configure.args      --infodir=${prefix}/share/info \
                     --mandir=${prefix}/share/man \
+                    --program-suffix=3 \
+                    --datadir=${prefix}/share/${name} \
+                    --libdir=${prefix}/lib/${name} \
                     --with-libiconv-prefix=${prefix} \
                     --with-libintl-prefix=${prefix} \
                     --disable-yacc \
-                    --without-dmalloc
+                    --without-dmalloc \
+                    --disable-nls
+
 configure.env-append \
                     M4=${prefix}/bin/gm4
 
@@ -51,6 +60,7 @@ variant test description {Enables testing and debugging} {
     configure.args-append \
                     --enable-gcc-warnings \
                     --disable-silent-rules
+
     depends_build-append \
                     bin:valgrind:valgrind \
                     bin:git:git-core \
@@ -58,8 +68,10 @@ variant test description {Enables testing and debugging} {
                     bin:grep:grep \
                     bin:gsed:gsed \
                     bin:gmake:gmake
+
     depends_lib-append \
                     lib:dmalloc:dmalloc
+
     build.type      gnu
     build.cmd       ${prefix}/bin/gmake
     test.run        yes
@@ -73,7 +85,9 @@ variant docs description {Build documentation} {
                     bin:doxygen:doxygen \
                     bin:dot:graphviz \
                     bin:ctags:ctags \
-                    bin:makeinfo:texinfo
+                    bin:makeinfo:texinfo \
+                    bin:mig:bootstrap_cmds \
+                    port:fontconfig
     build.target-append \
                     ctags \
                     doc \
@@ -101,8 +115,9 @@ post-destroot {
         THANKS TODO ${destroot}${docdir}
     # yacc manpage gets installed even with '--disable-yacc'
     if {![variant_isset yacc]} {
-        delete ${destroot}${prefix}/share/man/man1/yacc.1
+        delete ${destroot}${prefix}/share/man/man1/yacc3.1
     }
+    delete ${destroot}${prefix}/share/info
 }
 
 variant yacc description "Enable yacc compatibility" {

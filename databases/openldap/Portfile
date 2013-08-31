@@ -5,13 +5,13 @@ PortSystem          1.0
 PortGroup           muniversal 1.0
 
 name                openldap
-version             2.4.31
-revision            4
+version             2.4.34
+revision            0
 categories          databases
 maintainers         landonf openmaintainer
 license             openldap
 description         OpenLDAP Software
-long_description    OpenLDAP Software is an open source implementation \
+long_description    ${description} is an open source implementation \
                     of the Lightweight Directory Access Protocol.
 
 platforms           darwin
@@ -21,8 +21,12 @@ master_sites        ftp://ftp.OpenLDAP.org/pub/OpenLDAP/${name}-release/ \
                     ftp://ftp.nl.uu.net/pub/unix/db/${name}/${name}-release/
 extract.suffix      .tgz
 
-checksums           rmd160  47a50d8f42540f115b8e8b9ec531982b5c3a32d1 \
-                    sha256  bde845840df4794b869a6efd6a6b1086f80989038e4844b2e4d7d6b57b39c5b6
+checksums           rmd160  87e8d3a41b5e708e31eb29bb8b936d519a0374d3 \
+                    sha256  eaab4c4a6b09cc9e60f97e6ef9974f8327d977d1d7af7bc00c2bc5f90dfe0606
+
+depends_build-append \
+                    path:bin/gccmakedep:gccmakedep \
+                    path:bin/makedepend:makedepend
 
 depends_lib-append  path:bin/perl:perl5 \
                     port:tcp_wrappers \
@@ -35,8 +39,14 @@ depends_lib-append  path:bin/perl:perl5 \
 
 patchfiles-append   patch-ltmain.diff
 
-configure.env-append LANG=C
+configure.env-append \
+                    LANG=C \
+                    LC_ALL=C \
+                    GCCMAKEDEP=${prefix}/bin/gccmakedep \
+                    MAKEDEPEND=${prefix}/bin/makedepend
+
 configure.cppflags-append -I${prefix}/include/db46 -I${prefix}/include/openssl -DBIND_8_COMPAT
+
 platform darwin {
     configure.cppflags-append -DMDB_FDATASYNC=fsync
     if {${os.major} <= 9} {

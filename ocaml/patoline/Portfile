@@ -16,14 +16,15 @@ long_description    ${description}
 homepage            http://${name}.org
 master_sites        http://${name}.org/darcs/${name}
 
-checksums           rmd160  a07b5d12cc2550a560e617a93a3ee25706d424f2 \
-                    sha256  20c23b5f044de25ab23e663654d937367c4d67d1dac96d979cfd720587556041
+checksums           rmd160  ec3f645edb3817e36044390c13107179d9e64372 \
+                    sha256  16f77f6220550dc1fcd1dbe60a8dc939e421d29f0472f20e8427ea51859af002
 
 depends_lib-append  port:ocaml-camomile \
                     port:ocaml-dypgen \
                     port:ocaml-findlib \
                     port:ocaml-sqlite3 \
-                    port:ocaml-zip
+                    port:ocaml-zip \
+                    port:camlimages
 
 configure.pre_args  --prefix ${prefix} \
                     --extra-fonts-dir /Library/Fonts

@@ -1,36 +1,103 @@
---- configure.ac.bak	2013-05-13 08:32:13.000000000 -0400
-+++ configure.ac	2013-05-13 13:16:02.000000000 -0400
-@@ -2,8 +2,8 @@
+--- configure.ac.bak	2013-08-17 15:07:59.000000000 -0400
++++ configure.ac	2013-08-17 15:27:30.000000000 -0400
+@@ -1,21 +1,22 @@
++#                                               -*- Autoconf -*-
+ # Process this file with autoconf to produce a configure script.
  
  m4_pattern_forbid([^_?DPKG_])
  
 -AC_PREREQ(2.60)
 -AC_INIT([dpkg], m4_esyscmd([./get-version]), [debian-dpkg@lists.debian.org])
-+AC_PREREQ([2.60])
-+AC_INIT([dpkg], [m4_esyscmd([./get-version])], [debian-dpkg@lists.debian.org])
++AC_PREREQ([2.69])
++AC_INIT([dpkg],[m4_esyscmd([./get-version])],[debian-dpkg@lists.debian.org])
  AC_CONFIG_SRCDIR([lib/dpkg/dpkg.h])
  AC_CONFIG_MACRO_DIR([m4])
  AC_CONFIG_AUX_DIR([build-aux])
-@@ -35,11 +35,15 @@
+ 
+ AC_USE_SYSTEM_EXTENSIONS
+ 
+-AM_INIT_AUTOMAKE([1.8 foreign nostdinc no-dist-gzip dist-xz])
++AM_INIT_AUTOMAKE([1.8 dejagnu foreign nostdinc no-dist-gzip dist-xz tar-ustar -Wall])
+ 
+-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])],
+-                            [AC_SUBST([AM_DEFAULT_VERBOSITY], [1])])
++m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])],
++                           [AC_SUBST([AM_DEFAULT_VERBOSITY],[1])])
+ 
+-AM_GNU_GETTEXT_VERSION([0.18])
++AM_GNU_GETTEXT_VERSION([0.18.3])
+ AM_GNU_GETTEXT([external])
+ DPKG_DIST_CHECK([test "$GMSGFMT" = ":" && test "$USE_NLS" = "yes"],
+                 [gettext required when NLS support enabled])
+@@ -27,19 +28,46 @@
+ DPKG_BUILD_PROG([install-info])
+ 
+ # Allow alternate directories
+-DPKG_WITH_DIR([admindir], [${localstatedir}/lib/${PACKAGE_NAME}],
++DPKG_WITH_DIR([admindir],[${localstatedir}/lib/${PACKAGE_NAME}],
+               [dpkg database directory [LOCALSTATEDIR/lib/dpkg]])
+-DPKG_WITH_DIR([logdir], [${localstatedir}/log],
++DPKG_WITH_DIR([logdir],[${localstatedir}/log],
+               [system logging directory [LOCALSTATEDIR/log]])
+ 
  # Checks for programs.
- AC_PROG_CC
+-AC_PROG_CC
++AM_PROG_AR
++if test "x$CC" = "x"; then
++	test -z "$CC"
++	AC_PROG_CC
++else
++	test ! -z "$CC"
++	export CC
++	AC_SUBST([CC])
++fi
  AC_PROG_CXX
-+AC_PROG_INSTALL
- AC_PROG_LEX
- DPKG_DIST_CHECK([test "$LEX" = ":"], [lex program required])
- AC_PROG_RANLIB
- AC_CHECK_PROGS([DOXYGEN], [doxygen])
- AC_CHECK_PROG([HAVE_DOT], [dot], [YES], [NO])
+-AC_PROG_LEX
+-DPKG_DIST_CHECK([test "$LEX" = ":"], [lex program required])
+-AC_PROG_RANLIB
+-AC_CHECK_PROGS([DOXYGEN], [doxygen])
+-AC_CHECK_PROG([HAVE_DOT], [dot], [YES], [NO])
++if test "x$INSTALL" = "x"; then
++	test -z "$INSTALL"
++	AC_PROG_INSTALL
++	AM_PROG_INSTALL_STRIP
++else
++	test ! -z "$INSTALL"
++	export INSTALL
++	AC_SUBST([INSTALL])
++fi
++AM_PROG_LEX
++DPKG_DIST_CHECK([test "$LEX" = ":"],[lex program required])
++if test "x$RANLIB" = "x"; then
++	test -z "$RANLIB"
++	AC_PROG_RANLIB
++else
++	test ! -z "$RANLIB"
++	export RANLIB
++	AC_SUBST([RANLIB])
++fi
++AC_CHECK_PROGS([DOXYGEN],[doxygen])
++AC_CHECK_PROG([HAVE_DOT],[dot],[YES],[NO])
 +AX_CHECK_GNU_MAKE
-+AC_PATH_PROG([TAR], [gnutar tar])
++AC_PATH_PROG([TAR],[gnutar gtar tar])
 +
  DPKG_PROG_PO4A
  DPKG_PROG_PERL
  DPKG_PROG_POD2MAN
-@@ -62,18 +66,34 @@
+@@ -47,6 +75,8 @@
+ 
+ # Checks for operating system services and capabilities.
+ AC_SYS_LARGEFILE
++AC_OBJEXT
++AC_EXEEXT
+ 
+ # Checks for libraries.
+ DPKG_LIB_ZLIB
+@@ -61,69 +91,100 @@
+ fi
  
  # Checks for header files.
- AC_HEADER_STDC
+-AC_HEADER_STDC
 -AC_CHECK_HEADERS([stddef.h error.h locale.h libintl.h kvm.h \
 -                  sys/syscall.h linux/fiemap.h])
 +AC_CHECK_HEADERS([error.h fcntl.h libintl.h limits.h \
@@ -42,7 +109,10 @@
 +AC_HEADER_STDBOOL
  AC_C_BIGENDIAN
  AC_C_CONST
++AC_C_FLEXIBLE_ARRAY_MEMBER
  AC_C_INLINE
++AC_C_PROTOTYPES
++AC_C_VARARRAYS
  AC_C_VOLATILE
  DPKG_C_C99
 +AC_TYPE_INT16_T
@@ -64,10 +134,27 @@
  DPKG_TYPES_U_INT_T
  DPKG_TYPE_PTRDIFF_T
  AC_CHECK_SIZEOF([unsigned int])
-@@ -91,16 +111,27 @@
++AC_CHECK_ALIGNOF([unsigned int])
+ AC_CHECK_SIZEOF([unsigned long])
++AC_CHECK_ALIGNOF([unsigned long])
+ DPKG_DECL_SYS_SIGLIST
+ 
+ # Checks for library functions.
+ DPKG_FUNC_VA_COPY
+ DPKG_FUNC_C99_SNPRINTF
+-DPKG_CHECK_DECL([offsetof], [stddef.h])
+-DPKG_CHECK_DECL([WCOREDUMP], [sys/wait.h])
+-DPKG_CHECK_DECL([TIOCNOTTY], [sys/ioctl.h])
+-DPKG_CHECK_DECL([O_NOFOLLOW], [fcntl.h])
++DPKG_CHECK_DECL([offsetof],[stddef.h])
++DPKG_CHECK_DECL([WCOREDUMP],[sys/wait.h])
++DPKG_CHECK_DECL([TIOCNOTTY],[sys/ioctl.h])
++DPKG_CHECK_DECL([O_NOFOLLOW],[fcntl.h])
+ DPKG_CHECK_PROGNAME
  DPKG_CHECK_COMPAT_FUNCS([getopt getopt_long obstack_free \
                           strnlen strndup strerror strsignal asprintf \
                           scandir alphasort unsetenv])
+-AC_CHECK_DECLS([strnlen], [[#include <string.h>]])
 +AC_FUNC_CHOWN
 +AC_FUNC_ERROR_AT_LINE
 +AC_FUNC_FORK
@@ -76,11 +163,12 @@
 +AC_FUNC_MMAP
 +AC_FUNC_REALLOC
 +AC_FUNC_STRNLEN
- AC_CHECK_DECLS([strnlen], [[#include <string.h>]])
++AC_CHECK_DECLS([strnlen],[[#include <string.h>]])
  AC_CHECK_FUNCS([memcpy lchown],
-                [], [AC_ERROR([missing required function])])
+-               [], [AC_ERROR([missing required function])])
 -AC_CHECK_FUNCS([strtoimax isascii setsid getdtablesize \
 -                getprogname getexecname lutimes posix_fadvise])
++               [],[AC_MSG_ERROR(missing required function)])
 +AC_CHECK_FUNCS([dup2 ftruncate getdtablesize getexecname \
 +                getprogname gettimeofday isascii lutimes memchr memmove memset mkdir \
 +                mkfifo munmap posix_fadvise putenv regcomp rmdir select setenv setlocale \
@@ -91,7 +179,49 @@
  
  # Checks for the build machinery.
 -AC_DEFINE(LIBDPKG_VOLATILE_API, 1, [Acknowledge the volatility of the API.])
-+AC_DEFINE([LIBDPKG_VOLATILE_API], [1], [Acknowledge the volatility of the API.])
++AC_DEFINE([LIBDPKG_VOLATILE_API],[1],[Acknowledge the volatility of the API.])
  DPKG_COMPILER_WARNINGS
  DPKG_COMPILER_OPTIMISATIONS
  DPKG_LINKER_OPTIMISATIONS
+ DPKG_ARCHITECTURE
+ 
+-AC_CONFIG_FILES([ Makefile
+-		  dpkg-deb/Makefile
+-		  dpkg-split/Makefile
+-		  dselect/Makefile
+-		  dselect/methods/Makefile
+-		  dselect/po/Makefile.in
+-		  lib/Makefile
+-		  lib/compat/Makefile
+-		  lib/dpkg/Makefile
+-		  lib/dpkg/libdpkg.pc
+-		  lib/dpkg/test/Makefile
+-		  doc/Doxyfile
+-		  man/Makefile
+-		  po/Makefile.in
+-		  scripts/Makefile
+-		  scripts/mk/Makefile
+-		  scripts/po/Makefile.in
+-		  src/Makefile
+-		  utils/Makefile ])
++AC_CONFIG_FILES([Makefile
++		 dpkg-deb/Makefile
++		 dpkg-split/Makefile
++		 dselect/Makefile
++		 dselect/methods/Makefile
++		 dselect/po/Makefile.in
++		 lib/Makefile
++		 lib/compat/Makefile
++		 lib/dpkg/Makefile
++		 lib/dpkg/libdpkg.pc
++		 lib/dpkg/test/Makefile
++		 doc/Doxyfile
++		 man/Makefile
++		 po/Makefile.in
++		 scripts/Makefile
++		 scripts/mk/Makefile
++		 scripts/po/Makefile.in
++		 src/Makefile
++		 utils/Makefile])
+ AC_CONFIG_HEADERS([config.h])
+ AC_OUTPUT

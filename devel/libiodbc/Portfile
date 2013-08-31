@@ -8,7 +8,7 @@ github.setup        openlink iODBC 3.52.8 v
 #override name (keep it lowercase)
 name                libiodbc
 conflicts-append    unixODBC
-revision            3
+revision            4
 categories          devel databases
 maintainers         snc openmaintainer
 license             BSD
@@ -52,15 +52,52 @@ configure.args-append   --with-iodbc-inidir=${prefix}/etc \
 # make[2]: *** No rule to make target `../iodbcadm/libiodbcadm.la', needed by `iodbcadm-gtk'.  Stop.
 use_parallel_build  no
 
-variant gui description {Builds a gtk gui for libiodbc} {
+variant gui requires x11 description {legacy compatibility variant} {}
+
+variant x11 description {Builds a gtk gui for libiodbc} {
     PortGroup       active_variants 1.1
     depends_lib-append \
+                    port:atk \
+                    port:bzip2 \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    port:expat \
+                    port:fontconfig \
+                    port:freetype \
+                    port:gdk-pixbuf2 \
+                    port:gettext \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    port:graphite2 \
                     port:gtk2 \
-                    port:libpng
+                    port:harfbuzz \
+                    port:libffi \
+                    port:libiconv \
+                    path:lib/pkgconfig/pixman-1.pc:libpixman \
+                    port:libpng \
+                    path:lib/pkgconfig/pango.pc:pango \
+                    port:xorg-libX11 \
+                    port:xorg-libXau \
+                    port:xorg-libXcomposite \
+                    port:xorg-libXcursor \
+                    port:xorg-libXdamage \
+                    port:xorg-libXdmcp \
+                    port:xorg-libXext \
+                    port:xorg-libXfixes \
+                    port:xorg-libXi \
+                    port:xorg-libXinerama \
+                    port:xorg-libXrandr \
+                    port:xorg-libxcb \
+                    port:xrender \
+                    port:zlib
+    require_active_variants cairo x11
     require_active_variants gtk2 x11
+    require_active_variants pango x11
     configure.args-delete --disable-gui \
                           --disable-gtktest
     configure.args-append --enable-gui \
                           --with-gtk-prefix=${prefix} \
                           --enable-gtktest
+}
+
+if {[variant_isset gui]} {
+    default_variants-append +x11
 }

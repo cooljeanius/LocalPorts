@@ -12,9 +12,10 @@ maintainers         otherware.org:nefar openmaintainer
 license             GPL-3+
 description         Fast, light & extensible IRC client
 long_description \
-    WeeChat (Wee Enhanced Environment for Chat) is a fast and light IRC client \
-     for many operating systems. Everything can be done with a keyboard. \
-     It is customizable and extensible with plugins/scripts, and includes: \
+    WeeChat (Wee Enhanced Environment for Chat) is a fast and light IRC \
+     client for many operating systems. Everything can be done with a \
+     keyboard. It is customizable and extensible with plugins/scripts, \
+     and includes: \
       - nicklist \
       - smart hotlist \
       - infobar with highlight notification \
@@ -22,6 +23,7 @@ long_description \
       - double charset support (decode/encode) \
       - FIFO pipe for remote control \
       - and much more!
+
 homepage            http://${name}.org/
 platforms           darwin
 master_sites        ${homepage}files/src
@@ -42,7 +44,7 @@ depends_lib-append  port:gettext \
                     port:libtool \
                     port:zlib
 
-patchfiles          patch-src_plugins_Makefile.diff
+patchfiles-append   patch-src_plugins_Makefile.diff
 
 configure.args-append \
                     -DENABLE_GNUTLS=OFF \
@@ -50,7 +52,9 @@ configure.args-append \
                     -DENABLE_GUILE=OFF \
                     -DENABLE_PERL=OFF \
                     -DENABLE_PYTHON=OFF \
+                    -DENABLE_PYTHON3=OFF \
                     -DENABLE_RUBY=OFF \
+                    -DENABLE_TCL=OFF \
                     -DENABLE_ASPELL=OFF
 
 use_bzip2           yes
@@ -88,7 +92,8 @@ variant perl description {Bindings for perl plugins} {
     configure.args-append \
                     -DENABLE_PERL=ON
     depends_lib-append \
-                    path:bin/perl:perl5
+                    path:bin/perl:perl5 \
+                    lib:perl:perl5.12
 }
 
 variant python description {Bindings for python plugins} {
@@ -97,8 +102,8 @@ variant python description {Bindings for python plugins} {
     configure.args-append \
                     -DENABLE_PYTHON=ON
     depends_lib-append \
-                    path:bin/python:python26 \
-                    bin:python:python27
+                    bin:python:python26 \
+                    path:bin/python:python27
 }
 
 variant ruby description {Bindings for ruby plugins} {
@@ -106,11 +111,18 @@ variant ruby description {Bindings for ruby plugins} {
                     -DENABLE_RUBY=OFF
     configure.args-append \
                     -DENABLE_RUBY=ON
-    depends_build-append \
-                    port:ruby_select
     depends_lib-append \
-                    path:bin/ruby:ruby \
+                    bin:ruby:ruby \
                     path:bin/ruby:ruby19
+}
+
+variant tcl description {Bindings for tcl plugins} {
+    configure.args-delete \
+                    -DENABLE_TCL=OFF
+    configure.args-append \
+                    -DENABLE_TCL=ON
+    depends_lib-append \
+                    port:tcl
 }
 
 variant tls description {Support for secure connecting} {
@@ -130,11 +142,12 @@ variant tls description {Support for secure connecting} {
 }
 
 post-destroot {
-    xinstall -m 755 -d ${destroot}${prefix}/share/doc/${name}
-    xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS README \
-        ${destroot}${prefix}/share/doc/${name}
+    set docdir ${destroot}${prefix}/share/doc/${name}
+    xinstall -m 755 -d ${docdir}
+    xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS \
+        README ${docdir}
     eval xinstall -m 644 -W ${worksrcpath} [glob doc/en/weechat*.txt] \
-        ${destroot}${prefix}/share/doc/${name}
+        ${docdir}
 }
 
 post-install {

@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                dpkg
 version             1.16.10
-revision            0
+revision            1
 platforms           darwin freebsd
 categories          sysutils archivers
 license             GPL-2+
@@ -31,6 +31,8 @@ depends_build-append \
                     path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
                     path:share/aclocal/xorg-macros.m4:xorg-util-macros \
                     bin:git:git-core \
+                    bin:gnutar:gnutar \
+                    bin:lzma:xz \
                     bin:perl:perl5
 
 # Use MacPorts versions explicitly
@@ -46,6 +48,7 @@ depends_lib-append  port:gettext \
 
 depends_run-append  bin:gnutar:gnutar \
                     bin:lzma:xz \
+                    bin:perl:perl5 \
                     port:debianutils
 
 # got to do some underscore-to-hyphen twiddling...
@@ -62,7 +65,9 @@ configure.args-append \
                     --with-admindir=${prefix}/var/db/${name} \
                     --with-logdir=${prefix}/var/log \
                     --mandir=${prefix}/share/man \
-                    --with-zlib --with-bz2 --with-liblzma \
+                    --with-zlib \
+                    --with-bz2 \
+                    --with-liblzma \
                     --disable-linker-optimisations \
                     --disable-silent-rules \
                     --disable-start-stop-daemon
@@ -71,6 +76,8 @@ configure.args-append \
 
 # ccache is trouble
 configure.ccache          no
+
+# Older versions of gcc choke with the -Wvla warning flag
 configure.cflags-delete   -Wvla
 configure.cppflags-delete -Wvla
 configure.ldflags-delete  -Wvla
@@ -88,7 +95,12 @@ compiler.blacklist-append cc gcc-3.3 gcc-4.0 apple-gcc-4.0
 build.type          gnu
 
 set vardpkg ${destroot}${prefix}/var/db/${name}
-destroot.keepdirs ${vardpkg} ${vardpkg}/updates ${vardpkg}/info ${prefix}/var/log
+destroot.keepdirs-append \
+                    ${vardpkg} \
+                    ${vardpkg}/updates \
+                    ${vardpkg}/info \
+                    ${destroot}${prefix}/var/log \
+                    ${destroot}${prefix}/etc/${name}
 
 patchfiles-append   patch-configure.ac.diff \
                     patch-lib_dpkg_dpkg.h.diff \
@@ -99,15 +111,17 @@ patchfiles-append   patch-configure.ac.diff \
 
 post-patch {
     set scripts ${worksrcpath}/scripts
-    reinplace s|/etc/${name}/|${prefix}/etc/${name}/| \
+    reinplace "s|/etc/${name}/|${prefix}/etc/${name}/|" \
             ${scripts}/${name}-shlibdeps.pl \
             ${scripts}/${name}-source.pl
+    reinplace "s|AC_ERROR|AC_MSG_ERROR|" ${worksrcpath}/m4/dpkg-build.m4
     file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
+    file copy ${prefix}/share/aclocal/xorg-macros.m4 ${worksrcpath}/m4
     system -W ${worksrcpath} "git init"
 }
 
 use_autoreconf      yes
-autoreconf.args     -fvi
+autoreconf.args     -fvi --warnings=all
 
 pre-destroot {
     file mkdir ${destroot}${prefix}/share/doc/${name}
@@ -120,6 +134,7 @@ post-destroot {
     system "touch ${vardpkg}/available ${vardpkg}/status"
 }
 
+# These platform variants had previously had patches associated with them...
 platform darwin {
     depends_build-append    bin:gnumake:gmake
 }
@@ -130,8 +145,18 @@ platform freebsd {
 
 # This variant currently hangs while building and fails to actually install the
 # documentation, not entirely sure why...
-variant docs description {Build documentation} {
-    depends_build-append    port:doxygen path:bin/dot:graphviz
+# Example error message:
+# dot[21000:907] CoreText CopyPropertiesForFont received mig IPC error (FFFFFFFFFFFFFECC) from font server
+# (issue with the graphviz port?)
+variant docs description {Build documentation (warning: building documentation takes a long time)} {
+    PortGroup               archcheck 1.0
+    depends_build-append    port:doxygen \
+                            path:bin/dot:graphviz \
+                            bin:mig:bootstrap_cmds \
+                            bin:lcov:lcov \
+                            port:fondu \
+                            port:fontconfig
+    depends_skip_archcheck-append bootstrap_cmds lcov fondu fontconfig
     set docdir ${prefix}/share/doc/${name}
     configure.args-append   --docdir=${docdir} \
                             --htmldir=${docdir}/html \
@@ -139,12 +164,23 @@ variant docs description {Build documentation} {
                             --pdfdir=${docdir}/pdf \
                             --psdir=${docdir}/ps
     build.target-append     doc
+    pre-build {
+        elevateToRoot "doxygen"
+    }
     post-build {
         system -W ${worksrcpath}/doc "doxygen"
+        dropPrivileges
+        set destroot_docdir ${destroot}${prefix}/share/doc/${name}
+        xinstall -d ${destroot_docdir}
+        copy ${worksrcpath}/doc/doc ${destroot_docdir}
+        copy ${worksrcpath}/doc/html ${destroot_docdir}
+        foreach docfile {coding-style.txt triggers.txt README.feature-removal-schedule frontend.txt README.api} {
+            xinstall -m 644 ${worksrcpath}/doc/${docfile} ${destroot_docdir}
+        }
     }
 }
 
-# Tests currently fail, this needs to be fixed
+# Tests currently fail, this needs to be fixed eventually
 test.run            yes
 test.target         check
 

@@ -1,17 +1,17 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id: Portfile 106262 2013-05-20 20:55:10Z sean@macports.org $
 
-PortSystem      1.0
-PortGroup       muniversal 1.0
-PortGroup       archcheck 1.0
+PortSystem             1.0
+PortGroup              muniversal 1.0
+PortGroup              archcheck 1.0
 
-name            gdb
-version         7.6
-revision        1
-categories      devel
-license         GPL-3+
-maintainers     dweber openmaintainer
-description     GDB: The GNU Project Debugger
+name                   gdb
+version                7.6
+revision               3
+categories             devel
+license                GPL-3+
+maintainers            dweber openmaintainer
+description            GDB: The GNU Project Debugger
 
 long_description \
 GDB, the GNU Project debugger, allows you to see what is going on \
@@ -31,47 +31,109 @@ Pascal (and many other languages). Those programs might be executing on \
 the same machine as GDB (native) or on another machine (remote). GDB \
 can run on most popular UNIX and Microsoft Windows variants.
 
-homepage        http://www.gnu.org/software/${name}/
-platforms       darwin
-supported_archs x86_64 i386
+homepage               http://www.gnu.org/software/${name}/
+platforms              darwin
+supported_archs        x86_64 i386
 
-master_sites    gnu
+master_sites           gnu
 
-use_bzip2       yes
+use_bzip2              yes
 
-checksums           sha1    b64095579a20e011beeaa5b264fe23a9606ee40f \
-                    rmd160  9a3bb92415a3785da15a60bc7e5707051c8bebcf \
-                    sha256  a410e8f35ee70cce83dbbf1da9e2a8373f271ac0e4b71db4336ae293fc7bdf1b
+checksums              sha1    b64095579a20e011beeaa5b264fe23a9606ee40f \
+                       rmd160  9a3bb92415a3785da15a60bc7e5707051c8bebcf \
+                       sha256  a410e8f35ee70cce83dbbf1da9e2a8373f271ac0e4b71db4336ae293fc7bdf1b
 
-depends_build-append   port:gettext port:zlib port:gawk port:bison \
-                       port:flex path:bin/makeinfo:texinfo port:expect \
-                       path:bin/nm:cctools path:bin/perl:perl5 \
-                       port:intltool port:gsed bin:mig:bootstrap_cmds \
-                       port:gnuregex port:gmake port:byacc
+depends_build-append   port:gettext \
+                       port:zlib \
+                       port:gawk \
+                       port:bison \
+                       port:flex \
+                       path:bin/makeinfo:texinfo \
+                       port:expect \
+                       path:bin/nm:cctools \
+                       path:bin/perl:perl5 \
+                       port:intltool \
+                       port:gsed \
+                       bin:mig:bootstrap_cmds \
+                       port:gmake \
+                       port:byacc \
+                       port:vislcg3 \
+                       bin:gm4:m4 \
+                       port:libunwind-headers
 
-depends_lib-append     port:readline port:expat port:libiconv \
-                       port:ncurses port:ppl port:gettext \
-                       port:zlib
+depends_lib-append     port:readline \
+                       port:expat \
+                       port:libiconv \
+                       port:ncurses \
+                       port:ppl \
+                       port:gettext \
+                       port:zlib \
+                       port:gnuregex \
+                       path:lib/pkgconfig/bdw-gc.pc:boehmgc \
+                       port:libmpc \
+                       port:mpfr \
+                       port:gmp \
+                       port:cloog \
+                       port:isl
 
-depends_run-append     port:gcc_select port:exec-wrapper
+depends_run-append     port:gcc_select \
+                       port:exec-wrapper
 
-depends_skip_archcheck bootstrap_cmds exec-wrapper
+depends_skip_archcheck-append bootstrap_cmds exec-wrapper
 
 platform macosx {
     depends_run-append path:etc/openssl/cert.pem:certsync
 }
 
+set docdir ${prefix}/share/doc/${name}
+set datadir ${prefix}/share/${name}
+
+pre-configure {
+        file mkdir "${workpath}/build"
+}
+
 configure.args-append \
-    --infodir=${prefix}/share/info \
-    --mandir=${prefix}/share/man \
-    --with-docdir=${prefix}/share/doc \
+    --infodir=${docdir}/info \
+    --mandir=${docdir}/man \
+    --with-docdir=${docdir} \
+    --datadir=${datadir} \
+    --localedir=${datadir}/locale \
     --program-prefix=g \
     --disable-werror \
     --enable-tui \
     --enable-multi-ice \
     --with-gnu-ld \
     --with-curses \
-    --with-expat
+    --with-expat \
+    --enable-gold=yes \
+    --enable-ld=yes \
+    --enable-libada \
+    --enable-libssp \
+    --enable-lto \
+    --enable-objc-gc \
+    --with-mpc=${prefix} \
+    --with-mpfr=${prefix} \
+    --with-gmp=${prefix} \
+    --with-cloog=${prefix} \
+    --with-isl=${prefix} \
+    --disable-isl-version-check \
+    --disable-cloog-version-check \
+    --without-python
+
+configure.env-append \
+    MAKEINFO=${prefix}/bin/makeinfo
+
+configure.ldflags-append \
+    -lgnuregex \
+    -lgc \
+    -lcloog-isl \
+    -lgmp \
+    -lisl \
+    -lmpc \
+    -lmpfr \
+    -lppl \
+    -lhistory \
+    -lreadline
 
 platform x86_64 {
     configure.args-append \
@@ -81,21 +143,17 @@ platform x86_64 {
 build.type             gnu
 use_parallel_build     no
 configure.ccache       no
+
+# some tests currently fail
 test.run               yes
+test.target            check
 
 post-destroot {
     system "chgrp procmod ${destroot}${prefix}/bin/ggdb*"
     system "chmod g+s ${destroot}${prefix}/bin/ggdb*"
-# This part is commented out because codesigning requires getting
-# certificates and stuff set up, and that's difficult
-#    if [file executable /usr/bin/codesign] {
-#        system "codesign ${destroot}${prefix}/bin/ggdb*"
-#    }
 
-    foreach info [glob -tails -directory ${destroot}${prefix}/share/info g*] {
-        move ${destroot}${prefix}/share/info/${info} ${destroot}${prefix}/share/info/g${info}
-    }
-    move ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/ggdb-standards.info
+    # the info-renaming stuff should no longer be necessary now that I
+    # changed the location it installs to
 
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
     foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {
@@ -103,7 +161,9 @@ post-destroot {
     }
 }
 
-set pythons_suffixes {25 26 27 31 32 33}
+# technically it supports python25, too, but MacPorts
+# does not build that as a framework...
+set pythons_suffixes {26 27 31 32 33}
 
 set pythons_ports {}
 foreach s ${pythons_suffixes} {
@@ -115,16 +175,27 @@ foreach s ${pythons_suffixes} {
     set v [string index ${s} 0].[string index ${s} 1]
     set i [lsearch -exact ${pythons_ports} ${p}]
     set c [lreplace ${pythons_ports} ${i} ${i}]
+    set python_bin ${prefix}/bin/python${v}
+    set python_framework_dir ${prefix}/Library/Frameworks/Python.framework/Versions/${v}
     eval [subst {
         variant ${p} description "Build GDB with Python ${v} Scripting" \
         conflicts ${c} {
-            depends_build-append    port:${p}
-            depends_lib-append      port:${p}
-            depends_run-append      port:${p}
-            configure.args-append   --with-python=${prefix}/bin/python${v}
-            patchfiles-append       patch-python-config.py.diff
+            depends_build-append        port:${p}
+            depends_lib-append          port:${p}
+            depends_run-append          port:${p}
+            configure.args-delete       --without-python
+            configure.args-append       --with-python=${python_bin}
+            configure.ldflags-append    -lpython${v} \
+                                        -L${python_framework_dir}/lib
+            configure.cppflags-append   -I${python_framework_dir}/include
+            configure.python            ${python_bin}
+            patchfiles-append           patch-python-config.py.diff
         }
     }]
+}
+
+if {![variant_isset python26] && ![variant_isset python31] && ![variant_isset python32] && ![variant_isset python33]} {
+    default_variants-append +python27
 }
 
 livecheck.type  regex

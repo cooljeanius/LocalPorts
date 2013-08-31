@@ -6,7 +6,7 @@ PortGroup           archcheck 1.0
 
 name                gdal
 version             1.9.2
-revision            5
+revision            6
 categories          gis
 license             MIT BSD
 platforms           darwin macosx
@@ -240,7 +240,8 @@ variant jasper conflicts openjpeg \
 
 variant openjpeg conflicts jasper \
     description {Enable OpenJPEG JPEG-2000 format support} {
-    depends_lib-append      port:openjpeg
+    depends_lib-append      port:openjpeg \
+                            port:openjpeg15
     configure.args-delete   --without-openjpeg
     configure.args-append   --with-openjpeg=${prefix}
 }
@@ -507,10 +508,14 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl postgresql82 pos
                             port:xorg-libXau \
                             port:xorg-libXdmcp \
                             port:c-ares \
+                            port:cyrus-sasl2 \
+                            port:libcomerr \
+                            port:libfetch \
                             port:libidn \
                             port:gettext \
                             port:libssh2 \
                             port:libiconv \
+                            port:openldap \
                             port:openssl \
                             port:jbigkit \
                             port:armadillo \
@@ -551,8 +556,9 @@ description {Extra dependencies that are not universal} {
                             --with-oci
 }
 
-#variant broken requires postgreql81 extra_nonuniversal poppler xerces conflicts universal \
-#description {dependencies that do not even work even when not building universal} {
+#variant broken requires postgreql81 extra_nonuniversal poppler xerces \
+#conflicts universal description {dependencies that do not even work \
+#even when not building universal} {
 #    depends_lib-append      port:pamtester \
 #                            port:svdlibc \
 #                            port:sam2p

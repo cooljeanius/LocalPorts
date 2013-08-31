@@ -27,13 +27,15 @@ checksums             md5     5f8746053d645c0d7f220d42d3463f2d \
 worksrcdir            ${name}-${version}
 
 patchfiles-append     patch-macosx.m4.diff
+# commented out until it applies against the new version:
 #                     patch-configure.ac.diff
 
 post-patch {
     reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
     reinplace "s|m4\/|m4|" ${worksrcpath}/configure.ac
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
-    # run glibtoolize before autoreconf runs it, to silence some warnings from aclocal
+    # run glibtoolize before autoreconf runs it, to silence some 
+    # warnings from aclocal
     system -W ${worksrcpath} "glibtoolize --copy --force"
 }
 
@@ -97,7 +99,8 @@ configure.args-append --without-tk \
                       --without-gfortran \
                       --with-eigen-include=${prefix}/include/eigen3 \
                       --with-hdf5-include=${prefix}/include \
-                      --with-hdf5-library=${prefix}/lib
+                      --with-hdf5-library=${prefix}/lib \
+                      --disable-dependency-tracking
 
 if {[tbool configure.ccache]} {
     depends_build-append  port:ccache
@@ -113,7 +116,7 @@ configure.env-append XMKMF=${prefix}/bin/xmkmf \
                      PCRE_LIBS=-L${prefix}/lib -lpcreposix -lpcre
 
 # This is to disable checking for jgraphx, which MacPorts does not have yet
-# (it has just jgraph without the "x", but I think that's different)
+# (it has just "jgraph" without the "x", but I think that is different)
 configure.env-append XCOS_ENABLE="no"
 
 # gcc is needed for gfortran
