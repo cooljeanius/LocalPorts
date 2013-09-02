@@ -5,30 +5,58 @@ PortSystem             1.0
 
 name                   binutils
 version                2.21
-revision               2
-
+revision               5
 description            FSF Binutils for native development.
-long_description       Free Software Foundation development toolchain ("binutils") \
-                       for native development. Tools are prefixed with g to avoid \
-                       conflicts with original tools.
+long_description       Free Software Foundation development toolchain \
+                       ("binutils") for native development. Tools are \
+                       prefixed with "g" to avoid conflicts with original \
+                       tools.
+
 platforms              darwin
 categories             devel
 license                GPL-3+
 maintainers            nomaintainer
-homepage               http://www.gnu.org/software/binutils/binutils.html
-master_sites           gnu:binutils
+homepage               http://www.gnu.org/software/${name}/${name}.html
+master_sites           gnu:${name}
+
 use_bzip2              yes
 
 checksums              sha1    ef93235588eb443e4c4a77f229a8d131bccaecc6 \
-                       rmd160  8d2ebab3287a6283267879074b808d20fe9112b0
+                       rmd160  8d2ebab3287a6283267879074b808d20fe9112b0 \
+                       sha256  60abec5bf448eb930a5a15acb8712612377dc8bcfb13dfd5131228f70561d0c7
 
-depends_build-append   port:intltool port:texinfo port:autoconf264 port:gsed \
-                       port:automake17 port:flex port:byacc port:bison port:gmake \
-                       path:bin/nm:cctools port:gawk
-depends_lib-append     port:zlib port:libiconv port:gettext port:cloog port:polylib \
-                       port:gmp-ecm port:boehmgc path:lib/.libstdcxx:libstdcxx
+depends_build-append   port:intltool \
+                       path:bin/makeinfo:texinfo \
+                       port:autoconf264 \
+                       port:automake17 \
+                       port:flex \
+                       port:byacc \
+                       port:bison \
+                       path:bin/nm:cctools \
+                       path:bin/ld:ld64 \
+                       path:bin/perl:perl5 \
+                       port:expect \
+                       bin:gm4:m4 \
+                       port:gmake \
+                       port:gsed \
+                       port:gawk \
+                       port:libtool
 
-configure.args         --infodir='${prefix}/share/info' \
+depends_lib-append     port:zlib \
+                       port:libiconv \
+                       port:gettext \
+                       port:cloog \
+                       port:polylib \
+                       port:ppl \
+                       port:gmp \
+                       port:gmp-ecm \
+                       path:lib/pkgconfig/bdw-gc.pc:boehmgc \
+                       path:lib/libgcc/libgcc_s.1.dylib:libgcc \
+                       port:libmpc \
+                       port:mpfr \
+                       port:isl
+
+configure.args-append  --infodir='${prefix}/share/info' \
                        --mandir='${prefix}/share/man' \
                        --disable-werror \
                        --program-prefix=g \
@@ -59,19 +87,39 @@ configure.args         --infodir='${prefix}/share/info' \
                        --with-gnu-ld \
                        --enable-plugins \
                        --enable-threads \
-                       --with-zlib \
-                       --enable-64-bit-bfd
+                       --with-zlib
+
+platform x86_64 {
+    configure.args-append \
+            --enable-64-bit-bfd
+}
 
 configure.env-append   SED=${prefix}/bin/gsed \
                        MSGFMT=${prefix}/bin/msgfmt \
                        GMSGFMT=${prefix}/bin/msgfmt \
                        XGETTEXT=${prefix}/bin/xgettext \
                        MSGMERGE=${prefix}/bin/msgmerge \
-                       MKDIR=/bin/mkdir
+                       MAKEINFO=${prefix}/bin/makeinfo
 
-configure.cppflags-append -I${prefix}/include
+configure.cppflags-append \
+                       -I${prefix}/include
+
+configure.ldflags-append \
+    -lgc \
+    -lcloog-isl \
+    -lgmp \
+    -lisl \
+    -lmpc \
+    -lmpfr \
+    -lppl \
+    -L${prefix}/lib/libgcc
 
 post-extract {
+    ui_debug "This step has been moved to pre-patch instead."
+}
+
+# ...
+pre-patch {
     system -W ${worksrcpath} "${prefix}/bin/autoscan264"
     system -W ${worksrcpath} "${prefix}/bin/aclocal-17 -I config"
 }
@@ -82,10 +130,10 @@ pre-configure {
 
 post-configure {
     if {![catch "registry_active libc-headers"]} {
-        ui_msg "Having libc-headers active can cause a lot of warnings when \
-               building ${name}."
-        ui_msg "You might want to deactivate the libc-headers port while building \
-               ${name}, and then reactivate it later."
+        ui_msg "Having libc-headers active can cause a lot of warnings \
+               when building ${name}."
+        ui_msg "You might want to deactivate the libc-headers port while \
+               building ${name}, and then reactivate it later."
         ui_msg "Continuing building anyway for now though..."
     }
 }
@@ -106,21 +154,43 @@ build.env-append       CPPFLAGS='-I${prefix}/include' \
                        MSGMERGE=${prefix}/bin/msgmerge
 
 post-build {
+    configure.args-delete \
+                       --enable-libssp \
+                       --enable-build-with-cxx \
+                       --with-mpc \
+                       --with-mpfr \
+                       --with-gmp \
+                       --with-ppl \
+                       --with-cloog \
+                       --enable-objc-gc \
+                       --enable-lto \
+                       --enable-dlltool \
+                       --enable-objdump \
+                       --enable-windres \
+                       --enable-windmc \
+                       --enable-bfd \
+                       --enable-gas \
+                       --enable-elfcpp \
+                       --enable-gprof \
+                       --disable-ppl-version-check \
+                       --disable-cloog-version-check \
+                       --enable-stage1-languages \
+                       --enable-stage1-checking
     system -W ${worksrcpath}/gprof "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gprof/Makefile
-    system -W ${worksrcpath}/gprof "make"
+    system -W ${worksrcpath}/gprof "${build.cmd} ${build.pre_args}"
     system -W ${worksrcpath}/gold "${configure.cmd} ${configure.args}"
-    system -W ${worksrcpath}/gold/po "make"
+    reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gold/Makefile
+    reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gold/po/Makefile
+    system -W ${worksrcpath}/gold/po "${build.cmd} ${build.pre_args}"
     system -W ${worksrcpath}/gas "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gas/Makefile
     if {[catch "registry_active gdb"]} {
-        system -W ${worksrcpath}/gas "make"
+        system -W ${worksrcpath}/gas "${build.cmd} ${build.pre_args}"
     }
     system -W ${worksrcpath}/ld "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/ld/Makefile
-    if {[catch "registry_active gdb"]} {
-        system -W ${worksrcpath}/ld "make"
-    }
+    system -W ${worksrcpath}/ld "${build.cmd} ${build.pre_args}"
 }
 
 # Binutils violates the mtree layout by creating ${prefix}/<arch>/
@@ -128,35 +198,46 @@ destroot.violate_mtree yes
 
 post-destroot {
     destroot.destdir prefix=${destroot}${prefix}
-    system -W ${worksrcpath}/gprof "make install"
+    system -W ${worksrcpath}/gprof "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     if {[catch "registry_active gdb"]} {
-        system -W ${worksrcpath}/gas "make install"
+        system -W ${worksrcpath}/gas "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     }
-    system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${destroot}${prefix}/lib ${destroot}${prefix} ${destroot}${prefix} x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 x86_64-apple-darwin11.4.2 \"\" \"\" no \"\" x86_64-apple-darwin11.4.2 ppcmacos"
-# Commented out because the ld directory currently fails to "make install" properly
-#    system -W ${worksrcpath}/ld "make install"
+    ui_msg "Generating ld scripts..."
+    system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} \"\" \"\" no \"\" x86_64-apple-darwin${os.version} ppcmacos"
+    foreach ldscript [glob ${worksrcpath}/ld/ldscripts/.*] {
+        if [file isfile ${ldscript}] {
+            ui_debug "renaming ${ldscript} to [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]"
+            file rename ${ldscript} [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]
+        }
+    }
+    system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+    move ${destroot}${prefix}/bin/ld ${destroot}${prefix}/x86_64-apple-darwin${os.version}/bin
     file rename ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/${name}-standards.info
     file rename ${destroot}${prefix}/share/info/configure.info ${destroot}${prefix}/share/info/${name}-configure.info
     file rename ${destroot}${prefix}/share/info/bfd.info ${destroot}${prefix}/share/info/${name}-bfd.info
     xinstall -d ${destroot}${prefix}/include/binutils
     foreach header [glob ${destroot}${prefix}/include/*] {
         if [file isfile ${header}] {
-            move ${header} ${destroot}${prefix}/include/binutils
+            move ${header} ${destroot}${prefix}/include/${name}
         }
     }
     xinstall -d ${destroot}${prefix}/lib/binutils-staticlibs
     foreach library [glob ${destroot}${prefix}/lib/*.*a] {
         if [file isfile ${library}] {
-            move ${library} ${destroot}${prefix}/lib/binutils-staticlibs
+            move ${library} ${destroot}${prefix}/lib/${name}-staticlibs
         }
     }
+    eval reinplace "s|${prefix}/lib|${prefix}/lib/${name}-staticlibs|g" [glob ${destroot}${prefix}/lib/${name}-staticlibs/*.la]
     xinstall -d ${destroot}${prefix}/lib/x86_64/binutils
     move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/x86_64/binutils
     foreach msgs [glob ${destroot}${prefix}/share/locale/*/LC_MESSAGES/*.mo] {
         if [file isfile ${msgs}] {
-            move ${msgs} [file dirname ${msgs}]/binutils-[file tail ${msgs}]
+            move ${msgs} [file dirname ${msgs}]/${name}-[file tail ${msgs}]
         }
     }
+    xinstall -d ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
 }
+
+destroot.keepdirs ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
 
 universal_variant      no

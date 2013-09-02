@@ -153,7 +153,7 @@ post-destroot {
     system "chmod g+s ${destroot}${prefix}/bin/ggdb*"
 
     # the info-renaming stuff should no longer be necessary now that I
-    # changed the location it installs to
+    # changed the location it installs to, so it has been removed
 
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
     foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {

@@ -6,6 +6,7 @@ PortGroup             archcheck 1.0
 
 name                  scilab
 version               5.4.1
+revision              2
 categories            science
 platforms             darwin
 maintainers           debian.org:sylvestre gwmail.gwu.edu:egall openmaintainer
@@ -33,14 +34,17 @@ patchfiles-append     patch-macosx.m4.diff
 post-patch {
     reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
     reinplace "s|m4\/|m4|" ${worksrcpath}/configure.ac
+    # trick the script into thinking MacPorts is Fink, until the patch
+    # for the configure.ac file applies properly again
+    reinplace "s|FINK_PREFIX\=\"\/sw\/\"|FINK_PREFIX\=\"${prefix}\"|g" ${worksrcpath}/configure.ac
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
-    # run glibtoolize before autoreconf runs it, to silence some 
+    # run glibtoolize before autoreconf runs it, to silence some
     # warnings from aclocal
-    system -W ${worksrcpath} "glibtoolize --copy --force"
+    system -W ${worksrcpath} "glibtoolize --copy --automake --force"
 }
 
-use_autoreconf        yes
-autoreconf.pre_args   -fvi
+use_autoconf          yes
+autoconf.args         --force
 
 # Too many things that Scilab depends on are not universal
 universal_variant     no
@@ -50,7 +54,10 @@ depends_build-append  port:pkgconfig \
                       port:gawk \
                       port:grep \
                       port:intltool \
-                      port:apache-ant
+                      port:apache-ant \
+                      port:junit \
+                      path:bin/splint:splint \
+                      path:bin/fop:fop
 
 # Most of these are taken from Fink's list of dependencies
 depends_lib-append    port:libgtkhtml \
@@ -72,87 +79,145 @@ depends_lib-append    port:libgtkhtml \
                       port:libpng \
                       path:lib/pkgconfig/pango.pc:pango \
                       path:lib/pkgconfig/pixman-1.pc:libpixman \
+                      port:libxml2 \
                       port:ncurses \
                       port:xorg-libX11 \
                       port:sablotron \
                       port:pcre \
-                      lib:hdf5:hdf5-18 \
-                      lib:fftw3:fftw-3 \
-                      path:lib/pkgconfig/eigen3.pc:eigen3
+                      path:lib/pkgconfig/fftw3.pc:fftw-3 \
+                      path:lib/libhdf5.dylib:hdf5-18 \
+                      path:lib/pkgconfig/eigen3.pc:eigen3 \
+                      port:xz \
+                      port:zlib
+
+depends_run-append    port:dia
 
 configure.args-append --without-tk \
                       --with-tcl-include=${prefix}/include \
                       --with-tcl-library=${prefix}/lib \
                       --without-modelica \
                       --without-javasci \
-                      --with-macports-prefix=${prefix} \
                       --disable-ccache \
                       --disable-debug-java \
                       --disable-build-swig \
                       --disable-build-giws \
                       --without-gui \
+                      --with-x \
+                      --x-includes=${prefix}/include \
+                      --x-libraries=${prefix}/lib \
                       --disable-build-help \
                       --without-openmp \
                       --without-arpack-ng \
                       --without-umfpack \
                       --with-pcre=${prefix} \
                       --without-gfortran \
-                      --with-eigen-include=${prefix}/include/eigen3 \
                       --with-hdf5-include=${prefix}/include \
                       --with-hdf5-library=${prefix}/lib \
-                      --disable-dependency-tracking
+                      --disable-dependency-tracking \
+                      --without-matio \
+                      --with-libiconv-prefix=${prefix} \
+                      --with-libintl-prefix=${prefix} \
+                      --with-ant=${prefix}
 
+configure.ldflags-append \
+                      -llapack \
+                      -latlas \
+                      -lblas
+
+platform macosx {
+    configure.ldflags-append \
+                      "-framework Accelerate"
+}
+
+# ccache support has been removed because:
+# ccache: FATAL: Recursive invocation (the name of the ccache binary must be "ccache")
 if {[tbool configure.ccache]} {
-    depends_build-append  port:ccache
-    configure.args-delete --disable-ccache
-    configure.args-append --enable-ccache
-    configure.env-append  CCACHE=${prefix}/bin/ccache
+    configure.ccache no
 }
 
 # ./configure --help said these were influential environment variables
 configure.env-append XMKMF=${prefix}/bin/xmkmf \
-                     PKG_CONFIG=${prefix}/bin/pkg-config \
-                     PCRE_CFLAGS=-I${prefix}/include \
                      PCRE_LIBS=-L${prefix}/lib -lpcreposix -lpcre
+
+configure.pkg_config ${prefix}/bin/pkg-config
 
 # This is to disable checking for jgraphx, which MacPorts does not have yet
 # (it has just "jgraph" without the "x", but I think that is different)
 configure.env-append XCOS_ENABLE="no"
 
 # gcc is needed for gfortran
-variant gcc43 conflicts gcc44 gcc45 gcc46 gcc47 description {Build with GCC 4.3} {
-    configure.compiler  macports-gcc-4.3
-    depends_lib-append  port:gcc43
-    configure.args-delete --without-gfortran
-    configure.args-append --with-gfortran
+# so therefore we shall use the "fortran recipe"
+set gcc_versions {4.3 4.4 4.5 4.6 4.7 4.8 4.9}
+set default_fortran_variant +gcc48
+set g95_conflicts {}
+
+foreach ver ${gcc_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+
+    set variant_line {variant gcc${ver_no_dot} description "build with gfortran from gcc${ver_no_dot}" conflicts g95}
+
+    foreach over ${gcc_versions} {
+        if {${ver} == ${over}} {
+            continue
+        }
+
+        set over_no_dot [join [split ${over} "."] ""]
+        append variant_line " conflicts gcc${over_no_dot}"
+    }
+    append variant_line { {}}
+
+    eval $variant_line
+
+    append g95_conflicts " conflicts gcc${ver_no_dot}"
+
+    if {[variant_isset gcc${ver_no_dot}]} {
+        if {${default_fortran_variant} != "+gcc${ver_no_dot}"} {
+            set default_fortran_variant ""
+        }
+    }
 }
 
-variant gcc44 conflicts gcc43 gcc45 gcc46 gcc47 description {Build with GCC 4.4} {
-    configure.compiler  macports-gcc-4.4
-    depends_lib-append  port:gcc44
-    configure.args-delete --without-gfortran
-    configure.args-append --with-gfortran
+eval [concat {variant g95 description {build with g95}} $g95_conflicts {{}}]
+
+if {[variant_isset g95]} {
+    if {${default_fortran_variant} != "+g95"} {
+        set default_fortran_variant ""
+    }
 }
 
-variant gcc45 conflicts gcc43 gcc44 gcc46 gcc47 description {Build with GCC 4.5} {
-    configure.compiler  macports-gcc-4.5
-    depends_lib-append  port:gcc45
-    configure.args-delete --without-gfortran
-    configure.args-append --with-gfortran
+if {${default_fortran_variant} != ""} {
+    default_variants-append "${default_fortran_variant}"
 }
 
-variant gcc46 conflicts gcc43 gcc44 gcc45 gcc47 description {Build with GCC 4.6} {
-    configure.compiler  macports-gcc-4.6
-    depends_lib-append  port:gcc46
-    configure.args-delete --without-gfortran
-    configure.args-append --with-gfortran
+foreach ver ${gcc_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+
+    if {[variant_isset gcc${ver_no_dot}]} {
+        depends_lib-append path:lib/libgcc/libgcc_s.1.dylib:libgcc
+        depends_build-append port:gcc${ver_no_dot}
+
+        configure.args-delete --without-gfortran
+        configure.args-append --with-gfortran \
+                              --with-gcc
+
+        configure.ldflags-append -L${prefix}/lib/libgcc -lgcc
+
+        configure.fc  ${prefix}/bin/gfortran-mp-${ver}
+        configure.f77 ${prefix}/bin/gfortran-mp-${ver}
+        configure.f90 ${prefix}/bin/gfortran-mp-${ver}
+    }
 }
 
-variant gcc47 conflicts gcc43 gcc44 gcc45 gcc46 description {Build with GCC 4.7} {
-    configure.compiler  macports-gcc-4.7
-    depends_lib-append  port:gcc47
+if {[variant_isset g95]} {
+    depends_lib-append path:lib/libgcc/libgcc_s.1.dylib:libgcc
+    depends_build-append port:g95
+
     configure.args-delete --without-gfortran
     configure.args-append --with-gfortran
+
+    configure.fc ${prefix}/bin/g95
+    configure.f77 ${prefix}/bin/g95
+    configure.f90 ${prefix}/bin/g95
 }
 
 variant ocaml description {Build OCaml module (modelica)} {
@@ -163,3 +228,5 @@ variant ocaml description {Build OCaml module (modelica)} {
                           --disable-build-giws
     configure.args-append --with-modelica
 }
+
+#TODO: fix livecheck

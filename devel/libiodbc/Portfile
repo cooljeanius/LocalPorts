@@ -8,7 +8,7 @@ github.setup        openlink iODBC 3.52.8 v
 #override name (keep it lowercase)
 name                libiodbc
 conflicts-append    unixODBC
-revision            4
+revision            5
 categories          devel databases
 maintainers         snc openmaintainer
 license             BSD
@@ -52,8 +52,6 @@ configure.args-append   --with-iodbc-inidir=${prefix}/etc \
 # make[2]: *** No rule to make target `../iodbcadm/libiodbcadm.la', needed by `iodbcadm-gtk'.  Stop.
 use_parallel_build  no
 
-variant gui requires x11 description {legacy compatibility variant} {}
-
 variant x11 description {Builds a gtk gui for libiodbc} {
     PortGroup       active_variants 1.1
     depends_lib-append \
@@ -88,9 +86,9 @@ variant x11 description {Builds a gtk gui for libiodbc} {
                     port:xorg-libxcb \
                     port:xrender \
                     port:zlib
-    require_active_variants cairo x11
+    require_active_variants path:lib/pkgconfig/cairo.pc:cairo x11
     require_active_variants gtk2 x11
-    require_active_variants pango x11
+    require_active_variants path:lib/pkgconfig/pango.pc:pango x11
     configure.args-delete --disable-gui \
                           --disable-gtktest
     configure.args-append --enable-gui \
@@ -98,6 +96,3 @@ variant x11 description {Builds a gtk gui for libiodbc} {
                           --enable-gtktest
 }
 
-if {[variant_isset gui]} {
-    default_variants-append +x11
-}
