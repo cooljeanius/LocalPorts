@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                file
 version             5.14
-revision            3
+revision            5
 categories          sysutils
 license             BSD
 maintainers         nomaintainer
@@ -29,13 +29,16 @@ master_sites        freebsd \
 
 checksums           md5     c26625f1d6773ad4bc5a87c0e315632c \
                     sha1    064c8f17a5f7ae1e336a9285131e046d3b2d04d7 \
-                    rmd160  51b5deeefd9e62782c31024c56895b988b0a76e6
+                    rmd160  51b5deeefd9e62782c31024c56895b988b0a76e6 \
+                    sha256  461ba01dd0900a3b7c2dcd901b04903192c07887a9c1928af0be507572c77fe4
 
 patchfiles-append   patch-magic-Magdir-msdos.diff \
+                    patch-magic-Magdir-assembler.diff \
                     patch-src-readcdf.c.diff \
                     patch-magic-Makefile.am.diff \
                     patch-getline.diff \
-                    patch-configure.ac.diff
+                    patch-configure.ac.diff \
+                    patch-acinclude.m4.diff
 
 configure.args      --enable-fsect-man5 \
                     --disable-silent-rules \
@@ -43,14 +46,20 @@ configure.args      --enable-fsect-man5 \
                     --disable-elf-core
 
 depends_build-append \
-                    port:gawk
-depends_lib-append  port:zlib \
-                    port:rx
+                    port:gawk \
+                    lib:rx:rx
+# The rx port only installs a static library, so it is only
+# a build dependency
+
+depends_lib-append  port:zlib
+
 depends_run-append  bin:otool:cctools
 
 post-patch {
     # run glibtoolize before autoreconf runs it, to silence some warnings from aclocal
-    system -W ${worksrcpath} "glibtoolize --copy --force"
+    system -W ${worksrcpath} "glibtoolize --copy --force --automake"
+    eval xinstall [glob ${filespath}/*.c] ${worksrcpath}/src
+    eval xinstall [glob ${filespath}/*.h] ${worksrcpath}/src
 }
 
 use_autoreconf      yes
@@ -58,6 +67,9 @@ autoreconf.args     -fvi
 
 use_parallel_build  no
 build.type          gnu
+
+test.run            yes
+test.target         check
 
 if {${name} == ${subport}} {
     depends_lib-append port:libmagic

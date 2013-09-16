@@ -6,7 +6,7 @@ PortGroup             archcheck 1.0
 
 name                  scilab
 version               5.4.1
-revision              2
+revision              3
 categories            science
 platforms             darwin
 maintainers           debian.org:sylvestre gwmail.gwu.edu:egall openmaintainer
@@ -49,15 +49,29 @@ autoconf.args         --force
 # Too many things that Scilab depends on are not universal
 universal_variant     no
 
+# Some of these will only be needed once I add a test phase, and then only
+# until http://trac.macports.org/ticket/38208 is resolved
 depends_build-append  port:pkgconfig \
-                      port:imake \
                       port:gawk \
                       port:grep \
                       port:intltool \
-                      port:apache-ant \
+                      port:docbook-xsl \
+                      port:cobertura \
+                      port:commons-beanutils \
+                      port:commons-logging \
                       port:junit \
-                      path:bin/splint:splint \
-                      path:bin/fop:fop
+                      port:objectweb-asm \
+                      port:saxon \
+                      port:saxpath \
+                      port:SuiteSparse \
+                      path:bin/xmkmf:imake \
+                      path:bin/ant:apache-ant \
+                      path:share/java/antlr.jar:antlr3 \
+                      bin:antlr:antlr \
+                      bin:splint:splint \
+                      bin:fop:fop \
+                      bin:astyle:astyle \
+                      bin:xmlindent:xmlindent
 
 # Most of these are taken from Fink's list of dependencies
 depends_lib-append    port:libgtkhtml \
@@ -88,9 +102,33 @@ depends_lib-append    port:libgtkhtml \
                       path:lib/libhdf5.dylib:hdf5-18 \
                       path:lib/pkgconfig/eigen3.pc:eigen3 \
                       port:xz \
-                      port:zlib
+                      port:zlib \
+                      port:matio
 
-depends_run-append    port:dia
+# Needed for some of the data files
+depends_run-append    bin:dia:dia
+
+pre-configure {
+    if {![file exists ${worksrcpath}/bin]} {
+        xinstall -d ${worksrcpath}/bin
+    }
+    if {![file exists ${worksrcpath}/thirdparty]} {
+        xinstall -d ${worksrcpath}/thirdparty
+    }
+    eval xinstall [glob ${prefix}/share/java/antlr*.jar] ${worksrcpath}/thirdparty
+    eval xinstall [glob ${prefix}/share/java/*asm*.jar] ${worksrcpath}/thirdparty
+    eval xinstall [glob ${prefix}/share/java/commons-beanutils*.jar] ${worksrcpath}/thirdparty
+    eval xinstall [glob ${prefix}/share/java/commons-logging*.jar] ${worksrcpath}/thirdparty
+    eval xinstall [glob ${prefix}/share/java/sax*.jar] ${worksrcpath}/thirdparty
+    eval xinstall [glob ${prefix}/share/java/cobertura*.jar] ${worksrcpath}/thirdparty
+    eval xinstall [glob ${prefix}/share/java/junit*.jar] ${worksrcpath}/thirdparty
+    configure.classpath-append [join [glob ${prefix}/share/java/*.jar] ":"]
+    configure.classpath-append [join [glob ${worksrcpath}/thirdparty/*.jar] ":"]
+    if {[file isdirectory ${prefix}/GNUstep/lib/GNUstep/Libraries/Java]} {
+        configure.classpath-append ${prefix}/GNUstep/lib/GNUstep/Libraries/Java
+    }
+    ui_debug "configure.classpath is ${configure.classpath}"
+}
 
 configure.args-append --without-tk \
                       --with-tcl-include=${prefix}/include \
@@ -98,7 +136,7 @@ configure.args-append --without-tk \
                       --without-modelica \
                       --without-javasci \
                       --disable-ccache \
-                      --disable-debug-java \
+                      --enable-debug-java \
                       --disable-build-swig \
                       --disable-build-giws \
                       --without-gui \
@@ -108,16 +146,20 @@ configure.args-append --without-tk \
                       --disable-build-help \
                       --without-openmp \
                       --without-arpack-ng \
-                      --without-umfpack \
+                      --with-umfpack-library=${prefix}/lib \
+                      --with-umfpack-include=${prefix}/include \
                       --with-pcre=${prefix} \
                       --without-gfortran \
                       --with-hdf5-include=${prefix}/include \
                       --with-hdf5-library=${prefix}/lib \
                       --disable-dependency-tracking \
-                      --without-matio \
                       --with-libiconv-prefix=${prefix} \
                       --with-libintl-prefix=${prefix} \
-                      --with-ant=${prefix}
+                      --with-ant=${prefix} \
+                      --with-matio-include=${prefix}/include \
+                      --with-matio-library=${prefix}/lib \
+                      --with-fop \
+                      --with-docbook=${prefix}/share/xsl/docbook-xsl
 
 configure.ldflags-append \
                       -llapack \
@@ -137,7 +179,8 @@ if {[tbool configure.ccache]} {
 
 # ./configure --help said these were influential environment variables
 configure.env-append XMKMF=${prefix}/bin/xmkmf \
-                     PCRE_LIBS=-L${prefix}/lib -lpcreposix -lpcre
+                     PCRE_LIBS=-L${prefix}/lib -lpcreposix -lpcre \
+                     FOP=${prefix}/bin/fop
 
 configure.pkg_config ${prefix}/bin/pkg-config
 
