@@ -6,9 +6,9 @@ PortGroup             archcheck 1.0
 
 name                  scilab
 version               5.4.1
-revision              3
+revision              4
 categories            science
-platforms             darwin
+platforms             macosx
 maintainers           debian.org:sylvestre gwmail.gwu.edu:egall openmaintainer
 license               cecill
 
@@ -18,27 +18,37 @@ long_description      ${name} is ${description}.
 
 homepage              http://www.${name}.org/
 master_sites          ${homepage}download/${version}/
-distname              ${name}-${version}-src
+distfiles             ${name}-${version}-src-repack1.tar.gz \
+                      prerequirements-${name}-${version}-x86_64-src.dmg
 
-checksums             md5     5f8746053d645c0d7f220d42d3463f2d \
-                      sha1    594b4a7ef6d8934347e38bf777625857582493c4 \
-                      rmd160  8902d19af0c94ba22d6ff0062b09974df1b2e8c2 \
-                      sha256  f63db4de7daeb68409644b2c32888af4f0bb0ca7ede9c3857f4ccb6289ea861c
+checksums             scilab-5.4.1-src-repack1.tar.gz \
+                      md5     00a78bd58903c50000a28e50ff652000 \
+                      sha1    814fd9ff488b153a95621c297cca097d85758e1f \
+                      rmd160  bfd47dc9e20128d812b9ac5a7ce0f33b67a0d041 \
+                      sha256  e58eafab87575f8c85d62250a6ab30f80d356293121e2748886ea70b3aa0680e \
+                      prerequirements-scilab-5.4.1-x86_64-src.dmg \
+                      md5     0fa4b4d7f73a002a81fbf071a311963b \
+                      sha1    8d8bc9f9e3a63ca1087dabff2bd6db9501f8ed4c \
+                      rmd160  d00b40aa25bd4b2a4cf882fca35ae67ae1030367 \
+                      sha256  e73024561b2ab20e8c3491efca2c0f9a69edd52d1d2c31e99e4b7fed1627507a
+
+extract.only          ${name}-${version}-src-repack1.tar.gz
 
 worksrcdir            ${name}-${version}
 
 patchfiles-append     patch-macosx.m4.diff
-# commented out until it applies against the new version:
+# This patch is commented out until it has been regenerated
+# so that it will apply against the new version:
 #                     patch-configure.ac.diff
 
 post-patch {
     reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
     reinplace "s|m4\/|m4|" ${worksrcpath}/configure.ac
-    # trick the script into thinking MacPorts is Fink, until the patch
-    # for the configure.ac file applies properly again
+    # Trick the script into thinking MacPorts is Fink, until the patch
+    # for the configure.ac file applies properly again:
     reinplace "s|FINK_PREFIX\=\"\/sw\/\"|FINK_PREFIX\=\"${prefix}\"|g" ${worksrcpath}/configure.ac
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
-    # run glibtoolize before autoreconf runs it, to silence some
+    # Run glibtoolize before autoreconf runs it, to silence some
     # warnings from aclocal
     system -W ${worksrcpath} "glibtoolize --copy --automake --force"
 }
@@ -48,14 +58,16 @@ autoconf.args         --force
 
 # Too many things that Scilab depends on are not universal
 universal_variant     no
+supported_archs       x86_64
 
-# Some of these will only be needed once I add a test phase, and then only
-# until http://trac.macports.org/ticket/38208 is resolved
+# Some of these build dependencies will only be needed once I add a test phase,
+# and then only until http://trac.macports.org/ticket/38208 is resolved
 depends_build-append  port:pkgconfig \
                       port:gawk \
                       port:grep \
                       port:intltool \
                       port:docbook-xsl \
+                      port:checkstyle \
                       port:cobertura \
                       port:commons-beanutils \
                       port:commons-logging \
@@ -73,7 +85,8 @@ depends_build-append  port:pkgconfig \
                       bin:astyle:astyle \
                       bin:xmlindent:xmlindent
 
-# Most of these are taken from Fink's list of dependencies
+# Most of these library dependencies are taken from Fink's list of dependencies
+# for Scilab (some are from the outdated version of the Fink package):
 depends_lib-append    port:libgtkhtml \
                       port:readline \
                       port:tcl \
@@ -115,8 +128,19 @@ pre-configure {
     if {![file exists ${worksrcpath}/thirdparty]} {
         xinstall -d ${worksrcpath}/thirdparty
     }
+    if {![file exists ${worksrcpath}/mountpoint]} {
+        xinstall -d ${worksrcpath}/mountpoint
+    }
+    system -W ${worksrcpath} "hdiutil attach -mountroot mountpoint -nobrowse -noautoopen ${distpath}/prerequirements-${name}-${version}-x86_64-src.dmg"
+    ui_debug "Copying prerequirements from dmg..."
+    # Use "copy" instead of "xinstall" here because of folders
+    eval copy [glob ${worksrcpath}/mountpoint/${name}-${version}/thirdparty/*] ${worksrcpath}/thirdparty
+    eval copy [glob ${worksrcpath}/mountpoint/${name}-${version}/bin/*] ${worksrcpath}/bin
+    ui_debug "Done copying prerequirements."
+    system -W ${worksrcpath} "hdiutil detach mountpoint/${name}-${version}"
     eval xinstall [glob ${prefix}/share/java/antlr*.jar] ${worksrcpath}/thirdparty
     eval xinstall [glob ${prefix}/share/java/*asm*.jar] ${worksrcpath}/thirdparty
+    eval xinstall [glob ${prefix}/share/java/checkstyle*.jar] ${worksrcpath}/thirdparty
     eval xinstall [glob ${prefix}/share/java/commons-beanutils*.jar] ${worksrcpath}/thirdparty
     eval xinstall [glob ${prefix}/share/java/commons-logging*.jar] ${worksrcpath}/thirdparty
     eval xinstall [glob ${prefix}/share/java/sax*.jar] ${worksrcpath}/thirdparty
@@ -127,7 +151,7 @@ pre-configure {
     if {[file isdirectory ${prefix}/GNUstep/lib/GNUstep/Libraries/Java]} {
         configure.classpath-append ${prefix}/GNUstep/lib/GNUstep/Libraries/Java
     }
-    ui_debug "configure.classpath is ${configure.classpath}"
+    ui_debug "configure.classpath will be displayed when displaying configuration environment."
 }
 
 configure.args-append --without-tk \
@@ -177,7 +201,7 @@ if {[tbool configure.ccache]} {
     configure.ccache no
 }
 
-# ./configure --help said these were influential environment variables
+# ./configure --help said that these were influential environment variables:
 configure.env-append XMKMF=${prefix}/bin/xmkmf \
                      PCRE_LIBS=-L${prefix}/lib -lpcreposix -lpcre \
                      FOP=${prefix}/bin/fop
@@ -263,6 +287,7 @@ if {[variant_isset g95]} {
     configure.f90 ${prefix}/bin/g95
 }
 
+# warning: this variant is untested
 variant ocaml description {Build OCaml module (modelica)} {
     depends_lib-append  port:ocaml \
                         port:swig-ocaml
