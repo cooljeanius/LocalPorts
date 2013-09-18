@@ -1,0 +1,55 @@
+--- modules/Makefile.am	2013-03-29 11:46:49.000000000 -0400
++++ /Users/ericgallager/GitHubReposFromOtherComputers/scilab/scilab/modules-Makefile.am	2013-09-17 18:28:48.000000000 -0400
+@@ -12,9 +12,8 @@
+ 
+ # The order DOES matter !!!
+ 
+-# core is the main module of Scilab. All the compilation deps has been removed
+-# since it already linked almost the whole world
+-
++# core is the main module of Scilab. All the compilation deps have been
++# removed since it already linked almost the whole world
+ 
+ SUBDIRS = \
+ prebuildjava \
+@@ -93,14 +92,13 @@
+ 
+ if XCOS
+ SUBDIRS += scicos_blocks
+-endif
+-
+ SUBDIRS += scicos
++endif
+ 
+ SUBDIRS += .
+ 
+ # javasci should be compile at the end because it needs libscilab.la
+-# Don't forget that the order in subdirs does matter !!!
++# Do NOT forget that the order in subdirs does matter !!!
+ if JAVASCI
+ SUBDIRS += javasci
+ endif
+@@ -115,7 +113,6 @@
+ 
+ libscilab_la_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(AM_LDFLAGS)
+ 
+-
+ GUI_LIBS = $(top_builddir)/modules/gui/libscigui.la \
+ 	$(top_builddir)/modules/renderer/libscirenderer.la \
+ 	$(top_builddir)/modules/graphics/libscigraphics.la \
+@@ -144,7 +141,6 @@
+ 	$(top_builddir)/modules/history_browser/libscihistory_browser-disable.la \
+ 	$(top_builddir)/modules/commons/libscicommons-disable.la
+ 
+-
+ ENGINE_LIBS =	$(top_builddir)/modules/fileio/libscifileio.la \
+ 	$(top_builddir)/modules/mexlib/libmex.la \
+ 	$(top_builddir)/modules/functions/libscifunctions.la \
+@@ -198,7 +194,6 @@
+ 	$(top_builddir)/modules/helptools/libscihelptools.la \
+ 	$(top_builddir)/modules/parallel/libsciparallel.la
+ 
+-
+ # Core modules
+ 
+ libscilab_la_LIBADD =

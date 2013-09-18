@@ -3,10 +3,11 @@
 
 PortSystem            1.0
 PortGroup             archcheck 1.0
+PortGroup             active_variants 1.1
 
 name                  scilab
 version               5.4.1
-revision              4
+revision              6
 categories            science
 platforms             macosx
 maintainers           debian.org:sylvestre gwmail.gwu.edu:egall openmaintainer
@@ -36,35 +37,53 @@ extract.only          ${name}-${version}-src-repack1.tar.gz
 
 worksrcdir            ${name}-${version}
 
-patchfiles-append     patch-macosx.m4.diff
-# This patch is commented out until it has been regenerated
-# so that it will apply against the new version:
-#                     patch-configure.ac.diff
+patchfiles-append     patch-macosx.m4.diff \
+                      patch-configure.ac.diff \
+                      patch-Makefile.am.diff \
+                      patch-modules-Makefile.am.diff
 
 post-patch {
-    reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
-    reinplace "s|m4\/|m4|" ${worksrcpath}/configure.ac
-    # Trick the script into thinking MacPorts is Fink, until the patch
-    # for the configure.ac file applies properly again:
-    reinplace "s|FINK_PREFIX\=\"\/sw\/\"|FINK_PREFIX\=\"${prefix}\"|g" ${worksrcpath}/configure.ac
+    if {![file isfile ${filespath}/patch-Makefile.am.diff]} {
+        reinplace "s|m4\/|m4|" ${worksrcpath}/Makefile.am
+    }
+    if {![file isfile ${filespath}/patch-configure.ac.diff]} {
+        reinplace "s|m4\/|m4|" ${worksrcpath}/configure.ac
+        # Trick the script into thinking MacPorts is Fink, until the patch
+        # for the configure.ac file applies properly again:
+        reinplace "s|FINK_PREFIX\=\"\/sw\/\"|FINK_PREFIX\=\"${prefix}\"|g" ${worksrcpath}/configure.ac
+    }
+    # Fix an issue I had with the Makefile using $(top_srdir) in a way
+    # that somehow messed up...
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
     # Run glibtoolize before autoreconf runs it, to silence some
     # warnings from aclocal
-    system -W ${worksrcpath} "glibtoolize --copy --automake --force"
+    system -W ${worksrcpath} "${prefix}/bin/glibtoolize --copy --automake --force"
+    xinstall ${prefix}/share/aclocal/autobuild.m4 ${worksrcpath}/m4
+    xinstall ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
+    xinstall ${prefix}/share/aclocal/bakefile.m4 ${worksrcpath}/m4
+    xinstall ${prefix}/share/aclocal/cmake.m4 ${worksrcpath}/m4
+    xinstall ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    xinstall ${prefix}/share/aclocal/xorg-macros.m4 ${worksrcpath}/m4
+    if {![file exists ${worksrcpath}/po]} {
+        xinstall -d ${worksrcpath}/po
+    }
+    xinstall ${filespath}/Makevars.in ${worksrcpath}/po
+    xinstall ${filespath}/POTFILES.in ${worksrcpath}/po
+    xinstall ${prefix}/share/gettext/gettext.h ${worksrcpath}
 }
 
-use_autoconf          yes
-autoconf.args         --force
+use_autoreconf        yes
+autoreconf.args       -fvi
 
 # Too many things that Scilab depends on are not universal
 universal_variant     no
+# The prerequirements dmg only says x86_64, so assume that that is the only
+# supported arch
 supported_archs       x86_64
 
 # Some of these build dependencies will only be needed once I add a test phase,
 # and then only until http://trac.macports.org/ticket/38208 is resolved
 depends_build-append  port:pkgconfig \
-                      port:gawk \
-                      port:grep \
                       port:intltool \
                       port:docbook-xsl \
                       port:checkstyle \
@@ -78,38 +97,36 @@ depends_build-append  port:pkgconfig \
                       port:SuiteSparse \
                       path:bin/xmkmf:imake \
                       path:bin/ant:apache-ant \
+                      path:share/aclocal/autobuild.m4:autobuild \
+                      path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
+                      path:share/aclocal/bakefile.m4:bakefile \
+                      path:share/aclocal/cmake.m4:cmake \
+                      path:share/aclocal/xorg-macros.m4:xorg-util-macros \
                       path:share/java/antlr.jar:antlr3 \
                       bin:antlr:antlr \
-                      bin:splint:splint \
-                      bin:fop:fop \
                       bin:astyle:astyle \
+                      bin:doxygen:doxygen \
+                      bin:dot:graphviz \
+                      bin:fop:fop \
+                      bin:gawk:gawk \
+                      bin:grep:grep \
+                      bin:runtest:dejagnu \
+                      bin:splint:splint \
                       bin:xmlindent:xmlindent
 
 # Most of these library dependencies are taken from Fink's list of dependencies
-# for Scilab (some are from the outdated version of the Fink package):
-depends_lib-append    port:libgtkhtml \
-                      port:readline \
+# for Scilab (some were from the outdated version of the Fink package):
+depends_lib-append    port:readline \
                       port:tcl \
-                      port:tk \
-                      port:vte \
-                      port:Xaw3d \
                       port:atlas \
-                      port:atk \
-                      path:lib/pkgconfig/cairo.pc:cairo \
-                      port:fontconfig \
-                      port:freetype \
                       port:gettext \
                       path:lib/pkgconfig/glib-2.0.pc:glib2 \
-                      port:glitz \
-                      port:gtk2 \
                       port:libiconv \
                       port:libpng \
-                      path:lib/pkgconfig/pango.pc:pango \
-                      path:lib/pkgconfig/pixman-1.pc:libpixman \
+                      port:libtool \
                       port:libxml2 \
                       port:ncurses \
                       port:xorg-libX11 \
-                      port:sablotron \
                       port:pcre \
                       path:lib/pkgconfig/fftw3.pc:fftw-3 \
                       path:lib/libhdf5.dylib:hdf5-18 \
@@ -138,6 +155,7 @@ pre-configure {
     eval copy [glob ${worksrcpath}/mountpoint/${name}-${version}/bin/*] ${worksrcpath}/bin
     ui_debug "Done copying prerequirements."
     system -W ${worksrcpath} "hdiutil detach mountpoint/${name}-${version}"
+    xinstall ${prefix}/share/gettext/gettext.jar ${worksrcpath}/thirdparty
     eval xinstall [glob ${prefix}/share/java/antlr*.jar] ${worksrcpath}/thirdparty
     eval xinstall [glob ${prefix}/share/java/*asm*.jar] ${worksrcpath}/thirdparty
     eval xinstall [glob ${prefix}/share/java/checkstyle*.jar] ${worksrcpath}/thirdparty
@@ -154,7 +172,8 @@ pre-configure {
     ui_debug "configure.classpath will be displayed when displaying configuration environment."
 }
 
-configure.args-append --without-tk \
+configure.args-append --with-macports-prefix=${prefix} \
+                      --without-tk \
                       --with-tcl-include=${prefix}/include \
                       --with-tcl-library=${prefix}/lib \
                       --without-modelica \
@@ -168,6 +187,7 @@ configure.args-append --without-tk \
                       --x-includes=${prefix}/include \
                       --x-libraries=${prefix}/lib \
                       --disable-build-help \
+                      --enable-build-doxygen \
                       --without-openmp \
                       --without-arpack-ng \
                       --with-umfpack-library=${prefix}/lib \
@@ -183,16 +203,21 @@ configure.args-append --without-tk \
                       --with-matio-include=${prefix}/include \
                       --with-matio-library=${prefix}/lib \
                       --with-fop \
-                      --with-docbook=${prefix}/share/xsl/docbook-xsl
+                      --with-lint \
+                      --with-docbook=${prefix}/share/xsl/docbook-xsl \
+                      --with-install-help-xml
 
 configure.ldflags-append \
                       -llapack \
                       -latlas \
-                      -lblas
+                      -lblas \
+                      -lpng \
+                      -lreadline \
+                      -lX11
 
-platform macosx {
+if {[active_variants path:lib/pkgconfig/eigen3.pc:eigen3 blas]} {
     configure.ldflags-append \
-                      "-framework Accelerate"
+                      -leigen_blas
 }
 
 # ccache support has been removed because:
