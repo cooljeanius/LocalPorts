@@ -1,0 +1,156 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 107456 2013-06-29 20:42:16Z jeremyhu@macports.org $
+
+PortSystem      1.0
+
+name            evolution-data-server
+version         2.32.3
+revision        2
+
+set branch      [join [lrange [split ${version} .] 0 1] .]
+description     Addressbook and calender libs for GNOME.
+long_description    Evolution Data Server provides a central location for \
+                    addressbook and calendar in the GNOME Desktop.
+maintainers     geekdaily.org:jim openmaintainer
+categories      gnome
+license         LGPL-2+
+platforms       darwin
+homepage        http://www.gnome.org/
+master_sites    gnome:sources/${name}/${branch}/
+
+use_bzip2       yes
+
+checksums       rmd160  adc8b07aef41a89d16fc426541c12190a3688b8f \
+                sha256  744026a745b711b3e393b61fed21c4926d1b10a3aa7da64f4b33a3e3bf5b085c
+
+depends_build-append \
+                port:pkgconfig \
+                port:intltool \
+                port:gtk-doc \
+                bin:gperf:gperf \
+                path:share/aclocal/gnome-common.m4:gnome-common
+
+depends_skip_archcheck-append gtk-doc
+
+depends_lib-append \
+                port:gconf \
+                port:kerberos5 \
+                port:libcomerr \
+                port:libgnome-keyring \
+                port:libgdata \
+                port:libgweather \
+                port:libical \
+                port:nss \
+                port:gnuregex \
+                port:db46 \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:harfbuzz \
+                port:libffi \
+                port:libgcrypt \
+                port:libgpg-error \
+                port:libiconv \
+                port:libpng \
+                port:libsoup \
+                port:libxml2 \
+                port:nspr \
+                port:openldap \
+                port:orbit2 \
+                port:sqlite3 \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libxcb \
+                port:xrender \
+                port:xz \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+patchfiles-append \
+                patch-configure.ac.diff \
+                patch-m4-evo_krb5_support.m4.diff \
+                patch-libgdata07-compat.diff \
+                patch-calendar-libedata-cal-Makefile.am.diff \
+                patch-calendar-libedata-cal-e-cal-backend-intervaltree.c.diff \
+                patch-calendar-backends-caldav-e-cal-backend-caldav.c.diff
+
+post-patch {
+    # Run glibtoolize before autoreconf runs it, to silence some
+    # warnings from aclocal
+    system -W ${worksrcpath} "${prefix}/bin/glibtoolize --copy --automake --force"
+    xinstall ${prefix}/share/aclocal/gnome-common.m4 ${worksrcpath}/m4
+    xinstall ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    reinplace "s|CPPFLAGS|AM_CPPFLAGS|g" ${worksrcpath}/libedataserverui/Makefile.am
+}
+
+use_autoreconf    yes
+autoreconf.args  -fvi
+
+configure.args-append  \
+        --enable-static \
+        --enable-ssl \
+        --enable-smime \
+        --enable-gnome-keyring \
+        --enable-ipv6 \
+        --enable-largefile \
+        --enable-nntp \
+        --enable-calendar \
+        --with-libdb=${prefix} \
+        --with-nspr-includes=${prefix}/include/nspr \
+        --with-nspr-libs=${prefix}/lib/nspr \
+        --with-nss-includes=${prefix}/include/nss \
+        --with-nss-libs=${prefix}/lib/nss \
+        --with-openldap \
+        --with-krb5=/usr \
+        --with-weather \
+        --disable-gtk3 \
+        --disable-silent-rules \
+        --disable-schemas-install \
+        --disable-gtk-doc
+
+build.type gnu
+
+#
+# port nss is not universal
+#
+universal_variant no
+
+platform darwin 8 {
+    post-patch {
+        reinplace "s|#include <stdio.h>|#include <stdio.h>\\\n#include <sys/types.h>|g" \
+        ${worksrcpath}/camel/camel-block-file.h
+    }
+    configure.args-delete --with-krb5=/usr
+    configure.args-append --without-krb5
+}
+
+variant gtk_doc description {Build gtk-doc documentation} {
+  configure.args-delete --disable-gtk-doc
+  configure.args-append --enable-gtk-doc
+}
+
+post-activate    {
+    system "export GCONF_CONFIG_SOURCE=`${prefix}/bin/gconftool-2 --get-default-source` && \
+        ${prefix}/bin/gconftool-2 --makefile-install-rule ${prefix}/etc/gconf/schemas/*.schemas"
+}
+
+livecheck.type  gnome

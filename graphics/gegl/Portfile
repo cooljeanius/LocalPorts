@@ -1,0 +1,184 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 111495 2013-09-24 00:32:48Z devans@macports.org $
+
+PortSystem      1.0
+PortGroup       muniversal 1.0
+PortGroup       compiler_blacklist_versions 1.0
+
+name            gegl
+version         0.2.0
+revision        9
+license         {GPL-3+ LGPL-3+}
+set branch      [join [lrange [split ${version} .] 0 1] .]
+categories      graphics
+maintainers     devans
+platforms       darwin
+homepage        http://${name}.org/
+master_sites    gimp:${name}/${branch}/
+
+use_bzip2       yes
+
+description \
+    GEGL is a graph based image processing framework.
+
+long_description \
+    GEGL is a graph based image processing framework offering image \
+    processing and compositing on large images. GEGL is suitable for \
+    projects ranging from small one-off projects to interactive \
+    applications.
+
+checksums       sha1    764cc66cb3c7b261b8fc18a6268a0e264a91d573 \
+                rmd160  cc10365cff27dd42b002bf305f82de54d8c158fa \
+                sha256  df2e6a0d9499afcbc4f9029c18d9d1e0dd5e8710a75e17c9b1d9a6480dd8d426
+
+depends_build-append \
+    port:pkgconfig \
+    port:intltool \
+    port:w3m \
+    port:libtool \
+    bin:perl:perl5 \
+    bin:ruby:ruby_select
+
+depends_lib-append \
+    port:babl \
+    port:gtk2 \
+    port:jpeg \
+    port:lua \
+    port:openexr \
+    port:exiv2 \
+    port:libopenraw \
+    port:librsvg \
+    path:lib/pkgconfig/sdl.pc:libsdl \
+    path:lib/libavcodec.dylib:ffmpeg \
+    port:libspiro \
+    port:lensfun \
+    port:fontconfig \
+    port:freetype \
+    port:gdk-pixbuf2 \
+    port:gettext \
+    port:ilmbase \
+    port:jasper \
+    port:libffi \
+    port:libiconv \
+    port:libpng \
+    port:zlib \
+    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+    path:lib/pkgconfig/cairo.pc:cairo \
+    path:lib/pkgconfig/pango.pc:pango
+
+patchfiles-append \
+               patch-configure.diff \
+               patch-opencl.diff \
+               patch-rename-for-altivec.diff \
+               patch-ffmpeg-1.0.diff \
+               patch-ffmpeg-2.0.diff \
+               patch-workshop-lua-5.2.diff
+
+# introspection: Need to define Gegl_0_2_gir_FILES
+
+configure.args-append \
+                --disable-docs \
+                --disable-silent-rules \
+                --disable-introspection \
+                --without-graphviz \
+                --without-vala \
+                --without-umfpack \
+                --disable-workshop \
+                --disable-glibtest \
+                --disable-gtk-doc
+
+configure.cflags-append \
+                -Wno-ignored-attributes \
+                -Wno-deprecated-declarations \
+                -Wno-implicit-function-declaration
+
+# disable parallel build, see #31498
+use_parallel_build no
+
+compiler.blacklist-append macports-clang-2.9 macports-clang-3.0 gcc-3.3 *gcc-4.0
+
+post-patch {
+    # http://trac.macports.org/ticket/35148
+    if {${os.major} < 10} {
+        reinplace "s|OpenGL/CGLDevice.h|OpenGL/CGLTypes.h|" ${worksrcpath}/gegl/opencl/cl_gl.h
+    }
+}
+
+platform darwin {
+    if {${os.major} == 10} {
+        compiler.blacklist-append *gcc-4.2 {clang < 421}
+        configure.ccache no
+    }
+
+    if {[variant_isset universal]} {
+        # In order to build universal on Leopard, you need MacPorts 2.1
+        set merger_configure_args(x86_64) --build=${build_arch}-apple-${os.platform}${os.version}
+        set merger_configure_cflags(ppc) -fno-altivec
+        set merger_configure_cxxflags(ppc) -fno-altivec
+    } elseif {${build_arch} == "ppc"} {
+        configure.cflags-append -fno-altivec
+        configure.cxxflags-append -fno-altivec
+    } elseif {${build_arch} == "x86_64"} {
+        configure.args-append --build=${build_arch}-apple-${os.platform}${os.version}
+    }
+}
+
+# This variant runs into an error that needs to be fixed:
+variant html_doc description {Build html docs with enscript and asciidoc} {
+    depends_build-append  port:asciidoc \
+                          port:gtk-doc \
+                          port:enscript
+    depends_skip_archcheck-append asciidoc gtk-doc enscript
+    configure.args-delete --disable-docs \
+                          --disable-gtk-doc
+    configure.args-append --enable-docs \
+                          --enable-gtk-doc \
+                          --enable-gtk-doc-html
+}
+
+variant umfpack description {Build with umfpack support via SuiteSparse} {
+    depends_lib-append    port:SuiteSparse
+    configure.args-delete --disable-umfpack
+    configure.args-append --enable-umfpack
+}
+
+variant workshop description {Enable build of workshop operations} {
+    configure.args-delete --disable-workshop
+    configure.args-append --enable-workshop
+}
+
+variant graphviz description {Build with graphviz support} {
+    depends_lib-append    path:bin/dot:graphviz
+    configure.args-delete --without-graphviz
+    configure.args-append --with-graphviz
+}
+
+variant vala description {Enable Vala bindings} {
+    depends_build-append  port:valabind
+    depends_lib-append    port:vala
+    configure.args-delete --without-vala
+    configure.args-append --with-vala
+}
+
+variant python25 conflicts python26 python27 description {Build using Python 2.5} {
+    configure.python          ${prefix}/bin/python2.5
+    depends_build-append      port:python25
+}
+
+variant python26 conflicts python25 python27 description {Build using Python 2.6} {
+    configure.python          ${prefix}/bin/python2.6
+    depends_build-append      port:python26
+}
+
+variant python27 conflicts python25 python26 description {Build using Python 2.7} {
+    configure.python          ${prefix}/bin/python2.7
+    depends_build-append      port:python27
+}
+
+if {![variant_isset python25] && ![variant_isset python26]} {
+    default_variants +python27
+}
+
+livecheck.type  regex
+livecheck.url   ftp://ftp.gimp.org/pub/${name}/${branch}/
+livecheck.regex "${name}-(\\d+(?:\\.\\d+)*)${extract.suffix}"

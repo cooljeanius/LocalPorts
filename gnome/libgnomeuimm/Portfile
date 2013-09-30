@@ -1,0 +1,106 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 106623 2013-06-02 01:58:38Z devans@macports.org $
+
+PortSystem      1.0
+
+name            libgnomeuimm
+version         2.28.0
+revision        6
+set branch      [join [lrange [split ${version} .] 0 1] .]
+description     libgnomemm provides C++ wrappers for libgnomeui.
+long_description ${description}
+maintainers     nomaintainer
+categories      gnome devel
+license         {LGPL-2.1+ GPL-2+}
+platforms       darwin
+homepage        http://www.gtkmm.org/
+master_sites    gnome:sources/${name}/${branch}/
+
+use_bzip2       yes
+
+checksums       md5     6c34dbe07cf9835c36f7d0b7bc38d4fb \
+                sha1    935c206d5d13df371476b3c1075219e0bfdbc91b \
+                rmd160  9ad7eb433f4ddd112a16207f2a3183c0ed1a844d \
+                sha256  6cb46494913f1e5e34b94a0f5b9ff8ef238bb71e3b08d0ef0ab7f4a7c88211d3
+
+depends_build-append \
+                port:pkgconfig \
+                bin:gawk:gawk \
+                bin:grep:grep \
+                bin:gm4:m4
+
+depends_lib-append \
+                port:libgnomemm \
+                port:libgnomecanvasmm \
+                port:libglademm \
+                port:gconfmm \
+                port:gnome-vfsmm \
+                port:libgnomeui \
+                port:atk \
+                port:atkmm \
+                port:bzip2 \
+                port:cairomm \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gconf \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:glibmm \
+                port:gnome-vfs \
+                port:graphite2 \
+                port:gtk2 \
+                port:gtkmm \
+                port:harfbuzz \
+                port:libart_lgpl \
+                port:libbonobo \
+                port:libbonoboui \
+                port:libcanberra \
+                port:libffi \
+                port:libgcrypt \
+                port:libglade2 \
+                port:libgnome \
+                port:libgnome-keyring \
+                port:libgnomecanvas \
+                port:libgpg-error \
+                port:libiconv \
+                port:libogg \
+                port:libpng \
+                port:libsigcxx2 \
+                port:libtool \
+                port:libvorbis \
+                port:libxml2 \
+                port:openssl \
+                port:orbit2 \
+                port:pangomm \
+                port:popt \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libice \
+                port:xorg-libsm \
+                port:xorg-libxcb \
+                port:xrender \
+                port:xz \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+patchfiles-append \
+                patch-examples-Makefile.in.diff
+
+build.type      gnu
+
+livecheck.type  gnome

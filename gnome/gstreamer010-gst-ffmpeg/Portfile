@@ -1,0 +1,165 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 109284 2013-08-12 07:55:13Z jeremyhu@macports.org $
+
+PortSystem          1.0
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=636134
+PortGroup           muniversal 1.0
+
+PortGroup           compiler_blacklist_versions 1.0
+
+name                gstreamer010-gst-ffmpeg
+set my_name         gst-ffmpeg
+version             0.10.13
+revision            1
+description         This is gst-ffmpeg, a set of plug-ins for GStreamer.
+long_description    ${description}
+maintainers         rmstonecipher openmaintainer
+categories          gnome
+license             GPL-2+
+platforms           darwin
+homepage            http://www.gnome.org/
+master_sites        http://gstreamer.freedesktop.org/src/${my_name}/
+distname            ${my_name}-${version}
+use_bzip2           yes
+
+checksums           rmd160  3e5e3d44302665214cfde8a908b633f8d0f70d31 \
+                    sha256  76fca05b08e00134e3cb92fa347507f42cbd48ddb08ed3343a912def187fbb62
+
+patchfiles          patch-gst-libs_ext_libav_configure.diff \
+                    patch-configure.ac.diff
+
+post-patch {
+    reinplace "s|%%CONFIGURE.CC%%|${configure.cc}|g" ${worksrcpath}/gst-libs/ext/libav/configure
+}
+
+depends_build-append \
+                    port:pkgconfig
+
+depends_lib-append  port:gstreamer010-gst-plugins-base \
+                    port:bzip2 \
+                    port:gettext \
+                    port:gstreamer010 \
+                    port:libffi \
+                    port:libiconv \
+                    port:libxml2 \
+                    port:orc \
+                    port:xz \
+                    port:zlib \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2
+
+use_autoreconf      yes
+autoreconf.args     -fvi
+
+# This will cause the installed ffmpeg headers to be used, remove it.
+configure.cppflags-delete -I${prefix}/include
+
+configure.cflags-append \
+                    -Wno-ignored-attributes \
+                    -Wno-attributes \
+                    -Wno-deprecated-declarations
+
+configure.ccache    no
+
+configure.args-append \
+                    --disable-valgrind \
+                    --with-autoconf=${prefix}/bin/autoconf \
+                    --with-autoheader=${prefix}/bin/autoheader \
+                    --with-automake=${prefix}/bin/automake \
+                    --with-aclocal=${prefix}/bin/aclocal \
+                    --enable-orc \
+                    --disable-docbook \
+                    --disable-gtk-doc \
+                    --disable-silent-rules
+
+build.type          gnu
+build.env-append    V=1
+
+# Making a variant for this until ticket #38208 is resolved.
+variant tests description {Enables tests} {
+    depends_build-append \
+                    port:valgrind
+    configure.args-delete \
+                    --disable-valgrind
+    configure.args-append \
+                    --enable-valgrind
+    # So far, one test fails on x86_64:
+    # FAIL: elements/ffdec_adpcm
+    test.run        yes
+    test.target     check
+}
+
+variant docs description {Build documentation} {
+    #FIXME: this just builds the documention, it
+    # does NOT actually install it...
+    depends_build-append \
+                    port:gtk-doc \
+                    port:docbook-xml-4.1.2 \
+                    port:docbook-xsl \
+                    bin:xsltproc:libxslt \
+                    bin:jadetex:texlive-htmlxml \
+                    bin:ps2pdf:ghostscript \
+                    bin:dvips:texlive-basic \
+                    bin:xmllint:libxml2 \
+                    bin:fig2dev:transfig \
+                    bin:pngtopnm:netpbm \
+                    bin:epstopdf:texlive-fontutils
+    depends_skip_archcheck-append \
+                    gtk-doc \
+                    docbook-xml-4.1.2 \
+                    docbook-xsl \
+                    libxslt \
+                    texlive-htmlxml \
+                    ghostscript \
+                    texlive-basic \
+                    transfig \
+                    netpbm \
+                    texlive-fontutils
+    configure.args-delete \
+                    --disable-docbook \
+                    --disable-gtk-doc
+    configure.args-append \
+                    --enable-gtk-doc \
+                    --enable-docbook
+}
+
+if {[lsearch [get_canonical_archs] i386] != -1} {
+    # clang-3.1 hits https://trac.macports.org/ticket/30137 (<rdar://problem/11542429>)
+    # clang-139 hits https://trac.macports.org/ticket/38141
+    compiler.blacklist-append {clang < 422.1.7} macports-clang-3.1
+
+    # https://trac.macports.org/ticket/37802 (use globbing to get all)
+    compiler.blacklist-append *gcc-4.2
+    compiler.blacklist-append gcc-3.3 *gcc-4.0
+}
+
+if {[variant_isset universal]} {
+    set merger_host(x86_64) x86_64-apple-${os.platform}${os.major}
+    set merger_host(i386) i686-apple-${os.platform}${os.major}
+    set merger_host(ppc64) powerpc64-apple-${os.platform}${os.major}
+    set merger_host(ppc) powerpc-apple-${os.platform}${os.major}
+    set merger_configure_args(x86_64) "--build=x86_64-apple-${os.platform}${os.major} --with-ffmpeg-extra-configure=\"--cc=${configure.cc} --arch=x86_64\""
+    set merger_configure_args(i386) "--build=i686-apple-${os.platform}${os.major} --with-ffmpeg-extra-configure=\"--cc=${configure.cc} --arch=i686\""
+    set merger_configure_args(ppc) "--build=powerpc-apple-${os.platform}${os.major} --with-ffmpeg-extra-configure=\"--cc=${configure.cc} --arch=ppc\""
+    set merger_configure_args(ppc64) "--build=powerpc64-apple-${os.platform}${os.major} --with-ffmpeg-extra-configure=\"--cc=${configure.cc} --arch=ppc64\""
+} elseif {${build_arch} == "i386"} {
+    configure.args-append \
+        --host=i686-apple-${os.platform}${os.major} \
+        --build=i686-apple-${os.platform}${os.major} \
+        --with-ffmpeg-extra-configure="--cc=${configure.cc} --arch=i686"
+} else {
+    configure.args-append \
+        --host=${os.arch}-apple-${os.platform}${os.major} \
+        --build=${os.arch}-apple-${os.platform}${os.major} \
+        --with-ffmpeg-extra-configure="--cc=${configure.cc} --arch=${os.arch}"
+}
+
+#
+# embedded ffmpeg code requires gmake 3.81 to build properly
+#
+platform darwin 8 {
+    depends_build-append port:gmake
+    build.cmd            ${prefix}/bin/gmake
+}
+
+livecheck.type      none

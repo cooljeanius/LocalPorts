@@ -1,0 +1,32 @@
+--- doc/Makefile.am.orig	2013-09-29 21:43:22.000000000 -0400
++++ doc/Makefile.am	2013-09-29 21:44:34.000000000 -0400
+@@ -62,21 +62,8 @@
+ 
+ MAINTAINERCLEANFILES = enblend.info enfuse.info
+ 
+-
+ # Phony Targets
+ 
+-.PHONY: install-html
+-install-html:
+-	@echo '*** Target "install-html" has been deprecated.'
+-	@echo '*** Use target "install-xhtml" instead of "install-html".'
+-	false
+-
+-.PHONY: html
+-html:
+-	@echo '*** Target "html" has been deprecated.'
+-	@echo '*** Use target "xhtml" instead of "html".'
+-	false
+-
+ .PHONY: html-local
+ html-local:
+ 	test -d enblend.html && \
+@@ -92,7 +79,6 @@
+ clean-local:
+ 	-rm -rf enblend.xhtml enfuse.xhtml
+ 
+-
+ TIDY_FLAGS = -config $(srcdir)/tidy.cfg -file /dev/null
+ SED_FLAGS_XHTML = -f $(srcdir)/tidy-post.sed
+ 

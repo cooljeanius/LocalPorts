@@ -39,7 +39,7 @@ depends_lib-append \
     port:expat \
     port:gd2
 
-patchfiles          patch-configure.ac.diff
+patchfiles-append   patch-configure.ac.diff
 
 post-patch {
     reinplace "s|INCLUDES|AM_CPPFLAGS|" ${worksrcpath}/src/Makefile.am
@@ -85,9 +85,9 @@ variant x11 {
                         bin:mkfontdir:mkfontdir \
                         bin:mkfontscale:mkfontscale
 
-    # gd2 should have its "+no_x11" variant changed to a "+x11" variant
-    # (as per ticket #39383), but in the meantime...
-    require_active_variants gd2 "" no_x11
+    # "no_x11" is a legacy compatibility variant and will
+    # eventually be removed
+    require_active_variants gd2 x11 no_x11
 
     configure.args-delete   --without-x
     configure.args-append   --with-x \

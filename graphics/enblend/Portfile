@@ -1,0 +1,117 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 110603 2013-09-02 22:51:16Z jeremyhu@macports.org $
+
+PortSystem      1.0
+PortGroup       conflicts_build 1.0
+
+name            enblend
+version         4.0
+set longname    ${name}-enfuse
+revision        9
+categories      graphics
+maintainers     gmail.com:hvdwolf openmaintainer
+license         GPL-2+
+
+description     a tool to composite images
+long_description \
+                Enblend is a tool to composite overlapping images \
+                with invisible (or very difficult to see) seams. Enfuse \
+                is a tool for automatic exposure and contrast blending.
+homepage        http://${name}.sourceforge.net/
+platforms       darwin
+master_sites    sourceforge:project/${name}/${longname}/${longname}-${version}
+distname        ${longname}-${version}
+worksrcdir      ${distname}-753b534c819d
+checksums       md5     2e7c950061e0085fd75d94576130250f \
+                sha1    34c3a5ce11c6ef0ef520d8a15a3cb6a94a567033 \
+                rmd160  9e531b5bf6f7258ef8778c01b456979e0bc04338 \
+                sha256  a12a44c2a07894f27e1d5a1675728175a943c89b91c1ac9abacce62f08c253c4
+
+conflicts_build-append \
+                vigra
+
+depends_build-append \
+                port:pkgconfig \
+                port:help2man \
+                port:p5.12-sys-hostname-long \
+                port:p5.12-timedate \
+                port:p5.12-file-basedir \
+                bin:perl:perl5 \
+                bin:fig2dev:transfig \
+                bin:gsed:gsed \
+                bin:gnuplot:gnuplot \
+                bin:makeinfo:texinfo \
+                bin:dvips:texlive-basic \
+                bin:tidy:tidy
+
+depends_lib-append \
+                port:boost \
+                port:jpeg \
+                port:lcms \
+                port:libpng \
+                port:libxmi \
+                port:mesa \
+                port:openexr \
+                port:freefont-ttf \
+                port:ilmbase \
+                port:tiff \
+                port:zlib
+
+pre-fetch {
+    ui_debug "master_sites evaluates to ${master_sites}"
+}
+
+pre-patch {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
+
+patchfiles-append \
+                patch-libpng15.diff \
+                patch-Makefile.am.diff \
+                patch-doc_Makefile.am.diff \
+                patch-src__vigra_impex__Makefile.am.diff \
+                patch-configure.ac.diff \
+                patch-filenameparse.cc.diff
+
+# need to regenerate a Makefile.in after patching Makefile.am above
+use_autoreconf  yes
+autoreconf.args -fvi
+
+configure.args-append \
+                --mandir=${prefix}/share/man \
+                --enable-image-cache=yes \
+                --enable-split-doc=no
+
+# TODO: Project has buggy C++ code
+# https://trac.macports.org/ticket/31762
+compiler.blacklist-append *clang* apple-gcc-4.2 gcc-4.2 *gcc-4.0 gcc-3.3
+
+platform darwin {
+    if {${os.major} >= 13} {
+        depends_lib
+        depends_run
+        pre-fetch {
+            ui_error "$name does not build on Mavericks or later."
+            error "unsupported platform"
+        }
+    }
+}
+
+# The build uses vast amounts of memory per job.
+use_parallel_build no
+
+post-destroot {
+    xinstall -d -m 755 ${destroot}${prefix}/share/doc/${name}
+    xinstall -m 644 -W ${worksrcpath} AUTHORS ChangeLog COPYING \
+        NEWS README VIGRA_LICENSE \
+        ${destroot}${prefix}/share/doc/${name}
+}
+
+platform macosx {
+    depends_lib-delete port:mesa
+    depends_lib-append port:glew
+    configure.args-append --with-apple-opengl-framework --with-glew
+}
+
+#TODO: update to 4.1.1
+livecheck.regex   /${longname}-(\[0-9.\]+)${extract.suffix}

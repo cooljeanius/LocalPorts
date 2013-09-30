@@ -1,0 +1,288 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 111541 2013-09-25 12:56:22Z devans@macports.org $
+
+PortSystem 1.0
+PortGroup xcodeversion 1.0
+PortGroup muniversal 1.0
+PortGroup compiler_blacklist_versions 1.0
+
+name            ffmpeg
+conflicts       ffmpeg-devel
+epoch           1
+version         2.0.1
+revision        2
+set branch      [join [lrange [split ${version} .] 0 1] .]
+license         LGPL-2.1+
+categories      multimedia
+maintainers     devans jeremyhu openmaintainer
+
+description     FFmpeg is a complete solution to play, record, convert \
+                and stream audio and video.
+
+long_description    FFmpeg is a complete solution to record, convert \
+                    and stream audio and video. It includes \
+                    libavcodec, the leading audio/video codec \
+                    library. The project is made of several \
+                    components: ffmpeg is a command line tool to \
+                    convert one video file format to another. It also \
+                    supports grabbing and encoding in real time from \
+                    a TV card. ffserver is an HTTP (RTSP is being \
+                    developed) multimedia streaming server for live \
+                    broadcasts. Time shifting of live broadcast is \
+                    also supported. ffplay is a simple media player \
+                    based on SDL and on the ffmpeg libraries. ffprobe \
+                    gathers information from multimedia streams and \
+                    prints it in human- and machine-readable fashion. \
+                    libavcodec is a library containing all the ffmpeg \
+                    audio/video encoders and decoders. Most codecs \
+                    were developed from scratch to ensure best \
+                    performance and high code reusability. \
+                    libavformat is a library containing parsers and \
+                    generators for all common audio/video formats.
+
+platforms       darwin
+homepage        http://www.${name}.org/
+master_sites    http://www.${name}.org/releases/
+
+use_bzip2       yes
+
+checksums       rmd160  e1e5cfe9417b40833a5234b521ebe9c8b8e89cd9 \
+                sha256  611eae7e3485d5fd9ff03e0ac7575ea89bc8105e40e99a40de02324957482f95
+
+depends_build-append \
+                port:pkgconfig \
+                port:gmake \
+                port:texi2html
+
+depends_lib-append \
+                port:lame \
+                port:libvorbis \
+                port:libopus \
+                port:libogg \
+                port:libtheora \
+                port:libmodplug \
+                port:jack \
+                port:dirac \
+                port:schroedinger \
+                port:libass \
+                port:libbluray \
+                port:gnutls \
+                port:openjpeg15 \
+                port:freetype \
+                path:lib/libspeex.dylib:speex \
+                port:libvpx \
+                path:lib/pkgconfig/sdl.pc:libsdl \
+                port:bzip2 \
+                port:zlib \
+                port:gmp \
+                port:libiconv \
+                port:nettle
+
+build.type      gnu
+build.cmd       ${prefix}/bin/gmake
+build.env-append V=1
+
+#
+# enable auto configure of asm optimizations
+# requires Xcode 3.1 or better on Leopard
+#
+minimum_xcodeversions {9 3.1}
+
+if {[lsearch [get_canonical_archs] i386] != -1} {
+    # clang-3.1 hits https://trac.macports.org/ticket/30137 (<rdar://problem/11542429>)
+    # clang-139 hits https://trac.macports.org/ticket/38141
+    compiler.blacklist-append {clang < 422.1.7} macports-clang-3.1
+}
+
+compiler.blacklist-append gcc-3.3 *gcc-4.0
+
+# And similarly, disable asm on Tiger
+# libblueray does not build on Tiger, so disable for now (#39442)
+platform darwin {
+    if {${os.major} < 9} {
+        depends_lib-delete    port:libbluray
+        configure.args-delete --enable-libbluray
+        configure.args-append --disable-asm
+    }
+}
+
+# The old ffmpeg port was GPL-2+ as base and had a no_gpl variant, so this
+# keeps us consistent. Also, -gpl2 causes other ports to fail to build due
+# to the missing libpostproc (#35473)
+default_variants-append +gpl2
+
+configure.cflags-append -DHAVE_LRINTF ${configure.cppflags}
+configure.args-append \
+        --enable-swscale \
+        --enable-avfilter \
+        --enable-avresample \
+        --enable-libmp3lame \
+        --enable-libvorbis \
+        --enable-libopus \
+        --enable-libtheora \
+        --enable-libschroedinger \
+        --enable-libopenjpeg \
+        --enable-libmodplug \
+        --enable-libvpx \
+        --enable-libspeex \
+        --enable-libass \
+        --enable-libbluray \
+        --enable-gnutls \
+        --enable-libfreetype \
+        --disable-outdev=xv \
+        --mandir=${prefix}/share/man \
+        --enable-shared \
+        --enable-pthreads \
+        --cc=${configure.cc}
+
+test.run        yes
+
+#
+# configure is NOT autoconf and they DO use a dep cache
+#
+
+post-destroot {
+    file mkdir ${destroot}${prefix}/share/doc/ffmpeg
+    file copy ${worksrcpath}/doc/APIchanges ${destroot}${prefix}/share/doc/ffmpeg
+    file copy ${worksrcpath}/doc/RELEASE_NOTES ${destroot}${prefix}/share/doc/ffmpeg
+    foreach f [glob ${worksrcpath}/doc/*.txt] {
+        file copy $f ${destroot}${prefix}/share/doc/ffmpeg
+    }
+}
+
+platform powerpc {
+    # absence of altivec is not automatically detected
+    if {[catch {sysctl hw.vectorunit} result] || $result == 0} {
+        configure.args-append --disable-altivec
+    }
+}
+
+platform darwin 8 {
+    post-patch {
+        reinplace "s:,-compatibility_version,$\(LIBMAJOR\)::" ${worksrcpath}/configure
+    }
+}
+
+configure.universal_args-delete --disable-dependency-tracking
+
+if {[variant_isset universal]} {
+    foreach arch ${configure.universal_archs} {
+        set merger_host($arch) ""
+        lappend merger_configure_args($arch) --arch=${arch}
+        lappend merger_configure_env($arch)  ASFLAGS='-arch ${arch}'
+    }
+    if {[string match "*86*" ${configure.universal_archs}]} {
+        depends_build-append port:yasm
+    }
+    lappend merger_configure_args(i386) --enable-yasm
+    lappend merger_configure_args(x86_64) --enable-yasm
+} else {
+    configure.args-append --arch=${configure.build_arch}
+    configure.env-append  ASFLAGS='[get_canonical_archflags]'
+    if {$build_arch == "i386" || $build_arch == "x86_64"} {
+        depends_build-append port:yasm
+        configure.args-append --enable-yasm
+    }
+}
+
+variant gpl2 description {Enable GPL code, license will be GPL-2+} {
+    configure.args-append   --enable-gpl \
+                            --enable-postproc \
+                            --enable-libx264 \
+                            --enable-libxvid
+    depends_lib-append      port:XviD \
+                            port:x264
+    license-delete          LGPL-2.1+
+    license-append          GPL-2+
+}
+
+variant gpl3 requires gpl2 description {Enable GPL code, license will be GPL-3+} {
+    configure.args-delete   --disable-libopencore-amrnb \
+                            --disable-libopencore-amrwb
+    configure.args-append   --enable-version3 \
+                            --enable-libopencore-amrnb \
+                            --enable-libopencore-amrwb
+    depends_lib-append      port:opencore-amr
+    license-delete          LGPL-2.1+
+    license-append          GPL-3+
+}
+
+
+# the build server uses the default variants, and we want distributable
+# binaries. Nonfree code is disabled by default but can be enabled using
+# the +nonfree variant
+
+variant nonfree description {enable nonfree code, libraries and binaries will not be redistributable} {
+    configure.args-append   --enable-nonfree \
+                            --enable-libfaac
+    depends_lib-append      port:faac
+    license-delete          LGPL-2.1+
+    license-append          Restrictive
+}
+
+if {[variant_isset nonfree]} {
+notes "
+*******
+******* This build of ${name} includes nonfree code as follows:
+*******
+*******     libfaac
+*******
+******* The following libraries and binaries may not be redistributed:
+*******
+*******     ffmpeg
+*******     libavcodec
+*******     libavdevice
+*******     libavfilter
+*******     libavformat
+*******     libavutil
+*******
+******* To remove this restriction remove the variant +nonfree
+*******
+"
+} elseif {[variant_isset gpl3]} {
+notes "
+*******
+******* This build of ${name} includes GPLed code and
+******* is therefore licensed under GPL v3 or later.
+*******
+******* The following modules are GPLed:
+*******
+*******      postproc
+*******      libx264
+*******      libxvid
+*******      opencore-amr
+*******
+******* To include all nonfree, GPLed and LGPL code use variant +nonfree.
+******* To remove nonfree and GPLed code leaving only LGPL code remove the
+******* +gpl2 and +gpl3 variants.
+*******
+"
+} elseif {[variant_isset gpl2]} {
+notes "
+*******
+******* This build of ${name} includes GPLed code and
+******* is therefore licensed under GPL v2 or later.
+*******
+******* The following modules are GPLed:
+*******
+*******      postproc
+*******      libx264
+*******      libxvid
+*******
+******* To include all nonfree, GPLed and LGPL code use variant +nonfree.
+******* To remove nonfree and GPLed code leaving only LGPL code remove the
+******* +gpl2 variant.
+*******
+"
+} else {
+notes "
+*******
+******* This build of ${name} includes no GPLed or nonfree
+******* code and is therefore licensed under LGPL v2.1 or later.
+*******
+"
+}
+
+livecheck.type  regex
+livecheck.url   ${master_sites}
+livecheck.regex "${name}-(${branch}(?:\\.\\d+)*)${extract.suffix}"

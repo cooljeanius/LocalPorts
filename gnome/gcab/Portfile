@@ -7,7 +7,7 @@ name                 gcab
 version              0.4
 revision             1
 set branch           [join [lrange [split ${version} .] 0 1] .]
-categories           gnome devel
+categories           gnome devel archivers
 platforms            darwin
 maintainers          gwmail.gwu.edu:egall openmaintainer
 license              LGPL-2.1+
@@ -32,7 +32,8 @@ depends_build-append port:pkgconfig \
                      port:valabind \
                      port:intltool \
                      bin:valac:vala \
-                     bin:gnutar:gnutar
+                     bin:gnutar:gnutar \
+                     bin:xz:xz
 
 post-patch {
     reinplace "s|m4\_esyscmd\(build-aux\/git-version-gen\ \.tarball-version\)|${version}|" ${worksrcpath}/configure.ac
@@ -41,6 +42,7 @@ post-patch {
 
 pre-configure {
     system -W ${worksrcpath} "autoupdate -f"
+    # re-do this reinplace in case the autoupdate re-introduced it
     reinplace "s|m4\_esyscmd\(build-aux\/git-version-gen\ \.tarball-version\)|${version}|" ${worksrcpath}/configure.ac
     system -W ${worksrcpath} "autoscan"
 }

@@ -1,0 +1,143 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 106601 2013-05-31 20:45:05Z devans@macports.org $
+
+PortSystem      1.0
+
+name            libgweather
+version         2.30.3
+revision        8
+set branch      [join [lrange [split ${version} .] 0 1] .]
+maintainers     devans openmaintainer
+categories      net gnome x11
+license         GPL-2+ LGPL-2.1+
+platforms       darwin
+description     Library to accessing online weather informations.
+
+long_description \
+    ${name} is a library to access weather \
+    information from online services for numerous \
+    locations.
+
+homepage        http://www.gnome.org/
+master_sites    gnome:sources/${name}/${branch}/
+use_bzip2       yes
+
+checksums       md5     bf6a0a05051341ecb250f332e3edfb88 \
+                sha1    e89aadc89d3405d1a3de12005fa839d9da5adbc1 \
+                rmd160  84158a5099c41b028a5f8d15ce99534dbd992051 \
+                sha256  b835374661423f37c46aa8e37368ae24a68856f117b7c21e475a21efdba5264c
+
+depends_build-append \
+                port:pkgconfig \
+                port:intltool \
+                port:gettext \
+                port:gtk-doc \
+                bin:perl:perl5 \
+                bin:xmllint:libxml2 \
+                bin:gconftool-2:gconf \
+                bin:python:python_select
+
+depends_skip_archcheck-append gtk-doc
+
+depends_lib-append \
+                port:gconf \
+                port:libsoup \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gtk2 \
+                port:gettext \
+                port:harfbuzz \
+                port:libffi \
+                port:libgcrypt \
+                port:libgnome-keyring \
+                port:libgpg-error \
+                port:libiconv \
+                port:libpng \
+                port:libxml2 \
+                port:orbit2 \
+                port:sqlite3 \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libxcb \
+                port:xrender \
+                port:xz \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+patchfiles-append patch-python-prefix.diff
+
+configure.args-append \
+                --disable-schemas-install \
+                --disable-silent-rules \
+                --disable-glibtest \
+                --enable-python \
+                --enable-gtk-doc \
+                --enable-locations-compression \
+                --enable-more-warnings
+
+variant python25 conflicts python26 python27 description {Use python 2.5} {
+    configure.python          ${prefix}/bin/python2.5
+    depends_build-append      path:bin/python2.5:python25
+    depends_lib-append        port:py25-pygtk \
+                              port:py25-gobject
+    set python_framework      ${frameworks_dir}/Python.framework/Versions/2.5
+    configure.pkg_config_path ${python_framework}/lib/pkgconfig
+
+    # ensure build path contains path to python executables (#26201)
+    build.env       PATH=${python_framework}/bin:$env(PATH)
+}
+
+variant python26 conflicts python25 python27 description {Use python 2.6} {
+    configure.python          ${prefix}/bin/python2.6
+    depends_build-append      path:bin/python2.6:python26
+    depends_lib-append        port:py26-pygtk \
+                              port:py26-gobject
+    set python_framework      ${frameworks_dir}/Python.framework/Versions/2.6
+    configure.pkg_config_path ${python_framework}/lib/pkgconfig
+
+    # ensure build path contains path to python executables (#26201)
+    build.env       PATH=${python_framework}/bin:$env(PATH)
+}
+
+variant python27 conflicts python25 python26 description {Use python 2.7} {
+    configure.python          ${prefix}/bin/python2.7
+    depends_build-append      path:bin/python2.7:python27
+    depends_lib-append        port:py27-pygtk \
+                              port:py27-gobject
+    set python_framework      ${frameworks_dir}/Python.framework/Versions/2.7
+    configure.pkg_config_path ${python_framework}/lib/pkgconfig
+
+    # ensure build path contains path to python executables (#26201)
+    build.env       PATH=${python_framework}/bin:$env(PATH)
+}
+
+if {![variant_isset python25] && ![variant_isset python26]} {
+    default_variants +python27
+}
+
+post-activate {
+    system "\
+        GCONF_CONFIG_SOURCE= \
+        ${prefix}/bin/gconftool-2 --makefile-install-rule \
+            ${prefix}/etc/gconf/schemas/gweather.schemas"
+}
+
+livecheck.type  gnome

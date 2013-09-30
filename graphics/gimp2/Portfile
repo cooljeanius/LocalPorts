@@ -7,8 +7,8 @@ PortGroup       archcheck 1.0
 
 name            gimp2
 # please remember to update the gimp metapackage to match
-version         2.8.4
-revision        2
+version         2.8.6
+revision        3
 license         {GPL-2+ LGPL}
 categories      graphics gnome
 maintainers     devans
@@ -32,10 +32,12 @@ distname        gimp-${version}
 
 use_bzip2       yes
 
-depends_build   port:pkgconfig \
+depends_build-append \
+                port:pkgconfig \
                 port:intltool
 
-depends_lib     port:iso-codes \
+depends_lib-append \
+                port:iso-codes \
                 port:gegl \
                 port:gtk2 \
                 port:libffi \
@@ -48,11 +50,14 @@ depends_lib     port:iso-codes \
                 port:libwmf \
                 port:lcms \
                 port:xorg-libXmu \
-                port:xpm
+                port:xpm \
+                port:desktop-file-utils
 
-depends_run     path:share/gimp/2.0/help:gimp-help-en
+depends_run-append \
+                path:share/gimp/2.0/help:gimp-help-en
 
-patchfiles      patch-etc-gimprc.diff \
+patchfiles-append \
+                patch-etc-gimprc.diff \
                 patch-plug-ins-twain-tw_mac.c.diff
 
 platform darwin 9 {
@@ -63,6 +68,7 @@ platform darwin 9 {
 }
 
 compiler.blacklist-append {gcc-4.2 >= 5646}
+compiler.blacklist-append gcc-3.3
 
 pre-configure {
     if {[file exists ${prefix}/lib/gtk-2.0/include/gdkconfig.h]} {
@@ -78,7 +84,8 @@ pre-configure {
     }
 }
 
-configure.args  --build=${configure.build_arch}-apple-${os.platform}${os.version} \
+configure.args-append \
+                --build=${configure.build_arch}-apple-${os.platform}${os.version} \
                 --enable-mp \
                 --with-pdbgen \
                 --with-x \
@@ -86,16 +93,20 @@ configure.args  --build=${configure.build_arch}-apple-${os.platform}${os.version
                 --x-libraries=${prefix}/lib \
                 --without-alsa \
                 --without-gvfs \
+                --without-gudev \
                 --without-webkit \
-                --without-mac-twain
+                --without-mac-twain \
+                --disable-debug \
+                --disable-gimp-remote
 
 # --without-mac-twain:
 #     Leopard's 64bit Carbon is missing QuitApplicationEventLoop
-#     It doesn't build any more anyways:
+#     It does NOT build any more anyways:
 #         https://trac.macports.org/ticket/35168
 
-# intltool needs to be run with the correct version of perl
-configure.env-append INTLTOOL_PERL=${prefix}/bin/perl5.12
+# Do NOT do intltool's INTLTOOL_PERL dance
+use_autoreconf  yes
+autoreconf.args -fvi
 
 variant python25 conflicts no_python python26 python27 description {Use python 2.5} {
     configure.python          ${prefix}/bin/python2.5
@@ -135,19 +146,16 @@ if {![variant_isset no_python] && ![variant_isset python25] && ![variant_isset p
 variant gvfs description {Enable gvfs support} {
     depends_lib-append      port:gvfs
     configure.args-delete   --without-gvfs
+    configure.args-append   --with-gvfs
 }
 
 variant remote description {Enable building of obsolete gimp-remote helper app} {
+    configure.args-delete   --disable-gimp-remote
     configure.args-append   --enable-gimp-remote
 }
 
-variant help_browser description {Enable Gimp help browser} {
-    depends_lib-append      port:webkit-gtk \
-                            port:icu
-    configure.args-delete   --without-webkit
-}
-
 variant debug description {Enable debugging} {
+    configure.args-delete  --disable-debug
     configure.args-append  --enable-debug
 }
 
@@ -158,7 +166,7 @@ variant quartz {
                           --x-includes=${prefix}/include \
                           --x-libraries=${prefix}/lib
     configure.args-append --without-x
-    configure.ldflags-append   -framework Carbon
+    configure.ldflags-append -framework Carbon
     categories-append    aqua
 
 #
@@ -170,7 +178,20 @@ variant quartz {
     }
 }
 
-default_variants +help_browser
+#
+# set default variants
+# webkit +quartz build fails #39276 (-help_browser)
+#
+
+if {![variant_isset quartz]} {
+    variant help_browser description {Enable Gimp help browser} {
+        depends_lib-append  port:webkit-gtk \
+                            port:icu
+        configure.args-delete --without-webkit
+        configure.args-append --with-webkit
+    }
+    default_variants-append +help_browser
+}
 
 variant huge requires debug gvfs remote description {Pulls in many dependencies; unsupported} {
     configure.args-append \
@@ -270,7 +291,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:jasper \
                  port:dbus \
                  port:dbus-glib \
-                 port:eggdbus \
                  port:perl5 \
                  port:libxml2 \
                  port:libxslt \
@@ -304,7 +324,7 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:jpeg2ps \
                  port:twain-sane \
                  port:jhead
-    depends_skip_archcheck jhead twain-sane jpeg2ps png2ico libsvg-cairo gdk-pixbuf gtk-doc
+    depends_skip_archcheck-append jhead twain-sane jpeg2ps png2ico libsvg-cairo gdk-pixbuf gtk-doc
     if {[variant_isset python25]} {
         depends_lib-append \
                  port:py25-fpconst \
@@ -312,7 +332,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py25-exif \
                  port:py25-curl \
                  port:dbus-python25 \
-                 port:py25-gtkmvc \
                  port:py25-pygtksourceview \
                  port:py25-libxslt \
                  port:pear-CodeGen
@@ -329,7 +348,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py26-curl \
                  port:py26-curlish \
                  port:dbus-python26 \
-                 port:py26-gtkmvc \
                  port:py26-pygtksourceview \
                  port:py26-libxslt \
                  port:py26-gtkhtml2
@@ -345,7 +363,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py27-curl \
                  port:py27-curlish \
                  port:dbus-python27 \
-                 port:py27-gtkmvc \
                  port:py27-pygtksourceview \
                  port:py27-libxslt \
                  port:py27-gtkhtml2
@@ -369,7 +386,8 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
 }
 
 post-activate {
-        system "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    system "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    system "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
 }
 
 livecheck.type  regex

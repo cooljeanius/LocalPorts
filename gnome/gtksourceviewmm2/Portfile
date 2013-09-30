@@ -1,0 +1,85 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 105822 2013-05-06 20:25:41Z devans@macports.org $
+
+PortSystem      1.0
+
+name            gtksourceviewmm2
+set gname       gtksourceviewmm
+version         2.10.3
+revision        2
+license         LGPL-2+
+set branch      [join [lrange [split ${version} .] 0 1] .]
+
+description     A C++ binding for GtkSourceView2
+long_description \
+                gtksourceviewmm2 is a C++ wrapper for the \
+                GtkSourceView2 widget library.
+
+maintainers     devans openmaintainer
+categories      gnome devel
+platforms       darwin
+ 
+homepage        http://projects.gnome.org/gtksourceviewmm/
+master_sites    gnome:sources/${gname}/${branch}/
+
+distname        ${gname}-${version}
+
+use_xz          yes
+
+checksums       rmd160  4d1514cf764eea6de8f48cf17cd6008a9c8a56f0 \
+                sha256  0000df1b582d7be2e412020c5d748f21c0e6e5074c6b2ca8529985e70479375b
+
+depends_build-append \
+                port:pkgconfig \
+                port:mm-common \
+                bin:perl:perl5 \
+                bin:dot:graphviz \
+                bin:doxygen:doxygen \
+                bin:xsltproc:libxslt
+
+depends_lib-append \
+                port:gtkmm \
+                port:gtksourceview2 \
+                port:atk \
+                port:atkmm \
+                port:bzip2 \
+                port:cairomm \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:glibmm \
+                port:graphite2 \
+                port:gtk2 \
+                port:harfbuzz \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:libsigcxx2 \
+                port:pangomm \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libxcb \
+                port:xrender \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman
+
+configure.args-append \
+                --disable-silent-rules
+
+livecheck.type  gnome
+livecheck.name  ${gname}
+livecheck.regex {LATEST-IS-(2\.\d*[02468](?:\.\d+)*)}

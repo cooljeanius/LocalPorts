@@ -1,0 +1,11 @@
+--- Makefile.am.orig	2013-09-29 21:42:36.000000000 -0400
++++ Makefile.am	2013-09-29 21:43:05.000000000 -0400
+@@ -7,7 +7,7 @@
+ SUBDIRS = include src $(MAYBE_DOC)
+ DIST_SUBDIRS = include src doc
+ 
+-ACLOCAL_AMFLAGS = -I m4
++ACLOCAL_AMFLAGS = -I m4 --install
+ 
+ # created by configure(1)
+ DISTCLEANFILES = config-h.texi

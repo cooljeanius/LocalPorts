@@ -1,0 +1,153 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 110719 2013-09-04 15:55:42Z larryv@macports.org $
+
+PortSystem          1.0
+PortGroup           muniversal 1.0
+
+name                libgnomedb
+version             1.2.2
+revision            2
+set branch          [join [lrange [split ${version} .] 0 1] .]
+
+categories          gnome databases devel
+platforms           darwin
+license             GPL-2+
+maintainers         nomaintainer
+
+description         Data access architecture for GNOME.
+long_description    The GNOME-DB project aims to provide a free unified \
+                    data access architecture to the GNOME project. \
+                    GNOME-DB is useful for any application that accesses \
+                    persistent data (not only databases, but data), since \
+                    it now contains a pretty good data management API.
+homepage            http://www.gnome-db.org/
+
+master_sites        gnome:sources/${name}/${branch}/
+use_bzip2           yes
+
+checksums           rmd160  9b5f2c6b684f583467de7cd4be00b6bb93cefeb3 \
+                    sha256  1dc3967ac3ff9407268ad0b36dc93eef680b5a2a088929c2a52597223d4b4d96
+
+patchfiles-append   patch-glib-2.32.diff \
+                    patch-configure.ac.diff
+
+depends_build-append \
+                    port:intltool \
+                    port:pkgconfig \
+                    port:gtk-doc \
+                    path:share/aclocal/gnome-common.m4:gnome-common
+
+depends_skip_archcheck-append gtk-doc
+
+depends_lib-append  port:gconf \
+                    port:gettext \
+                    port:gtksourceview \
+                    port:libgda \
+                    port:libgnome \
+                    port:libgnomeui \
+                    port:rarian \
+                    port:atk \
+                    port:bzip2 \
+                    port:dbus-glib \
+                    port:expat \
+                    port:fontconfig \
+                    port:freetype \
+                    port:gdk-pixbuf2 \
+                    port:gettext \
+                    port:gnome-vfs \
+                    port:graphite2 \
+                    port:gtk2 \
+                    port:harfbuzz \
+                    port:libart_lgpl \
+                    port:libbonobo \
+                    port:libbonoboui \
+                    port:libcanberra \
+                    port:libffi \
+                    port:libgcrypt \
+                    port:libglade2 \
+                    port:libgnome-keyring \
+                    port:libgnomecanvas \
+                    port:libgnomeprint \
+                    port:libgpg-error \
+                    port:libiconv \
+                    port:libogg \
+                    port:libpng \
+                    port:libtool \
+                    port:libvorbis \
+                    port:libxml2 \
+                    port:libxslt \
+                    port:openssl \
+                    port:orbit2 \
+                    port:popt \
+                    port:xorg-libX11 \
+                    port:xorg-libXau \
+                    port:xorg-libXcomposite \
+                    port:xorg-libXcursor \
+                    port:xorg-libXdamage \
+                    port:xorg-libXdmcp \
+                    port:xorg-libXext \
+                    port:xorg-libXfixes \
+                    port:xorg-libXi \
+                    port:xorg-libXinerama \
+                    port:xorg-libXrandr \
+                    port:xorg-libice \
+                    port:xorg-libsm \
+                    port:xorg-libxcb \
+                    port:xrender \
+                    port:xz \
+                    port:zlib \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    path:lib/pkgconfig/pango.pc:pango \
+                    path:lib/pkgconfig/pixman-1.pc:libpixman \
+                    path:lib/pkgconfig/dbus-1.pc:dbus
+
+post-extract {
+    if {![file exists ${worksrcpath}/m4]} {
+        xinstall -d ${worksrcpath}/m4
+    }
+}
+
+pre-patch {
+    if {![file exists ${worksrcpath}/configure.ac]} {
+        file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+    }
+}
+
+post-patch {
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|g" [glob ${worksrcpath}/*/Makefile.am]
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|g" [glob ${worksrcpath}/*/*/Makefile.am]
+    system -W ${worksrcpath} "echo \"ACLOCAL_AMFLAGS = -I m4\" >> Makefile.am"
+    system -W ${worksrcpath} "echo \"#include <config.h>\" >> acconfig.h"
+    xinstall ${prefix}/share/aclocal/gnome-common.m4 ${worksrcpath}/m4
+    xinstall ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
+    system -W ${worksrcpath} "${prefix}/bin/glibtoolize --automake --copy --force"
+}
+
+use_autoreconf      yes
+autoreconf.args     -fvi
+autoreconf.env      "AUTOPOINT=\"${prefix}/bin/autopoint --force && ${prefix}/bin/intltoolize --copy --force\"" \
+                    "GLIBTOOLIZE=${prefix}/bin/glibtoolize --automake"
+
+pre-configure {
+    system -W ${worksrcpath} "${prefix}/bin/intltoolize --copy --force"
+}
+
+configure.cppflags-append \
+                    "-L${prefix}/lib" \
+                    "-DPACKAGE_VERSION=\\\"${version}\\\"" \
+                    "-DGETTEXT_PACKAGE=\\\"${name}-2\\\"" \
+                    "-I."
+configure.args-append \
+                    --mandir=${prefix}/share/man \
+                    --enable-gnome \
+                    --enable-gtk-doc \
+                    --with-libiconv-prefix=${prefix} \
+                    --with-libintl-prefix=${prefix}
+
+configure.ccache    no
+configure.pipe      no
+use_parallel_build  no
+
+livecheck.type      gnome

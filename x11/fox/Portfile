@@ -1,0 +1,82 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 102865 2013-02-09 19:16:59Z jeremyhu@macports.org $
+
+PortSystem          1.0
+
+name                fox
+version             1.6.46
+revision            3
+description         The FOX GUI toolkit
+long_description    FOX is a C++ based Toolkit for developing Graphical \
+                    User Interfaces easily and effectively.
+maintainers         lylejohnson.name:lyle openmaintainer
+categories          x11 devel
+platforms           darwin
+license             LGPL-2.1+
+
+homepage            http://www.fox-toolkit.org/
+master_sites        http://ftp.fox-toolkit.org/pub/
+checksums           rmd160  a3c37e0431053b68f63f22c0d0b2bf969dac583b \
+                    sha256  4ba84261be19c938ff3fc8fda5a4ceac6469e87205d90869fd5d92124b8ebbe0
+
+supported_archs     x86_64
+
+depends_build-append \
+	port:pkgconfig \
+        path:bin/xmkmf:imake
+
+depends_lib-append \
+	port:tiff \
+	port:libpng \
+	port:jpeg \
+	port:xorg-libXcursor \
+	port:Xft2 \
+	port:xorg-libXrandr \
+	port:freetype \
+	port:mesa \
+        port:bzip2 \
+        port:expat \
+        port:fontconfig \
+        port:libiconv \
+        port:xorg-libX11 \
+        port:xorg-libXau \
+        port:xorg-libXdmcp \
+        port:xorg-libXext \
+        port:xorg-libXfixes \
+        port:xorg-libXi \
+        port:xorg-libxcb \
+        port:xrender \
+        port:zlib
+
+configure.args-append \
+        --with-x \
+        --with-xft \
+        --with-opengl \
+        --enable-release \
+        --with-xshm \
+        --with-shape \
+        --with-xcursor \
+        --with-xrender \
+        --with-xrandr \
+        --with-xfixes \
+        --with-xinput \
+        --with-xim \
+        --enable-jpeg \
+        --enable-png \
+        --enable-tiff \
+        --enable-zlib \
+        --enable-bz2lib
+configure.cppflags-append -I${prefix}/include/freetype2
+configure.env-append XMKMF=${prefix}/bin/xmkmf
+
+variant debug description {Enables debugging} {
+    configure.args-delete \
+        --enable-release
+    configure.args-append \
+        --enable-debug \
+        --with-profiling
+}
+
+livecheck.type      regex
+livecheck.url       ${homepage}download.html
+livecheck.regex     /${name}-(\[0-9.\]+)${extract.suffix}.*STABLE

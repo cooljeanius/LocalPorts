@@ -104,6 +104,10 @@ variant python description {Bindings for python plugins} {
     depends_lib-append \
                     bin:python:python26 \
                     path:bin/python:python27
+
+    post-configure {
+        reinplace -E "s|\(Python.framework\)|${frameworks_dir}/\\1|" ${worksrcpath}/src/plugins/python/CMakeFiles/python.dir/link.txt
+    }
 }
 
 variant ruby description {Bindings for ruby plugins} {
