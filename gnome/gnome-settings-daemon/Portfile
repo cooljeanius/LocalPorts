@@ -1,0 +1,102 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 108336 2013-07-19 23:12:03Z devans@macports.org $
+
+PortSystem      1.0
+
+name            gnome-settings-daemon
+version         2.32.1
+revision        2
+license         GPL-2 LGPL-2.1
+set branch      [join [lrange [split ${version} .] 0 1] .]
+description     Gnome 2 settings daemon.
+long_description ${description}
+maintainers     devans openmaintainer
+categories      gnome
+platforms       darwin
+homepage        http://www.gnome.org/
+master_sites    gnome:sources/${name}/${branch}/
+
+use_bzip2       yes
+
+checksums       sha256  0074b3fec3ad6e3ab91a05dc20906b06101ea8bca0cd2caf394a5cc141b05e86 \
+                rmd160  71aef9419eeca5f9fa59bb55990327c307f9ca31
+
+depends_build-append \
+                port:gnome-doc-utils \
+                port:intltool \
+                port:pkgconfig \
+                path:bin/xmkmf:imake
+
+depends_lib-append \
+                port:gtk2 \
+                port:gconf \
+                port:gnome-desktop \
+                port:libgnomekbd \
+                port:fontconfig \
+                port:policykit \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:harfbuzz \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:libxklavier \
+                port:libxml2 \
+                port:orbit2 \
+                port:startup-notification \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libXxf86misc \
+                port:xorg-libice \
+                port:xorg-libsm \
+                port:xorg-libxcb \
+                port:xorg-xcb-util \
+                port:xrender \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+depends_run-append \
+                port:xmodmap \
+                port:hicolor-icon-theme
+
+pre-configure {
+    reinplace "s|-bundle|-bundle -undefined dynamic_lookup|g" ${worksrcpath}/configure
+}
+
+configure.args-append \
+                --with-x \
+                --x-includes=${prefix}/include \
+                --x-libraries=${prefix}/lib \
+                --disable-pulse \
+                --disable-smartcard-support \
+                --disable-schemas-install \
+                --without-libnotify
+
+configure.env-append \
+                XMKMF=${prefix}/bin/xmkmf
+
+post-activate    {
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    system -W ${prefix} "export GCONF_CONFIG_SOURCE=`${prefix}/bin/gconftool-2 --get-default-source` && \
+        ${prefix}/bin/gconftool-2 --makefile-install-rule ${prefix}/etc/gconf/schemas/*.schemas"
+}
+
+livecheck.type  gnome

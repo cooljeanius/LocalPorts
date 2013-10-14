@@ -1,0 +1,109 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
+
+PortSystem      1.0
+
+name            Terminal
+version         0.4.5
+revision        4
+categories      xfce
+platforms       darwin linux
+license         GPL-2+
+maintainers     afb openmaintainer
+categories      xfce
+platforms       darwin
+description     ${name} is a modern terminal emulator for the Unix/Linux \
+                desktop.
+long_description ${description}
+homepage        http://goodies.xfce.org/projects/applications/terminal
+master_sites    http://www.xfce.org/archive/src/apps/terminal/0.4/
+use_bzip2       yes
+checksums       md5     3c707628e2e97c6d9566cd74d400036a \
+                sha1    8c23799922700b1f74dc7b7e029eec192d8ff62c \
+                rmd160  f0cbfdfabc5c3037508e3b52e938c3d62bc8c14b \
+                sha256  92fddcbc1422076672d8ec61832793d4ceea2fc0db7d724a6acde0ec2bac8893
+
+depends_build-append \
+                port:desktop-file-utils \
+                port:icon-naming-utils \
+                port:intltool \
+                port:pkgconfig \
+                port:xdg-utils \
+                port:xfce-utils \
+                path:bin/xmkmf:imake \
+                path:lib/pkgconfig/gnome-desktop-2.0.pc:gnome-desktop \
+                bin:gawk:gawk \
+                bin:grep:grep \
+                bin:gsed:gsed
+
+depends_lib-append \
+                port:exo \
+                port:vte \
+                port:gtk2 \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:harfbuzz \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:libxfce4util \
+                port:ncurses \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libice \
+                port:xorg-libsm \
+                port:xorg-libxcb \
+                port:xrender \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+depends_run-append \
+                port:desklaunch \
+                port:gnome-control-center \
+                port:gsettings-desktop-schemas \
+                port:hicolor-icon-theme \
+                port:openbrowser \
+                port:nimbus \
+                port:font-alias \
+                port:shared-desktop-ontologies \
+                port:xdg-utils \
+                port:xfdesktop \
+                path:share/themes/HighContrast/index.theme:gnome-themes-standard
+
+depends_skip_archcheck-append nimbus xfce-utils
+
+configure.args-append \
+                --enable-dbus \
+                --with-x \
+                --x-includes=${prefix}/include \
+                --x-libraries=${prefix}/lib \
+                --disable-silent-rules
+
+configure.env-append \
+                XMKMF=${prefix}/bin/xmkmf
+
+patchfiles-append \
+                patch-terminal-Makefile.in.diff
+
+post-activate {
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+}

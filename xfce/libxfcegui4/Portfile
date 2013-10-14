@@ -1,0 +1,80 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 111616 2013-09-27 13:40:42Z jmr@macports.org $
+
+PortSystem 1.0
+
+name            libxfcegui4
+version         4.6.4
+revision        6
+categories      xfce
+platforms       darwin linux
+license         LGPL-2+
+maintainers     afb openmaintainer
+description     various gtk widgets for xfce
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.2/src/
+use_bzip2       yes
+checksums       md5     88de59b222cb9977f93a4c61011c1e1f \
+                sha1    a12c79f8fa14c5d1fc0fca5615a451b7d23f8695 \
+                rmd160  4d790c3990372aa82581450e1b2a2dfd36df293b \
+                sha256  c37e407dc00fb87dc16758d53e69edeac7b32aa76c5fcad2b784cf22f58af421
+
+configure.args-append \
+                --enable-startup-notification \
+                --x-include=${prefix}/include \
+                --x-lib=${prefix}/lib
+
+depends_build-append \
+                port:intltool \
+                port:pkgconfig
+
+depends_lib-append \
+                port:libxfce4util \
+                port:xfconf \
+                path:lib/pkgconfig/gladeui-1.0.pc:glade3 \
+                port:libglade2 \
+                port:gtk-xfce-engine \
+                port:libxml2 \
+                port:startup-notification \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:graphite2 \
+                port:gtk2 \
+                port:harfbuzz \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libice \
+                port:xorg-libsm \
+                port:xorg-libxcb \
+                port:xorg-xcb-util \
+                port:xrender \
+                port:xz \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+post-activate {
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+}

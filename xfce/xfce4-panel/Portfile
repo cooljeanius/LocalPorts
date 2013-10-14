@@ -1,0 +1,119 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
+
+PortSystem      1.0
+
+name            xfce4-panel
+version         4.6.4
+revision        4
+categories      xfce
+platforms       darwin linux
+license         GPL-2+ LGPL-2+
+maintainers     afb openmaintainer
+description     The panel of the Xfce Desktop Environment
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.2/src/
+use_bzip2       yes
+checksums       md5     82f10a42aefca4cc26a6633e7478cc65 \
+                sha1    d2b310c036be84ed9886c06ae35b7a1a8eabfcb8 \
+                rmd160  35eaab8726a447b961024d433845f30804da4751 \
+                sha256  cc9b70bdc73ab80f46655a34cdbaf876a67cd90b50230cbf4d77a3106a5c54e7
+
+depends_build-append \
+                port:intltool \
+                port:pkgconfig \
+                port:gtk-doc \
+                port:gmake \
+                port:xfce4-dev-tools \
+                port:xorg-util-macros \
+                path:bin/glib-gettextize:glib2 \
+                path:bin/xmkmf:imake
+
+depends_skip_archcheck-append gtk-doc
+
+depends_lib-append \
+                port:libxfcegui4 \
+                port:libxfce4util \
+                port:exo \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                port:libwnck \
+                port:atk \
+                port:bzip2 \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:harfbuzz \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:startup-notification \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libXres \
+                port:xorg-libice \
+                port:xorg-libsm \
+                port:xorg-libxcb \
+                port:xorg-xcb-util \
+                port:xrender \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman
+
+depends_run-append \
+                port:hicolor-icon-theme \
+                port:tango-icon-theme
+
+patchfiles-append \
+                patch-config-launcher-icons.diff \
+                patch-configure.ac.diff \
+                patch-Makefile.am.diff
+
+pre-patch {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
+
+post-patch {
+    xinstall -d ${worksrcpath}/m4
+    eval xinstall -m 644 [glob ${filespath}/*.m4] ${worksrcpath}/m4
+    foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
+        xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
+    }
+}
+
+# Do NOT do intltool's INTLTOOL_PERL dance
+use_autoreconf  yes
+autoreconf.args -fvi
+
+configure.args-append \
+                --enable-startup-notification \
+                --with-x \
+                --x-includes=${prefix}/include \
+                --x-libraries=${prefix}/lib \
+                --enable-gtk-doc
+
+configure.env-append \
+                XMKMF=${prefix}/bin/xmkmf
+
+configure.ccache no
+configure.pipe   no
+
+use_parallel_build no
+
+platform darwin {
+        configure.args-append --disable-visibility
+}

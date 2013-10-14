@@ -1,0 +1,21 @@
+--- Makefile.am.orig	2013-10-02 18:14:52.000000000 -0400
++++ Makefile.am	2013-10-02 18:22:55.000000000 -0400
+@@ -1,5 +1,7 @@
+ # $Id$
+ 
++ACLOCAL_AMFLAGS = -I m4 --install
++
+ SUBDIRS =								\
+ 	config								\
+ 	icons								\
+@@ -17,8 +19,8 @@
+ 	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
+ 	@rm -f $(PACKAGE)-$(VERSION).tar.gz
+ 
+-html:
+-	make -C docs html
++html-local:
++	$(MAKE) -C docs html
+ 
+ .PHONY: ChangeLog
+ 

@@ -5,7 +5,7 @@ PortSystem      1.0
 PortGroup       github 1.0
 PortGroup       compiler_blacklist_versions 1.0
 
-github.setup    cooljeanius epeg 0.9.0 v
+github.setup    cooljeanius epeg 0.9.0.2 v
 revision        4
 description     An IMMENSELY FAST JPEG thumbnailer library API.
 license         permissive
@@ -42,10 +42,9 @@ variant autoreconf description {Regenerates configure script before building.} {
 }
 
 variant docs description {Build and install documentation} {
-    depends_build-append port:doxygen
-    post-build {
-        system -W ${worksrcpath} "${prefix}/bin/doxygen"
-    }
+    depends_build-append port:doxygen \
+                         bin:latex:texlive-latex \
+                         bin:dvips:texlive-basic
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${name}/man/man3
         xinstall -d ${destroot}${prefix}/share/doc/${name}/html
@@ -62,5 +61,7 @@ variant docs description {Build and install documentation} {
         eval xinstall [glob ${worksrcpath}/doc/html/*.css] ${destroot}${prefix}/share/doc/${name}/html
         eval xinstall [glob ${worksrcpath}/doc/*.html] ${destroot}${prefix}/share/doc/${name}
         eval xinstall [glob ${worksrcpath}/doc/*.css] ${destroot}${prefix}/share/doc/${name}
+        system -W ${worksrcpath} "${prefix}/bin/doxygen -u"
+        system -W ${worksrcpath} "${prefix}/bin/doxygen"
     }
 }

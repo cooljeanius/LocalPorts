@@ -1,0 +1,90 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 107757 2013-07-05 07:36:59Z jeremyhu@macports.org $
+
+PortSystem 1.0
+
+name            xfce-utils
+version         4.6.2
+revision        5
+categories      xfce sysutils
+platforms       darwin linux
+license         GPL-2+
+maintainers     afb openmaintainer
+description     Utilities for the Xfce Desktop Environment
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
+use_bzip2       yes
+checksums       md5     5d23407700d7e8c9751e17a5bc955109 \
+                sha1    6373886c3d70e576859741bde747a235567ffd8e \
+                rmd160  06c33863da0f80f16ef154307e4b89085bc3958f \
+                sha256  54efc2038bfbd5acaadfc91ed91fb3dfd6cec64f9402f364accce7bcafe2ba7a
+
+supported_archs noarch
+
+depends_build-append \
+                bin:perl:perl5 \
+                port:perl5.12 \
+                port:p5.12-xml-parser \
+                port:intltool \
+                port:xfce4-dev-tools \
+                port:pkgconfig \
+                port:gmake \
+                path:bin/glib-gettextize:glib2 \
+                port:gtk-doc
+
+depends_skip_archcheck-append gmake gtk-doc
+
+depends_lib-append \
+                port:libxfce4util \
+                port:libxfcegui4 \
+                port:xfconf
+
+depends_run-append \
+                port:midori
+
+patchfiles-append \
+                patch-configure.ac.diff \
+                patch-Makefile.am.diff
+
+pre-patch {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
+
+post-patch {
+    xinstall -d ${worksrcpath}/m4
+    eval xinstall -m 644 [glob ${filespath}/*.m4] ${worksrcpath}/m4
+    foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
+        xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
+    }
+}
+
+# Do NOT do intltool's INTLTOOL_PERL dance
+use_autoreconf  yes
+autoreconf.cmd  ${prefix}/bin/xdt-autogen
+autoreconf.env-append  \
+                NOCONFIGURE=1 \
+                XDT_PROG_GLIB_GETTEXTIZE="true >/dev/null 2>/dev/null" \
+                XDT_PROG_INTLTOOLIZE=${prefix}/bin/intltoolize \
+                XDT_PROG_LIBTOOLIZE="${prefix}/bin/glibtoolize --automake" \
+                XDT_PROG_GTKDOCIZE=${prefix}/bin/gtkdocize \
+                XDT_PROG_ACLOCAL=${prefix}/bin/aclocal \
+                XDT_PROG_AUTOHEADER=${prefix}/bin/autoheader \
+                XDT_PROG_AUTOMAKE=${prefix}/bin/automake \
+                XDT_PROG_AUTOCONF=${prefix}/bin/autoconf
+
+pre-configure {
+    system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
+}
+
+configure.perl  ${prefix}/bin/perl5.12
+configure.args-append \
+                --with-xsession-prefix=${prefix} \
+                --enable-maintainer-mode
+
+# make sure that midori is added to the browser search list
+configure.args-append \
+                --with-browser=midori
+
+build.type      gnu
+build.cmd       ${prefix}/bin/gmake

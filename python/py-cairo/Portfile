@@ -40,7 +40,8 @@ subport py25-cairo {
 }
 
 if {${name} != ${subport}} {
-    depends_build-append    port:pkgconfig port:py${python.version}-numpy
+    depends_build-append    port:pkgconfig \
+                            port:py${python.version}-numpy
     depends_lib-append      path:lib/pkgconfig/cairo.pc:cairo
 
     # pycairo distributes python 2.x versions as py2cairo

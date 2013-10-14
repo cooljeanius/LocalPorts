@@ -5,8 +5,9 @@ PortSystem          1.0
 PortGroup           archcheck 1.0
 
 name                gdal
+#TODO: update to 1.10
 version             1.9.2
-revision            6
+revision            7
 categories          gis
 license             MIT BSD
 platforms           darwin macosx
@@ -25,7 +26,8 @@ long_description    GDAL is a translator library for raster geospatial \
 
 homepage            http://www.${name}.org/
 master_sites        http://www.${name}.org/dl/ \
-                    http://download.osgeo.org/${name}/
+                    http://download.osgeo.org/${name}/ \
+                    http://download.osgeo.org/${name}/CURRENT
 
 checksums           rmd160  1ab34a85946bae4313cbd925cdbbf728d23d7b57 \
                     sha256  9f3b9ae968eaa8d06ee5448e5b65e7bfa940e2e345282a29d95275421f36c688
@@ -97,7 +99,7 @@ configure.args-append       --with-local=${prefix} \
                             --mandir=${prefix}/share/man
 
 # Patch to ensure that the python installation respects DESTDIR
-patchfiles                  patch-swig_python_GNUmakefile.diff \
+patchfiles-append           patch-swig_python_GNUmakefile.diff \
                             patch-gdalwarpkernel_opencl_c.diff \
                             patch-gdalwarpkernel_opencl_h.diff
 
@@ -433,8 +435,9 @@ platform macosx {
     }
 }
 
-variant huge requires curl expat geos hdf5 mysql5 netcdf opencl postgresql82 postgresql84 \
-                      postgresql90 postgresql91 postgresql92 spatialite sqlite3 \
+variant huge requires curl expat geos hdf5 mysql5 netcdf opencl \
+                      postgresql82 postgresql84 postgresql90 postgresql91 \
+                      postgresql92 sqlite3 \
                       description {Pull in as many dependencies as possible} {
     configure.args-delete   --without-lzma \
                             --without-pg \
@@ -550,15 +553,17 @@ description {Extra dependencies that are not universal} {
                             port:swig-php \
                             port:pear-Net_Curl \
                             port:mdbtools
-    depends_skip_archcheck lzma postgresql83 wgrib2 ocilib couchdb mdbtools
+    depends_skip_archcheck-append \
+                            lzma postgresql83 wgrib2 ocilib couchdb \
+                            mdbtools
     configure.args-append   --with-php \
                             --with-msg \
                             --with-oci
 }
 
-#variant broken requires postgreql81 extra_nonuniversal poppler xerces \
-#conflicts universal description {dependencies that do not even work \
-#even when not building universal} {
+#variant broken requires postgreql81 extra_nonuniversal poppler \
+#spatialite xerces conflicts universal description {dependencies that do \
+#not even work even when not building universal} {
 #    depends_lib-append      port:pamtester \
 #                            port:svdlibc \
 #                            port:sam2p
@@ -582,6 +587,13 @@ variant autoreconf description {Runs autoreconf before configuring} {
     depends_build-append    port:gawk \
                             port:grep \
                             port:gsed
+}
+
+# Perf variant to optimize code
+variant perf description {Optimize for speed} {
+    configure.compiler      macports-clang-3.3
+    configure.optflags      -O3 -march=native
+    configure.pipe          yes
 }
 
 default_variants            +expat

@@ -1,0 +1,106 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 99422 2012-11-05 00:48:31Z jmr@macports.org $
+
+PortSystem 1.0
+
+name            Thunar
+version         1.0.2
+revision        7
+categories      xfce x11
+platforms       darwin linux
+license         GPL-2+ LGPL-2+
+maintainers     afb openmaintainer
+description     Thunar is a modern file manager for the Unix/Linux desktop
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.2/src/
+use_bzip2       yes
+checksums       md5     c91073202d373a1f9951a1240083c36d \
+                sha1    f7ae00c32402e4bc502aba15477b78e2c558c7c3 \
+                rmd160  c5b98203353cef7312b736053e5a7678d0644272 \
+                sha256  75829b34a68346b33f66882bedc9794d580c200d11af22541885750459b55c03
+
+configure.args-append \
+                --enable-dbus \
+                --enable-startup-notification \
+                --enable-pcre \
+                --enable-exif
+
+depends_build-append \
+                port:intltool \
+                port:pkgconfig
+
+depends_lib-append \
+                port:exo \
+                port:pcre \
+                port:libexif \
+                port:shared-mime-info \
+                port:desktop-file-utils \
+                port:startup-notification \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gconf \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:jpeg \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:libxfce4util \
+                port:libxfcegui4 \
+                port:ncurses \
+                port:orbit2 \
+                port:xfce4-panel \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libice \
+                port:xorg-libsm \
+                port:xorg-libxcb \
+                port:xorg-xcb-util \
+                port:xrender \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+patchfiles-append \
+                patch-thunar-metafile.c.diff \
+                patch-thunar-vfs-exec.c.diff
+
+# there is no "x11" variant here, as that is the default
+# so therefore the quartz variant does NOT need to declare a conflict
+# against it
+variant quartz {
+    categories-delete     x11
+    configure.args-delete --enable-startup-notification
+    configure.args-append --disable-startup-notification
+    depends_lib-delete    port:startup-notification
+    configure.args-append --disable-wallpaper-plugin
+}
+
+platform darwin {
+        configure.args-append --disable-visibility
+        if {${os.major} >= 10} {
+            patchfiles-append patch-configure-snow.diff
+        }
+}
+
+post-activate {
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+}

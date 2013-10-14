@@ -8,7 +8,7 @@ PortGroup       archcheck 1.0
 name            gimp2
 # please remember to update the gimp metapackage to match
 version         2.8.6
-revision        3
+revision        4
 license         {GPL-2+ LGPL}
 categories      graphics gnome
 maintainers     devans
@@ -25,8 +25,8 @@ long_description \
 set branch      [join [lrange [split ${version} .] 0 1] .]
 master_sites    gimp:gimp/v${branch}/
 
-checksums       sha256  e24a9f826e7c30edb83d96f4cf4787cf1a0ed98f28ea947d19736b4f49787ab5 \
-                rmd160  75cd2eded1949edefc1f6717d4785090c29a50f9
+checksums       sha256  215865b0ff4534bbced551995ae3093ede1918246ead914984603a5c1a5be845 \
+                rmd160  573da746b242c9c3f47bb5ed7fa1c5b475d7d700
 
 distname        gimp-${version}
 
@@ -96,8 +96,7 @@ configure.args-append \
                 --without-gudev \
                 --without-webkit \
                 --without-mac-twain \
-                --disable-debug \
-                --disable-gimp-remote
+                --disable-debug
 
 # --without-mac-twain:
 #     Leopard's 64bit Carbon is missing QuitApplicationEventLoop
@@ -149,10 +148,7 @@ variant gvfs description {Enable gvfs support} {
     configure.args-append   --with-gvfs
 }
 
-variant remote description {Enable building of obsolete gimp-remote helper app} {
-    configure.args-delete   --disable-gimp-remote
-    configure.args-append   --enable-gimp-remote
-}
+variant remote description {Legacy compatibility variant} {}
 
 variant debug description {Enable debugging} {
     configure.args-delete  --disable-debug
@@ -193,7 +189,7 @@ if {![variant_isset quartz]} {
     default_variants-append +help_browser
 }
 
-variant huge requires debug gvfs remote description {Pulls in many dependencies; unsupported} {
+variant huge requires debug gvfs description {Pulls in many dependencies; unsupported} {
     configure.args-append \
                 --disable-silent-rules \
                 --enable-gtk-doc
@@ -226,18 +222,22 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:xrender
     }
     depends_build-append \
+                 port:dvipng \
                  port:gawk \
                  port:grep \
                  port:gsed \
-                 path:bin/nm:cctools \
                  port:gettext \
-                 port:makeicns \
-                 port:libtool \
-                 port:libxslt \
                  port:gtk-doc \
-                 port:autoconf \
-                 port:automake \
-                 path:bin/git:git-core
+                 port:icoconvert \
+                 port:makeicns \
+                 port:sgml-common \
+                 port:xorg-sgml-doctools \
+                 path:bin/nm:cctools \
+                 path:bin/git:git-core \
+                 bin:gdk-pixbuf-csource:gdk-pixbuf2 \
+                 bin:perl:perl5 \
+                 bin:xmllint:libxml2 \
+                 bin:xsltproc:libxslt
     # intltool needs to be run with the correct version of perl
     configure.env-append INTLTOOL_PERL=${prefix}/bin/perl5.12
     depends_lib-append \
@@ -254,77 +254,85 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:tclcurl \
                  port:libiconv \
                  port:atk \
-                 port:glib2 \
                  port:gdk-pixbuf2 \
-                 path:lib/pkgconfig/pixman-1.pc:libpixman \
-                 path:lib/pkgconfig/cairo.pc:cairo \
-                 path:lib/pkgconfig/pango.pc:pango \
                  port:fontconfig \
                  port:freetype \
                  port:tiff \
                  port:stiff \
                  port:libgeotiff \
-                 path:bin/jpegtran:jpeg \
                  port:epeg \
-                 port:jp2a \
-                 port:jpegoptim \
-                 port:jpegpixi \
-                 port:mjpegtools \
                  port:zlib \
                  port:bzip2 \
-                 path:bin/gs:ghostscript \
-                 path:bin/libpng-config:libpng \
-                 port:advancecomp \
-                 port:dvipng \
                  port:gd2 \
-                 port:icoconvert \
                  port:libicns \
-                 port:optipng \
-                 port:pngcrush \
-                 port:pngpp \
-                 port:exif \
-                 port:exiftags \
-                 port:exiv2 \
-                 port:pdf2svg \
                  port:librsvg \
-                 port:flickcurl \
                  port:jasper \
                  port:dbus \
                  port:dbus-glib \
-                 port:perl5 \
                  port:libxml2 \
                  port:libxslt \
                  port:lcms2 \
                  port:libgphoto2 \
-                 port:xcursorgen \
-                 port:xv \
                  port:xorg-libXvMC \
                  port:xvinfo \
                  port:gobject-introspection \
-                 port:sgml-common \
                  port:libsgml \
-                 port:xorg-sgml-doctools \
                  port:libgtkhtml \
                  port:harfbuzz \
                  port:libsoup \
                  port:babl \
+                 port:c-ares \
+                 port:cyrus-sasl2 \
                  port:expat \
                  port:gettext \
                  port:graphite2 \
+                 port:libcomerr \
                  port:libcroco \
+                 port:libfetch \
                  port:libidn \
+                 port:libssh2 \
                  port:ncurses \
-                 port:openjpeg \
+                 port:openjpeg15 \
+                 port:openldap \
                  port:openssl \
-                 port:xz
+                 port:xz \
+                 path:lib/pkgconfig/pixman-1.pc:libpixman \
+                 path:lib/pkgconfig/cairo.pc:cairo \
+                 path:lib/pkgconfig/pango.pc:pango \
+                 path:bin/jpegtran:jpeg \
+                 path:bin/gs:ghostscript \
+                 path:bin/libpng-config:libpng \
+                 path:lib/pkgconfig/glib-2.0.pc:glib2
+
     depends_run-append \
-                 port:libsvg-cairo \
+                 port:advancecomp \
+                 port:dvipng \
+                 port:exif \
+                 port:exiftags \
+                 port:exiv2 \
+                 port:flickcurl \
                  port:gdk-pixbuf \
-                 port:png2ico \
+                 port:icoconvert \
+                 port:jhead \
+                 port:jp2a \
                  port:jpeg2ps \
+                 port:jpegoptim \
+                 port:jpegpixi \
+                 port:libsvg-cairo \
+                 port:mjpegtools \
+                 port:optipng \
+                 port:pdf2svg \
+                 port:png2ico \
+                 port:pngcrush \
+                 port:pngpp \
                  port:twain-sane \
-                 port:jhead
-    depends_skip_archcheck-append jhead twain-sane jpeg2ps png2ico libsvg-cairo gdk-pixbuf gtk-doc
+                 port:sgml-common \
+                 port:xcursorgen \
+                 port:xorg-sgml-doctools \
+                 bin:perl:perl5
+
+    depends_skip_archcheck-append jhead twain-sane jpeg2ps png2ico \
+                                  libsvg-cairo gdk-pixbuf gtk-doc
     if {[variant_isset python25]} {
         depends_lib-append \
                  port:py25-fpconst \
@@ -333,7 +341,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py25-curl \
                  port:dbus-python25 \
                  port:py25-pygtksourceview \
-                 port:py25-libxslt \
                  port:pear-CodeGen
         if {[variant_isset help_browser]} {
             depends_lib-append \
@@ -349,7 +356,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py26-curlish \
                  port:dbus-python26 \
                  port:py26-pygtksourceview \
-                 port:py26-libxslt \
                  port:py26-gtkhtml2
         if {[variant_isset help_browser]} {
             depends_lib-append \
@@ -364,7 +370,6 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
                  port:py27-curlish \
                  port:dbus-python27 \
                  port:py27-pygtksourceview \
-                 port:py27-libxslt \
                  port:py27-gtkhtml2
         if {[variant_isset help_browser]} {
             depends_lib-append \
@@ -372,10 +377,14 @@ variant huge requires debug gvfs remote description {Pulls in many dependencies;
         }
     }
     if {[variant_isset help_browser]} {
-        depends_lib-append \
+        depends_build-append \
                  port:html \
-                 port:xhtml1 \
+                 port:xhtml1
+        depends_lib-append \
                  port:libgtkhtml3
+        depends_run-append \
+                 port:html \
+                 port:xhtml1
     }
     configure.cppflags-delete -Wunknown-warning-option \
                               -Wformat-non-literal \

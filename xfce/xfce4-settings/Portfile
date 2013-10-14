@@ -1,0 +1,129 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 107757 2013-07-05 07:36:59Z jeremyhu@macports.org $
+
+PortSystem      1.0
+
+name            xfce4-settings
+version         4.6.5
+revision        4
+categories      xfce
+platforms       darwin linux
+license         GPL-2+
+maintainers     afb openmaintainer
+description     Settings Manager that replaces the previous \
+                xfce-mcs-manager
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.2/src/
+use_bzip2       yes
+checksums       md5     f988cb732913b5fbc115ad7105d2231e \
+                sha1    c036cc2f3100a46b2649e678dff7c0106b219263 \
+                rmd160  a8155346285921f3087795598989df287be8abb4 \
+                sha256  1601b8d2cac5d931c39bed7e331c5bd91018d0e56663295e7a083a2c78fe168b
+
+depends_build-append \
+                port:intltool \
+                port:xfce4-dev-tools \
+                port:pkgconfig \
+                port:gmake \
+                port:gtk-doc \
+                path:bin/glib-gettextize:glib2
+
+depends_lib-append \
+                port:libxfcegui4 \
+                port:exo \
+                port:libwnck \
+                port:xorg-libX11 \
+                port:xorg-libXcursor \
+                port:xorg-libXi \
+                port:xorg-libXrandr \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:graphite2 \
+                port:gtk2 \
+                port:harfbuzz \
+                port:libffi \
+                port:libglade2 \
+                port:libiconv \
+                port:libpng \
+                port:libxfce4util \
+                port:libxklavier \
+                port:libxml2 \
+                port:startup-notification \
+                port:xfconf \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXinerama \
+                port:xorg-libXres \
+                port:xorg-libice \
+                port:xorg-libsm \
+                port:xorg-libxcb \
+                port:xorg-libxkbfile \
+                port:xorg-xcb-util \
+                port:xrender \
+                port:xz \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+post-patch {
+    xinstall -d ${worksrcpath}/m4
+    eval xinstall -m 644 [glob ${filespath}/*.m4] ${worksrcpath}/m4
+    foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
+        xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
+    }
+}
+
+# Do NOT do intltool's INTLTOOL_PERL dance
+use_autoreconf  yes
+autoreconf.cmd  ${prefix}/bin/xdt-autogen
+autoreconf.env-append \
+                NOCONFIGURE=1 \
+                XDT_PROG_GLIB_GETTEXTIZE="true >/dev/null 2>/dev/null" \
+                XDT_PROG_INTLTOOLIZE=${prefix}/bin/intltoolize \
+                XDT_PROG_GTKDOCIZE=${prefix}/bin/gtkdocize \
+                XDT_PROG_LIBTOOLIZE="${prefix}/bin/glibtoolize --automake" \
+                XDT_PROG_ACLOCAL="${prefix}/bin/aclocal -I m4 --install" \
+                XDT_PROG_AUTOHEADER=${prefix}/bin/autoheader \
+                XDT_PROG_AUTOMAKE=${prefix}/bin/automake \
+                XDT_PROG_AUTOCONF=${prefix}/bin/autoconf
+
+pre-configure {
+    system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
+}
+
+configure.args-append \
+                --disable-libnotify
+
+build.type      gnu
+build.cmd       ${prefix}/bin/gmake
+
+platform darwin 8 {
+    patchfiles-append    patch-configure.diff
+    configure.env-append PKG_CONFIG_PATH="${prefix}/lib/pkgconfig" \
+                         XI_VERSION="1.0.0" \
+                         XI_CFLAGS="-I${prefix}/include" \
+                         XI_LIBS="-L${prefix}/lib -lXi" \
+                         LIBX11_VERSION="6.2.0" \
+                         LIBX11_CFLAGS="-I${prefix}/include" \
+                         LIBX11_LIBS="-L${prefix}/lib -lX11" \
+                         XRANDR_VERSION="2.0.0" \
+                         XRANDR_CFLAGS="-I${prefix}/include" \
+                         XRANDR_LIBS="-L${prefix}/lib -lXrandr" \
+                         XCURSOR_VERSION="1.0.0" \
+                         XCURSOR_CFLAGS="-I${prefix}/include" \
+                         XCURSOR_LIBS="-L${prefix}/lib -lXcursor"
+}
