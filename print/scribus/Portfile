@@ -1,0 +1,94 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 110936 2013-09-10 16:40:14Z takanori@macports.org $
+
+PortSystem          1.0
+PortGroup           cmake 1.0
+PortGroup           qt4 1.0
+
+name                scribus
+epoch               1
+version             1.4.2
+revision            2
+categories          print
+license             GPL-2+
+platforms           darwin
+maintainers         nomaintainer
+
+description         qt4-based WYSIWYG desktop publishing application
+
+long_description    Scribus is an open source desktop publishing program. \
+                    It provides true WYSIWYG editing, excellent PDF \
+                    export facilities, and a wide range of other input \
+                    and output options.
+
+homepage            http://www.${name}.net/
+master_sites        sourceforge:project/${name}/${name}/${version}
+use_xz              yes
+
+checksums \
+    rmd160  e09cfe116f12097ba77205247ce016d96d5c61ee \
+    sha256  b951d47913e800b31675fec94ae4e81dc2ee0247506a9218211db62da6386563
+
+# Builds forever with llvm-gcc-4.2. https://trac.macports.org/ticket/30835
+compiler.blacklist-append   *llvm-gcc-4.2
+
+depends_build-append \
+                    path:bin/perl:perl5
+
+depends_lib-append  port:fontconfig \
+                    port:ghostscript \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    port:boost \
+                    port:expat \
+                    port:libart_lgpl \
+                    port:libiconv \
+                    port:lcms \
+                    port:libxml2 \
+                    port:tiff \
+                    port:zlib \
+                    port:aspell \
+                    port:lcms2 \
+                    port:freetype
+
+set PyFRM           ${frameworks_dir}/Python.framework/Versions
+
+patchfiles-append   patch-CMakeLists.txt.diff
+
+configure.args-append \
+                    -DCMAKE_INSTALL_PREFIX="${applications_dir}" \
+                    -DWITH_PODOFO=NO \
+                    -DFREETYPE_INCLUDE_DIR_ft2build=${prefix}/include \
+                    -DFREETYPE_INCLUDE_DIR_freetype2=${prefix}/include/freetype2 \
+                    -DFREETYPE_LIBRARY=${prefix}/lib/libfreetype.dylib \
+                    -DFONTCONFIG_INCLUDE_DIR=${prefix}/include \
+                    -DFONTCONFIG_LIBRARY=${prefix}/lib/libfontconfig.dylib \
+                    -DWITH_ASPELL=ON \
+                    -DWANT_HUNSPELL=ON
+
+variant python26 conflicts python27 description {Add python 2.6 interface} {
+    depends_lib-append      port:python26
+    configure.args-append   -DPYTHON_LIBRARY="${prefix}/lib/libpython2.6.dylib"
+    configure.args-append   -DPYTHON_INCLUDE_DIR="${PyFRM}/2.6/include/python2.6"
+}
+
+variant python27 conflicts python26 description {Add python 2.7 interface} {
+    depends_lib-append      port:python27
+    configure.args-append   -DPYTHON_LIBRARY="${prefix}/lib/libpython2.7.dylib"
+    configure.args-append   -DPYTHON_INCLUDE_DIR="${PyFRM}/2.7/include/python2.7"
+}
+
+variant podofo description {Use podofo} {
+    depends_lib-append      port:podofo
+    configure.args-delete   -DWITH_PODOFO=NO
+    configure.args-append   -DWITH_PODOFO=YES
+}
+
+build.env           HOME=${worksrcpath}
+use_parallel_build  yes
+
+if {![variant_isset debug]} {
+    destroot.target install-strip
+} else {
+    configure.args-append \
+                    --debug-output
+}

@@ -1,0 +1,106 @@
+--- CMakeLists.txt.orig	2013-10-15 11:15:17.000000000 -0400
++++ CMakeLists.txt	2013-10-15 11:17:49.000000000 -0400
+@@ -42,35 +42,6 @@
+ ##############################################################################################################
+ ########## toplevel compiler flags                                                                  ##########
+ 
+-# CHECK_C_COMPILER_FLAG(" ${CMAKE_SHARED_LIBRARY_C_FLAGS}" C_HAVE_PIC)
+-# CHECK_CXX_COMPILER_FLAG(" ${CMAKE_SHARED_LIBRARY_C_FLAGS}" CXX_HAVE_PIC)
+-# IF (CXX_HAVE_PIC AND C_HAVE_PIC)
+-#     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
+-#     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
+-# ELSE (CXX_HAVE_PIC AND C_HAVE_PIC)
+-#     MESSAGE(FATAL_ERROR "Shared library support is missing")
+-# ENDIF (CXX_HAVE_PIC AND C_HAVE_PIC)
+-
+-# SET(CMAKE_SHARED_MODULE_LINK_FLAGS "${CMAKE_SHARED_MODULE_LINK_FLAGS} -export-dynamic")
+-# SET(CMAKE_SHARED_MODULE_LINK_CXX_FLAGS "${CMAKE_SHARED_MODULE_LINK_CXX_FLAGS} -export-dynamic")
+-# SET(CMAKE_SHARED_LIBRARY_C_FLAGS "${CMAKE_SHARED_LIBRARY_C_FLAGS} -export-dynamic")
+-# SET(CMAKE_SHARED_LIBRARY_CXX_FLAGS "${CMAKE_SHARED_LIBRARY_CXX_FLAGS} -export-dynamic")
+-# MESSAGE(STATUS ${CMAKE_SHARED_MODULE_LINK_FLAGS})
+-# MESSAGE(STATUS ${CMAKE_SHARED_MODULE_LINK_CXX_FLAGS})
+-# MESSAGE(STATUS ${CMAKE_SHARED_LIBRARY_C_FLAGS})
+-# MESSAGE(STATUS ${CMAKE_SHARED_LIBRARY_CXX_FLAGS})
+-# MESSAGE(STATUS ${CMAKE_CXX_CREATE_SHARED_MODULE})
+-# MESSAGE(STATUS ${CMAKE_CXX_CREATE_SHARED_LIBRARY})
+-
+-#IMPORT FROM COMMANDLINE
+-# SET with cmake -DWANT_CAIRO=1, etc
+-# MESSAGE(STATUS ${WANT_CAIRO})
+-# MESSAGE(STATUS ${WANT_LIBART})
+-# MESSAGE(STATUS ${WANT_DEBUG})
+-
+-# SET(WANT_CAIRO 0)
+-# SET(WANT_LIBART 1)
+-
+ #Project Setup
+ PROJECT(scribus)
+ #Set our version values
+@@ -420,7 +391,7 @@
+ ELSE(APPLE)
+   IF(${CMAKE_GENERATOR} MATCHES "^(Visual Studio|NMake).*")
+     # Windows build with Visual Studio
+-    # Surely there's a better way to identify the compiler?
++    # Surely there is a better way to identify the compiler?
+     SET(CMAKE_CXX_FLAGS_DEBUG)
+     SET(CMAKE_C_FLAGS_DEBUG)
+   ELSE(${CMAKE_GENERATOR} MATCHES "^(Visual Studio|NMake).*")
+@@ -716,13 +687,16 @@
+ #>>PoDoFo for AI PDF import
+ 
+ #<<HYPHEN for system hyphenation library
+-FIND_PACKAGE(HYPHEN)
+-IF(HYPHEN_FOUND)
+-  MESSAGE("system hyphenation library found OK")
+-  SET(HAVE_HYPHEN 1)
+-ELSE(HYPHEN_FOUND)
+-  MESSAGE("system hyphenation library NOT found - will use internal one")
+-ENDIF(HYPHEN_FOUND)
++OPTION(WITH_HYPHEN "Enable support for the system hyphenation library" OFF)
++IF (WITH_HYPHEN)
++  FIND_PACKAGE(HYPHEN)
++  IF(HYPHEN_FOUND)
++    MESSAGE("system hyphenation library found OK")
++    SET(HAVE_HYPHEN 1)
++  ELSE(HYPHEN_FOUND)
++    MESSAGE("system hyphenation library NOT found - will use internal one")
++  ENDIF(HYPHEN_FOUND)
++ENDIF (WITH_HYPHEN)
+ #>>HYPHEN for system hyphenation library
+ 
+ ##############################################################################################################
+@@ -741,14 +715,14 @@
+ ENDIF(HAVE_UNISTD_H)
+ 
+ CHECK_INCLUDE_FILE("sys/types.h" HAVE_SYS_TYPES_H)
+-# IF(HAVE_SYS_TYPES_H)
+-#   ADD_DEFINITIONS(-DHAVE_SYS_TYPES_H)
+-# ENDIF(HAVE_SYS_TYPES_H)
++IF(HAVE_SYS_TYPES_H)
++  ADD_DEFINITIONS(-DHAVE_SYS_TYPES_H)
++ENDIF(HAVE_SYS_TYPES_H)
+ 
+ CHECK_INCLUDE_FILE("sys/stat.h" HAVE_SYS_STAT_H)
+-# IF(HAVE_SYS_STAT_H)
+-#   ADD_DEFINITIONS(-DHAVE_SYS_STAT_H)
+-# ENDIF(HAVE_SYS_STAT_H)
++IF(HAVE_SYS_STAT_H)
++  ADD_DEFINITIONS(-DHAVE_SYS_STAT_H)
++ENDIF(HAVE_SYS_STAT_H)
+ #>>Test for existing include files
+ 
+ 
+@@ -842,13 +816,6 @@
+   DESTINATION ${MIMELNKDIR}
+ )
+ 
+-## PL We may not need this anymore
+-#Install the desktop file
+-## INSTALL(FILES
+- # scribus.desktop
+- # #DESTINATION ${DESKTOPDIR}
+-#)
+-
+ #If building an Apple bundle, install these specific files
+ IF(APPLEBUNDLE)
+   INSTALL(FILES
