@@ -1,0 +1,119 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 109901 2013-08-21 16:06:27Z mww@macports.org $
+
+PortSystem          1.0
+
+name                xscreensaver
+version             5.22
+revision            2
+categories          x11
+platforms           darwin
+maintainers         mww openmaintainer
+license             X11
+description         X11 screen saver
+long_description    The xscreensaver program waits until the keyboard and \
+                    mouse have been idle for a period, and then runs a \
+                    graphics demo chosen at random.
+
+homepage            http://www.jwz.org/xscreensaver/
+master_sites        ${homepage}
+checksums           rmd160  b05b7ed5fd4a6ef2ca770ff4784c6ea54435dd6b \
+                    sha256  47b703ed22dce46a08f11ddd7d67d52e4f7ad8df844bdf956431069a0db36797
+
+depends_build-append \
+                    port:pkgconfig \
+                    port:gettext \
+                    port:intltool \
+                    path:bin/xmkmf:imake \
+                    bin:grep:grep \
+                    bin:perl:perl5
+
+depends_lib-append  port:gtk2 \
+                    port:libglade2 \
+                    port:xpm \
+                    port:xorg-libXmu \
+                    port:atk \
+                    port:fontconfig \
+                    port:freetype \
+                    port:gdk-pixbuf2 \
+                    port:gettext \
+                    port:jpeg \
+                    port:libgnome \
+                    port:libxml2 \
+                    port:mesa \
+                    port:xorg-libX11 \
+                    port:xorg-libXcomposite \
+                    port:xorg-libXcursor \
+                    port:xorg-libXdamage \
+                    port:xorg-libXext \
+                    port:xorg-libXfixes \
+                    port:xorg-libXi \
+                    port:xorg-libXinerama \
+                    port:xorg-libXrandr \
+                    port:xorg-libXt \
+                    port:xorg-libXxf86misc \
+                    port:xorg-libXxf86vm \
+                    port:xorg-libice \
+                    port:xorg-libsm \
+                    port:xrender \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    path:lib/pkgconfig/pango.pc:pango
+
+configure.args-append \
+                    --with-gtk \
+                    --without-motif \
+                    --x-includes=${prefix}/include \
+                    --x-libraries=${prefix}/lib \
+                    --enable-largefile \
+                    --with-pixbuf \
+                    --with-xpm \
+                    --with-jpeg \
+                    --with-x-app-defaults=${prefix}/share/X11/app-defaults \
+                    --with-xinerama-ext \
+                    --with-xinput-ext \
+                    --with-xf86vmode-ext \
+                    --with-xf86gamma-ext \
+                    --with-randr-ext \
+                    --with-gl \
+                    --with-xshm-ext \
+                    --with-xdbe-ext \
+                    --with-dpms-ext
+
+configure.universal_args-delete \
+                    --disable-dependency-tracking
+
+configure.env-append \
+                    XMKMF=${prefix}/bin/xmkmf
+
+configure.ldflags-append \
+                    -lintl \
+                    -ljpeg
+
+use_parallel_build  no
+
+build.env-append    LC_CTYPE=C
+
+platform macosx {
+    PortGroup       xcodeversion 1.0
+    categories-append aqua
+    depends_build-append \
+                    bin:seticon:osxutils \
+                    port:ImageMagick
+    depends_skip_archcheck-append osxutils
+    post-build {
+        reinplace "s|/usr/local/bin|${prefix}/bin|g" ${worksrcpath}/OSX/update-info-plist.pl
+        #TODO: get the Xcode project to build
+    }
+}
+
+destroot.destdir    install_prefix=${destroot}
+post-destroot {
+    if {[file isdirectory ${destroot}/usr]} {
+        file delete -force ${destroot}/usr
+    }
+}
+
+livecheck.type      regex
+livecheck.url       http://www.jwz.org/xscreensaver/download.html
+livecheck.regex     xscreensaver-(\[0-9\.\]+).tar.gz

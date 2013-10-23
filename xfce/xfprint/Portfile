@@ -1,0 +1,81 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 107757 2013-07-05 07:36:59Z jeremyhu@macports.org $
+
+PortSystem      1.0
+
+name            xfprint
+version         4.6.1
+revision        3
+categories      xfce
+platforms       darwin linux
+license         GPL-2+
+maintainers     afb openmaintainer
+description     Print dialog and printer manager for Xfce 4
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
+use_bzip2       yes
+checksums       md5     d92fca97a42816085080baf07a99a62e \
+                sha1    4ce98c49d49b2d4c1a8fb5d76597b8e9ab9a51e8 \
+                rmd160  8df81375cbc72eabd95911997210c8fa864bcf0b \
+                sha256  be0cc5d149234c22dee69db5f8cbddebc46bc21a4f96fefdec21df36b2a15f17
+
+depends_build-append \
+                port:libxfce4util \
+                port:libxfcegui4 \
+                port:xfconf \
+                port:intltool \
+                port:xfce4-dev-tools \
+                port:pkgconfig \
+                port:a2ps
+
+depends_lib-append \
+                port:libxfcegui4 \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:libxfce4util \
+                port:xfconf \
+                port:Xft2 \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libxcb \
+                port:xrender \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+depends_run-append \
+                port:a2ps
+
+# Do NOT do intltool's INTLTOOL_PERL dance
+configure.cmd   ${prefix}/bin/xdt-autogen
+configure.env-append XDT_PROG_LIBTOOLIZE=glibtoolize
+
+configure.args-append --enable-cups
+
+configure.ldflags-append "-lXft -lfontconfig -lXrender -lXext -lXinerama -lXrandr"
+
+post-activate {
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+}

@@ -1,0 +1,64 @@
+--- m4/debug.m4.orig	2013-10-18 08:32:08.000000000 -0400
++++ m4/debug.m4	2013-10-18 08:35:09.000000000 -0400
+@@ -1,21 +1,21 @@
+-dnl From Benedikt Meurer (benedikt.meurer@unix-ag.uni-siegen.de)
+-dnl
+-dnl if debug support is requested:
+-dnl
+-dnl   1) defines DEBUG to 1
+-dnl   2) adds requested debug level flags to CFLAGS
+-dnl
++dnl# From Benedikt Meurer (benedikt.meurer@unix-ag.uni-siegen.de)
++dnl#
++dnl# if debug support is requested:
++dnl#
++dnl#   1) defines DEBUG to 1
++dnl#   2) adds requested debug level flags to CFLAGS
++dnl#
+ 
+ AC_DEFUN([BM_DEBUG_SUPPORT],
+ [
+   AC_ARG_ENABLE([debug],
+-AC_HELP_STRING([--enable-debug[=yes|no|full]], [Build with debugging support])
+-AC_HELP_STRING([--disable-debug], [Include no debugging support [default]]),
+-    [], [enable_debug=no])
++AS_HELP_STRING([--enable-debug[=yes|no|full]],[Build with debugging support])
++AS_HELP_STRING([--disable-debug],[Include no debugging support [default]]),
++    [],[enable_debug=no])
+ 
+   AC_MSG_CHECKING([whether to build with debugging support])
+   if test x"$enable_debug" != x"no"; then
+-    AC_DEFINE(DEBUG, 1, Define for debugging support)
++    AC_DEFINE([DEBUG],[1],[Define for debugging support])
+     if test x"$enable_debug" = x"full"; then
+       AC_DEFINE(DEBUG_TRACE, 1, Define for tracing support)
+       CFLAGS="$CFLAGS -g3 -Wall -Werror -DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED"
+@@ -29,11 +29,11 @@
+   fi
+ 
+   AC_ARG_ENABLE([profiling],
+-AC_HELP_STRING([--enable-profiling],
++AS_HELP_STRING([--enable-profiling],
+     [Generate extra code to write profile information])
+-AC_HELP_STRING([--disable-profiling],
++AS_HELP_STRING([--disable-profiling],
+     [No extra code for profiling (default)]),
+-    [], [enable_profiling=no])
++    [],[enable_profiling=no])
+ 
+   AC_MSG_CHECKING([whether to build with profiling support])
+   if test x"$enable_profiling" != x"no"; then
+@@ -44,10 +44,10 @@
+   fi
+ 
+   AC_ARG_ENABLE([asserts],
+-AC_HELP_STRING([--enable-asserts], [Enable assert statements (default)])
+-AC_HELP_STRING([--disable-asserts],
++AS_HELP_STRING([--enable-asserts],[Enable assert statements (default)])
++AS_HELP_STRING([--disable-asserts],
+     [Disable assert statements (USE WITH CARE!!!)]),
+-    [], [enable_asserts=yes])
++    [],S[enable_asserts=yes])
+ 
+   AC_MSG_CHECKING([whether to enable assert statements])
+   if test x"$enable_asserts" != x"yes"; then

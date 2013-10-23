@@ -36,7 +36,6 @@ depends_lib-append \
                 port:libxfcegui4 \
                 port:libxfce4util \
                 port:exo \
-                path:lib/pkgconfig/cairo.pc:cairo \
                 port:libwnck \
                 port:atk \
                 port:bzip2 \

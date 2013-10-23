@@ -1,0 +1,53 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
+
+PortSystem      1.0
+
+name            xfce4-dev-tools
+version         4.6.0
+revision        2
+categories      xfce devel
+platforms       darwin linux
+license         GPL-2+
+maintainers     afb openmaintainer
+description     A collection of tools and macros for Xfce developer
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.2/src/
+checksums       md5     c9587fa78e877eee858a33391d0afd62 \
+                sha1    a5a5cbc9e5f84f4939e53e3327c51f4b749c38a2 \
+                rmd160  ff2a5e9c7bd637efdc76b126f8854b934d4862ba \
+                sha256  4763a891ac7030c109c7ca03b1b0b834859c2aac4f8e359774ee01a6875694ac
+
+supported_archs noarch
+
+installs_libs   no
+
+use_bzip2       yes
+
+depends_build-append \
+                bin:gawk:gawk \
+                bin:gmkdir:coreutils
+
+depends_run-append \
+                path:bin/gtkdocize:gtk-doc \
+                path:bin/intltool:intltool \
+                path:bin/glibtoolize:libtool \
+                path:bin/glib-gettextize:glib2 \
+                path:bin/autoconf:autoconf \
+                path:bin/automake:automake \
+                bin:gmake:gmake
+
+patchfiles-append \
+                patch-scripts_xdt-autogen.in.diff \
+                patch-configure.ac.diff
+
+# regenerate the patchfiles with the following commands:
+# cd <whatever ${worksrcpath} is>
+# for m4macro in $(echo m4macros/*.m4); do cp ${m4macro} ${m4macro}.orig; done
+# <do your changes>
+# for m4macro in $(echo m4macros/*.m4); do diff -u ${m4macro}.orig ${m4macro} > patch-$(echo ${m4macro} | tr \/ _).diff; done
+foreach m4macro {xfce python i18n features depends} {
+    patchfiles-append patch-m4macros_xdt-${m4macro}.m4.diff
+}
+

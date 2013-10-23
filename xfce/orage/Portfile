@@ -1,0 +1,78 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
+
+PortSystem      1.0
+
+name            orage
+version         4.6.1
+revision        4
+categories      xfce
+platforms       darwin linux
+license         GPL-2+
+maintainers     afb openmaintainer
+description     Time-managing application for the Xfce desktop environment
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
+use_bzip2       yes
+checksums       md5     24fa43dd86ec5af5a4766620fd972cf2 \
+                sha1    2db15404197ef9aa6f588c0eebac9fc4f68426df \
+                rmd160  7724992e2e177487c71597a15d7faf7f865bb56b \
+                sha256  f1580f5f0082eff89f7a76a57da9dce7e7d5380804939771611499482523bd4d
+
+depends_build-append \
+                port:xfconf \
+                port:intltool \
+                port:pkgconfig \
+                bin:perl5:perl5
+
+depends_lib-append \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:exo \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:libxfce4util \
+                port:libxfcegui4 \
+                port:xfce4-panel \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libxcb \
+                port:xrender \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+patchfiles-append \
+                patch-configure.ac.diff
+
+post-patch {
+    eval reinplace "s|INCLUDES|AM_CPPFLAGS|g" [glob ${worksrcpath}/libical/src/libical*/Makefile.am]
+}
+
+configure.args-append \
+                --disable-libxfce4mcs \
+                --disable-libnotify \
+                --enable-dbus
+
+post-activate {
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+}

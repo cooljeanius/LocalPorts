@@ -1,0 +1,105 @@
+--- configure.in	2009-02-25 01:39:30.000000000 -0500
++++ configure.ac	2013-10-16 16:33:18.000000000 -0400
+@@ -1,56 +1,58 @@
+-dnl $Id: configure.in.in 29313 2009-01-25 00:28:44Z jannis $
+-dnl
+-dnl Copyright (c) 2002-2008
+-dnl         The Xfce development team. All rights reserved.
+-dnl
+-dnl Written for Xfce by Benedikt Meurer <benny@xfce.org>.
+-dnl
+-
+-dnl ***************************
+-dnl *** Version information ***
+-dnl ***************************
+-m4_define([xdt_version_major], [4])
+-m4_define([xdt_version_minor], [6])
+-m4_define([xdt_version_micro], [0])
+-m4_define([xdt_version_nano], [])
+-m4_define([xdt_version_build], [r29585])
+-m4_define([xdt_version_tag], [])
+-m4_define([xdt_version], [xdt_version_major().xdt_version_minor().xdt_version_micro()ifelse(xdt_version_nano(), [], [], [.xdt_version_nano()])ifelse(xdt_version_tag(), [svn], [xdt_version_tag()-xdt_version_build()], [])])
+-
+-
+-dnl # DO NOT MODIFY ANYTHING BELOW THIS LINE, UNLESS YOU KNOW WHAT
+-dnl # YOU ARE DOING.
+-
+-
+-dnl ***************************
+-dnl *** Initialize autoconf ***
+-dnl ***************************
+-AC_INIT([xfce4-dev-tools], [xdt_version], [xfce4-dev@xfce.org])
++dnl#                                               -*- Autoconf -*-
++dnl# $Id: configure.in.in 29313 2009-01-25 00:28:44Z jannis $
++dnl#
++dnl# Copyright (c) 2002-2008
++dnl#         The Xfce development team. All rights reserved.
++dnl#
++dnl# Written for Xfce by Benedikt Meurer <benny@xfce.org>.
++dnl#
++
++dnl# ***************************
++dnl# *** Version information ***
++dnl# ***************************
++m4_define([xdt_version_major],[4])
++m4_define([xdt_version_minor],[6])
++m4_define([xdt_version_micro],[0])
++m4_define([xdt_version_nano],[])
++m4_define([xdt_version_build],[r29585])
++m4_define([xdt_version_tag],[])
++m4_define([xdt_version],[xdt_version_major().xdt_version_minor().xdt_version_micro()ifelse(xdt_version_nano(), [], [], [.xdt_version_nano()])ifelse(xdt_version_tag(), [svn], [xdt_version_tag()-xdt_version_build()], [])])
++
++
++dnl# DO NOT MODIFY ANYTHING BELOW THIS LINE, UNLESS YOU KNOW WHAT
++dnl# YOU ARE DOING.
++
++
++dnl# ***************************
++dnl# *** Initialize autoconf ***
++dnl# ***************************
++AC_INIT([xfce4-dev-tools],[xdt_version],[xfce4-dev@xfce.org])
+ AC_COPYRIGHT([Copyright (c) 2002-2008
+         The Xfce development team. All rights reserved.
+ 
+ Written for Xfce by Benedikt Meurer <benny@xfce.org>.])
+ AC_REVISION([$Id: configure.in.in 29313 2009-01-25 00:28:44Z jannis $])
+ 
+-dnl ***************************
+-dnl *** Initialize automake ***
+-dnl ***************************
+-AM_INIT_AUTOMAKE([AC_PACKAGE_TARNAME()], [AC_PACKAGE_VERSION()])
+-AM_MAINTAINER_MODE()
+-
+-dnl ********************************
+-dnl *** Check for basic programs ***
+-dnl ********************************
+-AC_PROG_INSTALL()
+-
+-dnl **********************
+-dnl *** Generate files ***
+-dnl **********************
+-AC_OUTPUT([
++dnl# ***************************
++dnl# *** Initialize automake ***
++dnl# ***************************
++AM_INIT_AUTOMAKE([-Wall])
++AM_MAINTAINER_MODE([])
++
++dnl# ********************************
++dnl# *** Check for basic programs ***
++dnl# ********************************
++AC_PROG_INSTALL([])
++
++dnl# **********************
++dnl# *** Generate files ***
++dnl# **********************
++AC_CONFIG_FILES([
+ Makefile
+ xfce4-dev-tools.spec
+ m4macros/Makefile
+ scripts/Makefile
+ ])
++AC_OUTPUT
+ 
+-dnl vi:set ts=2 sw=2 et ai:
++dnl# vi:set ts=2 sw=2 et ai:

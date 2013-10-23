@@ -41,7 +41,14 @@ depends_lib-append \
                 port:xfconf
 
 depends_run-append \
-                port:midori
+                port:midori \
+                port:xinput \
+                port:xmodmap \
+                port:xrdb \
+                port:xscreensaver \
+                port:xsetroot \
+                path:bin/dbus-launch:dbus \
+                bin:ssh-agent:openssh
 
 patchfiles-append \
                 patch-configure.ac.diff \

@@ -1,0 +1,121 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 107757 2013-07-05 07:36:59Z jeremyhu@macports.org $
+
+PortSystem      1.0
+
+name            xfce4-session
+version         4.6.2
+revision        4
+categories      xfce
+platforms       darwin linux
+license         GPL-2+
+maintainers     afb openmaintainer
+description     Session manager for the Xfce desktop environment.
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
+use_bzip2       yes
+checksums       md5     9d9890130e45e0e9476591ed9ba2c9d5 \
+                sha1    2a5778a1543f97845f118a186e2dbb8a8ea3ff4b \
+                rmd160  3c45028d57aee5950a485d760799d0c74ada735e \
+                sha256  725e269254c34c530acb670f5ccd0fd69b57cbe9f2176abd8499fc5d6dcd30a8
+
+depends_build-append \
+                port:intltool \
+                port:xfce4-dev-tools \
+                port:pkgconfig \
+                port:gmake \
+                path:bin/xmkmf:imake \
+                bin:iceauth:iceauth
+
+depends_skip_archcheck-append gmake
+
+depends_lib-append \
+                port:libxfce4util \
+                port:libxfcegui4 \
+                port:libwnck \
+                port:atk \
+                port:bzip2 \
+                port:dbus-glib \
+                port:expat \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:graphite2 \
+                port:gtk2 \
+                port:harfbuzz \
+                port:libffi \
+                port:libgcrypt \
+                port:libglade2 \
+                port:libgnome-keyring \
+                port:libgpg-error \
+                port:libiconv \
+                port:libpng \
+                port:libxml2 \
+                port:startup-notification \
+                port:xfconf \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libXres \
+                port:xorg-libice \
+                port:xorg-libsm \
+                port:xorg-libxcb \
+                port:xorg-xcb-util \
+                port:xrender \
+                port:xz \
+                port:zlib \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/dbus-1.pc:dbus
+
+depends_run-append \
+                bin:iceauth:iceauth
+
+# Do NOT do intltool's INTLTOOL_PERL dance
+use_autoreconf  yes
+autoreconf.cmd  ${prefix}/bin/xdt-autogen
+autoreconf.env-append  \
+                NOCONFIGURE=1 \
+                XDT_PROG_GLIB_GETTEXTIZE="true >/dev/null 2>/dev/null" \
+                XDT_PROG_INTLTOOLIZE=${prefix}/bin/intltoolize \
+                XDT_PROG_LIBTOOLIZE="${prefix}/bin/glibtoolize --automake" \
+                XDT_PROG_GTKDOCIZE=${prefix}/bin/gtkdocize \
+                XDT_PROG_ACLOCAL=${prefix}/bin/aclocal \
+                XDT_PROG_AUTOHEADER=${prefix}/bin/autoheader \
+                XDT_PROG_AUTOMAKE=${prefix}/bin/automake \
+                XDT_PROG_AUTOCONF=${prefix}/bin/autoconf
+
+pre-configure {
+    system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
+}
+
+configure.perl  ${prefix}/bin/perl5.12
+
+configure.args-append \
+                --enable-session-screenshots \
+                --disable-gnome \
+                --enable-libgnome-keyring \
+                --with-x \
+                --x-includes=${prefix}/include \
+                --x-libraries=${prefix}/lib
+
+configure.env-append \
+                XMKMF=${prefix}/bin/xmkmf
+
+build.type      gnu
+build.cmd       ${prefix}/bin/gmake
+
+use_parallel_build no
+

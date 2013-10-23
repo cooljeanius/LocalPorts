@@ -5,8 +5,8 @@ PortSystem          1.0
 PortGroup           cmake 1.0
 
 name                weechat
-version             0.4.0
-revision            2
+version             0.4.1
+revision            0
 categories          irc
 maintainers         otherware.org:nefar openmaintainer
 license             GPL-3+
@@ -28,8 +28,8 @@ homepage            http://${name}.org/
 platforms           darwin
 master_sites        ${homepage}files/src
 
-checksums           rmd160  70a3b67762227c8408b8ca880ea1af15fcc7fe81 \
-                    sha256  1df12201d8b0ac25f62ddbfb675e8f3d978e52bc5b644d55ccf4c755956fa60d
+checksums           rmd160  07cf6554b0238a2dd41da94483d62573789fe97b \
+                    sha256  d27bed07ee2d0638c1683ad18666d478ed9a042aeeedcd0dd9ce22f1392e0ebb
 
 depends_build-append \
                     port:asciidoc

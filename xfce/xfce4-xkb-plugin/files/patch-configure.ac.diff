@@ -1,0 +1,104 @@
+--- configure.ac.orig	2013-10-17 23:19:55.000000000 -0400
++++ configure.ac	2013-10-17 23:48:29.000000000 -0400
+@@ -1,39 +1,78 @@
+-dnl configure.ac
+-dnl
+-dnl xfce4-xkb-plugin - XKB plugin for xfce4-panel
+-dnl
+-dnl 2003 Benedikt Meurer <benedikt.meurer@unix-ag.uni-siegen.de>
+-dnl
+-
+-AC_INIT([panel-plugin/xfce4-xkb-plugin.c])
++dnl#                                               -*- Autoconf -*-
++dnl# Process this file with autoconf to produce a configure script.
++dnl#
++dnl# configure.ac
++dnl#
++dnl# xfce4-xkb-plugin - XKB plugin for xfce4-panel
++dnl#
++dnl# 2003 Benedikt Meurer <benedikt.meurer@unix-ag.uni-siegen.de>
++dnl#
++
++AC_PREREQ([2.69])
++AC_INIT([xfce4-xkb-plugin],[0.3.2],[benedikt.meurer@unix-ag.uni-siegen.de])
++AC_CONFIG_SRCDIR([panel-plugin/xfce4-xkb-plugin.c])
++AC_CANONICAL_TARGET
+ 
+ AM_CONFIG_HEADER([config.h])
+ 
+-AM_INIT_AUTOMAKE([xfce4-xkb-plugin], [0.3.2])
++AM_INIT_AUTOMAKE([foreign])
+ 
+ AM_MAINTAINER_MODE
+ 
+-dnl Check for UNIX variants
+-AC_AIX
+-AC_ISC_POSIX
+-AC_MINIX
+-
+-dnl Check for basic programs
+-AC_PROG_CC
++dnl# Check for UNIX variants
++AC_USE_SYSTEM_EXTENSIONS
++AC_SEARCH_LIBS([strerror],[cposix])
++
++dnl# Check for basic programs
++if test "x$CC" = "x"; then
++	test -z "$CC"
++	AC_PROG_CC
++else
++	test ! -z "$CC" && export CC
++	AC_SUBST([CC])
++fi
++AC_PROG_CPP
+ AC_PROG_INSTALL
+-AC_PROG_LIBTOOL
++AC_PROG_LN_S
++AC_PATH_PROG([SETXKBMAP],[setxkbmap])
++AC_SUBST([SETXKBMAP])
++PKG_PROG_PKG_CONFIG
++LT_INIT([win32-dll])
++LT_LANG([C])
++
++dnl# Checks for libraries.
++dnl# FIXME: Replace `main' with a function in `-lX11':
++AC_CHECK_LIB([X11],[main])
++dnl# FIXME: Replace `main' with a function in `-lXext':
++AC_CHECK_LIB([Xext],[main])
++dnl# FIXME: Replace `main' with a function in `-lXpm':
++AC_CHECK_LIB([Xpm],[main])
++
++dnl# Check for standard header files
++AC_DEFUN([AC_REQUIRE_HEADER_STDC],[
++  AC_REQUIRE([AC_HEADER_STDC])
++])
++AC_REQUIRE_HEADER_STDC
++AC_PATH_XTRA
++AC_CHECK_HEADERS([ctype.h glib.h gtk/gtk.h libxfce4util/i18n.h libxfcegui4/dialogs.h \
++                  panel/plugins.h panel/xfce.h stdio.h X11/XKBlib.h X11/Xlib.h])
++
++dnl# Checks for typedefs, structures, and compiler characteristics.
++AC_C_BIGENDIAN
++AC_C_PROTOTYPES
+ 
+-dnl Check for standard header files
+-AC_HEADER_STDC
++dnl# Checks for library functions.
++AC_CHECK_FUNCS([fprintf strcasecmp strchr strdup strrchr])
+ 
+-dnl configure the panel plugin
+-XFCE_PANEL_PLUGIN([XFCE4_PANEL], [3.99.2])
++dnl# configure the panel plugin
++XFCE_PANEL_PLUGIN([XFCE4_PANEL],[4.6.4])
+ 
+-dnl Check for debugging support
++dnl# Check for debugging support
+ BM_DEBUG_SUPPORT
+ 
+-AC_OUTPUT([
++AC_CONFIG_FILES([
+ Makefile
+ panel-plugin/Makefile
+ flags/Makefile
+ ])
++AC_OUTPUT

@@ -1,0 +1,34 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
+
+PortSystem      1.0
+
+name            libxfce4util
+version         4.6.2
+revision        1
+categories      xfce
+platforms       darwin linux
+license         LGPL-2+
+maintainers     afb openmaintainer
+description     Utility library for the Xfce4 desktop environment
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
+use_bzip2       yes
+checksums       md5     9c3129d827d480f0906c575e7a13f1e9 \
+                sha1    00d890df32d9ae172f45f95c030ca1a74c14e93f \
+                rmd160  145e5ccdf49f60891f9d0d6e969aafc71e33ef11 \
+                sha256  ae2e7ed1000bb0b3589643a39a65e6ab64c9ee198045e7b272604986f2e18c83
+
+depends_build-append \
+                path:bin/pkg-config:pkgconfig \
+                port:intltool
+depends_lib-append \
+                port:gettext \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                port:libiconv \
+                port:libffi
+
+platform darwin {
+    configure.args-append --disable-visibility
+}

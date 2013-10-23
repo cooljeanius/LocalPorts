@@ -7,19 +7,18 @@ PortGroup       compiler_blacklist_versions 1.0
 
 name            gegl
 version         0.2.0
-revision        9
+revision        11
 license         {GPL-3+ LGPL-3+}
 set branch      [join [lrange [split ${version} .] 0 1] .]
 categories      graphics
-maintainers     devans
+maintainers     devans openmaintainer
 platforms       darwin
 homepage        http://${name}.org/
 master_sites    gimp:${name}/${branch}/
 
 use_bzip2       yes
 
-description \
-    GEGL is a graph based image processing framework.
+description     GEGL is a graph based image processing framework.
 
 long_description \
     GEGL is a graph based image processing framework offering image \
@@ -32,54 +31,70 @@ checksums       sha1    764cc66cb3c7b261b8fc18a6268a0e264a91d573 \
                 sha256  df2e6a0d9499afcbc4f9029c18d9d1e0dd5e8710a75e17c9b1d9a6480dd8d426
 
 depends_build-append \
-    port:pkgconfig \
-    port:intltool \
-    port:w3m \
-    port:libtool \
-    bin:perl:perl5 \
-    bin:ruby:ruby_select
+                port:pkgconfig \
+                port:intltool \
+                port:w3m \
+                bin:perl:perl5 \
+                bin:ruby:ruby_select
 
 depends_lib-append \
-    port:babl \
-    port:gtk2 \
-    port:jpeg \
-    port:lua \
-    port:openexr \
-    port:exiv2 \
-    port:libopenraw \
-    port:librsvg \
-    path:lib/pkgconfig/sdl.pc:libsdl \
-    path:lib/libavcodec.dylib:ffmpeg \
-    port:libspiro \
-    port:lensfun \
-    port:fontconfig \
-    port:freetype \
-    port:gdk-pixbuf2 \
-    port:gettext \
-    port:ilmbase \
-    port:jasper \
-    port:libffi \
-    port:libiconv \
-    port:libpng \
-    port:zlib \
-    path:lib/pkgconfig/glib-2.0.pc:glib2 \
-    path:lib/pkgconfig/cairo.pc:cairo \
-    path:lib/pkgconfig/pango.pc:pango
+                port:babl \
+                port:gtk2 \
+                port:gobject-introspection \
+                port:jpeg \
+                port:lua \
+                port:openexr \
+                port:exiv2 \
+                port:libopenraw \
+                port:librsvg \
+                path:lib/pkgconfig/sdl.pc:libsdl \
+                path:lib/libavcodec.dylib:ffmpeg \
+                port:libspiro \
+                port:lensfun \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:ilmbase \
+                port:jasper \
+                port:libffi \
+                port:libiconv \
+                port:libpng \
+                port:zlib \
+                port:bzip2 \
+                port:expat \
+                port:harfbuzz \
+                port:libcroco \
+                port:libtool \
+                port:libxml2 \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXrandr \
+                port:xorg-libxcb \
+                port:xrender \
+                port:xz \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/pixman-1.pc:libpixman
 
 patchfiles-append \
                patch-configure.diff \
-               patch-opencl.diff \
+               patch-configure.ac.diff \
                patch-rename-for-altivec.diff \
-               patch-ffmpeg-1.0.diff \
-               patch-ffmpeg-2.0.diff \
-               patch-workshop-lua-5.2.diff
+               patch-ffmpeg.diff \
+               patch-fix-introspection.diff \
+               patch-examples-Makefile.am.diff
 
-# introspection: Need to define Gegl_0_2_gir_FILES
+use_autoreconf yes
+autoreconf.args -fvi
 
 configure.args-append \
                 --disable-docs \
                 --disable-silent-rules \
-                --disable-introspection \
+                --enable-introspection=yes \
                 --without-graphviz \
                 --without-vala \
                 --without-umfpack \
@@ -91,6 +106,17 @@ configure.cflags-append \
                 -Wno-ignored-attributes \
                 -Wno-deprecated-declarations \
                 -Wno-implicit-function-declaration
+
+# gobject-introspection uses g-ir-scanner, which uses $CC from env
+# btw I hate gobject-introspection
+
+if {[variant_isset universal]} {
+    depends_lib-delete      port:gobject-introspection
+    configure.args-delete   --enable-introspection=yes
+    configure.args-append   --disable-introspection
+} else {
+    build.args-append       CC="${configure.cc} ${configure.cc_archflags}"
+}
 
 # disable parallel build, see #31498
 use_parallel_build no
@@ -108,6 +134,8 @@ platform darwin {
     if {${os.major} == 10} {
         compiler.blacklist-append *gcc-4.2 {clang < 421}
         configure.ccache no
+        autoreconf.env-append CC=${configure.cc}
+        build.env-append CC=${configure.cc}
     }
 
     if {[variant_isset universal]} {
@@ -138,8 +166,8 @@ variant html_doc description {Build html docs with enscript and asciidoc} {
 
 variant umfpack description {Build with umfpack support via SuiteSparse} {
     depends_lib-append    port:SuiteSparse
-    configure.args-delete --disable-umfpack
-    configure.args-append --enable-umfpack
+    configure.args-delete --without-umfpack
+    configure.args-append --with-umfpack
 }
 
 variant workshop description {Enable build of workshop operations} {

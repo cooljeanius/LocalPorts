@@ -1,0 +1,76 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
+
+PortSystem 1.0
+
+name            xfce4-corner-plugin
+version         1.0.1
+revision        3
+categories      xfce
+platforms       darwin linux
+license         LGPL-2+
+maintainers     afb openmaintainer
+description     Mac-style menubar corner plugin for xfce panel (4.4+)
+long_description ${description}
+homepage        http://aquila.deus.googlepages.com/
+master_sites    http://aur.archlinux.org/packages/xfce4-corner-plugin/
+distname        ${name}
+checksums       md5     a0e26652ef7f2e8ca26fd007cc39d186 \
+                sha1    d310b43e5a3c6891364e95b1195ba24f2c6ef2ae \
+                rmd160  84e652dc6883bda0f04b032deb350753925a9db0 \
+                sha256  766d32635b83500d8abdfa6a395442ab37d57db8cb5074d70915a9d5782cd8ce
+
+depends_build-append \
+                path:bin/pkg-config:pkgconfig
+depends_lib-append \
+                port:xfce4-panel \
+                port:libxfcegui4 \
+                port:libxfce4util \
+                port:atk \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:xorg-libX11 \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xrender \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/libgcc/libgcc_s.1.dylib:libgcc
+
+use_configure   no
+
+patchfiles-append \
+                patch-xfce4-corner-plugin.c.diff
+
+variant universal {}
+
+post-patch {
+    reinplace "s;/usr;${prefix};" ${worksrcpath}/${name}.desktop
+}
+
+build {
+    # upstream really needs to learn about make
+    set compile_command "${configure.cc} ${configure.cflags} -std=c99 -Wall `${prefix}/bin/pkg-config --cflags libxfce4panel-1.0` [get_canonical_archflags cc] -o ${worksrcpath}/${name}.o -c ${worksrcpath}/${name}.c"
+    ui_msg ${compile_command}
+    system -W ${worksrcpath} ${compile_command}
+    set link_command "${configure.cc} ${configure.ldflags} -std=c99 -Wall `${prefix}/bin/pkg-config --cflags --libs libxfce4panel-1.0` [get_canonical_archflags ld] ${worksrcpath}/${name}.o -o ${worksrcpath}/${name}"
+    ui_msg ${link_command}
+    system -W ${worksrcpath} ${link_command}
+}
+
+destroot {
+    xinstall -d ${destroot}${prefix}/libexec/xfce4/panel-plugins
+    xinstall -d ${destroot}${prefix}/share/xfce4/panel-plugins
+    copy ${worksrcpath}/${name} ${destroot}${prefix}/libexec/xfce4/panel-plugins/
+    copy ${worksrcpath}/${name}.desktop ${destroot}${prefix}/share/xfce4/panel-plugins/
+}

@@ -1,0 +1,102 @@
+--- scripts/xdt-autogen.in.orig	2013-10-16 16:00:41.000000000 -0400
++++ scripts/xdt-autogen.in	2013-10-16 16:14:51.000000000 -0400
+@@ -8,18 +8,20 @@
+ # Written for Xfce by Benedikt Meurer <benny@xfce.org>.
+ #
+ # This program is free software; you can redistribute it and/or modify it
+-# under the terms of the GNU General Public License as published by the Free
+-# Software Foundation; either version 2 of the License, or (at your option)
+-# any later version.
++# under the terms of the GNU General Public License as published by the
++# Free Software Foundation; either version 2 of the License, or (at your
++# option) any later version.
+ #
+-# This program is distributed in the hope that it will be useful, but WITHOUT
++# This program is distributed in the hope that it'll be useful, but WITHOUT
+ # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ # more details.
+ #
+-# You should have received a copy of the GNU General Public License along with
+-# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+-# Place, Suite 330, Boston, MA  02111-1307  USA
++# You should have received a copy of the GNU General Public License with
++# this program; if not, write to:
++#  The Free Software Foundation, Inc.
++#  59 Temple Place, Suite 330
++#  Boston, MA  02111-1307  USA
+ #
+ # xdt-autogen - Part of the Xfce developer tools.
+ #
+@@ -81,6 +83,8 @@
+ if test x"${MAKE}" = x""; then
+   if (type gmake) >/dev/null 2>/dev/null; then
+     MAKE="gmake"
++  elif (type gnumake) >/dev/null 2>/dev/null; then
++    MAKE="gnumake"
+   elif (type make) >/dev/null 2>/dev/null; then
+     MAKE="make"
+   else
+@@ -137,11 +141,11 @@
+ 
+ 
+ ##
+-## Check for autoconf, first trying autoconf-2.59, then autoconf-2.58, then
+-## autoconf-2.57, then autoconf-2.53, and finally simply autoconf.
++## Check for autoconf, first trying a bunch of different versions of
++## autoconf, and then the unversioned autoconf command.
+ ##
+ test -z "${XDT_PROG_AUTOCONF}" &&
+-for i in autoconf-2.61 autoconf-2.60 autoconf-2.59 autoconf-2.58 autoconf-2.57 autoconf-2.53 autoconf; do
++for i in autoconf-2.69 autoconf-2.68 autoconf-2.67 autoconf-2.66 autoconf-2.65 autoconf-2.64 autoconf-2.63 autoconf-2.62 autoconf-2.61 autoconf-2.60 autoconf-2.59 autoconf-2.58 autoconf-2.57 autoconf-2.53 autoconf; do
+   (${i} --version) </dev/null >/dev/null 2>&1 &&
+   XDT_PROG_AUTOCONF=${i} && break
+ done
+@@ -232,11 +236,11 @@
+ 
+ 
+ ##
+-## Check for aclocal, first trying aclocal-1.9, then aclocal-1.8, and finally
+-## simply aclocal.
++## Check for aclocal, first trying a bunch of different versions of
++## aclocal, and then the unversioned aclocal command.
+ ##
+ test -z "${XDT_PROG_ACLOCAL}" &&
+-for i in aclocal-1.10 aclocal-1.9 aclocal-1.8 aclocal; do
++for i in aclocal-1.14 aclocal-1.13 aclocal-1.12 aclocal-1.11 aclocal-1.10 aclocal-1.9 aclocal-1.8 aclocal; do
+   (${i} --version) </dev/null >/dev/null 2>&1 &&
+   XDT_PROG_ACLOCAL=${i} && break
+ done
+@@ -252,13 +256,13 @@
+ 
+ 
+ ##
+-## Check for autoheader, first trying autoheader-2.59, then autoheader-2.58,
+-## then autoheader-2.57, then autoheader-2.53, and finally simply autoheader.
++## Check for autoheader, first trying a bunch of different versions of
++## autoheader, and then the unversioned autoheader command.
+ ##
+ test -z "${XDT_PROG_AUTOHEADER}" &&
+ for configure_file in $CONFIGURE_FILES; do
+   if grep "^AM_CONFIG_HEADER" "${configure_file}" >/dev/null 2>&1; then
+-    for i in autoheader-2.61 autoheader-2.60 autoheader-2.59 autoheader-2.58 autoheader-2.57 autoheader-2.53 autoheader; do
++    for i in autoheader-2.69 autoheader-2.68 autoheader-2.67 autoheader-2.66 autoheader-2.65 autoheader-2.64 autoheader-2.63 autoheader-2.62 autoheader-2.61 autoheader-2.60 autoheader-2.59 autoheader-2.58 autoheader-2.57 autoheader-2.53 autoheader; do
+       (${i} --version) </dev/null >/dev/null 2>&1 &&
+       XDT_PROG_AUTOHEADER=${i} && break
+     done
+@@ -276,11 +280,11 @@
+ 
+ 
+ ##
+-## Check for automake, first trying automake-1.9, then automake-1.8, and finally
+-## simply automake.
++## Check for automake, first trying a bunch of different versions of
++## automake, and then the unversioned automake command.
+ ##
+ test -z "${XDT_PROG_AUTOMAKE}" &&
+-for i in automake-1.10 automake-1.9 automake-1.8 automake; do
++for i in automake-1.14 automake-1.13 automake-1.12 automake-1.11 automake-1.10 automake-1.9 automake-1.8 automake; do
+   (${i} --version) </dev/null >/dev/null 2>&1 &&
+   XDT_PROG_AUTOMAKE=${i} && break
+ done

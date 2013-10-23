@@ -5,7 +5,7 @@ PortSystem          1.0
 PortGroup           active_variants 1.1
 
 name                libnotify
-version             0.7.5
+version             0.7.6
 revision            0
 set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          devel gnome
@@ -23,9 +23,9 @@ master_sites        gnome:sources/${name}/${branch}
 
 use_xz              yes
 
-checksums           sha1    729d1382617fee7e82eac17d808c11469ab2b7e1 \
-                    rmd160  9f166a6b17f1f00e85e658e2effa8da93ac5497f \
-                    sha256  4378cb47874ba4d5f759b7890d8d28d086e81d3f0bd4f6e84e5ab66d82ffb652
+checksums           sha1    956ce02a9f2c9fb74a81a765358131efdb7bf536 \
+                    rmd160  7f2ae9f2e75396607e79c2a5781bbe81b3efc9fd \
+                    sha256  0ef61ca400d30e28217979bfa0e73a7406b19c32dd76150654ec5b2bdf47d837
 
 depends_build-append \
                     port:pkgconfig \
@@ -48,7 +48,8 @@ depends_lib-append  port:dbus-glib \
 configure.args-append \
                     --disable-silent-rules \
                     --disable-gtk-doc \
-                    --disable-docbook-docs
+                    --disable-docbook-docs \
+                    --enable-introspection=yes
 configure.env-append \
                     PKG_CONFIG=${prefix}/bin/pkg-config
 
@@ -73,6 +74,7 @@ variant quartz conflicts x11 {
 variant x11 conflicts quartz {
     require_active_variants gtk3 x11 quartz
     require_active_variants gdk-pixbuf2 x11 ""
+    depends_lib-append      port:xorg-libsm
 }
 
 if {![variant_isset quartz]} {

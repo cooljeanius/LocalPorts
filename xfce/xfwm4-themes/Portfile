@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
+
+PortSystem      1.0
+
+name            xfwm4-themes
+version         4.6.0
+revision        1
+categories      xfce
+platforms       darwin linux
+license         GPL-2+
+maintainers     afb openmaintainer
+description     Additional themes for xfwm4
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
+use_bzip2       yes
+checksums       md5     4dc5cb29cbd40e3b9dece12a85e20854 \
+                sha1    7e81d00b2b0a7a2b91071b8c3767171bce738af2 \
+                rmd160  1f6230cdb7626b48671c170234aa97c28ba2eaf9 \
+                sha256  9964ce221c1715a892c3ecb802739c0f5eae2b64912093d13fe7631710254c8c
+
+supported_archs noarch
+
+installs_libs   no
+
+depends_lib-append \
+                port:xfwm4
