@@ -5,7 +5,7 @@ PortSystem 1.0
 
 name            xfce-utils
 version         4.6.2
-revision        5
+revision        6
 categories      xfce sysutils
 platforms       darwin linux
 license         GPL-2+
@@ -38,7 +38,8 @@ depends_skip_archcheck-append gmake gtk-doc
 depends_lib-append \
                 port:libxfce4util \
                 port:libxfcegui4 \
-                port:xfconf
+                port:xfconf \
+                port:xorg-libsm
 
 depends_run-append \
                 port:midori \
@@ -47,8 +48,7 @@ depends_run-append \
                 port:xrdb \
                 port:xscreensaver \
                 port:xsetroot \
-                path:bin/dbus-launch:dbus \
-                bin:ssh-agent:openssh
+                path:bin/dbus-launch:dbus
 
 patchfiles-append \
                 patch-configure.ac.diff \
