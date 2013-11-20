@@ -7,7 +7,7 @@ PortGroup           archcheck 1.0
 name                gdal
 #TODO: update to 1.10
 version             1.9.2
-revision            7
+revision            8
 categories          gis
 license             MIT BSD
 platforms           darwin macosx
