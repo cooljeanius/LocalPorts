@@ -5,21 +5,22 @@ PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
 
-github.setup        OpenKinect libfreenect 0.1.2 v
+github.setup        OpenKinect libfreenect 0.2.0 v
 categories          devel graphics games
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
 license             {apache GPL-2+}
 
-description         ${name}, aka OpenKinect, is the core library for accessing the \
-                    Microsoft Kinect USB camera
+description         ${name}, aka OpenKinect, is the core library for \
+                    accessing the Microsoft Kinect USB camera
 
-long_description    ${description}. It is the main part of the OpenKinect project.
+long_description    ${description}. It is the main part of the \
+                    OpenKinect project.
 
 homepage            http://www.openkinect.org/
 
-checksums           rmd160  2687003673e95ca8cc7d27d9d1f155d389424ffe \
-                    sha256  88cadbea8fb28838bd56a1ec86808325a8f531e93f2bba171e368137d6b1f6e9
+checksums           rmd160  c7ea0bcb8095667f576665e96b920af9b7eb6eef \
+                    sha256  21c79f6eac989d09379f3903f71d007dd9c07388eeeaa17834e505fbf7a8ad8b
 
 depends_build-append \
                     port:pkgconfig
@@ -32,76 +33,27 @@ configure.args-append \
                     -DBUILD_CV=OFF \
                     -DBUILD_PYTHON=OFF
 
-# The python variants are all commented out because they currently fail to compile
-#variant python25 conflicts python26 python27 description {Enable python25 bindings} {
-#    depends_build-append \
-#                    port:py25-distribute
-#    depends_lib-append \
-#                    path:lib/python2.5/site-packages/pyusb-0.4.3-py2.5.egg-info:py25-pyusb \
-#                    port:py25-cython \
-#                    port:py25-numpy
-#    configure.args-delete \
-#                    -DBUILD_PYTHON=OFF
-#    configure.args-append \
-#                    -DBUILD_PYTHON=ON \
-#                    -DPYTHON_EXECUTABLE=${prefix}/bin/python2.5 \
-#                    -DPYTHON_LIBRARY=${prefix}/lib/libpython2.5.dylib \
-#                    -DPYTHON_INCLUDE_DIR=${prefix}/include/python2.5
-#}
+#TODO: re-add python variants that were commented out in previous revisions
 
-#variant python26 conflicts python25 python27 description {Enable python26 bindings} {
-#    depends_build-append \
-#                    port:py26-distribute
-#    depends_lib-append \
-#                    path:share/doc/py26-pyusb/README:py26-pyusb \
-#                    port:py26-cython \
-#                    port:py26-numpy \
-#                    port:py26-matplotlib
-#    configure.args-delete \
-#                    -DBUILD_PYTHON=OFF
-#    configure.args-append \
-#                    -DBUILD_PYTHON=ON \
-#                    -DPYTHON_EXECUTABLE=${prefix}/bin/python2.6 \
-#                    -DPYTHON_LIBRARY=${prefix}/lib/libpython2.6.dylib \
-#                    -DPYTHON_INCLUDE_DIR=${frameworks_dir}/Python.framework/Versions/2.6/Headers
-#}
-
-#variant python27 conflicts python25 python26 description {Enable python27 bindings} {
-#    depends_build-append \
-#                    port:py27-distribute
-#    depends_lib-append \
-#                    path:share/doc/py27-pyusb/README:py27-pyusb \
-#                    port:py27-numpy \
-#                    port:py27-cython \
-#                    port:py27-matplotlib
-#    configure.args-delete \
-#                    -DBUILD_PYTHON=OFF
-#    configure.args-append \
-#                    -DBUILD_PYTHON=ON \
-#                    -DPYTHON_EXECUTABLE=${prefix}/bin/python2.7 \
-#                    -DPYTHON_LIBRARY=${prefix}/lib/libpython2.7.dylib \
-#                    -DPYTHON_INCLUDE_DIR=${frameworks_dir}/Python.framework/Versions/2.7/Headers
-#}
-
-# Not sure how exactly I'm going to get this variant to work, so right now it doesn't really do anything...
+# Not sure how exactly I am going to get this variant to work, so right
+# now it does NOT really do anything...
 variant java conflicts universal description {Enable java bindings} {
     PortGroup       java 1.0
     depends_build-append \
                     bin:mvn:maven2
 }
 
-# This variant needs a port for rb-jeweler before it can actually work and do anything
+# This variant needs a port for rb-jeweler before it can actually work and
+# do anything
 variant ruby description {Enable ruby bindings} {
     depends_build-append \
                     bin:rake:rb-rake
     depends_lib-append \
                     port:libffi
+    depends_skip_archcheck-append rb-rake
 }
 
-# This variant is commented out because I'm not sure how exactly to build it from the CLI yet...
-# I can do it through the GUI in MonoDevelop though...
-#variant csharp {
-#}
+#TODO: add csharp variant
 
 variant opencv description {Enable opencv bindings} {
     depends_lib-append \
@@ -149,13 +101,16 @@ variant examples description {Build examples} {
                     -DBUILD_EXAMPLES=ON
 }
 
-# The default debug variant that the cmake portgroup provides doesn't build properly:
+# The default debug variant that the cmake portgroup provides does NOT
+# build properly:
 # Undefined symbols for architecture x86_64:
 #   "_unpack_8_pixels", referenced from:
 #      _freenect_apply_registration in registration.c.o
 #      _freenect_apply_depth_to_mm in registration.c.o
 variant debug description {Dummy variant} {
     use_parallel_build no
+    configure.args-append \
+                    --debug-output
 }
 
 default_variants    +examples

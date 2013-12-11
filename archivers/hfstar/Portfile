@@ -53,3 +53,4 @@ post-destroot {
     file rename ${destroot}${prefix}/share/info/tar.info ${destroot}${prefix}/share/info/hfstar.info
 }
 
+livecheck.type  none

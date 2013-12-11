@@ -552,6 +552,6 @@ if {[variant_isset g95]} {
     }
 }
 
-livecheck.type      regex
+livecheck.type      none
 livecheck.url       http://grass.osgeo.org/devel/svntags.php
 livecheck.regex     {GRASS ([0-9.]+):}

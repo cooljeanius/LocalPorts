@@ -3,21 +3,24 @@
 
 PortSystem      1.0
 
-name            evolution-data-server
+name            evolution-data-server-gnome2
+set myname      evolution-data-server
 version         2.32.3
-revision        2
+revision        3
 
 set branch      [join [lrange [split ${version} .] 0 1] .]
 description     Addressbook and calender libs for GNOME.
-long_description    Evolution Data Server provides a central location for \
-                    addressbook and calendar in the GNOME Desktop.
-maintainers     geekdaily.org:jim openmaintainer
+long_description  \
+                Evolution Data Server provides a central location for \
+                addressbook and calendar in the GNOME Desktop.
+maintainers     geekdaily.org:jim devans openmaintainer
 categories      gnome
 license         LGPL-2+
 platforms       darwin
 homepage        http://www.gnome.org/
-master_sites    gnome:sources/${name}/${branch}/
+master_sites    gnome:sources/${myname}/${branch}/
 
+distname        ${myname}-${version}
 use_bzip2       yes
 
 checksums       rmd160  adc8b07aef41a89d16fc426541c12190a3688b8f \
@@ -93,18 +96,26 @@ patchfiles-append \
                 patch-calendar-libedata-cal-e-cal-backend-intervaltree.c.diff \
                 patch-calendar-backends-caldav-e-cal-backend-caldav.c.diff
 
+pre-patch {
+    file copy ${worksrcpath}/configure.ac ${worksrcpath}/configure.ac.orig
+}
+
 post-patch {
     # Run glibtoolize before autoreconf runs it, to silence some
     # warnings from aclocal
     system -W ${worksrcpath} "${prefix}/bin/glibtoolize --copy --automake --force"
-    xinstall ${prefix}/share/aclocal/gnome-common.m4 ${worksrcpath}/m4
-    xinstall ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    xinstall -m 644 ${prefix}/share/aclocal/gnome-common.m4 ${worksrcpath}/m4
+    xinstall -m 644 ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
     reinplace "s|CPPFLAGS|AM_CPPFLAGS|g" ${worksrcpath}/libedataserverui/Makefile.am
+    reinplace "s|google||g" ${worksrcpath}/addressbook/backends/Makefile.am
 }
 
 use_autoreconf    yes
 autoreconf.args  -fvi
 
+configure.pkg_config ${prefix}/bin/pkg-config
+
+configure.pre_args --prefix=${prefix}/lib/${name}
 configure.args-append  \
         --enable-static \
         --enable-ssl \
@@ -127,6 +138,15 @@ configure.args-append  \
         --disable-schemas-install \
         --disable-gtk-doc
 
+configure.env-append \
+        ac_cv_have_gdata_07=no \
+        GDATA_LIBS="-L${prefix}/lib -lgdata -lgio-2.0 -lglib-2.0 -lgobject-2.0 -lintl -lm -lpthread -lsoup-2.4 -lxml2 -lz ${prefix}/lib/libgck-1.la ${prefix}/lib/libgcr-base-3.la ${prefix}/lib/libgio-2.0.la ${prefix}/lib/libglib-2.0.la ${prefix}/lib/libgoa-1.0.la ${prefix}/lib/libgobject-2.0.la ${prefix}/lib/libgthread-2.0.la ${prefix}/lib/libiconv.la ${prefix}/lib/libintl.la ${prefix}/lib/liblzma.la ${prefix}/lib/liboauth.la ${prefix}/lib/libp11-kit.la ${prefix}/lib/libsoup-2.4.la ${prefix}/lib/libsoup-gnome-2.4.la ${prefix}/lib/libxml2.la" \
+        GDATA_CFLAGS="-D_REENTRANT -I${prefix}/include/libxml2 -I/usr/include/libxml2 -I${prefix}/include/libgdata -I${prefix}/include/libgdata/gdata -I${prefix}/include -I${prefix}/include/libsoup-gnome-2.4 -I${prefix}/include/gcr-3 -I${prefix}/include/gck-1 -I${prefix}/include/p11-kit-1 -I${prefix}/include/goa-1.0 -I${prefix}/lib/goa-1.0/include -I${prefix}/include/libsoup-2.4 -I${prefix}/include/glib-2.0 -I${prefix}/lib/glib-2.0/include -I${prefix}/include" \
+        DB_CFLAGS="-I${prefix}/include/db46" \
+        DB_LIBS="-L${prefix}/lib/db46 -ldb" \
+        libdb_prefix=${prefix}
+# The above is kind of a hack
+
 build.type gnu
 
 #
@@ -143,14 +163,10 @@ platform darwin 8 {
     configure.args-append --without-krb5
 }
 
-variant gtk_doc description {Build gtk-doc documentation} {
-  configure.args-delete --disable-gtk-doc
-  configure.args-append --enable-gtk-doc
-}
-
 post-activate    {
-    system "export GCONF_CONFIG_SOURCE=`${prefix}/bin/gconftool-2 --get-default-source` && \
+    system -W ${prefix} "export GCONF_CONFIG_SOURCE=`${prefix}/bin/gconftool-2 --get-default-source` && \
         ${prefix}/bin/gconftool-2 --makefile-install-rule ${prefix}/etc/gconf/schemas/*.schemas"
 }
 
-livecheck.type  gnome
+# This is an old version
+livecheck.type  none

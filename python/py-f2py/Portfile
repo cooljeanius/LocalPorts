@@ -34,6 +34,7 @@ python.move_binaries    no
 python.link_binaries_suffix
 
 if {$subport != $name} {
+    # py24-numpy has been removed...
     depends_lib-append  port:py${python.version}-numeric \
                         port:py${python.version}-numpy \
                         port:py${python.version}-numarray

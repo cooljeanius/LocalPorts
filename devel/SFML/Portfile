@@ -13,10 +13,11 @@ license             zlib
 
 description         ${name} is the Simple and Fast Multimedia Library
 
-long_description    ${description}. It provides a simple interface to the various \
-                    components of your computer, to ease the development of games and \
-                    multimedia applications. It is composed of five modules: system, \
-                    window, graphics, audio and network.
+long_description    ${description}. It provides a simple interface to the \
+                    various components of your computer, to ease the \
+                    development of games and multimedia applications. It \
+                    is composed of five modules: system, window, \
+                    graphics, audio and network.
 
 homepage            http://www.sfml-dev.org/
 master_sites        http://www.sfml-dev.org/download/sfml/${version}/
@@ -28,21 +29,26 @@ checksums           rmd160  a4c6b369729ad8331f6cb643995a0fb1dd719536 \
 
 worksrcdir          ${name}-${version}
 
-# SFML includes internal versions of some of these, but I'm including the dependencies
-# anyways for when I figure out how to get it to use external copies
+# SFML includes internal versions of some of these, but I am including
+# the dependencies anyways for when I figure out how to get it to use
+# external copies
 depends_lib-append  port:glew \
                     port:freetype \
                     port:jpeg \
                     port:libsndfile \
-                    port:mesa
+                    port:mesa \
+                    port:openal-soft
 
+configure.cppflags-append \
+                    -I${prefix}/include/AL
 configure.args-append \
                     -DCMAKE_FRAMEWORK_PATH=${prefix}/Library/Frameworks \
                     -DCMAKE_INSTALL_FRAMEWORK_PREFIX=${prefix}/Library/Frameworks
 configure.env-append \
                     CMAKE_FRAMEWORK_PATH=${prefix}/Library/Frameworks \
                     CMAKE_INSTALL_FRAMEWORK_PREFIX=${prefix}/Library/Frameworks
-build.env-append    ${configure.env} 
+build.env-append    ${configure.env}
+use_parallel_build  no
 
 # OpenAL fails on Mountain Lion: http://trac.macports.org/ticket/39008
 # And Lion: http://trac.macports.org/ticket/34012
@@ -50,3 +56,5 @@ platform darwin < 11 {
     depends_lib-append \
                     port:OpenAL
 }
+
+livecheck.type      none

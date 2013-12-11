@@ -2,6 +2,13 @@
 # $Id: Portfile 102865 2013-02-09 19:16:59Z jeremyhu@macports.org $
 
 PortSystem                  1.0
+PortGroup                   compiler_blacklist_versions 1.0
+
+# Please keep the wine, wine-devel and wine-crossover ports as similar
+# as possible.
+
+# When updating the version of wine, update wine_gecko to a compatible
+# version per the table at http://wiki.winehq.org/Gecko
 
 name                        wine-crossover
 conflicts                   wine wine-devel
@@ -17,16 +24,20 @@ dist_subdir                 wine
 set wine_distfile           ${distname}${extract.suffix}
 set wine_gecko_version      1.9
 set wine_gecko_distfile     wine_gecko-${wine_gecko_version}-x86.msi
-distfiles                   ${wine_distfile}:winesource ${wine_gecko_distfile}:winegecko
+distfiles                   ${wine_distfile}:winesource \
+                            ${wine_gecko_distfile}:winegecko
 extract.only                ${wine_distfile}
 worksrcdir                  sources/wine
 build.target                depend all
 use_parallel_build          yes
 
-description                 Wine Is Not an Emulator (1.5.15 with CodeWeavers modifications for CrossOver)
+description                 Wine Is Not an Emulator \
+                            (1.5.15 with CodeWeavers mods for CrossOver)
 
-long_description            Wine is an implementation of the Windows APIs on top of X11. \
-                            This version contains the Codeweavers patches for CrossOver
+long_description            Wine is an implementation of the Windows \
+                            APIs on top of X11. \
+                            This version contains the Codeweavers \
+                            patches for CrossOver.
 
 master_sites                http://ftp.codeweavers.com/pub/crossover/source/:winesource \
                             http://ftp.codeweavers.com/pub/crossover/source/archive/${version}/:winesource \
@@ -52,6 +63,7 @@ depends_lib-append          port:expat \
                             port:libxml2 \
                             port:libxslt \
                             port:ncurses \
+                            port:gnutls \
                             port:openssl \
                             port:tiff \
                             port:zlib \
@@ -69,8 +81,9 @@ depends_build-append        port:bison \
                             port:flex \
                             port:pkgconfig
 
-# Extract only the wine directory. We don't need the others, and their presence
-# interferes with the wine build (which uses parts of them if present).
+# Extract only the wine directory. We do NOT need the others, and their
+# presence interferes with the wine build (which uses parts of them if
+# present).
 extract.post_args-append    ${worksrcdir}
 
 patchfiles                  patch-BOOL.diff \
@@ -121,20 +134,25 @@ configure.args              --without-alsa \
 # This is not 64-bit friendly yet
 supported_archs             i386
 
-# BUILD FIX TODO: llvm-gcc-4.2, clang
-# llvm-gcc does not respect force_align_arg_pointer
-# clang fails due to CFI-foo (winebuild uses /usr/bin/as to assemble clang-generated assembly)
-compiler.whitelist gcc-4.2 apple-gcc-4.2
+# llvm-gcc-4.2 does NOT respect force_align_arg_pointer; wine builds but
+# fails to run
+# http://bugs.winehq.org/show_bug.cgi?id=28030
+compiler.blacklist-append   *llvm-gcc-4.2
 
-# TODO: This should be done by base
-if {${configure.compiler} == "apple-gcc-4.2"} {
-    depends_build-append port:apple-gcc42
-    depends_skip_archcheck-append apple-gcc42
-}
+# clang < 3.1 fails to build wine with:
+# "error: invalid operand for instruction lretw"
+# http://bugs.winehq.org/show_bug.cgi?id=32872
+compiler.blacklist-append   {clang < 425} macports-clang-2.9 macports-clang-3.0
+
+# FSF GCC cannot compile code using Apple's "blocks" language extensions
+compiler.blacklist-append   macports-gcc-*
+
+compiler.fallback-append    gcc-4.2 apple-gcc-4.2
 
 platform darwin {
     if {${os.major} <= 9} {
-        # Fix "Xcode 3.x cannot build 16-bit code correctly. Use --disable-win16 if you don't need 16-bit support."
+        # Fix "Xcode 3.x cannot build 16-bit code correctly.
+        # Use --disable-win16 if you do NOT need 16-bit support."
         # Only affects Xcode 3.0.x and 3.1.x, not 3.2.x.
         # See http://bugs.winehq.org/show_bug.cgi?id=14920
         configure.args-append --disable-win16
@@ -233,8 +251,9 @@ variant noconflict description {Removes conflicts with the other Wine ports by a
             README \
             ${destroot}${prefix}/share/doc/${name}
     }
-    # I only added the following block to deal with when I check the destroot manually
-    # through Finder to check to make sure everything's right. Feel free to remove it.
+    # I only added the following block to deal with when I check the
+    # destroot manually through Finder to check to make sure everything is
+    # right. Feel free to remove it.
     pre-install {
         system "find ${destroot} -name .DS_Store -delete"
     }
@@ -296,10 +315,10 @@ depends_lib-append          port:gphoto2 \
     }
 }
 
-variant broken description {Don't use this} requires huge {
+variant broken description {Do NOT use this} requires huge {
 PortGroup                   archcheck 1.0
 pre-fetch {
-    ui_error "No seriously, don't use this variant. It doesn't work at all yet."
+    ui_error "No seriously, do NOT use this variant. It does NOT work yet."
 }
 configure.args-append       --with-openal \
                             --with-oss
@@ -318,13 +337,16 @@ depends_lib-append          port:i386-mingw32-libunicows \
                             port:netcat \
                             port:png2ico \
                             port:openal \
+                            port:openal-soft \
                             port:ttf2pt1 \
                             port:pev \
                             port:rtfreader
-depends_skip_archcheck binutils elftoolchain linuxdoc i386-elf-gcc \
+depends_skip_archcheck-append \
+                       binutils elftoolchain linuxdoc i386-elf-gcc \
                        i386-mingw32-libunicows nsis dbus-glib-sharp \
-                       gecko-sharp2 mono-addins mono-basic netcat png2ico ttf2pt1 \
-                       rtfreader i386-mingw32-gcc i386-mingw32-w32api
+                       gecko-sharp2 mono-addins mono-basic netcat \
+                       png2ico ttf2pt1 rtfreader i386-mingw32-gcc \
+                       i386-mingw32-w32api
 }
 
 livecheck.type              regex

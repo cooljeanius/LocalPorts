@@ -96,3 +96,5 @@ post-destroot {
 }
 destroot.keepdirs ${destroot}${applications_dir}/${app.name}.app/Contents/Resources/data
 app.icon ${build.dir}/data/icon/window_32.png
+
+livecheck.type      none

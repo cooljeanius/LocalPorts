@@ -99,4 +99,5 @@ post-activate    {
         ${prefix}/bin/gconftool-2 --makefile-install-rule ${prefix}/etc/gconf/schemas/*.schemas"
 }
 
+#TODO: update to GNOME3 version (3.10.2)
 livecheck.type  gnome

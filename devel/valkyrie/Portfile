@@ -3,6 +3,8 @@
 
 PortSystem            1.0
 PortGroup             qt4 1.0
+#TODO: use qmake portgroup instead, it includes the qt4 one and is more
+# specific to this.
 
 name                  valkyrie
 version               2.0.0
@@ -16,7 +18,8 @@ maintainers           raimue gwmail.gwu.edu:egall openmaintainer
 
 description           A Qt4-based GUI for valgrind.
 long_description \
-    Valkyrie is a graphical frontend to valgrind: what ddd is to gdb, valkyrie is to valgrind. \
+    Valkyrie is a graphical frontend to valgrind: what ddd is to \
+    gdb, valkyrie is to valgrind. \
     It uses Qt4 and works with the Memcheck and Helgrind tools. \
     It also has an XML merging tool for Memcheck outputs (vk_logmerge).
 
@@ -29,7 +32,8 @@ checksums             md5     a411dfb803f548dae5f988de0160aeb5 \
                       rmd160  ae7d9905a22311af3261347b5c39e7ca7fccaaa7 \
                       sha256  a70b9ffb2409c96c263823212b4be6819154eb858825c9a19aad0ae398d59b43
 
-# This was taken from the valgrind portfile; I don't know if it actually applies to valkyrie, too, though...
+# This was taken from the valgrind portfile; I do NOT know if it actually
+# applies to valkyrie, too, though...
 pre-configure {
     if {"darwin" == ${os.platform} && (${os.major} < 9 || ${os.major} > 12)} {
         ui_error "${name} ${version} is only compatible with OS X 10.5, 10.6, 10.7 and 10.8"
@@ -59,7 +63,7 @@ post-configure {
 # When Qt is installed without +universal, and qmake is called with
 # "QMAKE_LDFLAGS += -arch foo", and "foo" is the native arch, then, at
 # least sometimes, qmake will erroneously remove the second "foo" but
-# leave the "-arch" flag -- generating an error at linking.  Not sure
+# leave the "-arch" flag -- generating an error at linking. Not sure
 # if this is the case with +debug though...
     if {![variant_isset universal]} {
         reinplace "s|\\(-arch ${build_arch}\\) -arch|\\1|" \
@@ -67,7 +71,8 @@ post-configure {
     }
 }
 
-# allow ccache, if specified by the user (this was taken from the djview portfile)
+# allow ccache, if specified by the user
+# (this was taken from the djview portfile)
 pre-build {
     if {[tbool configure.ccache]} {
         build.post_args "CCACHE=ccache"
@@ -77,12 +82,14 @@ pre-build {
 # Just in case
 build.env-append      ${configure.env}
 
-# This variant could have been left empty but I felt like I had to put something in it
+# This variant could have been left empty but I felt like I had to
+# put something in it
 variant debug description {Set for debugging} {
     use_parallel_build no
 }
 
-# Apparently putting stuff in ${applications_dir} counts as violating the mtree...
+# Apparently putting stuff in ${applications_dir} counts as violating
+# the mtree...
 destroot.violate_mtree      yes
 
 # Setting destroot.destdir just in case
@@ -98,7 +105,8 @@ post-destroot {
     delete ${destroot}/usr
 }
 
-livecheck.type        regex
+livecheck.type        none
 livecheck.url         ${homepage}
-# The livecheck regex is broken; I'm not sure how to fix it...
+# The livecheck regex is broken; I am not sure how to fix it
+# (besides just disabling it, that is)
 livecheck.regex       ${name}-(\\d(?:\\.\\d)+)

@@ -4,8 +4,8 @@
 PortSystem              1.0
 
 name                    arm-elf-gdb
-version                 7.1
-revision                2
+version                 7.6.1
+revision                0
 categories              cross devel
 maintainers             koostech.com:billy openmaintainer
 license                 GPL-3+
@@ -18,22 +18,25 @@ master_sites            gnu:gdb
 distname                gdb-${version}
 dist_subdir             gdb
 use_bzip2               yes
-checksums               md5 21dce610476c054687b52770d2ddc657 \
-                        sha1 417e2e637a296ea0e1cdddf56233311b8708fa19 \
-                        rmd160 800d224496240a360c996e588490f2d87367c4e3
+checksums               md5     fbc4dab4181e6e9937075b43a4ce2732 \
+                        sha1    0e38633b3902070d9c6755e4c54602148a094361 \
+                        rmd160  d65ee2ab9f18601ceaeac4d379bb7f344f237bdd \
+                        sha256  e3dfa38a14a5457f9b8b26f7b5080ba5491bd10ae4d69bfe357cea87b7d162e4
 
 set crossgdb-target     arm-elf
 
 depends_build-append    port:arm-elf-binutils \
                         path:arm-elf/bin/gcc:arm-elf-gcc \
                         path:bin/makeinfo:texinfo \
+                        path:bin/xmkmf:imake \
                         bin:bison:bison \
                         bin:expect:expect \
                         bin:flex:flex \
                         bin:gawk:gawk \
                         bin:gm4:m4 \
                         bin:grep:grep \
-                        port:libunwind-headers
+                        port:libunwind-headers \
+                        port:elftoolchain
 
 depends_lib-append      port:expat \
                         port:gettext \
@@ -57,11 +60,38 @@ configure.args-append   --mandir=${prefix}/share/man \
                         --target=${crossgdb-target} \
                         --enable-interwork \
                         --enable-multilib \
+                        --enable-elfcpp=yes \
                         --disable-werror \
+                        --disable-isl-version-check \
+                        --disable-cloog-version-check \
                         --disable-ppl-version-check \
-                        --without-python
+                        --without-python \
+                        --with-zlib \
+                        --enable-elf-stt-common \
+                        --with-x \
+                        --x-includes=${prefix}/include \
+                        --x-libraries=${prefix}/lib \
+                        --with-expat \
+                        --with-libexpat-prefix=${prefix} \
+                        --with-libiconv-prefix=${prefix} \
+                        --with-iconv-bin=${prefix}/bin/iconv \
+                        --with-curses \
+                        --enable-plugins \
+                        --enable-sim \
+                        --enable-multi-ice \
+                        --enable-gdb-build-warnings \
+                        --enable-largefile
 
-configure.env-append    MAKEINFO=${prefix}/bin/makeinfo
+configure.env-append    MAKEINFO=${prefix}/bin/makeinfo \
+                        XMKMF=${prefix}/bin/xmkmf \
+                        INSTALLED_PRODUCT_ASIDES=YES \
+                        RC_JASPER=YES \
+                        RC_XBS=YES \
+                        SEPARATE_STRIP=YES \
+                        TARGET_ARCHITECTURE=arm \
+                        gdb_cv_var_macho=no
+
+build.env-append        ${configure.env}
 
 build.type              gnu
 use_parallel_build      no

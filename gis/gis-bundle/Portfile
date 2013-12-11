@@ -195,3 +195,5 @@ variant broken description {broken dependencies are thrown here until they work}
         require_active_variants orfeotoolbox {python27}
     }
 }
+
+livecheck.type  none

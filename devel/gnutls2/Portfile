@@ -118,7 +118,7 @@ variant autoreconf description {Runs autoreconf before configuring} {
 variant docs description {Build gtk-doc documentation} {
     PortGroup              archcheck 1.0
     depends_build-append   port:gtk-doc
-    # texinfo is already added unconditionally on Darwin 8, so I'm only 
+    # texinfo is already added unconditionally on Darwin 8, so I am only
     # adding it on higher platforms here in this variant
     platform darwin > 8 {
         depends_build-append \
@@ -134,6 +134,7 @@ platform darwin 8 {
                             port:gmake
 }
 
-livecheck.type  regex
+# This is an old version, so turn off livecheck
+livecheck.type  none
 livecheck.url   http://ftp.gnu.org/gnu/${my_name}/
 livecheck.regex ${my_name}-(\\d+\\.\\d*\[02468\]+(?:\\.\\d+)*)

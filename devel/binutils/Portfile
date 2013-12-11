@@ -4,8 +4,8 @@
 PortSystem             1.0
 
 name                   binutils
-version                2.21
-revision               5
+version                2.23.2
+revision               1
 description            FSF Binutils for native development.
 long_description       Free Software Foundation development toolchain \
                        ("binutils") for native development. Tools are \
@@ -21,9 +21,11 @@ master_sites           gnu:${name}
 
 use_bzip2              yes
 
-checksums              sha1    ef93235588eb443e4c4a77f229a8d131bccaecc6 \
-                       rmd160  8d2ebab3287a6283267879074b808d20fe9112b0 \
-                       sha256  60abec5bf448eb930a5a15acb8712612377dc8bcfb13dfd5131228f70561d0c7
+checksums              sha1    042c51073205ebaf88c272d6168f9deb71984b56 \
+                       rmd160  9788e2a8c4a7c74360919347c3bc72040e87b898 \
+                       sha256  fe914e56fed7a9ec2eb45274b1f2e14b0d8b4f41906a5194eac6883cfe5c1097
+
+patchfiles-append      patch-configure.ac.diff
 
 depends_build-append   port:intltool \
                        path:bin/makeinfo:texinfo \
@@ -41,6 +43,8 @@ depends_build-append   port:intltool \
                        port:gsed \
                        port:gawk \
                        port:libtool
+
+depends_skip_archcheck-append autoconf264
 
 depends_lib-append     port:zlib \
                        port:libiconv \
@@ -65,11 +69,11 @@ configure.args-append  --infodir='${prefix}/share/info' \
                        --enable-ld=yes \
                        --enable-libssp \
                        --enable-build-with-cxx \
+                       --enable-build-poststage1-with-cxx \
                        --with-mpc=${prefix} \
                        --with-mpfr=${prefix} \
                        --with-gmp=${prefix} \
                        --with-ppl=${prefix} \
-                       --with-cloog=${prefix} \
                        --enable-objc-gc \
                        --enable-lto \
                        --enable-dlltool=yes \
@@ -82,24 +86,49 @@ configure.args-append  --infodir='${prefix}/share/info' \
                        --enable-gprof=yes \
                        --disable-ppl-version-check \
                        --disable-cloog-version-check \
+                       --enable-languages=all \
                        --enable-stage1-languages=all \
                        --enable-stage1-checking=all \
                        --with-gnu-ld \
                        --enable-plugins \
                        --enable-threads \
-                       --with-zlib
-
-platform x86_64 {
-    configure.args-append \
-            --enable-64-bit-bfd
-}
+                       --with-zlib \
+                       --enable-libquadmath \
+                       --enable-libquadmath-support \
+                       --enable-64-bit-bfd
 
 configure.env-append   SED=${prefix}/bin/gsed \
                        MSGFMT=${prefix}/bin/msgfmt \
                        GMSGFMT=${prefix}/bin/msgfmt \
                        XGETTEXT=${prefix}/bin/xgettext \
                        MSGMERGE=${prefix}/bin/msgmerge \
-                       MAKEINFO=${prefix}/bin/makeinfo
+                       MAKEINFO=${prefix}/bin/makeinfo \
+                       INSTALLED_PRODUCT_ASIDES=YES \
+                       RC_JASPER=YES \
+                       RC_NONARCH_CFLAGS="${configure.optflags}" \
+                       RC_XBS=YES \
+                       SEPARATE_STRIP=YES \
+                       UNAME_RELEASE="${os.version}" \
+                       HOST_ARCHITECTURE="${configure.build_arch}"
+
+platform darwin {
+    configure.env-append \
+                       RC_PRIVATE=/private \
+                       UNAME_SYSNAME=Darwin \
+                       NEXT_ROOT=""
+}
+platform macosx {
+    configure.env-append \
+                       RC_OS=macos \
+                       RC_TARGET_CONFIG=MacOSX
+}
+if {[variant_isset universal]} {
+    configure.env-append \
+                       RC_ARCHS="${configure.universal_archs}"
+} else {
+    configure.env-append \
+                       RC_ARCHS="${configure.build_arch}"
+}
 
 configure.cppflags-append \
                        -I${prefix}/include
@@ -120,9 +149,21 @@ post-extract {
 
 # ...
 pre-patch {
-    system -W ${worksrcpath} "${prefix}/bin/autoscan264"
+    system -W ${worksrcpath} "${prefix}/bin/autoscan264 >/dev/null"
     system -W ${worksrcpath} "${prefix}/bin/aclocal-17 -I config"
 }
+
+use_autoreconf         yes
+autoreconf.cmd         ${prefix}/bin/autoreconf264
+autoreconf.args        -fvi -Wall -Wno-obsolete
+autoreconf.env-append  AUTOCONF=${prefix}/bin/autoconf264 \
+                       AUTOHEADER=${prefix}/bin/autoheader264 \
+                       AUTOM4TE=${prefix}/bin/autom4te264 \
+                       AUTORECONF=${prefix}/bin/autoreconf264 \
+                       AUTOSCAN=${prefix}/bin/autoscan264 \
+                       AUTOUPDATE=${prefix}/bin/autoupdate264 \
+                       IFNAMES=${prefix}/bin/ifnames264 \
+                       ACLOCAL_AMFLAGS="-I./config --install"
 
 pre-configure {
     system "echo \"ppl `ppl-config -V` is installed with: `${prefix}/bin/ppl-config -O`\""
@@ -151,17 +192,40 @@ build.env-append       CPPFLAGS='-I${prefix}/include' \
                        MSGFMT=${prefix}/bin/msgfmt \
                        GMSGFMT=${prefix}/bin/msgfmt \
                        XGETTEXT=${prefix}/bin/xgettext \
-                       MSGMERGE=${prefix}/bin/msgmerge
+                       MSGMERGE=${prefix}/bin/msgmerge \
+                       INSTALLED_PRODUCT_ASIDES=YES \
+                       RC_JASPER=YES \
+                       RC_XBS=YES \
+                       SEPARATE_STRIP=YES \
+                       UNAME_RELEASE="${os.version}" \
+                       HOST_ARCHITECTURE="${build_arch}"
+
+platform darwin {
+    build.env-append   RC_PRIVATE=/private \
+                       UNAME_SYSNAME=Darwin \
+                       NEXT_ROOT=""
+}
+platform macosx {
+    build.env-append   RC_OS=macos \
+                       RC_TARGET_CONFIG=MacOSX
+}
+if {[variant_isset universal]} {
+    build.env-append \
+                       RC_ARCHS="${configure.universal_archs}"
+} else {
+    build.env-append \
+                       RC_ARCHS="${build_arch}"
+}
 
 post-build {
     configure.args-delete \
                        --enable-libssp \
                        --enable-build-with-cxx \
+                       --enable-build-poststage1-with-cxx \
                        --with-mpc \
                        --with-mpfr \
                        --with-gmp \
                        --with-ppl \
-                       --with-cloog \
                        --enable-objc-gc \
                        --enable-lto \
                        --enable-dlltool \
@@ -174,8 +238,12 @@ post-build {
                        --enable-gprof \
                        --disable-ppl-version-check \
                        --disable-cloog-version-check \
+                       --enable-languages \
                        --enable-stage1-languages \
-                       --enable-stage1-checking
+                       --enable-stage1-checking \
+                       --enable-libquadmath \
+                       --enable-libquadmath-support
+    configure.args-append --disable-option-checking
     system -W ${worksrcpath}/gprof "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gprof/Makefile
     system -W ${worksrcpath}/gprof "${build.cmd} ${build.pre_args}"
@@ -202,16 +270,61 @@ post-destroot {
     if {[catch "registry_active gdb"]} {
         system -W ${worksrcpath}/gas "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     }
-    ui_msg "Generating ld scripts..."
-    system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} \"\" \"\" no \"\" x86_64-apple-darwin${os.version} ppcmacos"
-    foreach ldscript [glob ${worksrcpath}/ld/ldscripts/.*] {
-        if [file isfile ${ldscript}] {
-            ui_debug "renaming ${ldscript} to [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]"
-            file rename ${ldscript} [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]
+    platform x86_64 {
+        ui_msg "Trying to generate ld scripts in ${worksrcpath}/ld..."
+        system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} \"\" \"\" no \"\" ppcmacos ppcmacos 2>&1"
+        system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} \"\" \"\" no \"\" i386mach i386mach 2>&1"
+        foreach ldscript [glob ${worksrcpath}/ld/ldscripts/.*] {
+            if [file isfile ${ldscript}] {
+                ui_debug "renaming ${ldscript} to [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]"
+                file rename ${ldscript} [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]
+            }
         }
     }
-    system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
-    move ${destroot}${prefix}/bin/ld ${destroot}${prefix}/x86_64-apple-darwin${os.version}/bin
+    platform powerpc {
+        ui_msg "Trying to generate ld scripts in ${worksrcpath}/ld..."
+        system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin ppc-apple-darwin${os.version} ppc-apple-darwin${os.version} ppc-apple-darwin${os.version} \"\" \"\" no \"\" ppcmacos ppcmacos 2>&1"
+        foreach ldscript [glob ${worksrcpath}/ld/ldscripts/.*] {
+            if [file isfile ${ldscript}] {
+                ui_debug "renaming ${ldscript} to [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]"
+                file rename ${ldscript} [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]
+            }
+        }
+    }
+    platform i386 {
+        ui_msg "Trying to generate ld scripts in ${worksrcpath}/ld..."
+        system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin i386-apple-darwin${os.version} i386-apple-darwin${os.version} i386-apple-darwin${os.version} \"\" \"\" no \"\" i386mach i386mach 2>&1"
+        foreach ldscript [glob ${worksrcpath}/ld/ldscripts/.*] {
+            if [file isfile ${ldscript}] {
+                ui_debug "renaming ${ldscript} to [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]"
+                file rename ${ldscript} [file dirname ${ldscript}]/apple_darwin[file tail ${ldscript}]
+            }
+        }
+    }
+    platform x86_64 {
+        system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+        if {[file exists ${destroot}${prefix}/bin/ld]} {
+            move ${destroot}${prefix}/bin/ld ${destroot}${prefix}/x86_64-apple-darwin${os.version}/bin
+        } elseif {[file exists ${destroot}${prefix}/bin/ld-new]} {
+            move ${destroot}${prefix}/bin/ld-new ${destroot}${prefix}/x86_64-apple-darwin${os.version}/bin
+        }
+    }
+    platform i386 {
+        system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+        if {[file exists ${destroot}${prefix}/bin/ld]} {
+            delete ${destroot}${prefix}/bin/ld
+        } elseif {[file exists ${destroot}${prefix}/bin/ld-new]} {
+            delete ${destroot}${prefix}/bin/ld-new
+        }
+    }
+    platform powerpc {
+        system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+        if {[file exists ${destroot}${prefix}/bin/ld]} {
+            delete ${destroot}${prefix}/bin/ld
+        } elseif {[file exists ${destroot}${prefix}/bin/ld-new]} {
+            delete ${destroot}${prefix}/bin/ld-new
+        }
+    }
     file rename ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/${name}-standards.info
     file rename ${destroot}${prefix}/share/info/configure.info ${destroot}${prefix}/share/info/${name}-configure.info
     file rename ${destroot}${prefix}/share/info/bfd.info ${destroot}${prefix}/share/info/${name}-bfd.info
@@ -228,16 +341,42 @@ post-destroot {
         }
     }
     eval reinplace "s|${prefix}/lib|${prefix}/lib/${name}-staticlibs|g" [glob ${destroot}${prefix}/lib/${name}-staticlibs/*.la]
-    xinstall -d ${destroot}${prefix}/lib/x86_64/binutils
-    move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/x86_64/binutils
+    platform x86_64 {
+        xinstall -d ${destroot}${prefix}/lib/x86_64/binutils
+        move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/x86_64/binutils
+    }
+    platform i386 {
+        xinstall -d ${destroot}${prefix}/lib/i386/binutils
+        if [file exists ${destroot}${prefix}/lib/x86_64/libiberty.a] {
+            move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/i386/binutils
+        } elseif [file exists ${destroot}${prefix}/lib/i386/libiberty.a] {
+            move ${destroot}${prefix}/lib/i386/libiberty.a ${destroot}${prefix}/lib/i386/binutils
+        }
+    }
+    platform powerpc {
+        xinstall -d ${destroot}${prefix}/lib/ppc/binutils
+    }
     foreach msgs [glob ${destroot}${prefix}/share/locale/*/LC_MESSAGES/*.mo] {
         if [file isfile ${msgs}] {
             move ${msgs} [file dirname ${msgs}]/${name}-[file tail ${msgs}]
         }
     }
-    xinstall -d ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
+    platform x86_64 {
+        xinstall -d ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
+    }
 }
 
-destroot.keepdirs ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
+platform x86_64 {
+    destroot.keepdirs ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
+}
+platform i386 {
+    if {![file exists ${destroot}${prefix}/lib/i386/binutils/libiberty.a]} {
+        destroot.keepdirs ${destroot}${prefix}/lib/i386/binutils
+    } elseif {![file exists ${destroot}${prefix}/lib/x86_64/binutils/libiberty.a]} {
+        destroot.keepdirs ${destroot}${prefix}/lib/x86_64/binutils
+    }
+}
+platform powerpc {
+    destroot.keepdirs ${destroot}${prefix}/lib/ppc/binutils
+}
 
-universal_variant      no

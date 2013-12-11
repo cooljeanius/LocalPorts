@@ -51,3 +51,5 @@ destroot {
     xinstall -d ${destroot}${prefix}/share/${name}
     xinstall -W ${worksrcpath} -m 644 README.txt LICENSE.txt ${destroot}${prefix}/share/${name}
 }
+
+livecheck.type      none

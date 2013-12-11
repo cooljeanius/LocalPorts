@@ -1,0 +1,120 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 97300 2012-09-03 03:05:48Z rmstonecipher@macports.org $
+
+PortSystem          1.0
+
+name                t4k_common
+version             0.1.1
+revision            2
+categories          devel games education
+license             GPL-3+
+platforms           darwin
+maintainers         gmail.com:davidstuartbruce openmaintainer
+
+description         shared code for Tux4Kids apps "TuxMath" and \
+                    "Tux Typing"
+
+long_description    ${name} is a common library for routines used in \
+                    TuxMath and Tux Typing.
+
+homepage            http://tux4kids.debian.alioth.org/
+master_sites        http://alioth.debian.org/frs/download.php/3540/
+
+checksums           sha1    626eddedee86059ccab593a226c8d98571018b46 \
+                    rmd160  6c0332ea44e4a44021c645e5b4329c2efd377fed \
+                    sha256  42c155816dae2c5dad560faa50edaa1ca84536530283d37859c4b91e82675110
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  port:libsdl \
+                    port:libsdl_image \
+                    port:libsdl_mixer \
+                    port:libsdl_net \
+                    port:libsdl_ttf \
+                    port:libsdl_pango \
+                    port:libxml2 \
+                    port:librsvg \
+                    port:libpng \
+                    port:gettext \
+                    port:bzip2 \
+                    port:expat \
+                    port:flac \
+                    port:fontconfig \
+                    port:freetype \
+                    port:gdk-pixbuf2 \
+                    port:libcroco \
+                    port:libffi \
+                    port:libiconv \
+                    port:libmikmod \
+                    port:libogg \
+                    port:libvorbis \
+                    port:smpeg \
+                    port:xorg-libX11 \
+                    port:xorg-libXau \
+                    port:xorg-libXdmcp \
+                    port:xorg-libXext \
+                    port:xorg-libXrandr \
+                    port:xorg-libxcb \
+                    port:xrender \
+                    port:xz \
+                    port:zlib \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    path:lib/pkgconfig/pango.pc:pango \
+                    path:lib/pkgconfig/pixman-1.pc:libpixman
+
+patchfiles-append   patch-linewrap_fix.diff \
+                    patch-configure.ac.diff
+
+pre-patch {
+    file copy ${worksrcpath}/configure.ac ${worksrcpath}/configure.ac.orig
+}
+
+use_autoreconf      yes
+autoreconf.args     -fvi
+
+configure.args-append \
+                    --disable-sdltest \
+                    --with-sdl-prefix=${prefix} \
+                    --without-rsvg \
+                    --disable-doxygen-doc \
+                    --disable-doxygen-dot \
+                    --disable-doxygen-html \
+                    --disable-doxygen-pdf
+
+variant docs description "build documentation" {
+    depends_build-append \
+                    port:doxygen \
+                    bin:perl:perl5 \
+                    bin:dot:graphviz \
+                    bin:pdflatex:texlive-latex \
+                    bin:makeindex:texlive-basic \
+                    bin:egrep:grep
+    configure.args-delete \
+                    --disable-doxygen-doc \
+                    --disable-doxygen-dot \
+                    --disable-doxygen-html \
+                    --disable-doxygen-pdf
+    configure.args-append \
+                    --enable-doxygen-man \
+                    --enable-doxygen-rtf \
+                    --enable-doxygen-ps
+    use_parallel_build no
+    build.target-append dvi html info pdf ps
+    post-build {
+        system -W ${worksrcpath} "${prefix}/bin/doxygen -u"
+        system -W ${worksrcpath} "${prefix}/bin/doxygen"
+        system -W ${worksrcpath}/doxygen/latex "${build.cmd}"
+    }
+    post-destroot {
+        set docdir ${destroot}${prefix}/share/doc/${name}
+        xinstall -d ${docdir}
+        copy ${worksrcpath}/doxygen ${docdir}
+        foreach docfile {README COPYING} {
+            xinstall -m 644 ${worksrcpath}/${docfile} ${docdir}
+        }
+    }
+}
+
+# returns with 406 error
+livecheck.type      none

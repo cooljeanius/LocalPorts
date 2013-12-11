@@ -8,6 +8,7 @@ version         1.0.9
 revision        2
 categories      audio net
 maintainers     nomaintainer
+license         LGPL-2
 description     Data and connectivity lib for the icecast server
 long_description \
     A port of the libshout library. Libshout allows applications to \
@@ -48,3 +49,6 @@ configure.args-append \
 
 # ccache: invalid option -- d
 configure.ccache no
+
+# This is an old version, so disable livecheck
+livecheck.type  none

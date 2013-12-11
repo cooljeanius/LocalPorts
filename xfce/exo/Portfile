@@ -80,3 +80,5 @@ post-configure {
 platform darwin {
         configure.args-append --disable-visibility
 }
+
+livecheck.type  none

@@ -9,8 +9,8 @@ PortGroup compiler_blacklist_versions 1.0
 name            ffmpeg
 conflicts       ffmpeg-devel
 epoch           1
-version         2.0.1
-revision        2
+version         2.0.2
+revision        0
 set branch      [join [lrange [split ${version} .] 0 1] .]
 license         LGPL-2.1+
 categories      multimedia
@@ -46,8 +46,8 @@ master_sites    http://www.${name}.org/releases/
 
 use_bzip2       yes
 
-checksums       rmd160  e1e5cfe9417b40833a5234b521ebe9c8b8e89cd9 \
-                sha256  611eae7e3485d5fd9ff03e0ac7575ea89bc8105e40e99a40de02324957482f95
+checksums       rmd160  8be0593a1904e9f5575779fe7aaa4978d29fbb5d \
+                sha256  986f63dc0785f473b1832d0eead502e39c9706fbe7f9677bbea0dad6fe0fab4a
 
 depends_build-append \
                 port:pkgconfig \
@@ -96,16 +96,6 @@ if {[lsearch [get_canonical_archs] i386] != -1} {
 
 compiler.blacklist-append gcc-3.3 *gcc-4.0
 
-# And similarly, disable asm on Tiger
-# libblueray does not build on Tiger, so disable for now (#39442)
-platform darwin {
-    if {${os.major} < 9} {
-        depends_lib-delete    port:libbluray
-        configure.args-delete --enable-libbluray
-        configure.args-append --disable-asm
-    }
-}
-
 # The old ffmpeg port was GPL-2+ as base and had a no_gpl variant, so this
 # keeps us consistent. Also, -gpl2 causes other ports to fail to build due
 # to the missing libpostproc (#35473)
@@ -129,11 +119,23 @@ configure.args-append \
         --enable-libbluray \
         --enable-gnutls \
         --enable-libfreetype \
+        --disable-indev=jack \
         --disable-outdev=xv \
         --mandir=${prefix}/share/man \
         --enable-shared \
         --enable-pthreads \
         --cc=${configure.cc}
+
+# And similarly, disable asm on Tiger
+# libblueray does not build on Tiger, so disable for now (#39442)
+platform darwin {
+    if {${os.major} < 9} {
+        depends_lib-delete    port:libbluray
+        configure.args-delete --enable-libbluray
+        configure.args-append --disable-libbluray
+        configure.args-append --disable-asm
+    }
+}
 
 test.run        yes
 
@@ -285,4 +287,4 @@ notes "
 
 livecheck.type  regex
 livecheck.url   ${master_sites}
-livecheck.regex "${name}-(${branch}(?:\\.\\d+)*)${extract.suffix}"
+livecheck.regex "${name}-(\\d+(?:\\.\\d+)*)${extract.suffix}"

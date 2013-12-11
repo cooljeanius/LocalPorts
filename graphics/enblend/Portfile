@@ -113,5 +113,5 @@ platform macosx {
     configure.args-append --with-apple-opengl-framework --with-glew
 }
 
-#TODO: update to 4.1.1
+#TODO: update to 4.1.2
 livecheck.regex   /${longname}-(\[0-9.\]+)${extract.suffix}

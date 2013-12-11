@@ -1,5 +1,5 @@
---- configure.ac.bak	2013-09-21 16:09:40.000000000 -0400
-+++ configure.ac	2013-09-21 18:51:42.000000000 -0400
+--- configure.ac.orig	2011-04-21 15:35:37.000000000 -0400
++++ configure.ac	2013-11-23 08:57:22.000000000 -0500
 @@ -1,53 +1,58 @@
 -dnl Evolution-Data-Server version
 -m4_define([eds_major_version], [2])
@@ -221,13 +221,17 @@
  	-DGDK_PIXBUF_DISABLE_DEPRECATED
  	-DGTK_DISABLE_DEPRECATED
  	-DG_DISABLE_SINGLE_INCLUDES
-@@ -181,38 +185,52 @@
+@@ -176,43 +180,56 @@
+ 	-Wno-sign-compare
+ 	-Wno-unused-parameter
+ 	-Wdeclaration-after-statement
+-	-Werror-implicit-function-declaration
+ 	-Wformat-security -Winit-self
  	-Wmissing-declarations -Wmissing-include-dirs
  	-Wmissing-noreturn -Wnested-externs -Wpointer-arith
  	-Wredundant-decls -Wundef -Wwrite-strings")
 -AC_SUBST(WARNING_FLAGS)
-+AC_SUBST([WARNING_FLAGS])
- 
+-
 -dnl	More depracation from EBook/ECal:
 -dnl	-DE_BOOK_DISABLE_DEPRECATED
 -dnl	-DE_CAL_DISABLE_DEPRECATED
@@ -240,6 +244,19 @@
 -dnl	-Wmissing-format-attribute
 -dnl	-Wshadow
 -dnl	-Wstrict-aliasing=2
+-
+-AM_CPPFLAGS="$WARNING_FLAGS -fno-strict-aliasing"
+-AC_SUBST(AM_CPPFLAGS)
+-
+-LDFLAGS="$LDFLAGS -Wl,--no-undefined"
+-
+-dnl ******************************
+-dnl Initialize maintainer mode
+-dnl ******************************
+-AM_MAINTAINER_MODE
++AC_SUBST([WARNING_FLAGS])
+ 
+-AC_PROG_CC
 +dnl# More depracation from EBook/ECal:
 +dnl# -DE_BOOK_DISABLE_DEPRECATED
 +dnl# -DE_CAL_DISABLE_DEPRECATED
@@ -252,19 +269,10 @@
 +dnl# -Wmissing-format-attribute
 +dnl# -Wshadow
 +dnl# -Wstrict-aliasing=2
- 
- AM_CPPFLAGS="$WARNING_FLAGS -fno-strict-aliasing"
--AC_SUBST(AM_CPPFLAGS)
--
--LDFLAGS="$LDFLAGS -Wl,--no-undefined"
++
++AM_CPPFLAGS="${WARNING_FLAGS} -fno-strict-aliasing"
 +AC_SUBST([AM_CPPFLAGS])
- 
--dnl ******************************
--dnl Initialize maintainer mode
--dnl ******************************
--AM_MAINTAINER_MODE
--
--AC_PROG_CC
++
 +dnl#******************************
 +dnl# Initialize maintainer mode
 +dnl#******************************
@@ -272,11 +280,11 @@
 +
 +# Checks for programs.
 +AM_PROG_AR
-+if test "x$CC" = "x"; then
-+	test -z "$CC"
++if test "x${CC}" = "x"; then
++	test -z "${CC}"
 +	AC_PROG_CC
 +else
-+	test ! -z "$CC" && export CC
++	test ! -z "${CC}" && export CC
 +	AC_SUBST([CC])
 +fi
 +AC_PROG_GCC_TRADITIONAL
@@ -287,17 +295,17 @@
  AC_PROG_INSTALL
  AC_PROG_LN_S
 -AC_PROG_MAKE_SET
-+if test "x$MAKE_SET" = "x"; then
-+	test -z "$MAKE_SET"
++if test "x${MAKE_SET}" = "x"; then
++	test -z "${MAKE_SET}"
 +	AC_PROG_MAKE_SET
 +else
-+	test ! -z "$MAKE_SET" && export MAKE_SET
++	test ! -z "${MAKE_SET}" && export MAKE_SET
 +	AC_SUBST([MAKE_SET])
 +fi
  AM_PROG_LEX
  AC_PROG_YACC
  case $YACC in
-@@ -221,59 +239,69 @@
+@@ -221,59 +238,69 @@
  	;;
  esac
  
@@ -316,7 +324,8 @@
 +dnl# (AC_PROG_CC must run first to set the GCC variable.)
 +dnl# XXX This really belongs in AM_CFLAGS.
  if test "x${GCC}" = "xyes"; then
- 	CFLAGS="$CFLAGS -fno-strict-aliasing"
+-	CFLAGS="$CFLAGS -fno-strict-aliasing"
++	CFLAGS="${CFLAGS} -fno-strict-aliasing"
  fi
  
 -dnl ******************************
@@ -399,7 +408,7 @@
  AC_MSG_CHECKING([for Win32])
  case "$host" in
  *-mingw*)
-@@ -282,8 +310,8 @@
+@@ -282,8 +309,8 @@
  	SOCKET_LIBS='-lws2_32 -ldnsapi'
  	DL_LIB=''
  	LIBEXECDIR_IN_SERVER_FILE='../../../libexec'
@@ -410,7 +419,7 @@
  	;;
  *)
  	os_win32='no'
-@@ -294,65 +322,101 @@
+@@ -294,65 +321,102 @@
  	;;
  esac
  AC_MSG_RESULT([$os_win32])
@@ -439,8 +448,9 @@
 -dnl ************************************
 +dnl# Checks for other header files.
 +AC_HEADER_STDBOOL dnl# Calls AC_CHECK_HEADER_STDBOOL
-+AC_CHECK_HEADERS([fcntl.h langinfo.h limits.h netdb.h netinet/in.h sys/file.h \
-+                  sys/ioctl.h sys/param.h sys/socket.h sys/time.h termios.h utime.h])
++AC_CHECK_HEADERS([fcntl.h langinfo.h limits.h netdb.h netinet/in.h \
++                  sys/file.h sys/ioctl.h sys/param.h sys/socket.h \
++                  sys/time.h termios.h utime.h])
 +
 +dnl# Checks for typedefs, structures, and compiler characteristics.
 +AC_C_BIGENDIAN
@@ -473,12 +483,12 @@
 +AC_FUNC_MKTIME
 +AC_FUNC_REALLOC
 +AC_FUNC_STRTOD
-+AC_CHECK_FUNCS([alarm dup2 fsync ftruncate gethostbyaddr gethostbyname gethostname \
-+                gettimeofday isascii localtime_r memchr memmove memset mkdir \
-+                nl_langinfo putenv realpath regcomp rmdir select setenv setlocale \
-+                socket strcasecmp strchr strcspn strdup strerror strncasecmp \
-+                strpbrk strptime strrchr strstr strtok_r strtol strtoul strtoull \
-+                utime])
++AC_CHECK_FUNCS([alarm dup2 fsync ftruncate gethostbyaddr gethostbyname \
++                gethostname gettimeofday isascii localtime_r memchr \
++                memmove memset mkdir nl_langinfo putenv realpath regcomp \
++                rmdir select setenv setlocale socket strcasecmp strchr \
++                strcspn strdup strerror strncasecmp strpbrk strptime \
++                strrchr strstr strtok_r strtol strtoul strtoull utime])
 +
 +dnl#***********************************
 +dnl# Check for base dependencies early.
@@ -494,17 +504,18 @@
  
 -dnl libgdata 0.7 will break API.  We're not going to deal with
 -dnl that on a stable branch, so cap the supported version.
-+dnl# libgdata 0.7 breaks API, thus deal with it.
-+AC_MSG_CHECKING([if libgdata is 0.7 or higher])
-+ac_cv_have_gdata_07=no
- if $PKG_CONFIG --atleast-version=0.7 libgdata; then
+-if $PKG_CONFIG --atleast-version=0.7 libgdata; then
 -	AC_MSG_ERROR([libgdata 0.7 is not supported, use 0.6 instead])
-+        ac_cv_have_gdata_07=yes
-+        GDATA_LIBS="-lgdata"
-+        AC_SUBST([GDATA_LIBS])
-+        AC_DEFINE([HAVE_GDATA_07],[1],[libgdata is 0.7 or higher])
++dnl# libgdata 0.7 breaks API, thus deal with it.
++AC_CACHE_CHECK([if libgdata is 0.7 or higher],
++[ac_cv_have_gdata_07],[
++${PKG_CONFIG} --atleast-version=0.7 libgdata
++],[ac_cv_have_gdata_07=yes],[ac_cv_have_gdata_07=no])
++if test "${ac_cv_have_gdata_07}" = "yes"; then
++    GDATA_LIBS="-lgdata"
++    AC_SUBST([GDATA_LIBS])
++    AC_DEFINE([HAVE_GDATA_07],[1],[libgdata is 0.7 or higher])
  fi
-+AC_MSG_RESULT([$ac_cv_have_gdata_07])
  
  LIBICAL_REQUIRED=libical_minimum_version
 -AC_SUBST(LIBICAL_REQUIRED)
@@ -546,8 +557,8 @@
  
 -DB_CFLAGS="-I$libdb_prefix/include"
 -DB_LIBS="-L$libdb_prefix/lib -ldb"
-+DB_CFLAGS="-I$prefix/include/db46"
-+DB_LIBS="-L$prefix/lib/db46 -ldb"
++DB_CFLAGS="-I${libdb_prefix}/include/db46"
++DB_LIBS="-L${libdb_prefix}/lib/db46 -ldb"
  
  AC_MSG_CHECKING([Berkeley DB])
  save_cflags=$CFLAGS; CFLAGS=$DB_CFLAGS
@@ -610,6 +621,15 @@
  
  CFLAGS="$CFLAGS -I$srcdir"
  
+@@ -467,7 +531,7 @@
+ 	else
+ 		AC_MSG_RESULT([unknown])
+ 		AC_MSG_WARN([
+-		*** We can't determine the preferred charset name formats
++		*** We cannot determine the preferred charset name formats
+ 		*** recognized by your iconv library. You are
+ 		*** cross-compiling and supposed to know what you are doing.
+ 		*** Please construct the iconv-detect.h file manually.
 @@ -478,22 +542,22 @@
  CFLAGS="$save_CFLAGS"
  LIBS="$save_LIBS"
@@ -959,7 +979,7 @@
  [
  	AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
  	[[	#include <time.h> ]],
-@@ -829,12 +897,12 @@
+@@ -829,14 +897,14 @@
  ])
  
  if test "x$ac_cv_ctime_r_three_args" = "xyes" ; then
@@ -974,9 +994,12 @@
 +dnl# gethostbyname_r prototype
 +dnl#******************************
  AC_CHECK_FUNCS(gethostbyname_r,[
- AC_CACHE_CHECK([if gethostbyname_r wants five arguments], [ac_cv_gethostbyname_r_five_args],
+-AC_CACHE_CHECK([if gethostbyname_r wants five arguments], [ac_cv_gethostbyname_r_five_args],
++AC_CACHE_CHECK([if gethostbyname_r wants five arguments],[ac_cv_gethostbyname_r_five_args],
  [
-@@ -858,12 +926,12 @@
+ 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+ 	[[
+@@ -858,14 +926,14 @@
  ])])
  
  if test "x$ac_cv_gethostbyname_r_five_args" = "xyes" ; then
@@ -991,9 +1014,12 @@
 +dnl# gethostbyaddr_r prototype
 +dnl#******************************
  AC_CHECK_FUNCS(gethostbyaddr_r,[
- AC_CACHE_CHECK([if gethostbyaddr_r wants seven arguments], [ac_cv_gethostbyaddr_r_seven_args],
+-AC_CACHE_CHECK([if gethostbyaddr_r wants seven arguments], [ac_cv_gethostbyaddr_r_seven_args],
++AC_CACHE_CHECK([if gethostbyaddr_r wants seven arguments],[ac_cv_gethostbyaddr_r_seven_args],
  [
-@@ -886,37 +954,37 @@
+ 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+ 	[[
+@@ -886,38 +954,38 @@
  ])])
  
  if test "x$ac_cv_gethostbyaddr_r_seven_args" = "xyes" ; then
@@ -1011,8 +1037,10 @@
 -	[AC_DEFINE([HAVE_SYS_STATVFS_H], 1, [Have <sys/statvfs.h>])],,
 +	[AC_DEFINE([HAVE_SYS_STATVFS_H],[1],[Have <sys/statvfs.h>])],,
  	[[	#if HAVE_SYS_STATVFS_H
- 		#include <sys/statvfs.h>
- 		#endif
+-		#include <sys/statvfs.h>
+-		#endif
++		# include <sys/statvfs.h>
++		#endif /* HAVE_SYS_STATVFS_H */
  	]])
 -AC_CHECK_FUNCS(statvfs)
 +AC_CHECK_FUNCS([statvfs])
@@ -1021,15 +1049,19 @@
 -	[AC_DEFINE([HAVE_SYS_PARAM_H], 1, [Have <sys/param.h>])],,
 +	[AC_DEFINE([HAVE_SYS_PARAM_H],[1],[Have <sys/param.h>])],[],
  	[[	#if HAVE_SYS_PARAM_H
- 		#include <sys/param.h>
- 		#endif
+-		#include <sys/param.h>
+-		#endif
++		# include <sys/param.h>
++		#endif /* HAVE_SYS_PARAM_H */
  	]])
  AC_CHECK_HEADER([sys/mount.h],
 -	[AC_DEFINE([HAVE_SYS_MOUNT_H], 1, [Have <sys/mount.h>])],,
 +	[AC_DEFINE([HAVE_SYS_MOUNT_H],[1],[Have <sys/mount.h>])],[],
  	[[	#if HAVE_SYS_MOUNT_H
- 		#include <sys/mount.h>
- 		#endif
+-		#include <sys/mount.h>
+-		#endif
++		# include <sys/mount.h>
++		#endif /* HAVE_SYS_MOUNT_H */
  	]])
 -AC_CHECK_FUNCS(statfs)
 +AC_CHECK_FUNCS([statfs])
@@ -1037,12 +1069,31 @@
 -dnl ******************************
 -dnl IPv6 support and getaddrinfo calls
 -dnl ******************************
+-AC_CACHE_CHECK([if system supports getaddrinfo and getnameinfo], [ac_cv_have_addrinfo],
 +dnl#*******************************
 +dnl# IPv6 support and getaddrinfo calls
 +dnl#*******************************
- AC_CACHE_CHECK([if system supports getaddrinfo and getnameinfo], [ac_cv_have_addrinfo],
++AC_CACHE_CHECK([if system supports getaddrinfo and getnameinfo],[ac_cv_have_addrinfo],
  [
  	AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+ 	[[	#include "confdefs.h"
+@@ -928,12 +996,12 @@
+ 		#include <stddef.h>
+ 	]],
+ 	[[	#ifndef NI_MAXHOST
+-		#define NI_MAXHOST	1025
+-		#endif
++		# define NI_MAXHOST	1025
++		#endif /* !NI_MAXHOST */
+ 
+ 		#ifndef NI_MAXSERV
+-		#define NI_MAXSERV	32
+-		#endif
++		# define NI_MAXSERV	32
++		#endif /* !NI_MAXSERV */
+ 
+ 		struct addrinfo hints, *res;
+ 		struct sockaddr_in6 sin6;
 @@ -948,9 +1016,9 @@
  ])
  
@@ -1256,7 +1307,7 @@
  		case $with_sunldap in
  		no)
  			msg_ldap="no"
-@@ -1135,60 +1203,61 @@
+@@ -1135,175 +1203,177 @@
  	else
  		with_sunldap="no"
  	fi
@@ -1345,8 +1396,13 @@
  	$1_CFLAGS="[$]$1_CFLAGS $3 "
  	$1_LIBS="[$]$1_LIBS $4 "
  ])
-@@ -1198,112 +1267,113 @@
- dnl ******************************
+ 
+-dnl ******************************
+-dnl libedataserver flags
+-dnl ******************************
++dnl#******************************
++dnl# libedataserver flags
++dnl#******************************
  E_DATA_SERVER_DEPS="gio-2.0 libxml-2.0 libsoup-2.4 gconf-2.0 $mozilla_nspr"
  
 -EVO_SET_COMPILE_FLAGS(E_DATA_SERVER, $E_DATA_SERVER_DEPS, $MANUAL_NSPR_CFLAGS, $MANUAL_NSPR_LIBS)
@@ -1547,7 +1603,8 @@
  fi
  
 -AM_CONDITIONAL(ENABLE_LARGEFILE, [test "x$enable_largefile" = "xyes"])
--
++AM_CONDITIONAL([ENABLE_LARGEFILE],[test "x$enable_largefile" = "xyes"])
+ 
 -EVO_SET_COMPILE_FLAGS(CAMEL, gio-2.0 $mozilla_nss sqlite3 >= sqlite_minimum_version, $KRB5_CFLAGS $MANUAL_NSS_CFLAGS $LARGEFILE_CFLAGS, -lz $KRB5_LIBS $MANUAL_NSS_LIBS)
 -AC_SUBST(CAMEL_CFLAGS)
 -AC_SUBST(CAMEL_LIBS)
@@ -1557,8 +1614,7 @@
 -dnl ******************************
 -dnl Special directories
 -dnl ******************************
-+AM_CONDITIONAL([ENABLE_LARGEFILE],[test "x$enable_largefile" = "xyes"])
- 
+-
 -dnl If you add something here, consider whether or not you also
 -dnl need to add it to one or more .pc.in files (for Connector,
 -dnl etc)
@@ -1596,13 +1652,16 @@
 -AC_SUBST(extensiondir)
 +AC_SUBST([extensiondir])
  
- uidir="$privdatadir/ui"
+-uidir="$privdatadir/ui"
 -AC_SUBST(uidir)
++uidir="${privdatadir}/ui"
 +AC_SUBST([uidir])
  
- if test "x$use_gweather" = "xyes"; then
- 	weatherdatadir="$privdatadir/weather"
+-if test "x$use_gweather" = "xyes"; then
+-	weatherdatadir="$privdatadir/weather"
 -	AC_SUBST(weatherdatadir)
++if test "x${use_gweather}" = "xyes"; then
++	weatherdatadir="${privdatadir}/weather"
 +	AC_SUBST([weatherdatadir])
  fi
  
@@ -1650,10 +1709,13 @@
 +AC_PATH_PROG([GCONFTOOL],[gconftool-2],[no])
  AM_GCONF_SOURCE_2
  
- dnl ******************************
- dnl gperf stuff
- dnl ******************************
+-dnl ******************************
+-dnl gperf stuff
+-dnl ******************************
 -AC_PATH_PROG(GPERF, gperf, [no])
++dnl#******************************
++dnl# gperf stuff
++dnl#******************************
 +AC_PATH_PROG([GPERF],[gperf],[no])
  if test "x$GPERF" = "xno"; then
    AC_MSG_ERROR([You need gperf to build evolution-data-server])

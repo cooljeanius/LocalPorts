@@ -107,12 +107,8 @@ configure.args-append \
 use_autoreconf  yes
 autoreconf.args -fvi
 
-variant python25 conflicts no_python python26 python27 description {Use python 2.5} {
+variant python25 conflicts no_python python26 python27 description {Legacy compatibility variant} {
     configure.python          ${prefix}/bin/python2.5
-    depends_lib-append        port:py25-pygtk
-    set python_framework      ${frameworks_dir}/Python.framework/Versions/2.5
-    configure.pkg_config_path ${python_framework}/lib/pkgconfig
-    configure.env             PATH=${python_framework}/bin:$env(PATH)
 }
 
 variant python26 conflicts no_python python25 python27 description {Use python 2.6} {

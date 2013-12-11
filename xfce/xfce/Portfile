@@ -65,3 +65,5 @@ destroot        {
         file copy ${portpath}/${filesdir}/STARTME ${destroot}${prefix}/share/xfce4/
 }
 notes "To start xfce put \"exec startxfce4\" in your .xinitrc"
+
+livecheck.type  none

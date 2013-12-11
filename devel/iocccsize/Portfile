@@ -52,3 +52,5 @@ destroot {
 
 # TODO: put docs here
 destroot.keepdirs "${destroot}${prefix}/share/doc/${name}"
+
+livecheck.type  none

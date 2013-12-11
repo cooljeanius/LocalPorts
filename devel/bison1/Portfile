@@ -64,5 +64,5 @@ post-destroot {
     delete ${destroot}${prefix}/share/info
 }
 
-livecheck.type      regex
+livecheck.type      none
 livecheck.regex     {bison-(1\.[0-9.]+)\.tar}

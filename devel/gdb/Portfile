@@ -6,8 +6,8 @@ PortGroup              muniversal 1.0
 PortGroup              archcheck 1.0
 
 name                   gdb
-version                7.6
-revision               3
+version                7.6.1
+revision               0
 categories             devel
 license                GPL-3+
 maintainers            dweber openmaintainer
@@ -39,9 +39,9 @@ master_sites           gnu
 
 use_bzip2              yes
 
-checksums              sha1    b64095579a20e011beeaa5b264fe23a9606ee40f \
-                       rmd160  9a3bb92415a3785da15a60bc7e5707051c8bebcf \
-                       sha256  a410e8f35ee70cce83dbbf1da9e2a8373f271ac0e4b71db4336ae293fc7bdf1b
+checksums              sha1    0e38633b3902070d9c6755e4c54602148a094361 \
+                       rmd160  d65ee2ab9f18601ceaeac4d379bb7f344f237bdd \
+                       sha256  e3dfa38a14a5457f9b8b26f7b5080ba5491bd10ae4d69bfe357cea87b7d162e4
 
 depends_build-append   port:gettext \
                        port:zlib \

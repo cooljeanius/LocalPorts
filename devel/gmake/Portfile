@@ -50,8 +50,8 @@ variant tests description {Build tests} {
 
     configure.ccache    no
     platform macosx {
-        # The HFS filesystem is case-insensitive by default, and I don't 
-        # know how to check if people have changed this, so assume case 
+        # The HFS filesystem is case-insensitive by default, and I do NOT
+        # know how to check if people have changed this, so assume case
         # insensitivity on OS X to try to make the tests pass
         configure.args-append \
             --enable-case-insensitive-file-system
@@ -59,9 +59,9 @@ variant tests description {Build tests} {
 
     use_parallel_build  no
 
-    # the "default_names" test currently fails; I originally thought it was 
-    # possibly due to case-sensitivity or something, but telling the 
-    # configure script that didn't seem to work...
+    # the "default_names" test currently fails; I originally thought it was
+    # possibly due to case-sensitivity or something, but telling the
+    # configure script that did NOT seem to work...
     test.run            yes
     test.target         check
 }
@@ -88,3 +88,6 @@ post-destroot {
         ln -s ${prefix}/share/man/man1/${manpage}.gz ${destroot}${prefix}/libexec/gnubin/man/man1/gnu[string range $manpage 1 end].gz
     }
 }
+
+# This might have to stay a separate port from any future gmake4:
+livecheck.type  none

@@ -52,8 +52,10 @@ universal_variant   no
 # "warning: target of assignment not really an lvalue; this will be a hard error in the future"
 # became:
 # "error: lvalue required as left operand of assignment"
-compiler.blacklist-append macports-gcc macports-gcc-4.7
+compiler.blacklist-append macports-gcc macports-gcc-4.7 *gcc-4.8
 compiler.whitelist-append gcc gcc-4.0 gcc-4.2 apple-gcc-4.0 apple-gcc-4.2 macports-gcc-4.2
 build.type          gnu
 
 depends_lib-append  port:mpg123
+
+livecheck.type      none

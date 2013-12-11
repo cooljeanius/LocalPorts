@@ -57,4 +57,5 @@ post-destroot {
     }
 }
 
+livecheck.type      none
 livecheck.version   ${name}_${version}

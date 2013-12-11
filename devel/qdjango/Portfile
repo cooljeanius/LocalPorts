@@ -3,9 +3,10 @@
 
 PortSystem      1.0
 PortGroup       qmake 1.0
+PortGroup       github 1.0
 
-name            qdjango
-version         0.2.6
+github.setup    jlaine qdjango 0.4.0 v
+version         0.4.0
 categories      devel
 license         LGPL-2.1
 platforms       darwin
@@ -13,13 +14,15 @@ maintainers     sharky openmaintainer
 
 description     Cross-platform C++ web development framework
 long_description \
-    QDjango is a cross-platform C++ web development framework built upon Qt. \
-    Where possible it tries to follow django's API, hence its name.
-
+    QDjango is a cross-platform C++ web development framework built upon \
+    Qt. Where possible it tries to follow django's API, hence the name.
 
 homepage        http://code.google.com/p/qdjango/
 master_sites    googlecode
 
-checksums       md5     87cb48f386790b31e04162f38a20c8dc \
-                sha1    2777fb9dacf59c5f0a759a32f9b337a38e8d7a54 \
-                rmd160  6da56001bfa69d38bccb8f36274595df694aa181
+checksums       md5     0cfcdf81db23919fab2c2b94770c88e9 \
+                sha1    e3d75de235ada28ed592f95f4918e499b68704ac \
+                rmd160  9b2acd41391af1f6638f7b7c4eda3dd92e86071d \
+                sha256  0bde01656fc805b3b629adecd00f2271c358cd4bc65d971dc0cd25078c6a70c4
+
+# (fails to build with all versions that I have tried)

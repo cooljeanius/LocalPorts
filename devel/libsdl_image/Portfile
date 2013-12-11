@@ -79,5 +79,5 @@ platform darwin 8 {
     configure.args-append --disable-imageio
 }
 
-livecheck.type  regex
+livecheck.type  none
 livecheck.regex ${my_name}-(\\d+(?:\\.\\d+)*)
