@@ -5,7 +5,7 @@ PortSystem      1.0
 
 name            gnome-settings-daemon
 version         2.32.1
-revision        2
+revision        3
 license         GPL-2 LGPL-2.1
 set branch      [join [lrange [split ${version} .] 0 1] .]
 description     Gnome 2 settings daemon.
@@ -25,13 +25,19 @@ depends_build-append \
                 port:gnome-doc-utils \
                 port:intltool \
                 port:pkgconfig \
-                path:bin/xmkmf:imake
+                port:docbook-xsl \
+                port:docbook-xml \
+                path:bin/xmkmf:imake \
+                path:share/aclocal/glib-gettext.m4:glib2
 
+#TODO: the gnome-desktop port has moved to the gnome3 version.
+# Fix accordingly (beyond just patching the configure script)
 depends_lib-append \
                 port:gtk2 \
                 port:gconf \
                 port:gnome-desktop \
                 port:libgnomekbd \
+                port:libgnomeui \
                 port:fontconfig \
                 port:policykit \
                 port:atk \
@@ -48,6 +54,7 @@ depends_lib-append \
                 port:libxklavier \
                 port:libxml2 \
                 port:orbit2 \
+                port:pulseaudio \
                 port:startup-notification \
                 port:xorg-libX11 \
                 port:xorg-libXau \
@@ -77,18 +84,33 @@ depends_run-append \
                 port:xmodmap \
                 port:hicolor-icon-theme
 
+patchfiles-append \
+                patch-configure.ac.diff \
+                patch-Makefile.am.diff
+
+post-patch {
+    xinstall -d ${worksrcpath}/m4
+}
+
 pre-configure {
     reinplace "s|-bundle|-bundle -undefined dynamic_lookup|g" ${worksrcpath}/configure
 }
+
+use_autoreconf  yes
+autoreconf.args -fvi
 
 configure.args-append \
                 --with-x \
                 --x-includes=${prefix}/include \
                 --x-libraries=${prefix}/lib \
-                --disable-pulse \
                 --disable-smartcard-support \
+                --disable-maintainer-mode \
+                --disable-silent-rules \
                 --disable-schemas-install \
                 --without-libnotify
+
+configure.cppflags-append \
+                -I${prefix}/libgnomeui-2.0
 
 configure.env-append \
                 XMKMF=${prefix}/bin/xmkmf
