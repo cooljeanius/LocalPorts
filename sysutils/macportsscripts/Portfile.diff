@@ -1,11 +1,16 @@
---- /opt/local/var/macports/sources/rsync.macports.org/release/tarballs/ports/sysutils/macportsscripts/Portfile	2013-03-20 13:30:16.000000000 -0400
-+++ /opt/local/var/macports/sources/LocalPorts/sysutils/macportsscripts/Portfile	2013-05-15 16:52:50.000000000 -0400
-@@ -5,7 +5,7 @@
+--- Portfile_0.3.0_trunk	2013-07-15 12:02:44.000000000 -0400
++++ Portfile	2013-12-13 17:37:12.000000000 -0500
+@@ -1,11 +1,11 @@
+ # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+-# $Id: Portfile 106132 2013-05-15 21:09:15Z ryandesign@macports.org $
++# $Id: Portfile 104208 2013-03-20 17:08:02Z macsforever2000@macports.org $
+ 
+ PortSystem      1.0
  PortGroup       github 1.0
  
  epoch           2
--github.setup    cooljeanius macportsscripts 0.2.0 v
-+github.setup    cooljeanius macportsscripts 0.3.0 v
+-github.setup    cooljeanius macportsscripts 0.3.0 v
++github.setup    cooljeanius macportsscripts 0.4.1 v
  categories      sysutils macports
  platforms       darwin
  maintainers     phw gwmail.gwu.edu:egall openmaintainer
@@ -13,17 +18,10 @@
  
  long_description ${description}
  
--checksums       rmd160 3d24d9fdf6dacfab405e9ec7772e7969e0771270 \
--                sha256 62261afafd9021876c9e2717e76165e365ef71f9936ada392ee89ed561fc80ca
-+checksums       rmd160  bfa65ac2a6da30474d76e6c89e1ad8425695173b \
-+                sha256  b067846c2d4e5c122c51647a59ff9b1f93f2c9d4b3e32173e6d9a933cabbe4ea
+-checksums       rmd160  bfa65ac2a6da30474d76e6c89e1ad8425695173b \
+-                sha256  b067846c2d4e5c122c51647a59ff9b1f93f2c9d4b3e32173e6d9a933cabbe4ea
++checksums       rmd160  d1a89de5a5f32edd8d2bfdc8573930dc4e69f3c1 \
++                sha256  e39123ad1de2545782a3c3c259cf2083458f10d57660e7e0c7da1eb9953501d3
  
  use_configure   no
  build {}
-@@ -25,4 +25,6 @@
- destroot {
-     eval xinstall -m 755 [glob ${worksrcpath}/*.sh] ${destroot}${prefix}/bin
-     eval xinstall -m 755 [glob ${worksrcpath}/*.pl] ${destroot}${prefix}/bin
-+    xinstall -d ${destroot}${prefix}/share/doc/${name}
-+    eval xinstall -m 644 [glob ${worksrcpath}/*.md] ${destroot}${prefix}/share/doc/${name}
- }
