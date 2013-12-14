@@ -4,11 +4,12 @@
 PortSystem          1.0
 PortGroup           muniversal 1.0
 
-# Had some trouble with arch flags, so I figured it'd be better to use muniversal
-# than to remove the universal variant
+# Had some trouble with arch flags, so I figured it would be better to
+# use muniversal than to remove the universal variant
 
 name                libvirt
 version             1.0.3
+# TODO: update to 1.2.0
 revision            3
 categories          sysutils
 license             LGPL-2.1+
@@ -36,7 +37,8 @@ depends_build-append \
                     bin:rpcgen:developer_cmds \
                     bin:augparse:augeas \
                     bin:dnsmasq:dnsmasq
-# glib is just needed for some autoconf macros; libvirt doesn't actually link against it.
+# glib is just needed for some autoconf macros; libvirt does NOT actually
+# link against it.
 
 patchfiles-append   patch-configure.ac.diff
 

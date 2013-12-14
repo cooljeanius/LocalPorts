@@ -192,6 +192,7 @@ post-test {
     dropPrivileges
 }
 
-livecheck.type      regex
+# odd-numbered releases are unstable, so ignore them
+livecheck.type      none
 livecheck.url       http://ftp.debian.org/debian/pool/main/d/${name}/
 livecheck.regex     "${name}_(\\d+\\.\\d+(\\.\\d+)*)"

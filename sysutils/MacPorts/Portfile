@@ -591,3 +591,6 @@ destroot.keepdirs    ${destroot}${prefix}/include \
                      ${destroot}${prefix}/var/macports/registry \
                      ${destroot}${prefix}/var/macports/registry/portfiles \
                      ${destroot}${prefix}/var/macports/incoming/verified
+
+# livecheck is not applicable here, so disable:
+livecheck.type       none

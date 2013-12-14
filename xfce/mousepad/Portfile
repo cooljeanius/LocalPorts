@@ -1,23 +1,59 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
 
-PortSystem 1.0
+PortSystem      1.0
 
 name            mousepad
 version         0.2.16
-revision        2
+revision        4
 categories      xfce
-platforms       darwin
+platforms       darwin linux
 license         GPL-2+
-maintainers     afb
+maintainers     afb openmaintainer
 description     A text editor for Xfce based on Leafpad
 long_description ${description}
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.0/src/
 use_bzip2       yes
-checksums       md5 d98854edb76d823ac20b266fdf5a64a1 \
-                sha1 4e63033e0a71578f3ec9a0d2e6a505efd0424ef9 \
-                rmd160 673a52a38dfa60388db11322cd08189c1b2c10e3
+checksums       md5     d98854edb76d823ac20b266fdf5a64a1 \
+                sha1    4e63033e0a71578f3ec9a0d2e6a505efd0424ef9 \
+                rmd160  673a52a38dfa60388db11322cd08189c1b2c10e3 \
+                sha256  86e593fd4b1b87d27cda9ebd8901078e795031b5880645850d6ef0b410f4e73e
 
-depends_build   port:intltool port:pkgconfig
-depends_lib     port:xfconf port:libxfcegui4 
+depends_build-append \
+                port:intltool \
+                port:pkgconfig
+depends_lib-append \
+                port:xfconf \
+                port:libxfcegui4 \
+                port:libxfce4util \
+                port:atk \
+                port:desktop-file-utils \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:xorg-libX11 \
+                port:xorg-libXau \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXdmcp \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xorg-libxcb \
+                port:xrender \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango
+
+post-activate {
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+}
+
+# Broken, so disable:
+livecheck.type  none

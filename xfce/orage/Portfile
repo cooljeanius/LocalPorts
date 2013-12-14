@@ -76,3 +76,6 @@ configure.args-append \
 post-activate {
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
 }
+
+# Broken, so disable:
+livecheck.type  none

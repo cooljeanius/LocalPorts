@@ -32,3 +32,6 @@ depends_lib-append \
 platform darwin {
     configure.args-append --disable-visibility
 }
+
+# Broken, so disable:
+livecheck.type  none

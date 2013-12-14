@@ -4,10 +4,11 @@
 PortSystem          1.0
 
 name                mtools
-version             3.9.11
-revision            1
+version             4.0.13
+revision            0
 platforms           darwin
 categories          sysutils
+license             GPL-3+
 maintainers         goudal.net:francois openmaintainer
 description         MS-DOS disk access utilities
 long_description    Utilities to access MS-DOS disks from Unix without \
@@ -15,16 +16,20 @@ long_description    Utilities to access MS-DOS disks from Unix without \
 homepage            http://${name}.linux.lu/
 
 master_sites        ${homepage}
-checksums           md5    3c0ae05b0d98a5d3bd06d3d72fcaf80d \
-                    sha1   964b8af11ac6441e832f2bc4737f35cc3ed0226e \
-                    rmd160 f8498768a432f28689a58840baa11d80a2ba8532 \
-                    sha256 3415d425d37338aa4e18e7d60147db23cfbe6192565c697f201f44426665ce42
+checksums           md5     5acb1ddbc1aed47c22448071cbbe37c9 \
+                    sha1    ca7554f7665eef33adbfb03a2827b83a0811b031 \
+                    rmd160  3a922ad83fa4a18188bbac60a0a8c0bd8546d38d \
+                    sha256  f9a3e83f6e3af6256e19ba63229f97f6772b0728422d4c057d6693113cdd70ed
 
 configure.args-append \
                     --mandir=${prefix}/share/man \
                     --infodir=${prefix}/share/info
+configure.universal_args-delete \
+                    --disable-dependency-tracking
+configure.ldflags-append -liconv
 
-depends_lib-append  path:include/X11/Xlib.h:xorg-libX11 \
+depends_lib-append  port:libiconv \
+                    path:include/X11/Xlib.h:xorg-libX11 \
                     lib:libXau:xorg-libXau \
                     lib:libICE:xorg-libice \
                     lib:libSM:xorg-libsm

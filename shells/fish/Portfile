@@ -101,5 +101,6 @@ privileges, add it to /etc/shells:
     sudo sh -c 'echo ${prefix}/bin/${name} >> /etc/shells'
 "
 
-livecheck.type          regex
+# broken, so disable:
+livecheck.type          none
 livecheck.regex         fish-(.*?).tar.bz2

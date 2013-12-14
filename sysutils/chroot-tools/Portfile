@@ -16,6 +16,8 @@ description       Tools useful for setting up chroots
 
 long_description  ${description}.
 
+homepage          https://github.com/cooljeanius
+
 use_configure     no
 
 build {}
@@ -29,3 +31,6 @@ depends_lib-append port:python27_full \
                    port:darwinbuild \
                    port:rootsh \
                    port:zeroinstall-injector
+
+# livecheck is not applicable here, so disable:
+livecheck.type     none

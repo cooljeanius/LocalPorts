@@ -111,7 +111,7 @@ depends_lib-append \
 universal_variant no
 
 post-configure {
-    # TODO This should not be needed, we need to fix Mono dllmap library path.
+    # TODO This should not be needed, we need to fix Mono dllmap lib path.
     fs-traverse {f} ${worksrcpath} {
         if {[string match *.dll.config ${f}]} {
             reinplace -E "s|(target=\")|\\1${prefix}/lib/|" ${f}
@@ -128,6 +128,7 @@ variant gnomedb description {Enable gnomedb support} {
     depends_lib-append  port:libgnomedb
 }
 
-livecheck.type  regex
+# Broken, so disable:
+livecheck.type  none
 livecheck.url   ${master_sites}?C=M&O=D
 livecheck.regex ${name}-(1\\.0(?:\\.\\d+)*)

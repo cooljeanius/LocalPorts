@@ -5,6 +5,7 @@ PortSystem          1.0
 
 name                file
 version             5.15
+# TODO: update to 5.16
 revision            1
 categories          sysutils
 license             BSD

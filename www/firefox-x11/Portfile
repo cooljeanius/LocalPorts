@@ -393,6 +393,7 @@ post-destroot   {
     move ${destroot}${prefix}/bin/${component} ${destroot}${prefix}/bin/${pkg_name}
 }
 
-livecheck.type  regex
+# releases occur too often to keep fixing livecheck, so just disable:
+livecheck.type  none
 livecheck.url   http://releases.mozilla.org/pub/mozilla.org/${component}/releases
 livecheck.regex ">(\\d+(?:\\.\\d+)*).<"
