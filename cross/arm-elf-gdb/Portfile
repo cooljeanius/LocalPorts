@@ -4,7 +4,7 @@
 PortSystem              1.0
 
 name                    arm-elf-gdb
-version                 7.6.1
+version                 7.6.2
 revision                0
 categories              cross devel
 maintainers             koostech.com:billy openmaintainer
@@ -18,10 +18,10 @@ master_sites            gnu:gdb
 distname                gdb-${version}
 dist_subdir             gdb
 use_bzip2               yes
-checksums               md5     fbc4dab4181e6e9937075b43a4ce2732 \
-                        sha1    0e38633b3902070d9c6755e4c54602148a094361 \
-                        rmd160  d65ee2ab9f18601ceaeac4d379bb7f344f237bdd \
-                        sha256  e3dfa38a14a5457f9b8b26f7b5080ba5491bd10ae4d69bfe357cea87b7d162e4
+checksums               md5     496399e96654fc0f899a5c964bc1f0f8 \
+                        sha1    08821f7b74238c07f99b5c975d7b4783c23081a5 \
+                        rmd160  dc27919fdea46622f21db4c4e77ffced340d70ad \
+                        sha256  2f6a0e2ce1c66c9dedeb7f58a8d1298ad602ddcdaf15d23104e1f7832b96d0e8
 
 set crossgdb-target     arm-elf
 

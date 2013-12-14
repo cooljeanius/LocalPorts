@@ -32,7 +32,9 @@ if {$subport != $name} {
     depends_lib-append  port:py${python.version}-cython
     livecheck.type      none
 } else {
-    livecheck.type      regex
+    # for some reason it thinks adding an extra period to the end
+    # makes the version higher
+    livecheck.type      none
     livecheck.url       http://pypi.python.org/pypi/${myname}/
     livecheck.regex     ${myname}-(\[0-9.\]+)
 }

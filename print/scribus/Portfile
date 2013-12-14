@@ -8,6 +8,7 @@ PortGroup           qt4 1.0
 name                scribus
 epoch               1
 version             1.4.2
+# TODO: update to 1.4.3
 revision            2
 categories          print
 license             GPL-2+

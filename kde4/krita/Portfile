@@ -11,11 +11,11 @@ platforms           darwin
 license             GPL
 maintainers         gmail.com:patrik.andersson.se openmaintainer
 description         Krita ${version} (without Vc)
-long_description    Krita is the full-featured free digital painting studio for \
-                    artists who want to create professional work from start to end. \
-                    Krita is used by comic book artists, illustrators, concept \
-                    artists, matte and texture painters and in the digital VFX \
-                    industry.
+long_description    Krita is the full-featured free digital painting \
+                    studio for artists who want to create professional \
+                    work from start to end. Krita is used by comic book \
+                    artists, illustrators, concept artists, matte and \
+                    texture painters and in the digital VFX industry.
 homepage            http://www.${name}.org
 master_sites        http://download.kde.org/stable/calligra-latest/ \
                     http://www.patriksmediedesign.se/
@@ -23,7 +23,8 @@ master_sites        http://download.kde.org/stable/calligra-latest/ \
 checksums           rmd160 b25805f91372295d127be7ef229c3b575c662071 \
                     sha256 1bc0cd40734baf68a0d79307d0ffbd8e15a4571375a60b1016f0fc8b68c3d2ce
 
-# Some of these are drawn in as dependencies automatically by the kde4 portgroup, but I'll leave them all in anyway just in case
+# Some of these are drawn in as dependencies automatically by the
+# kde4 portgroup, but I will leave them all in anyway just in case
 depends_lib-append  port:kdelibs4 \
                     port:kde4-runtime \
                     port:eigen \
@@ -32,33 +33,18 @@ depends_lib-append  port:kdelibs4 \
                     port:libpng \
                     port:exiv2
 
-configure.args-append   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-                        -DCREATIVEONLY=ON
-
-# It would be better to do this by setting configure.args instead
-# The src folder does not contain a configure file to run, therefore this solution.
-#configure {
-#    system -W ${workpath} "cmake -DCMAKE_INSTALL_PREFIX=${destroot} \
-#    ${worksrcpath} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCREATIVEONLY=ON"
-#}
-
-# These commands needs to be run, j3 shall be j{n+1} where n is the number of cores
-# I tried withtout them but then it tries to do "make all" and it crashes.
-#build {
-#    system -W ${workpath} "make -j3"
-#}
-
-#destroot.violate_mtree yes
-
-# Install prefix is set in the configure, therefore a more simple commandline...
-#destroot {
-#    system -W ${workpath} "make install"
-#}
+configure.args-append \
+                    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                    -DCREATIVEONLY=ON
 
 post-activate {
 # export statements removed, they just pointed to placeholders
-# it is necessary to create some kind of path to run the application, perhaps a post-destroot script could do that.
+# it is necessary to create some kind of path to run the application,
+# perhaps a post-destroot script could do that.
     system "launchctl load -w /Library/LaunchAgents/org.macports.kdecache.plist"
     system "launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist"
     system -W ${workpath} "kbuildsycoca4"
 }
+
+# livecheck is broken, so disable
+livecheck.type      none

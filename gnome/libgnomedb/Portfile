@@ -150,4 +150,5 @@ configure.ccache    no
 configure.pipe      no
 use_parallel_build  no
 
-livecheck.type      gnome
+# This is old, so skip livecheck (otherwise it says to update to 3.0.0)
+livecheck.type      none

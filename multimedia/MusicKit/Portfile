@@ -34,7 +34,7 @@ post-patch {
 }
 
 # Not sure which libshout to use, so just using a `lib:`-style dependency
-# for now...
+# for both for now...
 depends_lib-append  port:portaudio \
                     port:libogg \
                     port:libvorbis \
@@ -70,3 +70,6 @@ variant docs description {Build documentation} {
                     port:doxygen \
                     port:docbook-dsssl
 }
+
+# broken, so disable:
+livecheck.type      none

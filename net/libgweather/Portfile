@@ -140,4 +140,5 @@ post-activate {
             ${prefix}/etc/gconf/schemas/gweather.schemas"
 }
 
-livecheck.type  gnome
+# "gnome" livecheck wants to update to the gnome3 version, so disable
+livecheck.type  none

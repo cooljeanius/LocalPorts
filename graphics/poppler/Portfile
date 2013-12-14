@@ -162,7 +162,8 @@ variant zlib description {Build with zlib support (poppler's\
 variant gobject description {Build with support for gobject-introspection} {
     configure.args-delete  --disable-introspection
     configure.args-append  --enable-introspection=yes
-    # Only gobject-introspection is really needed here, the others are just to see if they will help
+    # Only gobject-introspection is really needed here, the others are
+    # just to see if they will help
     depends_lib-append     port:gobject-introspection \
                            port:libgee
     depends_build-append   port:python27 \
@@ -195,6 +196,7 @@ test.run        yes
 test.dir        ${worksrcpath}/test
 test.target     all
 
-livecheck.type  regex
+# regex is broken, so disable temporarily
+livecheck.type  none
 livecheck.url   ${master_sites}
 livecheck.regex ${name}-(\[0-9\]+\\.\[0-9\]*\[02468\](\\.\[0-9\]+)*)${extract.suffix}

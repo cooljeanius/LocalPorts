@@ -33,3 +33,6 @@ use_parallel_build  no
 
 test.run            yes
 test.target         check
+
+# Broken, so disable:
+livecheck.type      none

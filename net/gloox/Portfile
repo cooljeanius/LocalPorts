@@ -89,6 +89,7 @@ variant openssl description {Use openssl instead of gnutls} {
                     LDFLAGS=-L${prefix}/lib/gnutls2/lib
 }
 
-livecheck.type  regex
+# broken, so disable:
+livecheck.type  none
 livecheck.url   ${master_sites}
 livecheck.regex "${name}-(\\d+(?:\\.\\d+)*)${extract.suffix}"

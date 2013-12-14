@@ -322,4 +322,4 @@ variant ocaml description {Build OCaml module (modelica)} {
     configure.args-append --with-modelica
 }
 
-#TODO: fix livecheck
+#TODO: fix livecheck (then update to 5.5.3)

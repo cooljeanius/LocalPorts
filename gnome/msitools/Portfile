@@ -54,3 +54,6 @@ configure.args-append \
                      --disable-silent-rules \
                      --disable-debug \
                      --disable-dependency-tracking
+
+# For some reason livecheck thinks 0.92 is newer than 0.93
+livecheck.type       none

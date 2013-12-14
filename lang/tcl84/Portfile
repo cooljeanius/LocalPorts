@@ -67,5 +67,6 @@ platform darwin {
 # Files with failing tests: socket.test
 test.run      yes
 
-livecheck.type  regex
+# Disable livecheck, as this is an old version
+livecheck.type  none
 livecheck.regex {Tcl/Tk (\d+(?:\.\d+)*)</a>}
