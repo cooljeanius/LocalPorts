@@ -1,28 +1,63 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
 
-PortSystem 1.0
+PortSystem      1.0
 
 name            ristretto
 version         0.0.22
+revision        2
 categories      xfce
-platforms       darwin
+platforms       darwin linux
 license         GPL-2+
-maintainers     afb
+maintainers     afb openmaintainer
 description     Ristretto is a fast and lightweight picture-viewer \
                 for the Xfce desktop environment.
 long_description ${description}
 homepage        http://goodies.xfce.org/projects/applications/ristretto
 master_sites    http://goodies.xfce.org/releases/ristretto
-checksums       md5 978ae19472c5a0b7d4b6622a68234a67 \
-                sha1 bddbc8618ba67699ccf5ee4ea0b538b1be7fdb0a \
-                rmd160 a3661a3d7624996d2ebae20f2c86db1968e009a8
+checksums       md5     978ae19472c5a0b7d4b6622a68234a67 \
+                sha1    bddbc8618ba67699ccf5ee4ea0b538b1be7fdb0a \
+                rmd160  a3661a3d7624996d2ebae20f2c86db1968e009a8 \
+                sha256  73af9e0b0d2d70a1c4a784e8313f36d94d2def9f247aa701f12ee483aea90d8b
 
-depends_build   port:intltool port:pkgconfig
-depends_lib     port:gtk2 port:Thunar port:libxfce4util \
-                port:libxfcegui4 port:libexif port:dbus-glib
+depends_build-append \
+                port:intltool \
+                port:pkgconfig
+depends_lib-append \
+                port:gtk2 \
+                port:Thunar \
+                port:libxfce4util \
+                port:libxfcegui4 \
+                port:libexif \
+                port:dbus-glib \
+                port:atk \
+                port:exo \
+                port:fontconfig \
+                port:freetype \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:xorg-libX11 \
+                port:xorg-libXcomposite \
+                port:xorg-libXcursor \
+                port:xorg-libXdamage \
+                port:xorg-libXext \
+                port:xorg-libXfixes \
+                port:xorg-libXi \
+                port:xorg-libXinerama \
+                port:xorg-libXrandr \
+                port:xrender \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango \
+                path:lib/pkgconfig/dbus-1.pc:dbus
 
-livecheck.type  regex
+post-activate {
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+}
+
+# broken, so disable:
+livecheck.type  none
 # get the last modified tarball
 livecheck.url   ${master_sites}?C=M\;O=D
 livecheck.regex ${name}-(\[0-9.\]+)${extract.suffix}
