@@ -44,3 +44,6 @@ destroot {
        file attributes ${item} -permissions +r
    }
 }
+
+# broken, so disable:
+livecheck.type  none

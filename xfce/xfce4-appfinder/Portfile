@@ -73,3 +73,6 @@ configure.env-append XDT_PROG_LIBTOOLIZE=glibtoolize
 post-activate {
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
 }
+
+# broken, so disable:
+livecheck.type  none

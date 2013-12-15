@@ -95,3 +95,6 @@ configure.args-append \
 
 build.type      gnu
 build.cmd       ${prefix}/bin/gmake
+
+# broken, so disable:
+livecheck.type  none

@@ -127,3 +127,6 @@ platform darwin 8 {
                          XCURSOR_CFLAGS="-I${prefix}/include" \
                          XCURSOR_LIBS="-L${prefix}/lib -lXcursor"
 }
+
+# broken, so disable:
+livecheck.type  none

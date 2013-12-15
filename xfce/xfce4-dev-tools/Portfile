@@ -51,3 +51,5 @@ foreach m4macro {xfce python i18n features depends} {
     patchfiles-append patch-m4macros_xdt-${m4macro}.m4.diff
 }
 
+# broken, so disable:
+livecheck.type  none

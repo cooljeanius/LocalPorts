@@ -74,3 +74,6 @@ destroot {
     copy ${worksrcpath}/${name} ${destroot}${prefix}/libexec/xfce4/panel-plugins/
     copy ${worksrcpath}/${name}.desktop ${destroot}${prefix}/share/xfce4/panel-plugins/
 }
+
+# broken, so disable:
+livecheck.type  none

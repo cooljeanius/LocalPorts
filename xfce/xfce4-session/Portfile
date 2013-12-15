@@ -119,3 +119,5 @@ build.cmd       ${prefix}/bin/gmake
 
 use_parallel_build no
 
+# broken, so disable:
+livecheck.type  none

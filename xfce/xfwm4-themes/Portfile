@@ -26,3 +26,6 @@ installs_libs   no
 
 depends_lib-append \
                 port:xfwm4
+
+# broken, so disable:
+livecheck.type  none

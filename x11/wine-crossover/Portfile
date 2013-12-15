@@ -13,6 +13,7 @@ PortGroup                   compiler_blacklist_versions 1.0
 name                        wine-crossover
 conflicts                   wine wine-devel
 version                     12.1.0
+# TODO: update to 13.0.1
 revision                    2
 license                     LGPL-2.1+
 categories                  x11

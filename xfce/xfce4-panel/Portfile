@@ -116,3 +116,6 @@ use_parallel_build no
 platform darwin {
         configure.args-append --disable-visibility
 }
+
+# broken, so disable:
+livecheck.type  none

@@ -25,3 +25,6 @@ supported_archs noarch
 depends_build-append \
                 port:intltool \
                 port:gettext
+
+# broken, so disable:
+livecheck.type  none
