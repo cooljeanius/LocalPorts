@@ -53,8 +53,8 @@ depends_lib-append \
 	port:libnotify
 
 # I added the following libraries after my port-depcheck.sh script said that this port actually links against them.
-# Even if they get pulled in recursively via other dependencies, I still think it's a good idea to include them
-# anyways to show that they're actually linked against, and to remind people to revbump whenever one of them has
+# Even if they get pulled in recursively via other dependencies, I still think that it is a good idea to include them
+# anyways to show that they are actually linked against, and to remind people to revbump whenever one of them has
 # a major revision bump.
 depends_lib-append \
         port:atk \
@@ -82,7 +82,7 @@ depends_lib-append \
         port:zlib
 
 # The following were listed as dependencies in build instructions I found for Firefox online
-# They're also turned on by configure.args set below
+# They are also turned on by configure.args set below
 depends_lib-append \
         port:libevent \
         port:libvpx \
@@ -307,7 +307,7 @@ post-patch {
     # find -xtype -> gfind -xtype
     reinplace "s:find:gfind:g" ${worksrcpath}/toolkit/mozapps/installer/packager.mk
 
-    # Don't use the system X11
+    # Do NOT use the system X11
     reinplace "s:/usr/X11R6:${prefix}:" ${worksrcpath}/dom/plugins/base/nsPluginsDirUnix.cpp
     reinplace "s/libXt.so.6:libXext.so/libXt.dylib:libXext.dylib/" ${worksrcpath}/dom/plugins/base/nsPluginsDirUnix.cpp
 
