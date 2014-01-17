@@ -35,7 +35,7 @@ depends_build-append \
                   bin:svnversion:subversion \
                   bin:flex:flex \
                   bin:bison:bison
-# python27 is added as a build dependency down below all this
+# python27 is added as a build dependency down below all this, so skip it here
 depends_lib-append \
                   path:lib/pkgconfig/cairo.pc:cairo \
                   port:fftw-3 \
@@ -319,6 +319,7 @@ configure.env-append \
 
 platform macosx {
     #TODO: re-enable building of app bundle
+    #FIXME: apparently some older compilers do not support `-isystem`:
     configure.cppflags-append \
         -isystem/System/Library/Frameworks/OpenGL.framework/Versions/Current/Headers
     configure.ldflags-append \
@@ -334,6 +335,7 @@ platform macosx {
     }
 }
 
+# I found this condition for detecting 64-bitness in some other Portfile, but I forget which:
 if {([variant_isset universal] && [string match *64* $universal_archs]) || (![variant_isset universal] && [string match *64 $build_arch])} {
     configure.args-append \
         --enable-64bit
@@ -348,7 +350,9 @@ post-configure {
     reinplace "s|@DBMLIBPATH@|-L${prefix}/local/lib|g" ${worksrcpath}/include/Make/Platform.make
     reinplace "s|@DBMLIB@|-lgdbm|g" ${worksrcpath}/include/Make/Platform.make
     reinplace "s|@USE_GLWM@||g" ${worksrcpath}/include/Make/Platform.make
+    # This next reinplace ensures that we are UsingTheRightCompiler for gem:
     reinplace "s|CC=gcc|CC=${configure.cc}|g" ${worksrcpath}/gem/Makefile
+    # This next reinplace prepends ${configure.cflags} to the existing ones (note the escaped space at the end):
     reinplace "s|CFLAGS=|CFLAGS=${configure.cflags}\ |g" ${worksrcpath}/gem/Makefile
     reinplace "s|/usr/local/bin|${prefix}/bin|g" ${worksrcpath}/gem/Makefile
 }
@@ -365,6 +369,8 @@ build.env-append \
     CC=${configure.cc} \
     CFLAGS=${configure.cflags}
 
+# This is writing over the previous reinplace we did, but it is necessary to make sure that
+# gem respects the destroot:
 pre-destroot {
     reinplace "s|${prefix}/bin|${destroot}${prefix}/bin|g" ${worksrcpath}/gem/Makefile
 }
@@ -473,6 +479,7 @@ variant wxPython requires wxwidgets description {Enable support for wxGUI Python
     configure.args-append --with-python=${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7-config
 }
 
+# Prevent wxPython from being used when not selected:
 if {![variant_isset wxPython]} {
     post-configure {
         ui_debug "Removing wxpython from SUBDIRS in ${worksrcpath}/gui/Makefile"
@@ -480,6 +487,7 @@ if {![variant_isset wxPython]} {
     }
 }
 
+# This is slightly modified from the standard Fortran recipe; note the reinplaces:
 set gcc_versions {4.3 4.4 4.5 4.6 4.7 4.8 4.9}
 set default_fortran_variant +gcc48
 set g95_conflicts {}
