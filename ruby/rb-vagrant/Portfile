@@ -23,8 +23,8 @@ checksums           rmd160  1f66b5899b428b9d4a28fdccaeb5c129b604696d \
 # rb-rake is not universal
 universal_variant   no
 
-depends_build-append \
-                    port:rb-rake
+# The ruby portgroup now adds a dependency on rb-rake for us, so we can
+# now stop manually specifying it here
 
 depends_lib-append  port:rb-archive-tar-minitar \
                     port:rb-erubis \
@@ -37,10 +37,10 @@ depends_lib-append  port:rb-archive-tar-minitar \
 depends_run-append  bin:VBoxManage:VirtualBox
 
 # Making a variant for this until ticket #38208 is resolved.
-# Note: this variant doesn't actually work yet
+# Note: this variant does NOT actually work yet
 variant test description {Build tests} {
 # Need to fetch entire source from GitHub to be able to run tests
-# (for some reason it doesn't work when I put it in a variant like this...)
+# (for some reason it fails when I put it in a variant like this...)
     PortGroup       github 1.0
     github.setup    mitchellh ${myname} ${version} v
     set name        rb-${myname}

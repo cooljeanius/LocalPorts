@@ -11,14 +11,16 @@ categories          sysutils
 platforms           darwin
 maintainers         nomaintainer
 license             GPL-2+
-description         getabspath converts relative POSIX pathes to absolute ones.
-long_description    getabspath is a console-based tool which converts relative \
-                    POSIX pathes to absolute ones.
+description         getabspath converts relative POSIX paths to \
+                    absolute ones.
+long_description    getabspath is a console-based tool which converts \
+                    relative POSIX paths to absolute ones.
 
 homepage            http://getabspath.sourceforge.net/
 master_sites        sourceforge
 distname            getAbsPath-${version}-src
-checksums           md5 e40c3e9ea5865a10a47baf55857dbd72
+checksums           md5     e40c3e9ea5865a10a47baf55857dbd72 \
+                    sha1    aba442b648300a48b9dd30e15925f21c5dcb75fa
 
 worksrcdir          getAbsPath
 
@@ -37,15 +39,17 @@ post-configure {
 
 pre-build {
     if {![catch "registry_active libc-headers"]} {
-        ui_msg "Having libc-headers active can cause warnings when building ${name}."
-        ui_msg "We had to remove ${name}'s \"-pedantic-erros\" flag just to get it to build \
-                while the libc-headers port is active."
-        ui_msg "You might want to deactivate the libc-headers port while building ${name}, and then \
-               reactivate it later."
+        ui_msg "Having libc-headers active can cause warnings when \
+                building ${name}."
+        ui_msg "We had to remove ${name}'s \"-pedantic-errors\" flag just \
+                to get it to buildwhile the libc-headers port is active."
+        ui_msg "You might want to deactivate the libc-headers port while \
+                building ${name}, and then reactivate it later."
         ui_msg "Continuing building anyway for now though..."
     }
 }
 
+# clear it:
 build.target
 
 destroot {

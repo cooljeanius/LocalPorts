@@ -5,9 +5,8 @@ PortSystem          1.0
 PortGroup           archcheck 1.0
 
 name                gdal
-#TODO: update to 1.10
-version             1.9.2
-revision            8
+version             1.10.1
+revision            2
 categories          gis
 license             MIT BSD
 platforms           darwin macosx
@@ -29,8 +28,8 @@ master_sites        http://www.${name}.org/dl/ \
                     http://download.osgeo.org/${name}/ \
                     http://download.osgeo.org/${name}/CURRENT
 
-checksums           rmd160  1ab34a85946bae4313cbd925cdbbf728d23d7b57 \
-                    sha256  9f3b9ae968eaa8d06ee5448e5b65e7bfa940e2e345282a29d95275421f36c688
+checksums           rmd160  b06cbd0f34a6dad99768d5f75a9856e4e027d3bc \
+                    sha256  9984f0314c0bd831eb59fb646c2bc5e13cf1378be4f51499045166cbe62be6ea
 
 depends_build-append        path:bin/ed:ed \
                             path:bin/glibtool:libtool
@@ -44,7 +43,7 @@ depends_lib-append          port:zlib \
                             port:proj
 
 set PYINST                  ""
-set OPENCLBASE              "/System/Library/Frameworks/OpenCL.framework/"
+set OPENCLBASE              "/System/Library/Frameworks/OpenCL.framework"
 
 configure.args-append       --with-local=${prefix} \
                             --with-libz=${prefix} \
@@ -103,6 +102,9 @@ patchfiles-append           patch-swig_python_GNUmakefile.diff \
                             patch-gdalwarpkernel_opencl_c.diff \
                             patch-gdalwarpkernel_opencl_h.diff
 
+# Upstream fix for "Undefined symbols: _environ"
+patchfiles-append   patch-port-cpl_spawn.cpp.diff
+
 # Patches for universal build
 post-configure {
     reinplace -E "s|(INST_PYMOD).*|\\1\t=\t${PYINST}|" \
@@ -143,19 +145,25 @@ variant geos description {Enable GEOS geometry engine functionality} {
     if {![variant_isset universal]} {
         depends_lib-append  port:geos2
     }
-    if {[variant_isset python25] && ![variant_isset postgresql83] && \
-        ![variant_isset postgresql84] && ![variant_isset postgresql91] && \
-        ![variant_isset postgresql92]} {
+    if {[variant_isset python25] && ![variant_isset postgresql81] && \
+        ![variant_isset postgresql82] && ![variant_isset postgresql83] && \
+        ![variant_isset postgresql84] && ![variant_isset postgresql90] && \
+        ![variant_isset postgresql91] && ![variant_isset postgresql92] && \
+        ![variant_isset postgresql93]} {
         depends_lib-append  port:py25-geoalchemy
     }
-    if {[variant_isset python26] && ![variant_isset postgresql83] && \
-        ![variant_isset postgresql84] && ![variant_isset postgresql91] && \
-        ![variant_isset postgresql92]} {
+    if {[variant_isset python26] && ![variant_isset postgresql81] && \
+        ![variant_isset postgresql82] && ![variant_isset postgresql83] && \
+        ![variant_isset postgresql84] && ![variant_isset postgresql90] && \
+        ![variant_isset postgresql91] && ![variant_isset postgresql92] && \
+        ![variant_isset postgresql93]} {
         depends_lib-append  port:py26-geoalchemy
     }
-    if {[variant_isset python27] && ![variant_isset postgresql83] && \
-        ![variant_isset postgresql84] && ![variant_isset postgresql91] && \
-        ![variant_isset postgresql92]} {
+    if {[variant_isset python27] && ![variant_isset postgresql81] && \
+        ![variant_isset postgresql82] && ![variant_isset postgresql83] && \
+        ![variant_isset postgresql84] && ![variant_isset postgresql90] && \
+        ![variant_isset postgresql91] && ![variant_isset postgresql92] && \
+        ![variant_isset postgresql93]} {
         depends_lib-append  port:py27-geoalchemy
     }
     configure.args-delete   --without-geos
@@ -223,9 +231,11 @@ variant netcdf description {Enable NetCDF file format} {
     depends_lib-append      port:netcdf \
                             port:ncview
     if {[variant_isset python26]} {
+        configure.ccache    no
         depends_lib-append  port:py26-netcdf4
     }
     if {[variant_isset python27]} {
+        configure.ccache    no
         depends_lib-append  port:py27-netcdf4
     }
     configure.args-delete   --without-netcdf
@@ -253,7 +263,7 @@ variant xerces conflicts universal description {Enable xerces XML support for GM
     depends_lib-append      path:lib/libxerces-c.dylib:xercesc
     configure.args-delete   --without-xerces
     configure.args-append   --with-xerces=${prefix}
-    depends_skip_archcheck xercesc
+    depends_skip_archcheck-append xercesc
 }
 
 variant expat description {Enable expat XML support} {
@@ -265,22 +275,24 @@ variant expat description {Enable expat XML support} {
 # Python variants
 variant python24 conflicts python25 python26 python27 \
     description {Enable Python 2.4 support} {
-    depends_lib-append      port:python24 \
-                            port:py-numpy
+    depends_lib-append      port:python24
+    configure.python        ${prefix}/bin/python2.4
     configure.args-delete   --without-python
     configure.args-append   --with-python
     set PYINST              ${frameworks_dir}/Python.framework/Versions/2.4
     build.args-append       PYTHON=python2.4
+    build.env-append        PYTHON=python2.4
 }
 
 variant python25 conflicts python24 python26 python27 \
     description {Enable Python 2.5 support} {
-    depends_lib-append      port:python25 \
-                            port:py25-numpy
+    depends_lib-append      port:python25
+    configure.python        ${prefix}/bin/python2.5
     configure.args-delete   --without-python
     configure.args-append   --with-python
     set PYINST              ${frameworks_dir}/Python.framework/Versions/2.5
     build.args-append       PYTHON=python2.5
+    build.env-append        PYTHON=python2.5
     use_parallel_build      no
 }
 
@@ -288,10 +300,12 @@ variant python26 conflicts python24 python25 python27 \
     description {Enable Python 2.6 support} {
     depends_lib-append      port:python26 \
                             port:py26-numpy
+    configure.python        ${prefix}/bin/python2.6
     configure.args-delete   --without-python
     configure.args-append   --with-python
     set PYINST              ${frameworks_dir}/Python.framework/Versions/2.6
     build.args-append       PYTHON=python2.6
+    build.env-append        PYTHON=python2.6
     use_parallel_build      no
 }
 
@@ -299,55 +313,35 @@ variant python27 conflicts python24 python25 python26 \
     description {Enable Python 2.7 support} {
     depends_lib-append      port:python27 \
                             port:py27-numpy
+    configure.python        ${prefix}/bin/python2.7
     configure.args-delete   --without-python
     configure.args-append   --with-python
+    set PYINST              ${frameworks_dir}/Python.framework/Versions/2.7
     build.args-append       PYTHON=python2.7
-    set PYINST               ${frameworks_dir}/Python.framework/Versions/2.7
+    build.env-append        PYTHON=python2.7
     use_parallel_build      no
 }
 
 # Database variants
-variant postgresql81 description {Enable PostgreSQL 8.1 support} {
-    depends_lib-append      port:postgresql81
-    depends_skip_archcheck postgresql81
-    configure.args-delete   --without-pg
-    configure.args-append   --with-pg=${prefix}/lib/postgresql81/bin/pg_config
+set postgresql_suffixes {81 82 83 84 90 91 92 93}
+
+set portsgresql_variants {}
+foreach s ${postgresql_suffixes} {
+    lappend portsgresql_variants postgresql${s}
 }
 
-variant postgresql82 description {Enable PostgreSQL 8.2 support} {
-    depends_lib-append      port:postgresql82
-    configure.args-delete   --without-pg
-    configure.args-append   --with-pg=${prefix}/lib/postgresql82/bin/pg_config
-}
-
-variant postgresql83 description {Enable PostgreSQL 8.3 support} {
-    depends_lib-append      port:postgresql83
-    configure.args-delete   --without-pg
-    configure.args-append   --with-pg=${prefix}/lib/postgresql83/bin/pg_config
-}
-
-variant postgresql84 description {Enable PostgreSQL 8.4 support} {
-    depends_lib-append      port:postgresql84
-    configure.args-delete   --without-pg
-    configure.args-append   --with-pg=${prefix}/lib/postgresql84/bin/pg_config
-}
-
-variant postgresql90 description {Enable PostgreSQL 9.0 support} {
-    depends_lib-append      port:postgresql90
-    configure.args-delete   --without-pg
-    configure.args-append   --with-pg=${prefix}/lib/postgresql90/bin/pg_config
-}
-
-variant postgresql91 description {Enable PostgreSQL 9.1 support} {
-    depends_lib-append      port:postgresql91
-    configure.args-delete   --without-pg
-    configure.args-append   --with-pg=${prefix}/lib/postgresql91/bin/pg_config
-}
-
-variant postgresql92 description {Enable PostgreSQL 9.2 support} {
-    depends_lib-append      port:postgresql92
-    configure.args-delete   --without-pg
-    configure.args-append   --with-pg=${prefix}/lib/postgresql92/bin/pg_config
+foreach s ${postgresql_suffixes} {
+    set p postgresql${s}
+    set v [string index ${s} 0].[string index ${s} 1]
+    set i [lsearch -exact ${portsgresql_variants} ${p}]
+    set c [lreplace ${portsgresql_variants} ${i} ${i}]
+    eval [subst {
+        variant ${p} description "Enable PostgreSQL ${v} support" conflicts ${c} {
+            depends_lib-append      port:${p}
+            configure.args-delete   --without-pg
+            configure.args-append   --with-pg=${prefix}/lib/postgresql${s}/bin/pg_config
+        }
+    }]
 }
 
 variant mysql5 description {Enable MySQL 5 support} {
@@ -428,6 +422,7 @@ variant opencl description {Use OpenCL for parallel computations} {
 }
 
 # OS X Framework
+#TODO: investigate if this breaks stuff
 platform macosx {
     variant framework description {Build as a Mac OS X framework} {
         configure.args-delete   --without-macosx-framework
@@ -435,10 +430,8 @@ platform macosx {
     }
 }
 
-variant huge requires curl expat geos hdf5 mysql5 netcdf opencl \
-                      postgresql82 postgresql84 postgresql90 postgresql91 \
-                      postgresql92 sqlite3 \
-                      description {Pull in as many dependencies as possible} {
+variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
+                      description {Pull even more dependencies} {
     configure.args-delete   --without-lzma \
                             --without-pg \
                             --without-grass \
@@ -545,7 +538,7 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl \
     use_parallel_build      no
 }
 
-variant extra_nonuniversal conflicts universal requires huge hdf4 lzma postgresql83 \
+variant extra_nonuniversal conflicts universal requires huge hdf4 lzma \
 description {Extra dependencies that are not universal} {
     depends_lib-append      port:wgrib2 \
                             port:ocilib \
@@ -554,25 +547,24 @@ description {Extra dependencies that are not universal} {
                             port:pear-Net_Curl \
                             port:mdbtools
     depends_skip_archcheck-append \
-                            lzma postgresql83 wgrib2 ocilib couchdb \
-                            mdbtools
+                            lzma wgrib2 ocilib couchdb mdbtools
     configure.args-append   --with-php \
                             --with-msg \
                             --with-oci
 }
 
-#variant broken requires postgreql81 extra_nonuniversal poppler \
+#variant broken requires extra_nonuniversal poppler \
 #spatialite xerces conflicts universal description {dependencies that do \
 #not even work even when not building universal} {
 #    depends_lib-append      port:pamtester \
 #                            port:svdlibc \
 #                            port:sam2p
-#    depends_skip_archcheck pamtester sam2p tif22pnm svdlibc xercesc
+#    depends_skip_archcheck-append pamtester sam2p tif22pnm svdlibc xercesc
 #    configure.args-delete   --without-xerces
 #    configure.args-append   --with-pam
 #    if {[variant_isset xerces]} {
 #        depends_lib-append  port:xalanj
-#        depends_skip_archcheck xalanj
+#        depends_skip_archcheck-append xalanj
 #    }
 #}
 
@@ -580,6 +572,7 @@ variant autoreconf description {Runs autoreconf before configuring} {
     pre-patch {
         file copy ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
     }
+    #TODO: fix patches for new version:
     patchfiles-append       patch-configure.ac.diff \
                             patch-configure.in.diff
     use_autoreconf          yes
@@ -597,8 +590,12 @@ variant perf description {Optimize for speed} {
 }
 
 default_variants            +expat
-if {![variant_isset postgresql83] && ![variant_isset postgresql84] && \
-    ![variant_isset postgresql91] && ![variant_isset postgresql92]} {
+if {![variant_isset postgresql81] && ![variant_isset postgresql82] && \
+    ![variant_isset postgresql83] && ![variant_isset postgresql84] && \
+    ![variant_isset postgresql90] && ![variant_isset postgresql91] && \
+    ![variant_isset postgresql92] && ![variant_isset postgresql93] && \
+    ![variant_isset python24] && ![variant_isset python25] && \
+    ![variant_isset python26] && ![variant_isset python27]} {
     default_variants-append +geos
 }
 

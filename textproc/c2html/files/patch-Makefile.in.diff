@@ -1,0 +1,44 @@
+--- Makefile.in.orig	2014-01-19 13:29:04.000000000 -0500
++++ Makefile.in	2014-01-19 13:32:31.000000000 -0500
+@@ -26,10 +26,10 @@
+ # It is recommended to use a not so high compression mode
+ # for gzip because otherwise the load on the web server
+ # grows without having big benefits.
+-# COMPRESSION = -DCOMPRESSION=4
++COMPRESSION_COMMENTED_OUT = -DCOMPRESSION=4
+ COMPRESSION = -DCOMPRESSION=1
+ 
+-# Dont change things beyond this line.
++# Do NOT change things beyond this line.
+ TARGET          = @PROJECT_NAME@
+ VERSION         = @VERSION@
+ SRCS            = @srcdir@/mymain.c @srcdir@/colors.c
+@@ -39,7 +39,7 @@
+ MANPAGE	        = $(TARGET).1
+ LSM             = $(TARGET).lsm
+ DOCS            = AUTHORS COPYING NEWS README $(MANPAGE) $(LSM)
+-CONFIGIN        = @srcdir@/Makefile.in @srcdir@/configure.in @srcdir@/configure @srcdir@/install-sh @srcdir@/config.h.in
++CONFIGIN        = @srcdir@/Makefile.in @srcdir@/configure.ac @srcdir@/configure @srcdir@/install-sh @srcdir@/config.h.in
+ TMPCONFIGFILES  = config.cache config.status config.log config.h
+ FILENAME        = $(TARGET)-$(VERSION)
+ 
+@@ -56,6 +56,8 @@
+ mandir          = @mandir@
+ man1dir         = @mandir@/man1
+ srcdir          = @srcdir@
++datadir         = @datadir@
++datarootdir     = @datarootdir@
+ docdir          = @datadir@/doc
+ CPPFLAGS        = @CPPFLAGS@
+ 
+@@ -102,8 +104,8 @@
+ 
+ # stuff to update Makefile when changing configuration
+ 
+-$(srcdir)/configure: $(srcdir)/configure.in
+-	cd $(srcdir) && autoconf
++$(srcdir)/configure: $(srcdir)/configure.ac
++	cd $(srcdir) && autoconf --force --warnings=all
+ 
+ Makefile: $(srcdir)/Makefile.in $(srcdir)/config.h.in
+ 	@echo "regeneration with (in ./config.status) saved configure results..."

@@ -197,7 +197,7 @@ depends_lib-append port:gawk \
                    port:sortu
 depends_run-append port:gawk
 
-depends_skip_archcheck getabspath dmg2img alac_decoder nettee gnustep-make sglib
+depends_skip_archcheck-append getabspath dmg2img alac_decoder nettee gnustep-make sglib
 
 variant long_deps_chain description {Add ports with longer dependency chains} {
     depends_lib-append \
@@ -224,7 +224,6 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:icon-naming-utils \
                    port:desktop-file-utils \
                    port:autogen \
-                   port:py24-f2py \
                    port:uni2ascii \
                    port:gnome-doc-utils \
                    port:docbook2x \
@@ -247,8 +246,6 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:wiggle \
                    port:quilt \
                    port:compare \
-                   port:highlight \
-                   port:source-highlight \
                    port:valgrind
-    depends_skip_archcheck MacOSXMacros gtk-doc man gnome-doc-utils compare
+    depends_skip_archcheck-append MacOSXMacros gtk-doc man gnome-doc-utils compare
 }

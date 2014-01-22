@@ -81,7 +81,7 @@ universal_variant     no
 # supported arch
 supported_archs       x86_64
 
-# Some of these build dependencies will only be needed once I add a test phase,
+# Some of these build deps will only be needed once I add a test phase,
 # and then only until http://trac.macports.org/ticket/38208 is resolved
 depends_build-append  port:pkgconfig \
                       port:intltool \
@@ -114,7 +114,7 @@ depends_build-append  port:pkgconfig \
                       bin:splint:splint \
                       bin:xmlindent:xmlindent
 
-# Most of these library dependencies are taken from Fink's list of dependencies
+# Most of these library deps are taken from Fink's list of dependencies
 # for Scilab (some were from the outdated version of the Fink package):
 depends_lib-append    port:readline \
                       port:tcl \
@@ -215,6 +215,8 @@ configure.ldflags-append \
                       -lreadline \
                       -lX11
 
+#TODO: only check this if eigen3 is actually installed
+# (Portfile fails to parse when it is not)
 if {[active_variants path:lib/pkgconfig/eigen3.pc:eigen3 blas]} {
     configure.ldflags-append \
                       -leigen_blas
@@ -226,7 +228,7 @@ if {[tbool configure.ccache]} {
     configure.ccache no
 }
 
-# ./configure --help said that these were influential environment variables:
+# ./configure --help said these were influential environment variables:
 configure.env-append XMKMF=${prefix}/bin/xmkmf \
                      PCRE_LIBS=-L${prefix}/lib -lpcreposix -lpcre \
                      FOP=${prefix}/bin/fop

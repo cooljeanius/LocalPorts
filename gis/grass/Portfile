@@ -2,11 +2,13 @@
 # $Id: Portfile 111848 2013-10-03 20:35:14Z devans@macports.org $
 
 PortSystem        1.0
+PortGroup         wxWidgets 1.0
+PortGroup         active_variants 1.1
 
 name              grass
 epoch             1
 version           6.4.3
-revision          2
+revision          3
 maintainers       nomaintainer
 categories        gis
 license           GPL-2+
@@ -22,10 +24,7 @@ master_sites      ${homepage}grass[join [lrange [split ${version} .] 0 1] {}]/so
 checksums         rmd160  bdbd671972730701aa8213c2041abe31a68eea4c \
                   sha256  5d29d322a262330894aa046845e6790258cd6e3f95b28c350ed7839810672ed6
 
-#TODO:
-# this port does NOT work with the python portgroup because the group
-# changes too much, but it would make sense to fix this properly:
-set python_bin    ${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
+# Setting python_bin here has been moved into the python variants
 
 depends_build-append \
                   port:pkgconfig \
@@ -35,7 +34,7 @@ depends_build-append \
                   bin:svnversion:subversion \
                   bin:flex:flex \
                   bin:bison:bison
-# python27 is added as a build dependency down below all this, so skip it here
+# the python dependencies have been moved to their variants
 depends_lib-append \
                   path:lib/pkgconfig/cairo.pc:cairo \
                   port:fftw-3 \
@@ -68,9 +67,9 @@ depends_lib-append \
                   port:xorg-libsm \
                   port:xrender \
                   port:zlib
-# gpsbabel and netpbm are not actually linked against, but macosx/Readme.rtf
-# says that they have to be universal, so including them as library dependencies
-# seemed like the best way to ensure that.
+# gpsbabel and netpbm are not actually linked against, but
+# macosx/Readme.rtf says that they have to be universal, so including
+# them as library dependencies seemed like the best way to ensure that.
 # (it was either that or use the deprecated archcheck portgroup)
 
 # https://trac.macports.org/ticket/32790
@@ -86,11 +85,9 @@ patchfiles-append \
     patch-Makefile.diff \
     patch-ffmpeg.diff
 
-# List of all python scripts. Used later to ensure usage of python27 (and
-# not the currently active python)
+# List of all python scripts. Used later to ensure usage of
+# python26/python27 (and not the currently active python)
 # Work around bug http://trac.osgeo.org/grass/ticket/1758
-depends_build-append    port:python27
-depends_run-append      port:python27
 set python_scripts [ list \
     doc/python/m.distance.py \
     doc/python/raster_example_ctypes.py \
@@ -240,10 +237,8 @@ set python_scripts [ list \
 
 post-patch {
    reinplace "s|@@APPLICATIONS_DIR@@|${applications_dir}|" ${worksrcpath}/configure
-   reinplace "s|@@PYTHON@@|${python_bin}|" ${worksrcpath}/lib/init/grass.src
-   foreach f $python_scripts {
-       reinplace "s|/usr/bin/env python|${python_bin}|" $f
-   }
+   # The reinplacing for the python scripts has been moved into the
+   # python variants
    file copy ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
 }
 
@@ -319,7 +314,8 @@ configure.env-append \
 
 platform macosx {
     #TODO: re-enable building of app bundle
-    #FIXME: apparently some older compilers do not support `-isystem`:
+    # Some older compilers do not support `-isystem`, so blacklist:
+    compiler.blacklist-append gcc-3.3 *gcc-4.0
     configure.cppflags-append \
         -isystem/System/Library/Frameworks/OpenGL.framework/Versions/Current/Headers
     configure.ldflags-append \
@@ -335,7 +331,8 @@ platform macosx {
     }
 }
 
-# I found this condition for detecting 64-bitness in some other Portfile, but I forget which:
+# I found this condition for detecting 64-bitness in some other
+# Portfile, but I forget which:
 if {([variant_isset universal] && [string match *64* $universal_archs]) || (![variant_isset universal] && [string match *64 $build_arch])} {
     configure.args-append \
         --enable-64bit
@@ -350,9 +347,11 @@ post-configure {
     reinplace "s|@DBMLIBPATH@|-L${prefix}/local/lib|g" ${worksrcpath}/include/Make/Platform.make
     reinplace "s|@DBMLIB@|-lgdbm|g" ${worksrcpath}/include/Make/Platform.make
     reinplace "s|@USE_GLWM@||g" ${worksrcpath}/include/Make/Platform.make
-    # This next reinplace ensures that we are UsingTheRightCompiler for gem:
+    # This next reinplace ensures that we are UsingTheRightCompiler
+    # for gem:
     reinplace "s|CC=gcc|CC=${configure.cc}|g" ${worksrcpath}/gem/Makefile
-    # This next reinplace prepends ${configure.cflags} to the existing ones (note the escaped space at the end):
+    # This next reinplace prepends ${configure.cflags} to existing ones
+    # (note the escaped space at the end):
     reinplace "s|CFLAGS=|CFLAGS=${configure.cflags}\ |g" ${worksrcpath}/gem/Makefile
     reinplace "s|/usr/local/bin|${prefix}/bin|g" ${worksrcpath}/gem/Makefile
 }
@@ -360,8 +359,8 @@ post-configure {
 build.target    default
 build.type      gnu
 
+# setting PYTHON in the environment has been moved to the python variants
 build.env-append \
-    PYTHON=${python_bin} \
     NAD2BIN=${prefix}/lib/proj47/bin/nad2bin \
     GDAL_BIN=${prefix}/bin \
     JASPERLIB=${prefix}/lib/libjasper.dylib \
@@ -369,8 +368,8 @@ build.env-append \
     CC=${configure.cc} \
     CFLAGS=${configure.cflags}
 
-# This is writing over the previous reinplace we did, but it is necessary to make sure that
-# gem respects the destroot:
+# This is writing over the previous reinplace we did, but it is
+# necessary to make sure that gem respects the destroot:
 pre-destroot {
     reinplace "s|${prefix}/bin|${destroot}${prefix}/bin|g" ${worksrcpath}/gem/Makefile
 }
@@ -379,12 +378,14 @@ platform macosx {
     pre-destroot {
         reinplace "s|/Library/|${prefix}/Library/|g" ${worksrcpath}/macosx/Makefile
     }
-    # Setting this is temporary until I can ensure that it stops doing this:
+    # Setting this is temporary until I can ensure that it stops
+    # doing this:
     destroot.violate_mtree yes
 }
 
 variant mysql5 description {Add MySQL 5 support} {
     depends_lib-append    path:bin/mysql_config5:mysql5
+    require_active_variants gdal mysql5
     configure.args-append --with-mysql
     configure.args-append --with-mysql-includes=${prefix}/include/mysql5/mysql
     configure.args-append --with-mysql-libs=${prefix}/lib/mysql5/mysql
@@ -393,6 +394,7 @@ variant mysql5 description {Add MySQL 5 support} {
 
 variant postgresql83 conflicts postgresql84 postgresql90 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 8.3 support} {
     depends_lib-append    port:postgresql83
+    require_active_variants gdal postgresql83
     configure.args-delete --without-postgres
     configure.args-append --with-postgres
     configure.args-append --with-postgres-includes=${prefix}/include/postgresql83
@@ -401,6 +403,7 @@ variant postgresql83 conflicts postgresql84 postgresql90 postgresql91 postgresql
 
 variant postgresql84 conflicts postgresql83 postgresql90 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 8.4 support} {
     depends_lib-append    port:postgresql84
+    require_active_variants gdal postgresql84
     configure.args-delete --without-postgres
     configure.args-append --with-postgres
     configure.args-append --with-postgres-includes=${prefix}/include/postgresql84
@@ -409,6 +412,7 @@ variant postgresql84 conflicts postgresql83 postgresql90 postgresql91 postgresql
 
 variant postgresql90 conflicts postgresql83 postgresql84 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 9.0 support} {
     depends_lib-append    port:postgresql90
+    require_active_variants gdal postgresql90
     configure.args-delete --without-postgres
     configure.args-append --with-postgres
     configure.args-append --with-postgres-includes=${prefix}/include/postgresql90
@@ -417,6 +421,7 @@ variant postgresql90 conflicts postgresql83 postgresql84 postgresql91 postgresql
 
 variant postgresql91 conflicts postgresql83 postgresql84 postgresql90 postgresql92 postgresql93 description {Add PostgreSQL 9.1 support} {
     depends_lib-append    port:postgresql91
+    require_active_variants gdal postgresql91
     configure.args-delete --without-postgres
     configure.args-append --with-postgres
     configure.args-append --with-postgres-includes=${prefix}/include/postgresql91
@@ -425,6 +430,7 @@ variant postgresql91 conflicts postgresql83 postgresql84 postgresql90 postgresql
 
 variant postgresql92 conflicts postgresql83 postgresql84 postgresql90 postgresql91 postgresql93 description {Add PostgreSQL 9.2 support} {
     depends_lib-append    port:postgresql92
+    require_active_variants gdal postgresql92
     configure.args-delete --without-postgres
     configure.args-append --with-postgres
     configure.args-append --with-postgres-includes=${prefix}/include/postgresql92
@@ -433,6 +439,7 @@ variant postgresql92 conflicts postgresql83 postgresql84 postgresql90 postgresql
 
 variant postgresql93 conflicts postgresql83 postgresql84 postgresql90 postgresql91 postgresql92 description {Add PostgreSQL 9.3 support} {
     depends_lib-append    port:postgresql93
+    require_active_variants gdal postgresql93
     configure.args-delete --without-postgres
     configure.args-append --with-postgres
     configure.args-append --with-postgres-includes=${prefix}/include/postgresql93
@@ -441,6 +448,7 @@ variant postgresql93 conflicts postgresql83 postgresql84 postgresql90 postgresql
 
 variant sqlite3 description {Add SQLite 3 support} {
     depends_lib-append    port:sqlite3
+    require_active_variants gdal sqlite3
     configure.args-delete --without-sqlite
     configure.args-append --with-sqlite
     configure.args-append --with-sqlite-includes=${prefix}/include
@@ -457,37 +465,135 @@ variant ffmpeg description {Add ffmpeg support} {
                           --with-ffmpeglibs=${prefix}/lib
 }
 
-# FIXME:
-# grass 4.6.3 is not compatible with wxPython 2.9 yet
-# the option names should be changed to allow building against wxPython 2.8
-# (either carbon or gtk variant)
-# It also needs to be guaranteed that the right architecture is chosen
-variant wxwidgets description {Add WXWidgets support} {
-    PortGroup             wxWidgets 1.0
-    wxWidgets.use         wxPython-3.0
-    depends_lib-append    port:${wxWidgets.port}
-    configure.args-delete --disable-wxwidgets
-    configure.args-append --with-wxwidgets=${wxWidgets.wxconfig}
+# python26 variant is only present to allow 'grass +wxgtk28' to coexist
+# with py27-wxpython-3.0
+# Once support for wxWidgets 3.0 is complete, support for Python 2.6 may
+# be removed
+variant python26 conflicts python27 description {use python26 for python support} {
+    depends_lib-append    port:python26
+    require_active_variants gdal python26
+    set python_bin        ${frameworks_dir}/Python.framework/Versions/2.6/bin/python2.6
+    # Enable support for wxGUI Python extensions
+    # (by removing this we would NOT need to depend on py-wxpython-x.y)
+    configure.args-delete --disable-python
+    configure.args-replace --without-python --with-python=${frameworks_dir}/Python.framework/Versions/2.6/bin/python2.6-config
+    build.args-append     PYTHON=${python_bin}
+    build.env-append      PYTHON=${python_bin}
+    # TODO: this port does NOT work with the python portgroup because
+    # the group used to change too much
+    # But it would make sense to fix this in such a way that
+    # python_bin could be determined automatically
+
+    post-patch {
+        # for some reason it fails if python_bin is not also defined
+        # inside post-patch (figure out why)
+        set python_bin ${frameworks_dir}/Python.framework/Versions/2.6/bin/python2.6
+        reinplace "s|@@PYTHON@@|${python_bin}|" ${worksrcpath}/lib/init/grass.src
+        foreach f ${python_scripts} {
+            reinplace "s|/usr/bin/env python|${python_bin}|" ${f}
+        }
+    }
 }
 
-variant wxPython requires wxwidgets description {Enable support for wxGUI Python extensions} {
+variant python27 conflicts python26 description {use python27 for python support} {
+    depends_lib-append    port:python27
+    require_active_variants gdal python27
+    set python_bin        ${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
+    configure.args-delete --disable-python
+    configure.args-replace --without-python --with-python=${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7-config
+    build.args-append     PYTHON=${python_bin}
+    build.env-append      PYTHON=${python_bin}
+
+    post-patch {
+        set python_bin ${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
+        reinplace "s|@@PYTHON@@|${python_bin}|" ${worksrcpath}/lib/init/grass.src
+        foreach f ${python_scripts} {
+            reinplace "s|/usr/bin/env python|${python_bin}|" ${f}
+        }
+    }
+}
+
+# wxWidgets is optional and is disabled above with --disable-wxwidgets
+# therefore we use configure.args-replace
+#       grass 4.6.3 is not compatible with wxWidgets 3.0 yet
+variant wxwidgets30 conflicts wxwidgets28 wxgtk28 description {Use Cocoa-based wxWidgets 3.0 (experimental)} {
     wxWidgets.use         wxPython-3.0
-    depends_build-append  port:swig-python
-    depends_lib-append    port:py27-wxpython-3.0
-    configure.args-delete --disable-python \
-                          --without-python
-    configure.args-append --with-python=${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7-config
+    depends_lib-append    port:${wxWidgets.port}
+    configure.args-replace --disable-wxwidgets --with-wxwidgets=${wxWidgets.wxconfig}
+}
+variant wxwidgets28 conflicts wxwidgets30 wxgtk28 universal description {Use Carbon-based wxWidgets 2.8} {
+    # untested (might not work)
+    wxWidgets.use         wxWidgets-2.8
+    depends_lib-append    port:${wxWidgets.port}
+    configure.args-replace --disable-wxwidgets --with-wxwidgets=${wxWidgets.wxconfig}
+}
+variant wxgtk28 conflicts wxwidgets30 wxwidgets28 description {Use GTK-based wxWidgets 2.8} {
+    wxWidgets.use         wxGTK-2.8
+    depends_lib-append    port:${wxWidgets.port}
+    configure.args-replace --disable-wxwidgets --with-wxwidgets=${wxWidgets.wxconfig}
+}
+
+variant wxwidgets requires wxwidgets28 conflicts universal description {legacy compatibility variant} {}
+variant wxPython requires wxwidgets30 description {legacy compatibility variant} {}
+
+if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28] && ![variant_isset wxwidgets] && ![variant_isset wxPython]} {
+    default_variants-append +wxgtk28
+}
+if {![variant_isset python26] && ![variant_isset python27]} {
+    if {[variant_isset wxgtk28] || [variant_isset wxwidgets28]} {
+        default_variants-append +python26
+    } else {
+        default_variants-append +python27
+    }
+}
+
+# TODO: if py27-wxpython-3.0 is installed, grass +wxgtk28 cannot
+#       be installed with +python27
+#       We could remove this limitation by disabling wxpython support
+#       altogether (in case there is demand for it)
+# TODO: the code below is ugly; any suggestions for improving it are
+#       welcome
+if {[variant_isset wxwidgets30]} {
+    if {[variant_isset python26]} {
+        depends_lib-append port:py26-wxpython-3.0
+    } elseif {[variant_isset python27]} {
+        depends_lib-append port:py27-wxpython-3.0
+    }
+} else {
+    if {[variant_isset python26]} {
+        depends_lib-append port:py26-wxpython-2.8
+        if {[variant_isset wxwidgets28]} {
+            require_active_variants py26-wxpython-2.8 carbon gtk
+        } else {
+            require_active_variants py26-wxpython-2.8 gtk carbon
+        }
+    } elseif {[variant_isset python27]} {
+        depends_lib-append port:py27-wxpython-2.8
+        if {[variant_isset wxwidgets28]} {
+            require_active_variants py27-wxpython-2.8 carbon gtk
+        } else {
+            require_active_variants py27-wxpython-2.8 gtk carbon
+        }
+    }
+}
+
+if {[variant_isset python26] || [variant_isset python27]} {
+    depends_build-append port:swig-python
+    if {![variant_isset wxwidgets28] && ![variant_isset wxgtk28] && ![variant_isset wxwidgets] && ![variant_isset wxPython]} {
+        default_variants-append +wxPython
+    }
 }
 
 # Prevent wxPython from being used when not selected:
-if {![variant_isset wxPython]} {
+if {![variant_isset wxPython] && ![variant_isset python26] && ![variant_isset python27] && ![variant_isset wxwidgets28] && ![variant_isset wxwidgets30] && ![variant_isset wxgtk28]} {
     post-configure {
         ui_debug "Removing wxpython from SUBDIRS in ${worksrcpath}/gui/Makefile"
         reinplace "s|wxpython||g" ${worksrcpath}/gui/Makefile
     }
 }
 
-# This is slightly modified from the standard Fortran recipe; note the reinplaces:
+# This is slightly modified from the standard Fortran recipe; note the
+# added reinplaces:
 set gcc_versions {4.3 4.4 4.5 4.6 4.7 4.8 4.9}
 set default_fortran_variant +gcc48
 set g95_conflicts {}
@@ -507,7 +613,7 @@ foreach ver ${gcc_versions} {
     }
     append variant_line { {}}
 
-    eval $variant_line
+    eval ${variant_line}
 
     append g95_conflicts " conflicts gcc${ver_no_dot}"
 
@@ -518,7 +624,7 @@ foreach ver ${gcc_versions} {
     }
 }
 
-eval [concat {variant g95 description {build with g95}} $g95_conflicts {{}}]
+eval [concat {variant g95 description {build with g95}} ${g95_conflicts} {{}}]
 
 if {[variant_isset g95]} {
     if {${default_fortran_variant} != "+g95"} {
@@ -550,6 +656,7 @@ foreach ver ${gcc_versions} {
 if {[variant_isset g95]} {
     depends_lib-append path:lib/libgcc/libgcc_s.1.dylib:libgcc
     depends_build-append port:g95
+    depends_skip_archcheck-append g95
 
     configure.ldflags-append -lgcc
     configure.fc  ${prefix}/bin/g95

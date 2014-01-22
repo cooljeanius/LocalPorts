@@ -1,0 +1,42 @@
+***************
+*** 137,152 ****
+  AC_DEFINE_UNQUOTED(HOST_FILLORDER, $HOST_FILLORDER, [Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB)])
+  
+  dnl Checks for library functions.
+  AC_FUNC_VPRINTF
+- AC_CHECK_FUNCS(snprintf vsnprintf)
+- AC_CHECK_FUNCS(atoll)
+- AC_CHECK_FUNCS(strtof)
+- AC_CHECK_FUNCS(getcwd)
+  
+  dnl Check for declarations
+- AC_CHECK_DECLS(strtof)
+  
+- AC_CHECK_FUNCS(readlink)
+  
+  dnl Make sure at least these are checked under C++.  Prototypes missing on 
+  dnl some platforms.
+--- 170,192 ----
+  AC_DEFINE_UNQUOTED(HOST_FILLORDER, $HOST_FILLORDER, [Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB)])
+  
+  dnl Checks for library functions.
++ AC_FUNC_ERROR_AT_LINE
++ AC_FUNC_FORK
++ AC_FUNC_MALLOC
++ AC_FUNC_MKTIME
++ AC_FUNC_REALLOC
++ AC_FUNC_STRTOD
+  AC_FUNC_VPRINTF
++ AC_CHECK_FUNCS([snprintf vsnprintf])
++ AC_CHECK_FUNCS([atoll])
++ AC_CHECK_FUNCS([strtof])
++ AC_CHECK_FUNCS([getcwd])
++ AC_CHECK_FUNCS([atexit dup2 floor getwd isascii localeconv localtime_r memmove memset mkdir modf pow putenv regcomp rint rmdir select setlocale sqrt strcasecmp strchr strcspn strdup strerror strncasecmp strndup strpbrk strrchr strspn strstr strtol strtoul])
+  
+  dnl Check for declarations
++ AC_CHECK_DECLS([strtof])
+  
++ AC_CHECK_FUNCS([readlink])
+  
+  dnl Make sure at least these are checked under C++.  Prototypes missing on 
+  dnl some platforms.
