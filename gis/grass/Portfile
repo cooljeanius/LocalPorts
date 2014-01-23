@@ -584,8 +584,11 @@ if {[variant_isset python26] || [variant_isset python27]} {
     }
 }
 
-# Prevent wxPython from being used when not selected:
-if {![variant_isset wxPython] && ![variant_isset python26] && ![variant_isset python27] && ![variant_isset wxwidgets28] && ![variant_isset wxwidgets30] && ![variant_isset wxgtk28]} {
+# Prevent wxPython from being used when the user does not specifically
+# select a variant that is known to work with wxPython
+# (so far only wxwidgets30 and wxgtk28 work with wxPython, but NOT
+# wxwidgets28...):
+if {![variant_isset wxPython] && ![variant_isset wxwidgets30] && ![variant_isset wxgtk28]} {
     post-configure {
         ui_debug "Removing wxpython from SUBDIRS in ${worksrcpath}/gui/Makefile"
         reinplace "s|wxpython||g" ${worksrcpath}/gui/Makefile
