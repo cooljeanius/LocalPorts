@@ -533,10 +533,7 @@ variant wxgtk28 conflicts wxwidgets30 wxwidgets28 description {Use GTK-based wxW
     configure.args-replace --disable-wxwidgets --with-wxwidgets=${wxWidgets.wxconfig}
 }
 
-variant wxwidgets requires wxwidgets28 conflicts universal description {legacy compatibility variant} {}
-variant wxPython requires wxwidgets30 description {legacy compatibility variant} {}
-
-if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28] && ![variant_isset wxwidgets] && ![variant_isset wxPython]} {
+if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
     default_variants-append +wxgtk28
 }
 if {![variant_isset python26] && ![variant_isset python27]} {
@@ -579,16 +576,13 @@ if {[variant_isset wxwidgets30]} {
 
 if {[variant_isset python26] || [variant_isset python27]} {
     depends_build-append port:swig-python
-    if {![variant_isset wxwidgets28] && ![variant_isset wxgtk28] && ![variant_isset wxwidgets] && ![variant_isset wxPython]} {
-        default_variants-append +wxPython
-    }
 }
 
 # Prevent wxPython from being used when the user does not specifically
 # select a variant that is known to work with wxPython
 # (so far only wxwidgets30 and wxgtk28 work with wxPython, but NOT
 # wxwidgets28...):
-if {![variant_isset wxPython] && ![variant_isset wxwidgets30] && ![variant_isset wxgtk28]} {
+if {![variant_isset wxwidgets30] && ![variant_isset wxgtk28]} {
     post-configure {
         ui_debug "Removing wxpython from SUBDIRS in ${worksrcpath}/gui/Makefile"
         reinplace "s|wxpython||g" ${worksrcpath}/gui/Makefile
