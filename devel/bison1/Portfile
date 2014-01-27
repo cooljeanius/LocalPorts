@@ -45,20 +45,8 @@ depends_build-append \
 depends_lib-append  port:libiconv \
                     port:gettext
 
-# Making this a variant until https://trac.macports.org/ticket/38208 is resolved
-variant test description {Enables testing and debugging} {
-    configure.args-delete \
-                    --without-dmalloc
-    configure.args-append \
-                    --enable-gcc-warnings
-    depends_build-append \
-                    bin:valgrind:valgrind
-    depends_lib-append \
-                    lib:dmalloc:dmalloc
-    # some of these tests fail
-    test.run        yes
-    test.target     check
-}
+test.run            yes
+test.target         check
 
 post-destroot {
     delete ${destroot}${prefix}/share/info

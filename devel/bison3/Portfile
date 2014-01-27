@@ -53,60 +53,8 @@ configure.args      --infodir=${prefix}/share/info \
 configure.env-append \
                     M4=${prefix}/bin/gm4
 
-# Making this a variant until https://trac.macports.org/ticket/38208 is resolved
-variant test description {Enables testing and debugging} {
-    configure.args-delete \
-                    --without-dmalloc
-    configure.args-append \
-                    --enable-gcc-warnings \
-                    --disable-silent-rules
-
-    depends_build-append \
-                    bin:valgrind:valgrind \
-                    bin:git:git-core \
-                    bin:gawk:gawk \
-                    bin:grep:grep \
-                    bin:gsed:gsed \
-                    bin:gmake:gmake
-
-    depends_lib-append \
-                    lib:dmalloc:dmalloc
-
-    build.type      gnu
-    build.cmd       ${prefix}/bin/gmake
-    test.run        yes
-    test.target     check
-}
-
-variant docs description {Build documentation} {
-    depends_build-append \
-                    bin:xsltproc:libxslt \
-                    bin:help2man:help2man \
-                    bin:doxygen:doxygen \
-                    bin:dot:graphviz \
-                    bin:ctags:ctags \
-                    bin:makeinfo:texinfo \
-                    bin:mig:bootstrap_cmds \
-                    port:fontconfig
-    build.target-append \
-                    ctags \
-                    doc \
-                    gen-ChangeLog \
-                    info
-    post-build {
-        foreach subdir {po runtime-po} {
-            system -W ${worksrcpath}/${subdir} "${build.cmd}"
-        }
-    }
-    destroot.target-append \
-                    install-html \
-                    install-info
-    post-destroot {
-        foreach subdir {po runtime-po} {
-            system -W ${worksrcpath}/${subdir} "${destroot.cmd} ${destroot.target} DESTDIR=${destroot.destdir}"
-        }
-    }
-}
+test.run            yes
+test.target         check
 
 post-destroot {
     set docdir ${prefix}/share/doc/${name}
@@ -121,38 +69,10 @@ post-destroot {
 }
 
 variant yacc description "Enable yacc compatibility" {
-    configure.args-delete   --disable-yacc
-    configure.args-append   --enable-yacc
-    # ${prefix}/lib/${name}/liby.a exists when enabling yacc
+    configure.args-replace  --disable-yacc --enable-yacc
+    # ${prefix}/lib/${name}/liby.a exists when enabling yacc, so overwrite
+    # value set above
     installs_libs           yes
-}
-
-variant java description "Enable Java support" {
-    depends_build-append    bin:java:kaffe \
-                            bin:gcj:gcc_select
-    depends_run-append      bin:java:kaffe
-}
-
-# Removing this variant removes files that were previously
-# installed (see below), so make it a default
-default_variants-append +java
-
-if {![variant_isset java]} {
-    post-destroot {
-        delete ${worksrcpath}/data/lalr1.java
-        delete ${destroot}${prefix}/share/${name}/${myname}/lalr1.java
-        eval delete [glob ${destroot}${prefix}/share/${name}/${myname}/java*m4]
-    }
-    if {[variant_isset test]} {
-        post-test {
-            delete ${worksrcpath}/tests/java.at
-        }
-    } else {
-        post-configure {
-            delete ${worksrcpath}/javacomp.sh
-            delete ${worksrcpath}/javaexec.sh
-        }
-    }
 }
 
 livecheck.type      none

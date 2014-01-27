@@ -25,7 +25,7 @@ git.url           git://github.com/cooljeanius/LocalPorts.git
 use_configure     no
 
 build {
-    system "echo \"Nothing to build\""
+    system -W ${worksrcpath} "echo \"Nothing to build\" | tee ${worksrcpath}/build.log"
 }
 
 destroot {
@@ -108,7 +108,6 @@ depends_lib-append port:gawk \
                    port:vbindiff \
                    port:pth \
                    port:ssdeep \
-                   port:re2c \
                    port:ed \
                    port:splint \
                    port:boehmgc \
@@ -116,7 +115,6 @@ depends_lib-append port:gawk \
                    port:e \
                    port:glark \
                    port:contacts \
-                   port:re2 \
                    port:string_replace \
                    port:tre \
                    port:zsh-templates-osx \
@@ -213,8 +211,6 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:darwinbuild \
                    port:xorg-encodings \
                    port:f2c \
-                   port:g95 \
-                   port:binutils \
                    port:gtk-doc \
                    port:wget \
                    port:dejagnu \
