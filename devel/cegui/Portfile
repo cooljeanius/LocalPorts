@@ -64,6 +64,7 @@ depends_lib-append  port:expat \
                     port:tiff \
                     port:xz
 
+#TODO: add a patch for new freetype2 header locations
 patchfiles-append   patch-cegui-include-CEGUIDynamicModule.h.diff \
                     patch-cegui-src-CEGUIDynamicModule.cpp.diff
 
@@ -159,9 +160,8 @@ variant debug description {Enable debugging} {
 
 variant xerces description {Build with xerces support} {
     depends_lib-append    path:lib/libxerces-c.dylib:xercesc
-    configure.args-delete --disable-xerces-c
-    configure.args-append --enable-xerces-c \
-                          --with-xerces-incdir=${prefix}/include \
+    configure.args-replace --disable-xerces-c --enable-xerces-c
+    configure.args-append --with-xerces-incdir=${prefix}/include \
                           --with-xerces-libdir=${prefix}/lib
     if {[variant_isset autoreconf]} {
         configure.cppflags-append \
@@ -171,8 +171,7 @@ variant xerces description {Build with xerces support} {
 
 variant devil description {Build with libdevil support} {
     depends_lib-append    port:libdevil
-    configure.args-delete --disable-devil
-    configure.args-append --enable-devil
+    configure.args-replace --disable-devil --enable-devil
     if {[variant_isset autoreconf]} {
         configure.cppflags-append \
                           -I${worksrcpath}/cegui/include/ImageCodecModules/DevILImageCodec
@@ -184,8 +183,7 @@ variant opengl description {Build with OpenGL support} {
                           port:freeglut
     depends_build-append  port:glui
     depends_skip_archcheck-append glui
-    configure.args-delete --disable-opengl-renderer
-    configure.args-append --enable-opengl-renderer
+    configure.args-replace --disable-opengl-renderer --enable-opengl-renderer
     if {[variant_isset autoreconf]} {
         configure.cppflags-append \
                           -I${worksrcpath}/cegui/include/RendererModules/OpenGL
@@ -194,9 +192,8 @@ variant opengl description {Build with OpenGL support} {
 
 variant external_glew requires opengl description {Build against an external GLEW} {
     depends_lib-append    port:glew
-    configure.args-delete --disable-external-glew
-    configure.args-append --enable-external-glew \
-                          --with-glew-incdir=${prefix}/include \
+    configure.args-replace --disable-external-glew --enable-external-glew
+    configure.args-append --with-glew-incdir=${prefix}/include \
                           --with-glew-libdir=${prefix}/lib
     configure.cppflags-append \
                           -I${prefix}/include/GL
@@ -211,8 +208,7 @@ variant external_glew requires opengl description {Build against an external GLE
 
 variant freeimage description {Build with libfreeimage support} {
     depends_lib-append    port:freeimage
-    configure.args-delete --disable-freeimage
-    configure.args-append --enable-freeimage
+    configure.args-replace --disable-freeimage --enable-freeimage
     if {[variant_isset autoreconf]} {
         configure.cppflags-append \
                           -I${worksrcpath}/cegui/include/ImageCodecModules/FreeImageImageCodec
@@ -227,8 +223,7 @@ default_variants-append +freeimage+devil
 variant ogre conflicts universal description {Enable support for the OGRE rendering engine} {
     depends_lib-append    port:ogre \
                           port:ois
-    configure.args-delete --disable-ogre-renderer
-    configure.args-append --enable-ogre-renderer
+    configure.args-replace --disable-ogre-renderer --enable-ogre-renderer
     if {[variant_isset autoreconf]} {
         configure.cppflags-append \
                           -I${worksrcpath}/cegui/include/RendererModules/Ogre
@@ -237,17 +232,15 @@ variant ogre conflicts universal description {Enable support for the OGRE render
 
 variant bidirectional description {Enable bidirectional text support} {
     depends_lib-append    port:fribidi
-    configure.args-delete --disable-bidirectional-text
-    configure.args-append --enable-bidirectional-text
+    configure.args-replace --disable-bidirectional-text --enable-bidirectional-text
     configure.cppflags-append \
                           -I${prefix}/include/fribidi
 }
 
 variant samples requires autoreconf description {Build samples with gtk2 (warning: not all work yet)} {
     depends_lib-append    port:gtk2
-    configure.args-delete --disable-samples
-    configure.args-append --enable-samples \
-                          --with-gtk2
+    configure.args-replace --disable-samples --enable-samples
+    configure.args-append --with-gtk2
     if {[variant_isset autoreconf]} {
         configure.cppflags-append \
                           -I${worksrcpath}/Samples/common/include
@@ -262,9 +255,8 @@ variant lua description {Enable lua bindings} {
     depends_lib-append    port:lua \
                           port:swig-lua \
                           port:toluapp
-    configure.args-delete --disable-lua-module
-    configure.args-append --enable-lua-module \
-                          --enable-toluacegui \
+    configure.args-replace --disable-lua-module --enable-lua-module
+    configure.args-append --enable-toluacegui \
                           --enable-external-toluapp \
                           --with-tolua++-incdir=${prefix}/include \
                           --with-tolua++-libdir=${prefix}/lib
@@ -277,8 +269,7 @@ variant lua description {Enable lua bindings} {
 
 variant python description {Enable python bindings} {
     depends_lib-append    port:swig-python
-    configure.args-delete --disable-python-module
-    configure.args-append --enable-python-module
+    configure.args-replace --disable-python-module --enable-python-module
     if {[variant_isset autoreconf]} {
         configure.cppflags-append \
                           -I${worksrcpath}/cegui/src/ScriptingModules/PythonScriptModule/bindings/output/CEGUI

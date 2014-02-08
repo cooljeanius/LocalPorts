@@ -1,0 +1,314 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem              1.0
+
+name                    nodejs8
+version                 0.8.22
+revision                1
+categories              devel net
+platforms               darwin
+license                 {MIT BSD}
+maintainers             ciserlohn gwmail.gwu.edu:egall openmaintainger
+
+description             Evented I/O for V8 JavaScript
+
+long_description        Node's goal is to provide an easy way to build \
+                        scalable network programs in JavaScript. Node is \
+                        similar in design to and influenced by systems \
+                        like Ruby's Event Machine or Python's Twisted. \
+                        Node takes the event model a bit further-it \
+                        presents the event loop as a language construct \
+                        instead of as a library. This version was the \
+                        last version of nodejs to come with the \
+                        deprecated node-waf build tool.
+
+# Not sure if this still occurs:
+conflicts               nodejs-devel
+# (it is possible to install this in parallel with the stable nodejs port,
+# for instance, so it might be possible to do likewise with the devel
+# version, as well... that is untested, though)
+
+homepage                http://nodejs.org/
+master_sites            ${homepage}dist/v${version}
+
+checksums               rmd160  80568e0c17541a386700c52645f2af7486721787 \
+                        sha256  3f61152cf5cd8fc1ab5c6c18101819841b947da79e1e44b51418c0ad2e6db8e8
+
+
+distname                node-v${version}
+
+# I want this proc to be in base: https://trac.macports.org/ticket/38555
+proc rec_glob {basedir pattern} {
+    set files [glob -directory $basedir -nocomplain -type f $pattern]
+    foreach dir [glob -directory $basedir -nocomplain -type d *] {
+        eval lappend files [rec_glob $dir $pattern]
+    }
+    return $files
+}
+
+configure.python ${prefix}/bin/python2.7
+
+post-patch {
+    foreach f [concat ${worksrcpath}/configure \
+                   ${worksrcpath}/tools/node-waf \
+                   ${worksrcpath}/tools/waf-light \
+                   ${worksrcpath}/tools/gyp/gyp \
+                   ${worksrcpath}/tools/gyp_addon \
+                   ${worksrcpath}/tools/gyp_node \
+                   ${worksrcpath}/deps/uv/gyp_uv \
+                   [rec_glob ${worksrcpath} *.py]] {
+        reinplace "s|/usr/bin/env python|${configure.python}|" ${f}
+    }
+    foreach gypfile [rec_glob ${worksrcpath} *.gyp] {
+        reinplace "s|'python'|'${configure.python}'|" ${gypfile}
+    }
+    reinplace "s|/usr/bin/env node|${prefix}/bin/node8|" ${worksrcpath}/tools/doc/node_modules/marked/bin/marked
+    # We modify the library dir that node-waf uses below, so reinplace it
+    # in the script itself up here:
+    reinplace "s|node|node8|g" ${worksrcpath}/tools/node-waf
+}
+
+configure.args          --without-ssl
+configure.args-append   --without-npm
+
+variant python25 conflicts python26 python27 description {Use python 2.5} {
+    depends_lib-append  port:python25
+    configure.python    ${prefix}/bin/python2.5
+}
+
+variant python26 conflicts python25 python27 description {Use python 2.6} {
+    depends_lib-append  port:python26
+    configure.python    ${prefix}/bin/python2.6
+}
+
+variant python27 conflicts python25 python26 description {Use python 2.7} {
+    depends_lib-append  port:python27
+    configure.python    ${prefix}/bin/python2.7
+}
+
+if {![variant_isset python25] && ![variant_isset python26]} {
+    default_variants-append +python27
+}
+
+if {![variant_isset python25] && ![variant_isset python26] && ![variant_isset python27]} {
+    pre-patch {
+        ui_error "${name} ${version} requires a python variant to be selected"
+        return -code error "no python variant selected"
+    }
+}
+
+variant ssl description {Add secure socket layer support} {
+    depends_build-append    port:pkgconfig
+    depends_lib-append      port:openssl
+    configure.args-delete   --without-ssl
+    configure.args-append   --openssl-use-sys
+    configure.args-append   --openssl-includes=${prefix}/include/openssl
+    configure.args-append   --openssl-libpath=${prefix}/lib
+}
+
+default_variants-append +ssl
+
+variant debug description {Enable debugging} {
+    configure.args-append   --debug
+    configure.args-append   --gdb
+    # I would also add the "--with-dtrace" arg here, but ver. 8 of nodejs
+    # only supported dtrace on SunOS (dtrace support was not added for
+    # darwin until ver. 10 of nodejs)
+    configure.optflags      -g
+}
+
+# V8 only supports ARM and IA-32 processors
+supported_archs         i386 x86_64
+
+universal_variant       no
+
+# "V8 does NOT like cache."
+configure.ccache        no
+
+# Some tests fail...
+test.run                yes
+
+use_parallel_build      no
+
+switch $build_arch {
+    i386 {
+        configure.args-append   --dest-cpu=ia32
+    }
+    x86_64 {
+        configure.args-append   --dest-cpu=x64
+    }
+}
+
+build.args-append   CC=${configure.cc} \
+                    CXX=${configure.cxx} \
+                    CPP=${configure.cpp} \
+                    CFLAGS=${configure.cflags} \
+                    CXXFLAGS=${configure.cxxflags} \
+                    LDFLAGS=${configure.ldflags} \
+                    PYTHON=${configure.python}
+
+build.env-append    CC=${configure.cc} \
+                    CXX=${configure.cxx} \
+                    CPP=${configure.cpp} \
+                    CFLAGS=${configure.cflags} \
+                    CXXFLAGS=${configure.cxxflags} \
+                    LDFLAGS=${configure.ldflags} \
+                    PYTHON=${configure.python}
+
+test.args-append    CC=${configure.cc} \
+                    CXX=${configure.cxx} \
+                    CPP=${configure.cpp} \
+                    CFLAGS=${configure.cflags} \
+                    CXXFLAGS=${configure.cxxflags} \
+                    LDFLAGS=${configure.ldflags} \
+                    PYTHON=${configure.python}
+
+test.env-append     CC=${configure.cc} \
+                    CXX=${configure.cxx} \
+                    CPP=${configure.cpp} \
+                    CFLAGS=${configure.cflags} \
+                    CXXFLAGS=${configure.cxxflags} \
+                    LDFLAGS=${configure.ldflags} \
+                    PYTHON=${configure.python}
+
+if {[variant_isset debug]} {
+    build.args-append   BUILDTYPE=Debug
+    build.env-append    BUILDTYPE=Debug
+    test.args-append    BUILDTYPE=Debug
+    test.env-append     BUILDTYPE=Debug
+}
+
+destroot {
+    set bindir ${destroot}${prefix}/bin
+    set libdir ${destroot}${prefix}/lib
+    set libndir ${libdir}/node8
+    set libddir ${libdir}/dtrace
+    set libwdir ${libndir}/wafadmin
+    set libwtdir ${libndir}/wafadmin/Tools
+    set incdir ${destroot}${prefix}/include/node8
+    set incpdir ${destroot}${prefix}/include/node8/uv-private
+    set docdir ${destroot}${prefix}/share/doc/${name}
+
+    xinstall -d ${bindir}
+    xinstall -d ${libdir}
+    xinstall -d ${libndir}
+    xinstall -d ${libddir}
+    xinstall -d ${libwdir}
+    xinstall -d ${libwtdir}
+    xinstall -d ${incdir}
+    xinstall -d ${incpdir}
+    xinstall -d ${docdir}
+
+# install binaries
+    xinstall -m 755 -W ${worksrcpath} \
+        tools/node-waf \
+        ${bindir}
+
+    xinstall -m 755 -W ${worksrcpath} \
+        out/Release/node \
+        ${bindir}/node8
+
+    if {[variant_isset debug]} {
+        if {[file isdirectory ${worksrcpath}/out/Debug]} {
+            xinstall -m 755 -W ${worksrcpath} \
+                out/Debug/node \
+                ${bindir}/node8_g
+        }
+    }
+
+    platform macosx {
+        if {[variant_isset debug]} {
+            ui_debug "Generating a .dSYM bundle for ${bindir}/node8 because the +debug variant is selected"
+            system -W ${destroot}${prefix} "dsymutil --verbose --arch=${build_arch} ${bindir}/node8"
+            if {[file exists ${bindir}/node8_g]} {
+                ui_debug "Doing likewise for ${bindir}/node8_g"
+                system -W ${destroot}${prefix} "dsymutil --verbose --arch=${build_arch} ${bindir}/node8_g"
+            }
+        }
+    }
+
+# install headers
+    xinstall -m 644 -W ${worksrcpath} \
+        src/node.h \
+        src/node_buffer.h \
+        src/node_object_wrap.h \
+        src/node_version.h \
+        src/ev-emul.h \
+        src/eio-emul.h \
+        deps/v8/include/v8-debug.h \
+        deps/v8/include/v8-preparser.h \
+        deps/v8/include/v8-profiler.h \
+        deps/v8/include/v8-testing.h \
+        deps/v8/include/v8.h \
+        deps/v8/include/v8stdint.h \
+        deps/uv/include/uv.h \
+        deps/uv/include/ares.h \
+        deps/uv/include/ares_version.h \
+        ${incdir}
+
+# install private uv headers
+    xinstall -m 644 -W ${worksrcpath} \
+        deps/uv/include/uv-private/eio.h \
+        deps/uv/include/uv-private/ev.h \
+        deps/uv/include/uv-private/ngx-queue.h \
+        deps/uv/include/uv-private/tree.h \
+        deps/uv/include/uv-private/uv-unix.h \
+        deps/uv/include/uv-private/uv-win.h \
+        ${incpdir}
+
+# install static libs
+    xinstall -m 644 -W ${worksrcpath} \
+        out/Release/libhttp_parser.a \
+        out/Release/libuv.a \
+        out/Release/libv8_base.a \
+        out/Release/libv8_nosnapshot.a \
+        out/Release/libv8_snapshot.a \
+        out/Release/libchrome_zlib.a \
+        ${libndir}
+
+    if {[variant_isset debug]} {
+        foreach debuglib {http_parser uv v8_base v8_nosnapshot v8_snapshot chrome_zlib} {
+            xinstall -m 644 -W ${worksrcpath} \
+                out/Debug/lib${debuglib}.a \
+                ${libndir}/lib${debuglib}_g.a
+        }
+    }
+
+# install the wafadmin tool
+    eval xinstall -m 644 [glob -directory ${worksrcpath}/tools/wafadmin -nocomplain -type f *] ${libwdir}
+    eval xinstall -m 644 [glob -directory ${worksrcpath}/tools/wafadmin/Tools -nocomplain -type f *] ${libwtdir}
+
+    if {[variant_isset debug]} {
+    # install dtrace script
+        xinstall -m 644 -W ${worksrcpath} \
+            src/node.d \
+            ${libddir}/node8.d
+    }
+
+# install manpage
+    xinstall -m 644 -W ${worksrcpath} \
+        doc/node.1 \
+        ${destroot}${prefix}/share/man/man1/node8.1
+
+# install docs
+    xinstall -m 644 -W ${worksrcpath} \
+        AUTHORS \
+        ChangeLog \
+        LICENSE \
+        README.md \
+        ${docdir}
+}
+
+if {${os.major} < 10} {
+    pre-fetch {
+        ui_error "${name} ${version} requires Mac OS X 10.6 or greater."
+        return -code error "incompatible Mac OS X version"
+    }
+}
+
+compiler.blacklist-append gcc-3.3 *gcc-4.0
+
+livecheck.url       ${homepage}dist/
+livecheck.type      regex
+livecheck.regex     v(\\d+\\.\[02468\]+\\.\\d+)

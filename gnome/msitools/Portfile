@@ -2,6 +2,7 @@
 # $Id$
 
 PortSystem          1.0
+PortGroup           conflicts_build 1.0
 
 name                msitools
 version             0.93
@@ -28,6 +29,9 @@ use_xz              yes
 patchfiles-append   patch-configure.ac.diff \
                     patch-Makefile.am.diff \
                     patch-tools_msibuild.c.diff
+
+conflicts_build-append \
+                    libc-headers
 
 depends_build-append \
                     bin:xz:xz \

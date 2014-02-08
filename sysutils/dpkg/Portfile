@@ -148,7 +148,7 @@ platform freebsd {
 # install the documentation, not entirely sure why...
 # Example error message:
 # dot[21000:907] CoreText CopyPropertiesForFont received mig IPC error (FFFFFFFFFFFFFECC) from font server
-# (issue with the graphviz port?)
+# (issue with the graphviz port? see #40807 on trac)
 variant docs description {Build documentation (warning: building documentation takes a long time)} {
     PortGroup               archcheck 1.0
     depends_build-append    port:doxygen \

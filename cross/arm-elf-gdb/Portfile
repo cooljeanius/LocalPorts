@@ -25,6 +25,7 @@ checksums               md5     496399e96654fc0f899a5c964bc1f0f8 \
 
 set crossgdb-target     arm-elf
 
+#TODO: fix compatibility with texinfo5
 depends_build-append    port:arm-elf-binutils \
                         path:arm-elf/bin/gcc:arm-elf-gcc \
                         path:bin/makeinfo:texinfo \

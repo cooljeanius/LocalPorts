@@ -32,6 +32,7 @@ depends_build-append \
                 port:intltool \
                 port:gettext \
                 port:gtk-doc \
+                port:gnome-common \
                 bin:perl:perl5 \
                 bin:xmllint:libxml2 \
                 bin:gconftool-2:gconf \
@@ -134,7 +135,7 @@ if {![variant_isset python25] && ![variant_isset python26]} {
 }
 
 post-activate {
-    system "\
+    system -W ${prefix} "\
         GCONF_CONFIG_SOURCE= \
         ${prefix}/bin/gconftool-2 --makefile-install-rule \
             ${prefix}/etc/gconf/schemas/gweather.schemas"

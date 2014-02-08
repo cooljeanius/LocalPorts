@@ -41,12 +41,13 @@ depends_lib-append \
                 port:bochs
 depends_run-append \
                 port:dosbox
-depends_skip_archcheck dosbox
+depends_skip_archcheck-append dosbox
 
 worksrcdir      trunk/source/
 use_configure   no
 
-build.args      macosx=true \
+build.args-append \
+                macosx=true \
                 CC=${configure.cc} \
                 CXX=${configure.cxx} \
                 CPP=${configure.cpp} \

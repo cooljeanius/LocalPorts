@@ -74,13 +74,11 @@ startupitem.start   "${prefix}/libexec/slapd -u ldap -f ${prefix}/etc/openldap/s
 startupitem.stop    "\[ -r \${PID} \] && kill \$(cat \${PID})"
 
 variant aci description {Enable per-object ACIs (experimental)} {
-        configure.args-delete --disable-aci
-        configure.args-append --enable-aci
+        configure.args-replace --disable-aci --enable-aci
 }
 
 variant overlays description {Enable all available overlays} {
-        configure.args-delete --disable-overlays
-        configure.args-append --enable-overlays
+        configure.args-replace --disable-overlays --enable-overlays
 }
 
 pre-build {
@@ -108,7 +106,8 @@ post-destroot {
         xinstall -d -m 700 \
             "${destroot}${prefix}/var/run/${name}-data"
     }
-# Delete the duplicate .conf files (leaves .conf.default) so upgrades won't overwrite .conf files.
+# Delete the duplicate .conf files (leaves .conf.default) so upgrades will
+# NOT overwrite .conf files.
     file delete -force ${destroot}${prefix}/etc/${name}/slapd.conf
     file delete -force ${destroot}${prefix}/etc/${name}/ldap.conf
 }

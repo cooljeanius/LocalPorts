@@ -3,13 +3,10 @@
 
 PortSystem          1.0
 
-#PortGroup           github 1.0
+PortGroup           github 1.0
+PortGroup           waf 1.0
 
-# Leaving github.setup commented out until upstream has a tag:
-# https://github.com/bovine/nodetcl/issues/8
-#github.setup        bovine nodetcl
-name                nodetcl
-version             0.0.1
+github.setup        bovine nodetcl 1.0.0 v
 categories          lang
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -37,8 +34,5 @@ depends_run-append  bin:node:nodejs
 
 # nodejs is not universal
 universal_variant   no
-
-configure.cmd       ./waf
-configure.pre_args  "configure --prefix=${prefix}"
 
 livecheck.type      none
