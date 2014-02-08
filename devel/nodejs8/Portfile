@@ -5,7 +5,7 @@ PortSystem              1.0
 
 name                    nodejs8
 version                 0.8.22
-revision                1
+revision                2
 categories              devel net
 platforms               darwin
 license                 {MIT BSD}
@@ -217,17 +217,6 @@ destroot {
         }
     }
 
-    platform macosx {
-        if {[variant_isset debug]} {
-            ui_debug "Generating a .dSYM bundle for ${bindir}/node8 because the +debug variant is selected"
-            system -W ${destroot}${prefix} "dsymutil --verbose --arch=${build_arch} ${bindir}/node8"
-            if {[file exists ${bindir}/node8_g]} {
-                ui_debug "Doing likewise for ${bindir}/node8_g"
-                system -W ${destroot}${prefix} "dsymutil --verbose --arch=${build_arch} ${bindir}/node8_g"
-            }
-        }
-    }
-
 # install headers
     xinstall -m 644 -W ${worksrcpath} \
         src/node.h \
@@ -268,6 +257,7 @@ destroot {
         ${libndir}
 
     if {[variant_isset debug]} {
+        # use this method to suffix debug libs with "_g":
         foreach debuglib {http_parser uv v8_base v8_nosnapshot v8_snapshot chrome_zlib} {
             xinstall -m 644 -W ${worksrcpath} \
                 out/Debug/lib${debuglib}.a \
@@ -297,6 +287,7 @@ destroot {
         ChangeLog \
         LICENSE \
         README.md \
+        CONTRIBUTING.md \
         ${docdir}
 }
 
