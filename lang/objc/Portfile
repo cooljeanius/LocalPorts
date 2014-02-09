@@ -5,18 +5,21 @@ PortSystem              1.0
 
 name                    objc
 version                 3.2.11
-categories              lang
+categories              lang devel
 platforms               darwin
 license                 GPL-2+
 maintainers             mww openmaintainer
-description             The Portable Object Compiler is an Objective-C compiler
+description             The Portable Object Compiler is an \
+                        Objective-C compiler
 long_description        \
-        This is an independent implementation of Objective C - independent of \
-        Stepstone\'s, NeXT's, GNU\'s (Free Software Foundation) or SunSoft\'s \
-        Objective C implementation. Like the GNU compiler, the "objc" grammar \
-        is written in YACC. The lexical ananlyzer is written in LEX, and the \
-        compiler itself in the Bourne shell and in Objective C. (the optional \
-        Objective C link editor is written in AWK).
+        This is an independent implementation of Objective C - \
+        independent of Stepstone\'s, NeXT\'s, Apple\'s, \
+        GNU\'s (Free Software Foundation), or SunSoft\'s \
+        Objective C implementation. Like the GNU compiler used to be, \
+        the "objc" grammar is written in YACC. The lexical ananlyzer is \
+        written in LEX, and the compiler itself in the Bourne shell and \
+        in Objective C. \
+        (the optional Objective C link editor is written in AWK).
 
 homepage                http://users.pandora.be/stes/compiler.html
 master_sites            http://users.pandora.be/stes/
@@ -33,10 +36,12 @@ patchfiles-append       patch-src-cakit-intmodp.m.diff \
                         patch-configure.in.diff
 
 depends_extract-append  port:openssl
-depends_build-append    port:gawk
+depends_build-append    port:gawk \
+                        bin:unifdef:developer_cmds
 depends_lib-append      port:byacc \
                         port:flex
 
+#FIXME: we should be UsingTheRightCompiler instead of doing this:
 set cc /usr/bin/gcc
 platform darwin 8 {
     set cc /usr/bin/gcc-4.0
@@ -45,15 +50,20 @@ platform darwin 8 {
 pre-configure {
     # bootstrap
     file mkdir ${workpath}/bootstrap
-    system "cd ${workpath}/objc-bootstrap-${version} && \
-        CC=${cc} ./configure --prefix=${workpath}/bootstrap && \
+    system -W ${workpath}/objc-bootstrap-${version} \
+        "CC=${cc} ./configure --prefix=${workpath}/bootstrap && \
         make && \
         make install"
+    # The bootstrap compiler chokes on blocks syntax, even if it is
+    # ifdef-ed out, so fix header(s) that use it:
+    xinstall -d ${worksrcpath}/include_fixed
+    system "unifdef -U__BLOCKS__ /usr/include/stdlib.h > ${worksrcpath}/include_fixed/stdlib.h 2>&1 || \[ $? -ne 2 \]"
+    reinplace "s|__OSX_AVAILABLE_BUT_DEPRECATED|//|g" ${worksrcpath}/include_fixed/stdlib.h
 }
 
 configure.env           PATH=${workpath}/bootstrap/bin:$env(PATH)
 use_autoreconf          yes
-autoreconf.args         -fvi
+autoreconf.args         -fvi -Wall
 platform darwin i386 {
     configure.args      --build=i386-apple-freebsd
 }
@@ -61,14 +71,36 @@ platform darwin 12 {
     configure.args      --build=i686-apple-darwin${os.version}
 }
 configure.args-append   --with-cplus
+configure.universal_args ""
 configure.objc          ${workpath}/bootstrap/bin/objc
 configure.cppflags-delete -Wobjc-root-class
+# Add the fixed includes directory that we created earlier:
+configure.cppflags-append -I${worksrcpath}/include_fixed
+# The bootstrap compiler has a hard time with <secure/_stdio.h>, so
+# prevent <stdio.h> from dragging it in:
+configure.cppflags-append -D_FORTIFY_SOURCE=0
 configure.ccache        no
 
 use_parallel_build      no
 
-build.env               PATH=${workpath}/bootstrap/bin:$env(PATH)
-build.target
+build.env               PATH=${workpath}/bootstrap/bin:$env(PATH) \
+                        CFLAGS=${configure.cflags} \
+                        CPPFLAGS="${configure.cppflags}" \
+                        IFLAGS="${configure.cppflags}" \
+                        OBJC=${configure.objc} \
+                        OBJCFLAGS=${configure.objcflags} \
+                        MFLAGS=${configure.objcflags} \
+                        LDFLAGS="${configure.ldflags}" \
+                        AR="ar -qv"
+build.target            default
+build.args-append       CFLAGS=${configure.cflags} \
+                        CPPFLAGS="${configure.cppflags}" \
+                        IFLAGS="${configure.cppflags}" \
+                        OBJC=${configure.objc} \
+                        OBJCFLAGS=${configure.objcflags} \
+                        MFLAGS=${configure.objcflags} \
+                        LDFLAGS="${configure.ldflags}" \
+                        AR="ar -qv"
 
 destroot.destdir        INSTALLDIR=${destroot}${prefix}
 post-destroot {

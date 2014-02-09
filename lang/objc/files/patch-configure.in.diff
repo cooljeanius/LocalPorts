@@ -1,100 +1,324 @@
---- configure.in	2011-06-13 17:54:16.000000000 -0400
-+++ configure.ac	2013-03-29 00:20:01.000000000 -0400
-@@ -1,11 +1,14 @@
- dnl
+--- configure.in	2014-02-08 20:46:05.000000000 -0500
++++ configure.ac	2014-02-08 21:34:50.000000000 -0500
+@@ -1,78 +1,77 @@
+-dnl
 -dnl autoconf source file for objc-2.x.x configure script
 -dnl $Id: configure.in,v 1.41 2011/06/13 21:54:16 stes Exp $
-+dnl autoconf source file for objc-x.y.z configure script
-+dnl $Id: configure.ac,v 1.41 2011/06/13 21:54:16 stes Exp $
- dnl
- dnl note: we're in the process of converting the old configure script
- dnl (configure.orig) to an autoconf script
- 
+-dnl
+-dnl note: we're in the process of converting the old configure script
+-dnl (configure.orig) to an autoconf script
+-
 -AC_INIT()
+-
+-dnl normally we check for _objcInit() (to see if it's not in the syslibs)
+-dnl if it is, we should be using some other prefixed name (oc_objcInit)
+-
+-AC_ARG_WITH(prefixed-names,
+-  [  --with-prefixed-names        use oc_objcInit as initialization function],
+-  [ac_cv_prefixed_names=$withval]
+-)
+-
+-dnl runtime initialization options are import
+-dnl see documentation (manual) for more info on postlink init vs. automatic
+-dnl initialization
+-
+-AC_ARG_WITH(postlink,
+-  [  --with-postlink              use postlink runtime initialization],
+-  [ac_cv_postlink=$withval]
+-)
+-
+-dnl generation of # or #line linetags (or none at all)
+-
+-AC_ARG_WITH(longlinetags,
+-  [  --with-longlinetags          generate long #line linetags],
+-  [ac_cv_longlinetags=$withval]
+-)
+-AC_ARG_WITH(shortlinetags,
+-  [  --with-shortlinetags         generate short # linetags],
+-  [ac_cv_longlinetags=$withval]
+-)
+-
+-dnl the cplus stuff is not terribly important, allow to disable it
+-dnl (it works with a couple of compilers, such as g++, mwcc -cplus, SGI CC)
+-
+-AC_ARG_WITH(cplus,
+-  [  --with-cplus                 find a c++ compiler (to make -cplus work)],
+-  [ac_cv_cplus=$withval],
+-  [ac_cv_cplus=no]
+-)
+-
+-dnl for embedded SQL in Objective-C we could support several servers
+-dnl currently only for Informix (with esql .ec files)
+-
+-AC_ARG_WITH(informix,
+-  [  --with-informix              set SQLCC to Informix esql],
+-  [ac_cv_informix=$withval],
+-  [ac_cv_informix=no]
+-)
+-
+-AC_CONFIG_AUX_DIR(util)
+-AC_CANONICAL_SYSTEM
+-
+-TARGET=$target;AC_SUBST(TARGET)
+-NAME=objc-3.2.11;AC_SUBST(NAME)
+-WARNING="DO NOT EDIT -- configure ${NAME} ${TARGET}";AC_SUBST(WARNING)
+-
+-dnl the following is for compatibility with the old configure script
+-
+-case "x$prefix" in
+-  xNONE) INSTALLDIR=$ac_default_prefix;;
+-  *) INSTALLDIR="$prefix"
+-esac
+-AC_SUBST(INSTALLDIR)
+-INSTALLDIRC="$INSTALLDIR";AC_SUBST(INSTALLDIRC)
+-GCPREFIX="$INSTALLDIR";AC_SUBST(GCPREFIX)
+-GCPREFIXC="$INSTALLDIR";AC_SUBST(GCPREFIXC)
++dnl#                                               -*- Autoconf -*-
++dnl# autoconf source file for objc-x.y.z configure script
++dnl# $Id: configure.ac,v 1.41 2011/06/13 21:54:16 stes Exp $
++dnl#
++dnl# note: we are in the process of converting the old configure script
++dnl# (configure.orig) to an autoconf script
++
 +AC_PREREQ([2.69])
 +AC_INIT([objc],[3.2.11],[stes@pandora.be])
 +AC_CONFIG_SRCDIR([browse.h])
 +AC_CONFIG_HEADERS([config.h])
- 
- dnl normally we check for _objcInit() (to see if it's not in the syslibs)
- dnl if it is, we should be using some other prefixed name (oc_objcInit)
-@@ -53,8 +56,10 @@
-   [ac_cv_informix=no]
- )
- 
--AC_CONFIG_AUX_DIR(util)
--AC_CANONICAL_SYSTEM
++
++dnl# normally we check for _objcInit() (to see if it is not in the syslibs)
++dnl# if it is, we should be using some other prefixed name (oc_objcInit)
++
++AC_ARG_WITH([prefixed-names],
++  [AS_HELP_STRING([--with-prefixed-names],[use oc_objcInit as initialization function])],
++  [ac_cv_prefixed_names=${withval}])
++
++dnl# runtime initialization options are import
++dnl# see docs (manual) for more info on postlink init vs. automatic
++dnl# initialization
++
++AC_ARG_WITH([postlink],
++  [AS_HELP_STRING([--with-postlink],[use postlink runtime initialization])],
++  [ac_cv_postlink=${withval}])
++
++dnl# generation of # or #line linetags (or none at all)
++
++AC_ARG_WITH([longlinetags],
++  [AS_HELP_STRING([--with-longlinetags],[generate long #line linetags])],
++  [ac_cv_longlinetags=${withval}])
++
++AC_ARG_WITH([shortlinetags],
++  [AS_HELP_STRING([--with-shortlinetags],[generate short # linetags])],
++  [ac_cv_longlinetags=${withval}])
++
++dnl# the cplus stuff is not terribly important, allow to disable it
++dnl# (it works with a few compilers, such as g++, mwcc -cplus, SGI CC)
++
++AC_ARG_WITH([cplus],
++  [AS_HELP_STRING([--with-cplus],[find a c++ compiler (to make -cplus work)])],
++  [ac_cv_cplus=${withval}],
++  [ac_cv_cplus=no])
++
++dnl# for embedded SQL in Objective-C we could support several servers
++dnl# currently only for Informix (with esql .ec files)
++
++AC_ARG_WITH([informix],
++  [AS_HELP_STRING([--with-informix],[set SQLCC to Informix esql])],
++  [ac_cv_informix=${withval}],
++  [ac_cv_informix=no])
++
 +AC_CONFIG_AUX_DIR([util])
-+AC_CANONICAL_HOST
-+AC_CANONICAL_TARGET
++AC_CANONICAL_TARGET dnl# also calls the "_HOST" version of it
 +AC_USE_SYSTEM_EXTENSIONS
++
++TARGET=${target};AC_SUBST([TARGET])
++NAME=objc-3.2.11;AC_SUBST([NAME])
++WARNING="DO NOT EDIT -- configure ${NAME} ${TARGET}";AC_SUBST([WARNING])
++
++dnl# the following is for compatibility with the old configure script:
++
++case "x${prefix}" in
++  xNONE) INSTALLDIR=${ac_default_prefix};;
++  *) INSTALLDIR="${prefix}";;
++esac
++AC_SUBST([INSTALLDIR])
++INSTALLDIRC="$INSTALLDIR";AC_SUBST([INSTALLDIRC])
++GCPREFIX="$INSTALLDIR";AC_SUBST([GCPREFIX])
++GCPREFIXC="$INSTALLDIR";AC_SUBST([GCPREFIXC])
  
- TARGET=$target;AC_SUBST(TARGET)
- NAME=objc-3.2.11;AC_SUBST(NAME)
-@@ -83,33 +88,39 @@
+-PATHSEP=/;AC_SUBST(PATHSEP)
+-PATHSEPC=/;AC_SUBST(PATHSEPC)
++PATHSEP=/;AC_SUBST([PATHSEP])
++PATHSEPC=/;AC_SUBST([PATHSEPC])
+ 
+ AC_PROG_MAKE_SET
+ 
+@@ -83,45 +82,54 @@
  btrap=0
  fi
  
 -AC_CHECK_PROG(OBJC,objc,objc -q)
+-case $btrap in
+-0)	if test -z "$OBJC"
 +AC_CHECK_PROG([OBJC],[objc],[objc -q])
- case $btrap in
- 0)	if test -z "$OBJC"
++case ${btrap} in
++0)	if test -z "${OBJC}"
  	then
 -	  AC_MSG_ERROR(Can't find bootstrap compiler)
-+	  AC_MSG_ERROR([Can't find bootstrap compiler])
++	  AC_MSG_ERROR([Cannot find bootstrap compiler])
  	fi
  	;;
  1)	;;
  esac
  
- dnl for compiling in src/objc, must specify full path
+-dnl for compiling in src/objc, must specify full path
 -AC_PATH_PROG(XOBJC,objc,objc -q)
++dnl# for compiling in src/objc, must specify full path
 +AC_PATH_PROG([XOBJC],[objc],[objc -q])
  
- case $CC in
+-case $CC in
 - *objc*) AC_MSG_ERROR(do not set CC to objc itself) ;;
++case ${CC} in
 + *objc*) AC_MSG_ERROR([do not set CC to objc itself]) ;;
   *) ;;
  esac
  
+-AC_PROG_CC
 +AM_PROG_AR
- AC_PROG_CC
  AC_PROG_CPP
 +AC_PROG_AWK
 +AC_PROG_INSTALL
 +AC_PROG_OBJC
++m4_ifdef([AM_PROG_LEX],[
++AM_PROG_LEX
++],[
 +AC_PROG_LEX
++])
 +AC_PROG_YACC
++
++dnl#
++dnl# many compilers (e.g. IRIX cc) do NOT accept .m
++dnl# some gcc installations also do NOT accept .m files
++dnl#
  
- dnl
- dnl many compilers (e.g. IRIX cc) don't accept .m
- dnl some gcc installations also don't accept .m files
- dnl
- 
+-dnl
+-dnl many compilers (e.g. IRIX cc) don't accept .m
+-dnl some gcc installations also don't accept .m files
+-dnl
+-
 -AC_MSG_CHECKING(whether preprocessor processes .m files)
 +AC_MSG_CHECKING([whether preprocessor processes .m files])
  cat <<EOF >foo.m 
  bar
  EOF
-@@ -144,7 +155,7 @@
+ $CPP foo.m | grep bar >/dev/null
+ case $? in
+- 0) CPPWANTSDOTC=0; AC_MSG_RESULT(yes) ;;
+- *) CPPWANTSDOTC=1; AC_MSG_RESULT(no)  ;;
++ 0) CPPWANTSDOTC=0; AC_MSG_RESULT([yes]) ;;
++ *) CPPWANTSDOTC=1; AC_MSG_RESULT([no])  ;;
+ esac
+ rm -f foo.m
+-AC_SUBST(CPPWANTSDOTC)
++AC_SUBST([CPPWANTSDOTC])
+ 
+-case $ac_cv_cplus in
++case ${ac_cv_cplus} in
+ yes)
+ AC_PROG_CXX
+ ;;
+@@ -130,27 +138,27 @@
+ esac
+ 
+ 
+-CCPLUS=$CXX;AC_SUBST(CCPLUS)
+-IISUFFIX=cc;AC_SUBST(IISUFFIX)
+-CCMINUSDFLAG='-D';AC_SUBST(CCMINUSDFLAG)
+-CCMINUSIFLAG='-I';AC_SUBST(CCMINUSIFLAG)
+-CCMINUSCFLAG='-c ';AC_SUBST(CCMINUSCFLAG)
+-CCMINUSOFLAG='-o ';AC_SUBST(CCMINUSOFLAG)
+-CPPMINUSOFLAG='> ';AC_SUBST(CPPMINUSOFLAG)
+-CPPSUFFIX='P';AC_SUBST(CPPSUFFIX)
+-CPPFILTER='';AC_SUBST(CPPFILTER)
+-OBJC1FILTER='';AC_SUBST(OBJC1FILTER)
++CCPLUS=${CXX};AC_SUBST([CCPLUS])
++IISUFFIX=cc;AC_SUBST([IISUFFIX])
++CCMINUSDFLAG='-D';AC_SUBST([CCMINUSDFLAG])
++CCMINUSIFLAG='-I';AC_SUBST([CCMINUSIFLAG])
++CCMINUSCFLAG='-c ';AC_SUBST([CCMINUSCFLAG])
++CCMINUSOFLAG='-o ';AC_SUBST([CCMINUSOFLAG])
++CPPMINUSOFLAG='> ';AC_SUBST([CPPMINUSOFLAG])
++CPPSUFFIX='P';AC_SUBST([CPPSUFFIX])
++CPPFILTER='';AC_SUBST([CPPFILTER])
++OBJC1FILTER='';AC_SUBST([OBJC1FILTER])
+ 
  CPPIMPORTFLAG="";
  CCDOLLARFLAG="";
  
 -case $ac_cv_prog_gcc in
-+case $ac_cv_c_compiler_gnu in
++case ${ac_cv_c_compiler_gnu} in
   yes) 
    CPPIMPORTFLAG="-x objective-c -Wno-import";
    CCDOLLARFLAG="-fdollars-in-identifiers";
-@@ -168,7 +179,7 @@
- dnl BeOS for PowerPC has a weird linker (on Intel they use something else)
- case $target in
+   ;;
+  *)
+-  case $target in
++  case ${target} in
+    *irix*)
+     CPPIMPORTFLAG="-acpp -Wp,-+";
+     CCDOLLARFLAG="-dollar";
+@@ -162,43 +170,43 @@
+   ;;
+ esac
+ 
+-AC_SUBST(CCDOLLARFLAG)
+-AC_SUBST(CPPIMPORTFLAG)
++AC_SUBST([CCDOLLARFLAG])
++AC_SUBST([CPPIMPORTFLAG])
+ 
+-dnl BeOS for PowerPC has a weird linker (on Intel they use something else)
+-case $target in
++dnl# BeOS for PowerPC has a weird linker (on Intel they use something else)
++case ${target} in
    *beos*)
 -    AC_CHECK_PROG(LD,mwld,mwld,[$CC])
-+    AC_CHECK_PROG([LD],[mwld],[mwld],[$CC])
++    AC_CHECK_PROG([LD],[mwld],[mwld],[${CC}])
      ;;
    *) 
-     LD=$CC
-@@ -197,8 +208,8 @@
+-    LD=$CC
+-    AC_SUBST(LD)
++    LD=${CC}
++    AC_SUBST([LD])
+     ;;
+ esac
+-RUNXSTR=n;AC_SUBST(RUNXSTR)
+-LDMINUSOFLAG='-o ';AC_SUBST(LDMINUSOFLAG)
+-case $target in
+-# cpp broken on nextstep
++RUNXSTR=n;AC_SUBST([RUNXSTR])
++LDMINUSOFLAG='-o ';AC_SUBST([LDMINUSOFLAG])
++case ${target} in
++# cpp broken on nextstep (and all the way through Darwin, too?)
+  *nextstep*|*rhapsody*|*darwin*) OC_CPARGS="-traditional-cpp";;
+  *) OC_CPARGS='';;
+ esac
+ 
+-OC_CPARGS="-D__PORTABLE_OBJC__ $OC_CPARGS"
+-AC_SUBST(OC_CPARGS)
++OC_CPARGS="-D__PORTABLE_OBJC__ ${OC_CPARGS}"
++AC_SUBST([OC_CPARGS])
+ 
+ OC_CCARGS=''
+-AC_SUBST(OC_CCARGS)
++AC_SUBST([OC_CCARGS])
+ 
+-dnl
+-dnl Testing linetag support of C compiler
+-dnl
++dnl#
++dnl# Testing linetag support of C compiler
++dnl#
+ 
+ # USL cc requires short tag
  # Workshop 6 (Forte) on Solaris requires -shortTags
  # GCC 3.1 requires -shortTags (support for long tags was removed in 3.1)
  
@@ -105,12 +329,16 @@
  t="st$$.i"
  e="st$$.o"
  ac_clean_files="$t $e"
-@@ -220,10 +231,10 @@
+@@ -218,12 +226,12 @@
+   ac_cv_shortlinetags=no
+ fi
  
- rm -rf $ac_clean_files
- ],ac_cv_shortlinetags=yes,ac_cv_shortlinetags=no)
+-rm -rf $ac_clean_files
+-],ac_cv_shortlinetags=yes,ac_cv_shortlinetags=no)
 -AC_MSG_RESULT($ac_cv_shortlinetags)
-+AC_MSG_RESULT([$ac_cv_shortlinetags])
++rm -rf ${ac_clean_files}
++],[ac_cv_shortlinetags=yes],[ac_cv_shortlinetags=no])
++AC_MSG_RESULT([${ac_cv_shortlinetags}])
  
 -AC_MSG_CHECKING(testing whether C compiler supports long line tags)
 -AC_CACHE_VAL(ac_cv_longlinetags,[
@@ -119,67 +347,213 @@
  t="lt$$.i"
  e="lt$$.o"
  ac_clean_files="$t $e"
-@@ -245,7 +256,7 @@
+@@ -243,12 +251,12 @@
+   ac_cv_longlinetags=no
+ fi
  
- rm -rf $ac_clean_files
- ],ac_cv_longlinetags=yes,ac_cv_longlinetags=no)
+-rm -rf $ac_clean_files
+-],ac_cv_longlinetags=yes,ac_cv_longlinetags=no)
 -AC_MSG_RESULT($ac_cv_longlinetags)
++rm -rf ${ac_clean_files}
++],[ac_cv_longlinetags=yes],[ac_cv_longlinetags=no])
 +AC_MSG_RESULT([$ac_cv_longlinetags])
  
- dnl again some old stuff
- case $target in
-@@ -284,17 +295,17 @@
+-dnl again some old stuff
+-case $target in
++dnl# again some old stuff
++case ${target} in
+ 	*watcom* | *msvc* | *lcc*) 
+ 	          OC_OCARGS="-gnu -msdos -watcom -linemax 127";
+ 		  ;;
+@@ -256,71 +264,73 @@
+ 	*osf*) OC_OCARGS="-noasm -gnu";;
+ 	*ibmvac*) OC_OCARGS="-ibmvac";;
+ 	*beos*) OC_OCARGS="-msdos -watcom -refBind";;
+-# since -gnu extensions are enabled by default, we'd better remove this switch
++# since -gnu extensions are enabled by default, we had better remove this
++# switch:
+ 	*) OC_OCARGS="-gnu";;
  esac
- AC_SUBST(PLLDARGS)
+-case $ac_cv_shortlinetags in
++case ${ac_cv_shortlinetags} in
+    yes)
+-# prefer short output
+-     OC_OCARGS="$OC_OCARGS -shortTags"
++# prefer short output:
++     OC_OCARGS="${OC_OCARGS} -shortTags"
+      ;;     
+    no)
+-     case $ac_cv_longlinetags in
++     case ${ac_cv_longlinetags} in
+        yes)
+ # default for objc1
+          ;;
+        no)
+-	OC_OCARGS="$OC_OCARGS -noTags"
++	OC_OCARGS="${OC_OCARGS} -noTags"
+          ;;
+      esac
+      ;;
+ esac
+-AC_SUBST(OC_OCARGS)
++AC_SUBST([OC_OCARGS])
+ OC_LDARGS='';
+-AC_SUBST(OC_LDARGS)
+-case $LD in
++AC_SUBST([OC_LDARGS])
++case ${LD} in
+   mwld) PLLDARGS='-map postlink.map';;
+   *) PLLDARGS='';;
+ esac
+-AC_SUBST(PLLDARGS)
++AC_SUBST([PLLDARGS])
  
 -AC_CHECK_PROG(RM,rm,rm -f,del)
 -AC_CHECK_PROG(CP,cp,cp -p,copy)
 -AC_CHECK_PROG(CAT,cat,cat,Catenate)
 -AC_CHECK_PROG(MKDIR,mkdir,mkdir,mkdir)
 -AC_CHECK_PROG(TAR,tar,tar)
+-TARARGS='';AC_SUBST(TARARGS)
+-AC_CHECK_PROG(AR,ar,ar cr,:)
+-dnl BeOS for PPC has a mwld -xml which is not a real 'ar'
+-case $target in
 +AC_CHECK_PROG([RM],[rm],[rm -f],[del])
 +AC_CHECK_PROG([CP],[cp],[cp -p],[copy])
 +AC_CHECK_PROG([CAT],[cat],[cat],[Catenate])
 +AC_CHECK_PROG([MKDIR],[mkdir],[mkdir],[mkdir])
 +AC_CHECK_PROG([TAR],[tar],[tar])
- TARARGS='';AC_SUBST(TARARGS)
--AC_CHECK_PROG(AR,ar,ar cr,:)
++TARARGS='';AC_SUBST([TARARGS])
 +AC_CHECK_PROG([AR],[ar],[ar cr],[:])
- dnl BeOS for PPC has a mwld -xml which is not a real 'ar'
- case $target in
++dnl# BeOS for PPC has a mwld -xml which is not a real 'ar'
++case ${target} in
   *beos*)
 -   AC_CHECK_PROG(FINAL_AR,mwld,mwld -xml -o,:)
 +   AC_CHECK_PROG([FINAL_AR],[mwld],[mwld -xml -o],[:])
     ;;
   *)
     FINAL_AR='echo'
-@@ -312,7 +323,7 @@
+-   AC_SUBST(FINAL_AR)
++   AC_SUBST([FINAL_AR])
+    ;;
+ esac
+ AC_PROG_RANLIB
++AC_PATH_PROG([UNIFDEF],[unifdef])
  
- dnl flags for compiling the compiler
- MFLAGS=OPT_MFLAGS;AC_SUBST(MFLAGS)
+-dnl stuff from the days we were using configure on win95 too
+-LIBSUFFIX=a;AC_SUBST(LIBSUFFIX)
+-OBJSUFFIX=o;AC_SUBST(OBJSUFFIX)
+-AOUTNAME=a.out;AC_SUBST(AOUTNAME)
+-BINDOTSUFFIX='';AC_SUBST(BINDOTSUFFIX)
+-USELFLAG=1;AC_SUBST(USELFLAG)
+-
+-dnl flags for compiling the compiler
+-MFLAGS=OPT_MFLAGS;AC_SUBST(MFLAGS)
 -case $ac_cv_prog_gcc in
-+case $ac_cv_c_compiler_gnu in
++dnl# stuff from the old days when we were using configure on win95 too
++LIBSUFFIX=a;AC_SUBST([LIBSUFFIX])
++OBJSUFFIX=o;AC_SUBST([OBJSUFFIX])
++AOUTNAME=a.out;AC_SUBST([AOUTNAME])
++BINDOTSUFFIX='';AC_SUBST([BINDOTSUFFIX])
++USELFLAG=1;AC_SUBST([USELFLAG])
++
++dnl# flags for compiling the compiler
++MFLAGS=OPT_MFLAGS;AC_SUBST([MFLAGS])
++case ${ac_cv_c_compiler_gnu} in
    yes) OPT_MFLAGS='-DNDEBUG -O2';;
    *) OPT_MFLAGS='-DNDEBUG';;
  esac
-@@ -355,12 +366,12 @@
- AC_CHECK_PROG(LEX,flex,flex)
- if test -z "$LEX"
+-AC_SUBST(OPT_MFLAGS)
+-DBG_MFLAGS='-DDEBUG -g';AC_SUBST(DBG_MFLAGS)
++AC_SUBST([OPT_MFLAGS])
++DBG_MFLAGS='-DDEBUG -g';AC_SUBST([DBG_MFLAGS])
+ 
+-UP="..$PATHSEP"
+-case $OBJC in
++UP="..${PATHSEP}"
++case ${OBJC} in
+         objc*)  NOI="-noI";
+ 		NOLIBS="-noLibs";
+                 OBJCRT_INC="-noI -I${UP}${UP}include${PATHSEP}objcrt";
+@@ -333,56 +343,64 @@
+ 
+ OBJPAK_INC="-I${UP}${UP}include${PATHSEP}objpak"
+ 
+-OBJCRT_IFLAGS="$NOI"
+-OBJPAK_IFLAGS="$OBJCRT_INC"
+-OCLIB_IFLAGS="$OBJCRT_INC $OBJPAK_INC"
+-OBJC_IFLAGS="-I. $OBJCRT_INC $OBJPAK_INC -I${UP}oclib"
+-CAKIT_IFLAGS="-I. $OBJCRT_INC"
++OBJCRT_IFLAGS="${NOI}"
++OBJPAK_IFLAGS="${OBJCRT_INC}"
++OCLIB_IFLAGS="${OBJCRT_INC} ${OBJPAK_INC}"
++OBJC_IFLAGS="-I. ${OBJCRT_INC} ${OBJPAK_INC} -I${UP}oclib"
++CAKIT_IFLAGS="-I. ${OBJCRT_INC}"
+ 
+ OBJC_BOOTLIBS="${NOLIBS} ${UP}oclib${PATHSEP}oclib.${LIBSUFFIX}"
+-OBJC_BOOTLIBS="$OBJC_BOOTLIBS ${UP}objpak${PATHSEP}objpak.${LIBSUFFIX}"
+-OBJC_BOOTLIBS="$OBJC_BOOTLIBS ${UP}objcrt${PATHSEP}objcrt.${LIBSUFFIX}"
++OBJC_BOOTLIBS="${OBJC_BOOTLIBS} ${UP}objpak${PATHSEP}objpak.${LIBSUFFIX}"
++OBJC_BOOTLIBS="${OBJC_BOOTLIBS} ${UP}objcrt${PATHSEP}objcrt.${LIBSUFFIX}"
+ 
+-AC_SUBST(OBJCRT_IFLAGS)
+-AC_SUBST(OBJPAK_IFLAGS)
+-AC_SUBST(OCLIB_IFLAGS)
+-AC_SUBST(OBJC_IFLAGS)
+-AC_SUBST(CAKIT_IFLAGS)
+-AC_SUBST(OBJC_BOOTLIBS)
+-
+-dnl Since the quality of the POC depends on lex/yacc, we require flex/byacc
+-dnl Most lexes, yaccs and bison also work (but: byacc is required for -refcnt)
+-AC_CHECK_PROG(LEX,flex,flex)
+-if test -z "$LEX"
++AC_SUBST([OBJCRT_IFLAGS])
++AC_SUBST([OBJPAK_IFLAGS])
++AC_SUBST([OCLIB_IFLAGS])
++AC_SUBST([OBJC_IFLAGS])
++AC_SUBST([CAKIT_IFLAGS])
++AC_SUBST([OBJC_BOOTLIBS])
++
++dnl# Since the qual. of the POC depends on lex/yacc, we require flex/byacc
++dnl# Most lexes, yaccs and bison also work
++dnl# (but: byacc is required for -refcnt)
++unset ac_cv_prog_LEX
++AC_CHECK_PROG([LEX],[flex],[flex])
++if test -z "${LEX}"
  then
 -  AC_MSG_ERROR(Can't find flex)
-+  AC_MSG_ERROR([Can't find flex])
++  AC_MSG_ERROR([Cannot find flex])
++fi
++unset ac_cv_prog_YACC
++if test "x${YACC}" = "xbison -y"; then
++  test ! -z "${YACC}"
++  unset YACC
  fi
 -AC_CHECK_PROG(YACC,byacc,byacc -d)
+-if test -z "$YACC"
 +AC_CHECK_PROG([YACC],[byacc],[byacc -d])
- if test -z "$YACC"
++if test -z "${YACC}"
  then
 -  AC_MSG_ERROR(Can't find Berkeley yacc (byacc))
-+  AC_MSG_ERROR([Can't find Berkeley yacc (byacc)])
++  AC_MSG_ERROR([Cannot find Berkeley yacc (byacc)])
  fi
- LEXYYC=lex.yy.c; AC_SUBST(LEXYYC)
- YTABH=y.tab.h; AC_SUBST(YTABH)
-@@ -373,7 +384,7 @@
- NM='nm -p';AC_SUBST(NM)
+-LEXYYC=lex.yy.c; AC_SUBST(LEXYYC)
+-YTABH=y.tab.h; AC_SUBST(YTABH)
+-YTABC=y.tab.c; AC_SUBST(YTABC)
+-
+-dnl this should be cleaned up
+-dnl a general test for bsd format of 'nm' would be nice
+-case $target in
++LEXYYC=lex.yy.c; AC_SUBST([LEXYYC])
++YTABH=y.tab.h; AC_SUBST([YTABH])
++YTABC=y.tab.c; AC_SUBST([YTABC])
++
++dnl# this should be cleaned up
++dnl# a general test for bsd format of 'nm' would be nice
++dnl# see if we can steal the one that GNU libtool uses?
++case ${target} in
+ 	*hpux*) 
+-NM='nm -p';AC_SUBST(NM)
++NM='nm -p';AC_SUBST([NM])
  ;;
  	*)
 -AC_CHECK_PROG(NM,nm,nm)
@@ -187,71 +561,200 @@
  ;;
  esac
  
-@@ -409,7 +420,7 @@
+-dnl
+-dnl the shared library stuff is messy
+-dnl it doesn't depend on tests, but rather checks the $target variable
+-dnl (enumeration of supported platforms as opposed to trying to figure out
+-dnl automagically how to build shlibs on the target)
+-dnl
++dnl#
++dnl# the shared library stuff is messy (should really just use GNU libtool)
++dnl# it does NOT depend on tests, but rather checks the ${target} variable
++dnl# (enumeration of supported platforms as opposed to trying to figure out
++dnl# automagically how to build shlibs on the target)
++dnl#
+ DLXLDARGS=""
+ DLXCCARGS=""
+ DLARGS="-bogus"
+@@ -391,7 +409,7 @@
+ STATICFLAG="-static"
+ PICOCARGS=""
+ OBJCRTEXPORT=""
+-case $target in
++case ${target} in
+ 	*watcom* | *lcc* | *msvc* | *ibmvac* )
+ 		DOTSHLIBSUFFIX="_s.lib";;
+ 	*mwc*)
+@@ -400,16 +418,18 @@
+ 		DOTSHLIBSUFFIX=".so.2.1";;
+ 	*hpux*)
+ 		DOTSHLIBSUFFIX=".sl";;
++	*darwin*)
++		DOTSHLIBSUFFIX=".dylib";;
+ 	*)
+ 		DOTSHLIBSUFFIX=".so";;
+ esac
+-case $target in
++case ${target} in
+ 	*freebsd*) DLARGS="-Bshareable";
+ 		   ;;
  	*netbsd*)  DLARGS="-Bshareable";
  		   ;;
  	*sysv*uw*|*sco*)
 -            case $ac_cv_prog_gcc in
-+            case $ac_cv_c_compiler_gnu in
++            case ${ac_cv_c_compiler_gnu} in
                 yes)
                     DLARGS="-shared";
  	           DLXLDARGS="-Xlinker --export-dynamic -ldl";
-@@ -427,7 +438,7 @@
+@@ -427,7 +447,7 @@
  	*sunos*|*solaris*) DLARGS="-G";DLXLDARGS="-ldl";
  		   ;;
  	*hpux*)
 -            case $ac_cv_prog_gcc in
-+            case $ac_cv_c_compiler_gnu in
++            case ${ac_cv_c_compiler_gnu} in
  	       yes)
  	           DLARGS="-shared";
  	           DLXLDARGS="-Wl,-E -ldld";
-@@ -441,7 +452,7 @@
+@@ -441,7 +461,7 @@
              esac
  	    ;;
  	*osf*)
 -            case $ac_cv_prog_gcc in
-+            case $ac_cv_c_compiler_gnu in
++            case ${ac_cv_c_compiler_gnu} in
  	       yes)
  	           DLARGS="-shared";
  		   ;;
-@@ -454,7 +465,7 @@
+@@ -454,7 +474,7 @@
              esac
              ;;
          *irix*)
 -            case $ac_cv_prog_gcc in
-+            case $ac_cv_c_compiler_gnu in
++            case ${ac_cv_c_compiler_gnu} in
  	       yes)
  	           DLARGS="-shared";
  		   ;;
-@@ -511,13 +522,22 @@
+@@ -486,20 +506,24 @@
+ 		DLXCCARGS="";
+                 DLFILE="objcdlnt.lcc";
+ 		;;
++	*darwin*)
++	        DLARGS="-dynamiclib";
++	        PICFLAG="-fno-common -DPIC";
++                ;;
+ 	*) ;;
+ esac
  
- AC_SUBST(LINKFORMAT)
+-AC_SUBST(DOTSHLIBSUFFIX)
+-AC_SUBST(DLARGS)
+-AC_SUBST(DLXCCARGS)
+-AC_SUBST(DLXLDARGS)
+-AC_SUBST(PICFLAG)
+-AC_SUBST(PICOCARGS)
+-AC_SUBST(STATICFLAG)
+-AC_SUBST(DLFILE)
+-AC_SUBST(OBJCRTEXPORT)
++AC_SUBST([DOTSHLIBSUFFIX])
++AC_SUBST([DLARGS])
++AC_SUBST([DLXCCARGS])
++AC_SUBST([DLXLDARGS])
++AC_SUBST([PICFLAG])
++AC_SUBST([PICOCARGS])
++AC_SUBST([STATICFLAG])
++AC_SUBST([DLFILE])
++AC_SUBST([OBJCRTEXPORT])
  
-+dnl Checks for header files.
- AC_HEADER_STDC
+-case $target in
++case ${target} in
+ 	*watcom*) LINKFORMAT="watcom";;
+ 	*msvc*) LINKFORMAT="msvc";;
+ 	*lcc*) LINKFORMAT="msvc";;
+@@ -509,56 +533,68 @@
+ 	*) LINKFORMAT="unix";; # bsdnm
+ esac
+ 
+-AC_SUBST(LINKFORMAT)
+-
+-AC_HEADER_STDC
 -AC_CHECK_HEADERS(string.h stdarg.h)
-+AC_CHECK_HEADERS([secure/_stdio.h string.h stdarg.h stddef.h stdio.h stdlib.h string.h unistd.h utmp.h])
++AC_SUBST([LINKFORMAT])
  
 -AC_PROG_CC_C_O
-+dnl Checks for typedefs, structures, and compiler characteristics.
++dnl# Checks for header files.
++AC_HEADER_STDBOOL
++AC_CHECK_HEADERS([secure/_stdio.h stdarg.h stddef.h stdio.h utmp.h])
++
++dnl# Checks for typedefs, structures, and compiler characteristics.
 +AC_TYPE_OFF_T
 +AC_TYPE_PID_T
 +AC_TYPE_SIZE_T
 +AM_PROG_CC_C_O
 +AC_PROG_GCC_TRADITIONAL
++AC_C_BIGENDIAN
  AC_C_CONST
++AC_C_PROTOTYPES
  
 -AC_CHECK_FUNCS(memcpy memset snprintf)
-+dnl Checks for library functions.
++dnl# Checks for library functions.
 +AC_FUNC_MALLOC
 +AC_FUNC_REALLOC
-+AC_CHECK_FUNCS([alarm atexit memcpy memset snprintf strdup strerror strstr])
++AC_CHECK_FUNCS([alarm atexit atexit_b memcpy memset snprintf strdup \
++                strerror strstr])
  
- dnl some old crap
+-dnl some old crap
++dnl# some old crap
  
-@@ -557,8 +577,8 @@
- dnl (common storage or strict definition reference)
- dnl
+ OBJCRT_USE_YYLESS=1
+-AC_SUBST(OBJCRT_USE_YYLESS)
++AC_SUBST([OBJCRT_USE_YYLESS])
+ PRINTSYSTEM=0
+-AC_SUBST(PRINTFSYSTEM)
++AC_SUBST([PRINTFSYSTEM])
+ SHORTCMDLINE=0
+-AC_SUBST(SHORTCMDLINE)
++AC_SUBST([SHORTCMDLINE])
+ OBJCRT_PROTOTYPE_MESSENGER=1
+-AC_SUBST(OBJCRT_PROTOTYPE_MESSENGER)
+-case $ac_cv_header_stdarg_h in
++AC_SUBST([OBJCRT_PROTOTYPE_MESSENGER])
++case ${ac_cv_header_stdarg_h} in
+   yes) OBJCRT_USE_STDARG=1;;
+   *) OBJCRT_USE_STDARG=0;;
+ esac
+-AC_SUBST(OBJCRT_USE_STDARG)
+-case $ac_cv_func_memset in
++AC_SUBST([OBJCRT_USE_STDARG])
++case ${ac_cv_func_memset} in
+   yes) OBJCRT_USE_MEMSET=1;;
+   *) OBJCRT_USE_MEMSET=0;;
+ esac
+-AC_SUBST(OBJCRT_USE_MEMSET)
+-case $ac_cv_func_snprintf in
++AC_SUBST([OBJCRT_USE_MEMSET])
++case ${ac_cv_func_snprintf} in
+   yes) OBJCRT_USE_SNPRINTF=1;;
+   *) OBJCRT_USE_SNPRINTF=0;;
+ esac
+-AC_SUBST(OBJCRT_USE_SNPRINTF)
+-case $target in
++AC_SUBST([OBJCRT_USE_SNPRINTF])
++case ${target} in
+   *linux*) OBJCRT_LINUX=1;;
+   *) OBJCRT_LINUX=0;;
+ esac
+-AC_SUBST(OBJCRT_LINUX)
+-OBJC_HAVE_SYSTEM_CALL=1;AC_SUBST(OBJC_HAVE_SYSTEM_CALL)
++AC_SUBST([OBJCRT_LINUX])
++OBJC_HAVE_SYSTEM_CALL=1;AC_SUBST([OBJC_HAVE_SYSTEM_CALL])
+ 
+ 
+-dnl
+-dnl Testing for public storage model of C compiler 
+-dnl (common storage or strict definition reference)
+-dnl
++dnl#
++dnl# Testing for public storage model of C compiler 
++dnl# (common storage or strict definition reference)
++dnl#
  
 -AC_MSG_CHECKING(whether to use postlink)
 -AC_CACHE_VAL(ac_cv_postlink,[
@@ -260,18 +763,63 @@
  t1="x$$.c"
  t2="y$$.c"
  e1="x$$"
-@@ -609,7 +629,7 @@
- case $ac_cv_postlink in
+@@ -583,14 +619,14 @@
+ if test -x $e1 -a -x $e2
+ then
+   echo -n "check whether $e1 returns '7'" >&5
+-  if $srcdir/$e1 != 7
++  if ${srcdir}/$e1 != 7
+   then
+     echo " (no)" >&5
+     ac_cv_postlink=yes;
+   else
+     echo " (yes)" >&5
+     echo -n "check whether $e2 returns '7'" >&5
+-    if $srcdir/$e2 != 7
++    if ${srcdir}/$e2 != 7
+     then
+      echo " (no)" >&5
+      ac_cv_postlink=yes
+@@ -602,73 +638,74 @@
+ else
+   ac_cv_postlink=yes;
+ fi
+-rm -rf $ac_clean_files
+-],ac_cv_postlink=yes,ac_cv_postlink=no)
+-AC_MSG_RESULT($ac_cv_postlink)
++rm -rf ${ac_clean_files}
++],[ac_cv_postlink=yes],[ac_cv_postlink=no])
++AC_MSG_RESULT([${ac_cv_postlink}])
+ 
+-case $ac_cv_postlink in
++case ${ac_cv_postlink} in
    no) POSTLINK=0;OBJCRT_SCOPE_OBJCMODULES_EXTERN=0;;
    yes) POSTLINK=1;OBJCRT_SCOPE_OBJCMODULES_EXTERN=1;;
 -  *) AC_MSG_ERROR(you must use --with-postlink or --without-postlink);;
 +  *) AC_MSG_ERROR([you must use --with-postlink or --without-postlink]);;
  esac
- AC_SUBST(POSTLINK)
- AC_SUBST(OBJCRT_SCOPE_OBJCMODULES_EXTERN)
-@@ -624,10 +644,10 @@
+-AC_SUBST(POSTLINK)
+-AC_SUBST(OBJCRT_SCOPE_OBJCMODULES_EXTERN)
++AC_SUBST([POSTLINK])
++AC_SUBST([OBJCRT_SCOPE_OBJCMODULES_EXTERN])
  
- if test -z "$ac_cv_prefixed_names"
+-dnl
+-dnl Testing for system libs that contain _objcInit
+-dnl _objcInit is the name that Stepstone used to use for the runtime init
+-dnl and we use the same name.
+-dnl this is fine, except for the case where some vendors compile _objcInit
+-dnl into their system libs, so that we have to be careful to use *our* init
+-dnl
++dnl#
++dnl# Testing for system libs that contain _objcInit
++dnl# _objcInit is the name that Stepstone used to use for the runtime init
++dnl# and we use the same name.
++dnl# this is fine, except for the case where some vendors compile _objcInit
++dnl# into their system libs, so we have to be careful to use *our* init
++dnl#
+ 
+-if test -z "$ac_cv_prefixed_names"
++if test -z "${ac_cv_prefixed_names}"
  then
 -AC_CHECK_FUNC(_objcInit,ac_cv_prefixed_names=yes,ac_cv_prefixed_names=no)
 +AC_CHECK_FUNC([_objcInit],[ac_cv_prefixed_names=yes],[ac_cv_prefixed_names=no])
@@ -279,25 +827,63 @@
 -AC_MSG_CHECKING(for _objcInit)
 -AC_MSG_RESULT((cached) $ac_cv_prefixed_names)
 +AC_MSG_CHECKING([for _objcInit])
-+AC_MSG_RESULT([(cached) $ac_cv_prefixed_names])
++AC_MSG_RESULT([(cached) ${ac_cv_prefixed_names}])
  fi
  
- case $ac_cv_prefixed_names in
-@@ -646,7 +666,7 @@
+-case $ac_cv_prefixed_names in
++case ${ac_cv_prefixed_names} in
+ yes) OBJCRT_USE_PREFIXED_NAMES="1";INITCALL="oc_objcInit";;
+ no) OBJCRT_USE_PREFIXED_NAMES="0";INITCALL="_objcInit";;
+ esac
+-AC_SUBST(OBJCRT_USE_PREFIXED_NAMES)
+-AC_SUBST(INITCALL)
++AC_SUBST([OBJCRT_USE_PREFIXED_NAMES])
++AC_SUBST([INITCALL])
+ 
+ SQLCC=""
+ SQLLIBS=""
+ SQLINC=""
+ SQLEXT="ec"
+ 
+-case $ac_cv_informix in
++case ${ac_cv_informix} in
  yes)
-   if test ! -x "$INFORMIXDIR/bin/esql"
+-  if test ! -x "$INFORMIXDIR/bin/esql"
++  if test ! -x "${INFORMIXDIR}/bin/esql"
    then
 -    AC_MSG_ERROR(Can't find Informix esql.  Maybe INFORMIXDIR is not set ?)
-+    AC_MSG_ERROR([Can't find Informix esql.  Maybe INFORMIXDIR is not set ?])
++    AC_MSG_ERROR([Cannot find Informix esql. Maybe INFORMIXDIR is not set properly?])
    fi
-   SQLCC="$INFORMIXDIR/bin/esql -e"
-   SQLINC="-I$INFORMIXDIR/incl -I$INFORMIXDIR/incl/esql"
-@@ -668,7 +688,8 @@
+-  SQLCC="$INFORMIXDIR/bin/esql -e"
+-  SQLINC="-I$INFORMIXDIR/incl -I$INFORMIXDIR/incl/esql"
+-  SQLLIBS="-L$INFORMIXDIR/lib -L$INFORMIXDIR/lib/esql -lifsql -lifasf -lifgen -lifos -lifgls -lm -ldl -lcrypt $INFORMIXDIR/lib/esql/checkapi.o -lifglx"
++  SQLCC="${INFORMIXDIR}/bin/esql -e"
++  SQLINC="-I${INFORMIXDIR}/incl -I${INFORMIXDIR}/incl/esql"
++  SQLLIBS="-L${INFORMIXDIR}/lib -L${INFORMIXDIR}/lib/esql -lifsql -lifasf -lifgen -lifos -lifgls -lm -ldl -lcrypt ${INFORMIXDIR}/lib/esql/checkapi.o -lifglx"
+ ;;
+ no)
+ ;;
+ esac
+ 
+-AC_SUBST(SQLCC)
+-AC_SUBST(SQLINC)
+-AC_SUBST(SQLLIBS)
+-AC_SUBST(SQLEXT)
++AC_SUBST([SQLCC])
++AC_SUBST([SQLINC])
++AC_SUBST([SQLLIBS])
++AC_SUBST([SQLEXT])
+ 
+-case $btrap in
++case ${btrap} in
+ 1)	list='Makefile objc'
+ 	;;
+ 0)	list='config.h Makefile src/objcrt/config.h src/objcrt/Makefile src/objpak/config.h src/objpak/Makefile src/oclib/config.h src/oclib/Makefile src/objc/config.h src/objc/Makefile src/objc/objc src/objc/objc.m src/cakit/config.h src/cakit/Makefile examples/Makefile words/Makefile'
  	;;
  esac
  
 -AC_OUTPUT($list)
-+AC_CONFIG_FILES([$list])
++AC_CONFIG_FILES([${list}])
 +AC_OUTPUT
  
  if test -f BOOTSTRAP
