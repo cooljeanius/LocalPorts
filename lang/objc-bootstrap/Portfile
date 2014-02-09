@@ -1,0 +1,57 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 57375 2009-09-10 08:16:41Z ryandesign@macports.org $
+
+PortSystem              1.0
+
+name                    objc-bootstrap
+version                 3.2.11
+categories              lang devel
+platforms               darwin
+license                 LGPL-2+
+maintainers             mww gwmail.gwu.edu:egall openmaintainer
+description             This compiler bootstraps the \
+                        Portable Object Compiler, which is an \
+                        Objective-C compiler
+long_description        \
+        This is a bootstrap compiler for the objc port. It used to be \
+        part of that port, but it has since been split off into this \
+        separate port, in order to ease development.
+
+homepage                http://users.pandora.be/stes/compiler.html
+master_sites            http://users.pandora.be/stes/
+distfiles               objc-bootstrap-${version}.tar.gz
+checksums               sha1    6631ab028526a27713a44616de9279c509a35a49 \
+                        rmd160  84fb9e6b3e7a0d5bd8b1e3f3f3a322b37235bbd8
+
+depends_extract-append  port:openssl
+depends_build-append    port:gawk
+depends_lib-append      port:byacc \
+                        port:flex
+
+# I would like to autoreconf, but the bootstrap package is missing the
+# necessary files...
+
+configure.args-append  --prefix=${prefix}/libexec/${name} \
+                       --with-cplus \
+                       --with-postlink \
+                       --with-prefixed-names
+
+configure.ccache        no
+
+# These are taken from objc's bootSrc script:
+configure.env-append    AR=true \
+                        RANLIB=true \
+                        ac_cv_func_memset=no \
+                        ac_cv_func_memcpy=no \
+                        ac_cv_func_snprintf=no
+
+build.env-append        OBJCOPT='-C -traditional -traditional-cpp -noFwd -noFiler -postlink -init oc_objcInit -nostdinc -I../../util/ -T../../util/'
+build.target            default
+
+use_parallel_build      no
+
+destroot.destdir        INSTALLDIR=${destroot}${prefix}/libexec/${name}
+
+livecheck.type          regex
+livecheck.url           ${homepage}
+livecheck.regex         objc-bootstrap-(\[0-9.\]+)\\.tar\\.gz
