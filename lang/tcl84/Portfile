@@ -6,6 +6,7 @@ PortSystem          1.0
 
 name                tcl84
 version             8.4.19
+revision            1
 categories          lang
 license             Tcl/Tk
 maintainers         mww openmaintainer
@@ -17,7 +18,8 @@ long_description \
   uses, including web and desktop applications, networking, \
   administration, testing and many more. Open source and \
   business-friendly, Tcl is a mature yet evolving language that is \
-  truly cross platform, easily deployed and highly extensible.
+  truly cross platform, easily deployed and highly extensible. This \
+  version (8.4) is required for compatibility with some older programs.
 
 homepage            http://www.tcl.tk/
 master_sites        sourceforge:project/tcl/Tcl/${version}
@@ -32,7 +34,30 @@ distname            tcl${version}-src
 worksrcdir          tcl${version}/unix
 
 configure.cflags    "-I${workpath}/tcl${version}/generic -I${workpath}/tcl${version}/unix"
-configure.args      --mandir=${prefix}/share/man --includedir=--disable-corefoundation --enable-threads
+configure.args      --mandir=${prefix}/share/man \
+                    --includedir=${prefix}/include/tcl84 \
+                    --libdir=${prefix}/lib/tcl84 \
+                    --x-includes=${prefix}/include \
+                    --x-libraries=${prefix}/lib \
+                    --disable-corefoundation \
+                    --enable-threads
+
+variant memdebug description {enable memory debugging support} {
+    configure.args-append --enable-symbols=mem
+    configure.optflags    -g
+    configure.ccache      no
+    configure.pipe        no
+}
+
+platform darwin {
+    if {([variant_isset universal] && [string match *64* $universal_archs]) || (![variant_isset universal] && [string match *64 $build_arch])} {
+        configure.args-append \
+                    --enable-64bit
+    }
+    configure.env-append tcl_cv_type_64bit="long long"
+}
+
+test.run      yes
 
 destroot.post_args \
    INSTALL_ROOT=${destroot} \
@@ -51,21 +76,16 @@ post-destroot {
     # out to support multiple Tcl ports being installed side-by-side
     # TODO: add a tcl_select port
     #ln -s tclsh8.4 ${destroot}${prefix}/bin/tclsh
-    ln -s ${prefix}/lib/tcl84/libtcl8.4.dylib ${destroot}${prefix}/lib/libtcl8.4.dylib
-    ln -s ${prefix}/lib/tcl84/libtclstub8.4.a ${destroot}${prefix}/lib/libtclstub8.4.a
+    if {[variant_isset memdebug]} {
+        # the memdebug variant changes the library names:
+        ln -s ${prefix}/lib/tcl84/libtcl8.4g.dylib ${destroot}${prefix}/lib/libtcl8.4g.dylib
+        ln -s ${prefix}/lib/tcl84/libtclstub8.4g.a ${destroot}${prefix}/lib/libtclstub8.4g.a
+    } else {
+        ln -s ${prefix}/lib/tcl84/libtcl8.4.dylib ${destroot}${prefix}/lib/libtcl8.4.dylib
+        ln -s ${prefix}/lib/tcl84/libtclstub8.4.a ${destroot}${prefix}/lib/libtclstub8.4.a
+    }
     reinplace "s|${prefix}/include|${prefix}/include/tcl84|g" ${destroot}${prefix}/lib/tcl84/tclConfig.sh
 }
-
-variant memdebug description {enable memory debugging support} {
-    configure.args-append --enable-symbols=mem
-}
-
-platform darwin {
-    configure.args-append tcl_cv_type_64bit="long long"
-}
-
-# Files with failing tests: socket.test
-test.run      yes
 
 # Disable livecheck, as this is an old version
 livecheck.type  none
