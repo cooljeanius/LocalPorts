@@ -28,6 +28,10 @@ checksums               sha1    648b0656f774d20d2cf26e3067e4559d960954c8 \
                         rmd160  37df07e8d93f80c3b8befd0fe5a5f8444d894b09
 patchfiles-append       patch-src-cakit-intmodp.m.diff \
                         patch-configure.in.diff
+patch.args-append       --backup
+pre-patch {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
 
 depends_extract-append  port:openssl
 depends_build-append    port:objc-bootstrap \
