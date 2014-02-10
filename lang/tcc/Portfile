@@ -10,7 +10,14 @@ categories          lang devel
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
 license             LGPL-2.1+
-supported_archs     i386 x86_64
+supported_archs     i386
+
+platform darwin > 10 {
+    # x86_64 failed for me on darwin 10, but I had included it by default
+    # when I wrote this Portfile at school, which had a newer OS, so I
+    # assume that x86_64 must have worked on the newer OS...
+    supported_archs-append x86_64
+}
 
 # does NOT accept multiple -arch flags
 universal_variant   no
@@ -46,9 +53,12 @@ variant tests description {Run the test suite} {
     test.run             yes
     test.cmd             make
     test.target          test
-    test.env-append      CC=${worksrcpath}/tcc
-    post-build {
-        system -W ${worksrcpath} "${test.cmd} ${test.target}"
+    test.env-append      CC=${worksrcpath}/tcc \
+                         CPPFLAGS="-I${worksrcpath}/include" \
+                         CPATH="-I${worksrcpath}/include"
+    pre-test {
+        # force use of copy that tcc has, required to pass testsuite:
+        reinplace "s|<stdarg.h>|\"stdarg.h\"|g" ${worksrcpath}/include/tcclib.h
     }
 }
 
