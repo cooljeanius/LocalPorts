@@ -1,0 +1,1766 @@
+***************
+*** 117,124 ****
+  # configdirs, or target_configdirs; see the serialization section below.
+  
+  # Dependency sorting is only needed when *configuration* must be done in
+- # a particular order.  In all cases a dependency should be specified in
+- # the Makefile, whether or not it's implicitly specified here.
+  
+  # Double entries in build_configdirs, configdirs, or target_configdirs may
+  # cause circular dependencies and break everything horribly.
+--- 130,137 ----
+  # configdirs, or target_configdirs; see the serialization section below.
+  
+  # Dependency sorting is only needed when *configuration* must be done in
++ # a particular order. In all cases a dependency should be specified in
++ # the Makefile, whether or not it is implicitly specified here.
+  
+  # Double entries in build_configdirs, configdirs, or target_configdirs may
+  # cause circular dependencies and break everything horribly.
+***************
+*** 230,263 ****
+  noconfigdirs=""
+  
+  use_gnu_ld=
+- # Make sure we don't let GNU ld be added if we didn't want it.
+- if test x$with_gnu_ld = xno ; then
+    use_gnu_ld=no
+-   noconfigdirs="$noconfigdirs ld gold"
+  fi
+  
+  use_gnu_as=
+- # Make sure we don't let GNU as be added if we didn't want it.
+- if test x$with_gnu_as = xno ; then
+    use_gnu_as=no
+-   noconfigdirs="$noconfigdirs gas"
+  fi
+  
+  use_included_zlib=
+- # Make sure we don't let ZLIB be added if we didn't want it.
+- if test x$with_system_zlib = xyes ; then
+    use_included_zlib=no
+-   noconfigdirs="$noconfigdirs zlib"
+  fi
+  
+- # some tools are so dependent upon X11 that if we're not building with X,
+- # it's not even worth trying to configure, much less build, that tool.
+  
+  case ${with_x} in
+    yes | "") ;; # the default value for this tree is that X11 is available
+    no)
+      skipdirs="${skipdirs} tk itcl libgui"
+-     # We won't be able to build gdbtk without X.
+      enable_gdbtk=no
+      ;;
+    *)  echo "*** bad value \"${with_x}\" for -with-x flag; ignored" 1>&2 ;;
+--- 243,276 ----
+  noconfigdirs=""
+  
+  use_gnu_ld=
++ # Make sure we do NOT let GNU ld be added if we did NOT want it.
++ if test x${with_gnu_ld} = xno ; then
+    use_gnu_ld=no
++   noconfigdirs="${noconfigdirs} ld gold"
+  fi
+  
+  use_gnu_as=
++ # Make sure we do NOT let GNU as be added if we did NOT want it.
++ if test x${with_gnu_as} = xno ; then
+    use_gnu_as=no
++   noconfigdirs="${noconfigdirs} gas"
+  fi
+  
+  use_included_zlib=
++ # Make sure we do NOT let ZLIB be added if we did NOT want it.
++ if test x${with_system_zlib} = xyes ; then
+    use_included_zlib=no
++   noconfigdirs="${noconfigdirs} zlib"
+  fi
+  
++ # some tools are so dependent upon X11 that if we are not building with X,
++ # it is not even worth trying to configure, much less build, that tool.
+  
+  case ${with_x} in
+    yes | "") ;; # the default value for this tree is that X11 is available
+    no)
+      skipdirs="${skipdirs} tk itcl libgui"
++     # We will NOT be able to build gdbtk without X.
+      enable_gdbtk=no
+      ;;
+    *)  echo "*** bad value \"${with_x}\" for -with-x flag; ignored" 1>&2 ;;
+***************
+*** 377,468 ****
+  
+  case "${host}" in
+    *-cygwin*)
+-     configdirs="$configdirs libtermcap" ;;
+  esac
+  
+- # A target can indicate whether a language isn't supported for some reason.
+  # Only spaces may be used in this macro; not newlines or tabs.
+  unsupported_languages=
+  
+  # Remove more programs from consideration, based on the host or
+- # target this usually means that a port of the program doesn't
+  # exist yet.
+  
+  case "${host}" in
+    i[[3456789]]86-*-msdosdjgpp*)
+-     noconfigdirs="$noconfigdirs tcl tk itcl"
+      ;;
+  esac
+  
+  
+- AC_ARG_ENABLE(libquadmath,
+  AS_HELP_STRING([--disable-libquadmath],
+    [do not build libquadmath directory]),
+- ENABLE_LIBQUADMATH=$enableval,
+- ENABLE_LIBQUADMATH=yes)
+  if test "${ENABLE_LIBQUADMATH}" = "no" ; then
+-   noconfigdirs="$noconfigdirs target-libquadmath"
+  fi
+  
+  
+- AC_ARG_ENABLE(libquadmath-support,
+  AS_HELP_STRING([--disable-libquadmath-support],
+    [disable libquadmath support for Fortran]),
+- ENABLE_LIBQUADMATH_SUPPORT=$enableval,
+- ENABLE_LIBQUADMATH_SUPPORT=yes)
+  enable_libquadmath_support=
+  if test "${ENABLE_LIBQUADMATH_SUPPORT}" = "no" ; then
+    enable_libquadmath_support=no
+  fi
+  
+  
+- AC_ARG_ENABLE(libada,
+- [AS_HELP_STRING([--enable-libada], [build libada directory])],
+- ENABLE_LIBADA=$enableval,
+- ENABLE_LIBADA=yes)
+  if test "${ENABLE_LIBADA}" != "yes" ; then
+-   noconfigdirs="$noconfigdirs gnattools"
+  fi
+  
+- AC_ARG_ENABLE(libssp,
+- [AS_HELP_STRING([--enable-libssp], [build libssp directory])],
+- ENABLE_LIBSSP=$enableval,
+- ENABLE_LIBSSP=yes)
+  
+  # Save it here so that, even in case of --enable-libgcj, if the Java
+- # front-end isn't enabled, we still get libgcj disabled.
+- libgcj_saved=$libgcj
+- case $enable_libgcj in
+  yes)
+-   # If we reset it here, it won't get added to noconfigdirs in the
+    # target-specific build rules, so it will be forcibly enabled
+-   # (unless the Java language itself isn't enabled).
+    libgcj=
+    ;;
+  no)
+    # Make sure we get it printed in the list of not supported target libs.
+-   # Don't disable libffi, though, other languages use it.
+-   noconfigdirs="$noconfigdirs `echo ${libgcj} | sed -e 's/target-libffi//'`"
+-   # Clear libgcj_saved so that even if java is enabled libffi won't be
+    # built.
+    libgcj_saved=
+    ;;
+  esac
+  
+- AC_ARG_ENABLE(static-libjava,
+  [AS_HELP_STRING([[--enable-static-libjava[=ARG]]],
+  		[build static libjava @<:@default=no@:>@])],
+- ENABLE_STATIC_LIBJAVA=$enableval,
+- ENABLE_STATIC_LIBJAVA=no)
+  enable_static_libjava=
+  if test "${ENABLE_STATIC_LIBJAVA}" = "yes" ; then
+    enable_static_libjava=yes
+  fi
+  
+- if test x$enable_static_libjava != xyes ; then
+    EXTRA_CONFIGARGS_LIBJAVA=--disable-static
+  fi
+- AC_SUBST(EXTRA_CONFIGARGS_LIBJAVA)
+  
+  # Disable libmudflap on some systems.
+  if test x$enable_libmudflap = x ; then
+--- 390,481 ----
+  
+  case "${host}" in
+    *-cygwin*)
++     configdirs="${configdirs} libtermcap" ;;
+  esac
+  
++ # A target can indicate if a language is NOT supported for some reason.
+  # Only spaces may be used in this macro; not newlines or tabs.
+  unsupported_languages=
+  
+  # Remove more programs from consideration, based on the host or
++ # target this usually means that a port of the program does NOT
+  # exist yet.
+  
+  case "${host}" in
+    i[[3456789]]86-*-msdosdjgpp*)
++     noconfigdirs="${noconfigdirs} tcl tk itcl"
+      ;;
+  esac
+  
+  
++ AC_ARG_ENABLE([libquadmath],
+  AS_HELP_STRING([--disable-libquadmath],
+    [do not build libquadmath directory]),
++ [ENABLE_LIBQUADMATH=${enableval}],
++ [ENABLE_LIBQUADMATH=yes])
+  if test "${ENABLE_LIBQUADMATH}" = "no" ; then
++   noconfigdirs="${noconfigdirs} target-libquadmath"
+  fi
+  
+  
++ AC_ARG_ENABLE([libquadmath-support],
+  AS_HELP_STRING([--disable-libquadmath-support],
+    [disable libquadmath support for Fortran]),
++ [ENABLE_LIBQUADMATH_SUPPORT=${enableval}],
++ [ENABLE_LIBQUADMATH_SUPPORT=yes])
+  enable_libquadmath_support=
+  if test "${ENABLE_LIBQUADMATH_SUPPORT}" = "no" ; then
+    enable_libquadmath_support=no
+  fi
+  
+  
++ AC_ARG_ENABLE([libada],
++ [AS_HELP_STRING([--enable-libada],[build libada directory])],
++ [ENABLE_LIBADA=${enableval}],
++ [ENABLE_LIBADA=yes])
+  if test "${ENABLE_LIBADA}" != "yes" ; then
++   noconfigdirs="${noconfigdirs} gnattools"
+  fi
+  
++ AC_ARG_ENABLE([libssp],
++ [AS_HELP_STRING([--enable-libssp],[build libssp directory])],
++ [ENABLE_LIBSSP=${enableval}],
++ [ENABLE_LIBSSP=yes])
+  
+  # Save it here so that, even in case of --enable-libgcj, if the Java
++ # front-end is NOT enabled, we still get libgcj disabled.
++ libgcj_saved=${libgcj}
++ case ${enable_libgcj} in
+  yes)
++   # If we reset it here, it will NOT get added to noconfigdirs in the
+    # target-specific build rules, so it will be forcibly enabled
++   # (unless the Java language itself is NOT enabled).
+    libgcj=
+    ;;
+  no)
+    # Make sure we get it printed in the list of not supported target libs.
++   # Do NOT disable libffi, though, other languages use it.
++   noconfigdirs="${noconfigdirs} `echo ${libgcj} | sed -e 's/target-libffi//'`"
++   # Clear libgcj_saved so that even if java is enabled libffi will NOT be
+    # built.
+    libgcj_saved=
+    ;;
+  esac
+  
++ AC_ARG_ENABLE([static-libjava],
+  [AS_HELP_STRING([[--enable-static-libjava[=ARG]]],
+  		[build static libjava @<:@default=no@:>@])],
++ [ENABLE_STATIC_LIBJAVA=${enableval}],
++ [ENABLE_STATIC_LIBJAVA=no])
+  enable_static_libjava=
+  if test "${ENABLE_STATIC_LIBJAVA}" = "yes" ; then
+    enable_static_libjava=yes
+  fi
+  
++ if test x${enable_static_libjava} != xyes ; then
+    EXTRA_CONFIGARGS_LIBJAVA=--disable-static
+  fi
++ AC_SUBST([EXTRA_CONFIGARGS_LIBJAVA])
+  
+  # Disable libmudflap on some systems.
+  if test x$enable_libmudflap = x ; then
+***************
+*** 502,522 ****
+      *-*-darwin* | *-*-aix*)
+  	;;
+      *)
+- 	noconfigdirs="$noconfigdirs target-libgomp"
+  	;;
+      esac
+  fi
+  
+  # Disable libitm on unsupported systems.
+  if test -d ${srcdir}/libitm; then
+-     if test x$enable_libitm = x; then
+  	AC_MSG_CHECKING([for libitm support])
+  	if (srcdir=${srcdir}/libitm; \
+  		. ${srcdir}/configure.tgt; \
+- 		test -n "$UNSUPPORTED")
+  	then
+  	    AC_MSG_RESULT([no])
+- 	    noconfigdirs="$noconfigdirs target-libitm"
+  	else
+  	    AC_MSG_RESULT([yes])
+  	fi
+--- 515,535 ----
+      *-*-darwin* | *-*-aix*)
+  	;;
+      *)
++ 	noconfigdirs="${noconfigdirs} target-libgomp"
+  	;;
+      esac
+  fi
+  
+  # Disable libitm on unsupported systems.
+  if test -d ${srcdir}/libitm; then
++     if test x${enable_libitm} = x; then
+  	AC_MSG_CHECKING([for libitm support])
+  	if (srcdir=${srcdir}/libitm; \
+  		. ${srcdir}/configure.tgt; \
++ 		test -n "${UNSUPPORTED}")
+  	then
+  	    AC_MSG_RESULT([no])
++ 	    noconfigdirs="${noconfigdirs} target-libitm"
+  	else
+  	    AC_MSG_RESULT([yes])
+  	fi
+***************
+*** 604,617 ****
+  case "${target}" in
+    *-*-vxworks*)
+      # VxWorks uses the Dinkumware C++ library.
+-     noconfigdirs="$noconfigdirs target-libstdc++-v3"
+      ;;
+    arm*-wince-pe*)
+-     # the C++ libraries don't build on top of CE's C libraries
+-     noconfigdirs="$noconfigdirs target-libstdc++-v3"
+      ;;
+    avr-*-*)
+-     noconfigdirs="$noconfigdirs target-libstdc++-v3"
+      ;;
+  esac
+  
+--- 617,630 ----
+  case "${target}" in
+    *-*-vxworks*)
+      # VxWorks uses the Dinkumware C++ library.
++     noconfigdirs="${noconfigdirs} target-libstdc++-v3"
+      ;;
+    arm*-wince-pe*)
++     # the C++ libraries do NOT build on top of CE's C libraries
++     noconfigdirs="${noconfigdirs} target-libstdc++-v3"
+      ;;
+    avr-*-*)
++     noconfigdirs="${noconfigdirs} target-libstdc++-v3"
+      ;;
+  esac
+  
+***************
+*** 690,778 ****
+    x86_64-*-darwin[[912]]*)
+      ;;
+    *-*-darwin*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    *-*-netware*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    *-*-rtems*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    *-*-tpf*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    *-*-uclinux*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    *-*-vxworks*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    alpha*-*-*vms*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    arm-wince-pe)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    arm*-*-symbianelf*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    bfin-*-*)
+-     noconfigdirs="$noconfigdirs target-boehm-gc"
+      ;;
+    cris-*-* | crisv32-*-*)
+-     unsupported_languages="$unsupported_languages java"
+      case "${target}" in
+        *-*-linux*)
+  	;;
+        *) # See PR46792 regarding target-libffi.
+- 	noconfigdirs="$noconfigdirs target-libffi target-boehm-gc";;
+      esac
+      ;;
+    hppa*64*-*-linux*)
+-     # In this case, it's because the hppa64-linux target is for
+      # the kernel only at this point and has no libc, and thus no
+      # headers, crt*.o, etc., all of which are needed by these.
+-     unsupported_languages="$unsupported_languages java"
+      ;;
+    hppa*64*-*-hpux*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    hppa*-hp-hpux11*)
+      ;;
+    hppa*-*-hpux*)
+-     # According to Alexandre Oliva <aoliva@redhat.com>, libjava won't
+      # build on HP-UX 10.20.
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    ia64*-*-*vms*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    i[[3456789]]86-w64-mingw*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    i[[3456789]]86-*-mingw*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    x86_64-*-mingw*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    mmix-*-*)
+-     noconfigdirs="$noconfigdirs target-libffi target-boehm-gc"
+      ;;
+    powerpc-*-aix*)
+      # copied from rs6000-*-* entry
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    rs6000-*-aix*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+    *-*-lynxos*)
+-     noconfigdirs="$noconfigdirs ${libgcj}"
+      ;;
+  esac
+  
+  # Default libgloss CPU subdirectory.
+- libgloss_dir="$target_cpu"
+  
+  case "${target}" in
+    sh*-*-pe|mips*-*-pe|*arm-wince-pe)
+--- 703,791 ----
+    x86_64-*-darwin[[912]]*)
+      ;;
+    *-*-darwin*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    *-*-netware*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    *-*-rtems*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    *-*-tpf*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    *-*-uclinux*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    *-*-vxworks*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    alpha*-*-*vms*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    arm-wince-pe)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    arm*-*-symbianelf*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    bfin-*-*)
++     noconfigdirs="${noconfigdirs} target-boehm-gc"
+      ;;
+    cris-*-* | crisv32-*-*)
++     unsupported_languages="${unsupported_languages} java"
+      case "${target}" in
+        *-*-linux*)
+  	;;
+        *) # See PR46792 regarding target-libffi.
++ 	noconfigdirs="${noconfigdirs} target-libffi target-boehm-gc";;
+      esac
+      ;;
+    hppa*64*-*-linux*)
++     # In this case, it is because the hppa64-linux target is for
+      # the kernel only at this point and has no libc, and thus no
+      # headers, crt*.o, etc., all of which are needed by these.
++     unsupported_languages="${unsupported_languages} java"
+      ;;
+    hppa*64*-*-hpux*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    hppa*-hp-hpux11*)
+      ;;
+    hppa*-*-hpux*)
++     # According to Alexandre Oliva <aoliva@redhat.com>, libjava will NOT
+      # build on HP-UX 10.20.
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    ia64*-*-*vms*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    i[[3456789]]86-w64-mingw*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    i[[3456789]]86-*-mingw*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    x86_64-*-mingw*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    mmix-*-*)
++     noconfigdirs="${noconfigdirs} target-libffi target-boehm-gc"
+      ;;
+    powerpc-*-aix*)
+      # copied from rs6000-*-* entry
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    rs6000-*-aix*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+    *-*-lynxos*)
++     noconfigdirs="${noconfigdirs} ${libgcj}"
+      ;;
+  esac
+  
+  # Default libgloss CPU subdirectory.
++ libgloss_dir="${target_cpu}"
+  
+  case "${target}" in
+    sh*-*-pe|mips*-*-pe|*arm-wince-pe)
+***************
+*** 810,876 ****
+  # Disable newlib and libgloss for various target OSes.
+  case "${target}" in
+    alpha*-dec-osf*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    i[[3456789]]86-*-linux*)
+      # This section makes it possible to build newlib natively on linux.
+-     # If we are using a cross compiler then don't configure newlib.
+      if test x${is_cross_compiler} != xno ; then
+-       noconfigdirs="$noconfigdirs target-newlib"
+      fi
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      # If we are not using a cross compiler, do configure newlib.
+      # Note however, that newlib will only be configured in this situation
+      # if the --with-newlib option has been given, because otherwise
+      # 'target-newlib' will appear in skipdirs.
+      ;;
+    i[[3456789]]86-*-rdos*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    sh*-*-pe|mips*-*-pe|arm-wince-pe)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    sparc-*-sunos4*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-aix*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-beos*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-chorusos)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-dragonfly*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-freebsd*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu | *-*-kopensolaris*-gnu)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-lynxos*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-mingw*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-netbsd*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-netware*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-tpf*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-uclinux*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    *-*-vxworks*)
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+  esac
+  
+--- 823,889 ----
+  # Disable newlib and libgloss for various target OSes.
+  case "${target}" in
+    alpha*-dec-osf*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    i[[3456789]]86-*-linux*)
+      # This section makes it possible to build newlib natively on linux.
++     # If we are using a cross compiler then do NOT configure newlib.
+      if test x${is_cross_compiler} != xno ; then
++       noconfigdirs="${noconfigdirs} target-newlib"
+      fi
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      # If we are not using a cross compiler, do configure newlib.
+      # Note however, that newlib will only be configured in this situation
+      # if the --with-newlib option has been given, because otherwise
+      # 'target-newlib' will appear in skipdirs.
+      ;;
+    i[[3456789]]86-*-rdos*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    sh*-*-pe|mips*-*-pe|arm-wince-pe)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    sparc-*-sunos4*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-aix*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-beos*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-chorusos)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-dragonfly*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-freebsd*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu | *-*-kopensolaris*-gnu)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-lynxos*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-mingw*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-netbsd*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-netware*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-tpf*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-uclinux*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    *-*-vxworks*)
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+  esac
+  
+***************
+*** 923,996 ****
+      ;;
+    *-*-kaos*)
+      # Remove unsupported stuff on all kaOS configurations.
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    *-*-netbsd*)
+      ;;
+    *-*-netware*)
+      ;;
+    *-*-rtems*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+-     # The tpf target doesn't support gdb yet.
+    *-*-tpf*)
+-     noconfigdirs="$noconfigdirs gdb tcl tk libgui itcl"
+      ;;
+    *-*-uclinux*)
+-     noconfigdirs="$noconfigdirs target-rda"
+      ;;
+    *-*-vxworks*)
+      ;;
+    alpha*-dec-osf*)
+      # ld works, but does not support shared libraries.
+-     # gas doesn't generate exception information.
+-     noconfigdirs="$noconfigdirs gas ld"
+      ;;
+    alpha*-*-*vms*)
+-     noconfigdirs="$noconfigdirs gdb target-newlib target-libgloss"
+      ;;
+    alpha*-*-*)
+      # newlib is not 64 bit ready
+-     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+      ;;
+    sh*-*-pe|mips*-*-pe|*arm-wince-pe)
+-     noconfigdirs="$noconfigdirs tcl tk itcl libgui sim"
+      ;;
+    arc-*-*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    arm-*-pe*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    arm-*-riscix*)
+-     noconfigdirs="$noconfigdirs ld target-libgloss"
+      ;;
+    c4x-*-* | tic4x-*-*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    tic54x-*-*)
+-     noconfigdirs="$noconfigdirs target-libgloss gdb"
+      ;;
+    cr16-*-*)
+-     noconfigdirs="$noconfigdirs gdb"
+      ;;
+    d10v-*-*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    d30v-*-*)
+-     noconfigdirs="$noconfigdirs gdb"
+      ;;
+    fr30-*-elf*)
+-     noconfigdirs="$noconfigdirs gdb"
+      ;;
+    moxie-*-*)
+-     noconfigdirs="$noconfigdirs gprof"
+      ;;
+    h8300*-*-*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    h8500-*-*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    hppa1.1-*-osf* | hppa1.1-*-bsd* )
+      ;;
+--- 936,1009 ----
+      ;;
+    *-*-kaos*)
+      # Remove unsupported stuff on all kaOS configurations.
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    *-*-netbsd*)
+      ;;
+    *-*-netware*)
+      ;;
+    *-*-rtems*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
++     # The tpf target does NOT support gdb yet.
+    *-*-tpf*)
++     noconfigdirs="${noconfigdirs} gdb tcl tk libgui itcl"
+      ;;
+    *-*-uclinux*)
++     noconfigdirs="${noconfigdirs} target-rda"
+      ;;
+    *-*-vxworks*)
+      ;;
+    alpha*-dec-osf*)
+      # ld works, but does not support shared libraries.
++     # gas does NOT generate exception information.
++     noconfigdirs="${noconfigdirs} gas ld"
+      ;;
+    alpha*-*-*vms*)
++     noconfigdirs="${noconfigdirs} gdb target-newlib target-libgloss"
+      ;;
+    alpha*-*-*)
+      # newlib is not 64 bit ready
++     noconfigdirs="${noconfigdirs} target-newlib target-libgloss"
+      ;;
+    sh*-*-pe|mips*-*-pe|*arm-wince-pe)
++     noconfigdirs="${noconfigdirs} tcl tk itcl libgui sim"
+      ;;
+    arc-*-*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    arm-*-pe*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    arm-*-riscix*)
++     noconfigdirs="${noconfigdirs} ld target-libgloss"
+      ;;
+    c4x-*-* | tic4x-*-*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    tic54x-*-*)
++     noconfigdirs="${noconfigdirs} target-libgloss gdb"
+      ;;
+    cr16-*-*)
++     noconfigdirs="${noconfigdirs} gdb"
+      ;;
+    d10v-*-*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    d30v-*-*)
++     noconfigdirs="${noconfigdirs} gdb"
+      ;;
+    fr30-*-elf*)
++     noconfigdirs="${noconfigdirs} gdb"
+      ;;
+    moxie-*-*)
++     noconfigdirs="${noconfigdirs} gprof"
+      ;;
+    h8300*-*-*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    h8500-*-*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    hppa1.1-*-osf* | hppa1.1-*-bsd* )
+      ;;
+***************
+*** 1004,1029 ****
+    hppa*64*-*-*)
+      ;;
+    hppa*-hp-hpux11*)
+-     noconfigdirs="$noconfigdirs ld"
+      ;;
+    hppa*-*-pro*)
+      ;;
+    hppa*-*-*)
+-     noconfigdirs="$noconfigdirs ld"
+      ;;
+    i960-*-*)
+-     noconfigdirs="$noconfigdirs gdb"
+      ;;
+    ia64*-*-elf*)
+      # No gdb support yet.
+-     noconfigdirs="$noconfigdirs readline libgui itcl gdb"
+      ;;
+    ia64*-**-hpux*)
+      # No ld support yet.
+-     noconfigdirs="$noconfigdirs libgui itcl ld"
+      ;;
+    ia64*-*-*vms*)
+-     noconfigdirs="$noconfigdirs libgui itcl"
+      ;;
+    i[[3456789]]86-w64-mingw*)
+      ;;
+--- 1017,1042 ----
+    hppa*64*-*-*)
+      ;;
+    hppa*-hp-hpux11*)
++     noconfigdirs="${noconfigdirs} ld"
+      ;;
+    hppa*-*-pro*)
+      ;;
+    hppa*-*-*)
++     noconfigdirs="${noconfigdirs} ld"
+      ;;
+    i960-*-*)
++     noconfigdirs="${noconfigdirs} gdb"
+      ;;
+    ia64*-*-elf*)
+      # No gdb support yet.
++     noconfigdirs="${noconfigdirs} readline libgui itcl gdb"
+      ;;
+    ia64*-**-hpux*)
+      # No ld support yet.
++     noconfigdirs="${noconfigdirs} libgui itcl ld"
+      ;;
+    ia64*-*-*vms*)
++     noconfigdirs="${noconfigdirs} libgui itcl"
+      ;;
+    i[[3456789]]86-w64-mingw*)
+      ;;
+***************
+*** 1032,1131 ****
+      ;;
+    *-*-cygwin*)
+      target_configdirs="$target_configdirs target-libtermcap target-winsup"
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      # always build newlib if winsup directory is present.
+      if test -d "$srcdir/winsup/cygwin"; then
+        skipdirs=`echo " ${skipdirs} " | sed -e 's/ target-newlib / /'`
+      elif test -d "$srcdir/newlib"; then
+-       echo "Warning: winsup/cygwin is missing so newlib can't be built."
+      fi
+      ;;
+    i[[3456789]]86-*-pe)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    i[[3456789]]86-*-sco3.2v5*)
+      # The linker does not yet know about weak symbols in COFF,
+      # and is not configured to handle mixed ELF and COFF.
+-     noconfigdirs="$noconfigdirs ld target-libgloss"
+      ;;
+    i[[3456789]]86-*-sco*)
+-     noconfigdirs="$noconfigdirs gprof target-libgloss"
+      ;;
+    i[[3456789]]86-*-solaris2* | x86_64-*-solaris2.1[[0-9]]*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    i[[3456789]]86-*-sysv4*)
+-     noconfigdirs="$noconfigdirs target-libgloss"
+      ;;
+    i[[3456789]]86-*-beos*)
+-     noconfigdirs="$noconfigdirs gdb"
+      ;;
+    i[[3456789]]86-*-rdos*)
+-     noconfigdirs="$noconfigdirs gdb"
+      ;;
+    mmix-*-*)
+-     noconfigdirs="$noconfigdirs gdb"
+      ;;
+    mt-*-*)
+-     noconfigdirs="$noconfigdirs sim"
+      ;;
+    powerpc-*-aix*)
+      # copied from rs6000-*-* entry
+-     noconfigdirs="$noconfigdirs gprof"
+      ;;
+    powerpc*-*-winnt* | powerpc*-*-pe*)
+-     target_configdirs="$target_configdirs target-winsup"
+-     noconfigdirs="$noconfigdirs gdb tcl tk target-libgloss itcl"
+      # always build newlib.
+      skipdirs=`echo " ${skipdirs} " | sed -e 's/ target-newlib / /'`
+      ;;
+      # This is temporary until we can link against shared libraries
+    powerpcle-*-solaris*)
+-     noconfigdirs="$noconfigdirs gdb sim tcl tk itcl"
+      ;;
+    powerpc-*-beos*)
+-     noconfigdirs="$noconfigdirs gdb"
+      ;;
+    rs6000-*-lynxos*)
+-     noconfigdirs="$noconfigdirs gprof"
+      ;;
+    rs6000-*-aix*)
+-     noconfigdirs="$noconfigdirs gprof"
+      ;;
+    rs6000-*-*)
+-     noconfigdirs="$noconfigdirs gprof"
+      ;;
+    m68k-apollo-*)
+-     noconfigdirs="$noconfigdirs ld binutils gprof target-libgloss"
+      ;;
+    microblaze*)
+-     noconfigdirs="$noconfigdirs gprof"
+      ;;
+    mips*-sde-elf*)
+      if test x$with_newlib = xyes; then
+-       noconfigdirs="$noconfigdirs gprof"
+      fi
+      ;;
+    mips*-*-irix5*)
+-     noconfigdirs="$noconfigdirs gprof target-libgloss"
+      ;;
+    mips*-*-irix6*)
+-     noconfigdirs="$noconfigdirs gprof target-libgloss"
+      ;;
+    mips*-*-bsd*)
+-     noconfigdirs="$noconfigdirs gprof target-libgloss"
+      ;;
+    mips*-*-linux*)
+      ;;
+    mips*-*-*)
+-     noconfigdirs="$noconfigdirs gprof"
+      ;;
+    sh-*-* | sh64-*-*)
+      case "${target}" in
+        sh*-*-elf)
+           ;;
+        *)
+-          noconfigdirs="$noconfigdirs target-libgloss" ;;
+      esac
+      ;;
+    sparc-*-sunos4*)
+--- 1045,1144 ----
+      ;;
+    *-*-cygwin*)
+      target_configdirs="$target_configdirs target-libtermcap target-winsup"
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      # always build newlib if winsup directory is present.
+      if test -d "$srcdir/winsup/cygwin"; then
+        skipdirs=`echo " ${skipdirs} " | sed -e 's/ target-newlib / /'`
+      elif test -d "$srcdir/newlib"; then
++       echo "Warning: winsup/cygwin is missing so newlib cannot be built."
+      fi
+      ;;
+    i[[3456789]]86-*-pe)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    i[[3456789]]86-*-sco3.2v5*)
+      # The linker does not yet know about weak symbols in COFF,
+      # and is not configured to handle mixed ELF and COFF.
++     noconfigdirs="${noconfigdirs} ld target-libgloss"
+      ;;
+    i[[3456789]]86-*-sco*)
++     noconfigdirs="${noconfigdirs} gprof target-libgloss"
+      ;;
+    i[[3456789]]86-*-solaris2* | x86_64-*-solaris2.1[[0-9]]*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    i[[3456789]]86-*-sysv4*)
++     noconfigdirs="${noconfigdirs} target-libgloss"
+      ;;
+    i[[3456789]]86-*-beos*)
++     noconfigdirs="${noconfigdirs} gdb"
+      ;;
+    i[[3456789]]86-*-rdos*)
++     noconfigdirs="${noconfigdirs} gdb"
+      ;;
+    mmix-*-*)
++     noconfigdirs="${noconfigdirs} gdb"
+      ;;
+    mt-*-*)
++     noconfigdirs="${noconfigdirs} sim"
+      ;;
+    powerpc-*-aix*)
+      # copied from rs6000-*-* entry
++     noconfigdirs="${noconfigdirs} gprof"
+      ;;
+    powerpc*-*-winnt* | powerpc*-*-pe*)
++     target_configdirs="${target_configdirs} target-winsup"
++     noconfigdirs="${noconfigdirs} gdb tcl tk target-libgloss itcl"
+      # always build newlib.
+      skipdirs=`echo " ${skipdirs} " | sed -e 's/ target-newlib / /'`
+      ;;
+      # This is temporary until we can link against shared libraries
+    powerpcle-*-solaris*)
++     noconfigdirs="${noconfigdirs} gdb sim tcl tk itcl"
+      ;;
+    powerpc-*-beos*)
++     noconfigdirs="${noconfigdirs} gdb"
+      ;;
+    rs6000-*-lynxos*)
++     noconfigdirs="${noconfigdirs} gprof"
+      ;;
+    rs6000-*-aix*)
++     noconfigdirs="${noconfigdirs} gprof"
+      ;;
+    rs6000-*-*)
++     noconfigdirs="${noconfigdirs} gprof"
+      ;;
+    m68k-apollo-*)
++     noconfigdirs="${noconfigdirs} ld binutils gprof target-libgloss"
+      ;;
+    microblaze*)
++     noconfigdirs="${noconfigdirs} gprof"
+      ;;
+    mips*-sde-elf*)
+      if test x$with_newlib = xyes; then
++       noconfigdirs="${noconfigdirs} gprof"
+      fi
+      ;;
+    mips*-*-irix5*)
++     noconfigdirs="${noconfigdirs} gprof target-libgloss"
+      ;;
+    mips*-*-irix6*)
++     noconfigdirs="${noconfigdirs} gprof target-libgloss"
+      ;;
+    mips*-*-bsd*)
++     noconfigdirs="${noconfigdirs} gprof target-libgloss"
+      ;;
+    mips*-*-linux*)
+      ;;
+    mips*-*-*)
++     noconfigdirs="${noconfigdirs} gprof"
+      ;;
+    sh-*-* | sh64-*-*)
+      case "${target}" in
+        sh*-*-elf)
+           ;;
+        *)
++          noconfigdirs="${noconfigdirs} target-libgloss" ;;
+      esac
+      ;;
+    sparc-*-sunos4*)
+***************
+*** 1317,1336 ****
+  esac
+  
+  # See if we are building gcc with C++.
+- AC_ARG_ENABLE(build-with-cxx,
+  [AS_HELP_STRING([--enable-build-with-cxx],
+  		[build with C++ compiler instead of C compiler])],
+- ENABLE_BUILD_WITH_CXX=$enableval,
+- ENABLE_BUILD_WITH_CXX=no)
+  
+  # Build stage1 with C and build stages 2 and 3 with C++.
+- AC_ARG_ENABLE(build-poststage1-with-cxx,
+  [AS_HELP_STRING([--enable-build-poststage1-with-cxx],
+  		[build stages 2 and 3 with C++, not C])],
+- ENABLE_BUILD_POSTSTAGE1_WITH_CXX=$enableval,
+- ENABLE_BUILD_POSTSTAGE1_WITH_CXX=yes)
+  
+- # Used for setting $lt_cv_objdir
+  _LT_CHECK_OBJDIR
+  
+  # Check for GMP, MPFR and MPC
+--- 1330,1349 ----
+  esac
+  
+  # See if we are building gcc with C++.
++ AC_ARG_ENABLE([build-with-cxx],
+  [AS_HELP_STRING([--enable-build-with-cxx],
+  		[build with C++ compiler instead of C compiler])],
++ [ENABLE_BUILD_WITH_CXX=${enableval}],
++ [ENABLE_BUILD_WITH_CXX=no])
+  
+  # Build stage1 with C and build stages 2 and 3 with C++.
++ AC_ARG_ENABLE([build-poststage1-with-cxx],
+  [AS_HELP_STRING([--enable-build-poststage1-with-cxx],
+  		[build stages 2 and 3 with C++, not C])],
++ [ENABLE_BUILD_POSTSTAGE1_WITH_CXX=${enableval}],
++ [ENABLE_BUILD_POSTSTAGE1_WITH_CXX=yes])
+  
++ # Used for setting ${lt_cv_objdir}
+  _LT_CHECK_OBJDIR
+  
+  # Check for GMP, MPFR and MPC
+***************
+*** 1452,1512 ****
+    CFLAGS="$CFLAGS $gmpinc"
+    # Check for the recommended and required versions of GMP.
+    AC_MSG_CHECKING([for the correct version of gmp.h])
+-   AC_TRY_COMPILE([#include "gmp.h"],[
+    #define GCC_GMP_VERSION_NUM(a,b,c) (((a) << 16L) | ((b) << 8) | (c))
+    #define GCC_GMP_VERSION GCC_GMP_VERSION_NUM(__GNU_MP_VERSION,__GNU_MP_VERSION_MINOR,__GNU_MP_VERSION_PATCHLEVEL)
+    #if GCC_GMP_VERSION < GCC_GMP_VERSION_NUM(4,2,0)
+    choke me
+    #endif
+-   ], [AC_TRY_COMPILE([#include <gmp.h>],[
+    #define GCC_GMP_VERSION_NUM(a,b,c) (((a) << 16L) | ((b) << 8) | (c))
+    #define GCC_GMP_VERSION GCC_GMP_VERSION_NUM(__GNU_MP_VERSION,__GNU_MP_VERSION_MINOR,__GNU_MP_VERSION_PATCHLEVEL)
+    #if GCC_GMP_VERSION < GCC_GMP_VERSION_NUM(4,3,2)
+    choke me
+    #endif
+-   ], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([buggy but acceptable])])],
+-    [AC_MSG_RESULT([no]); have_gmp=no])
+  
+    # If we have GMP, check the MPFR version.
+    if test x"$have_gmp" = xyes; then
+      # Check for the recommended and required versions of MPFR.
+      AC_MSG_CHECKING([for the correct version of mpfr.h])
+-     AC_TRY_COMPILE([#include <gmp.h>
+-     #include <mpfr.h>],[
+      #if MPFR_VERSION < MPFR_VERSION_NUM(2,3,1)
+      choke me
+      #endif
+-     ], [AC_TRY_COMPILE([#include <gmp.h>
+-     #include <mpfr.h>],[
+      #if MPFR_VERSION < MPFR_VERSION_NUM(2,4,2)
+      choke me
+      #endif
+-     ], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([buggy but acceptable])])],
+-      [AC_MSG_RESULT([no]); have_gmp=no])
+    fi
+  
+    # Check for the MPC header version.
+-   if test x"$have_gmp" = xyes ; then
+      # Check for the recommended and required versions of MPC.
+      AC_MSG_CHECKING([for the correct version of mpc.h])
+-     AC_TRY_COMPILE([#include <mpc.h>],[
+      #if MPC_VERSION < MPC_VERSION_NUM(0,8,0)
+      choke me
+      #endif
+-     ], [AC_TRY_COMPILE([#include <mpc.h>],[
+      #if MPC_VERSION < MPC_VERSION_NUM(0,8,1)
+      choke me
+      #endif
+-     ], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([buggy but acceptable])])],
+-      [AC_MSG_RESULT([no]); have_gmp=no])
+    fi
+  
+    # Now check the MPFR library.
+-   if test x"$have_gmp" = xyes; then
+      saved_LIBS="$LIBS"
+      LIBS="$LIBS $gmplibs"
+      AC_MSG_CHECKING([for the correct version of the gmp/mpfr/mpc libraries])
+-     AC_TRY_LINK([#include <mpc.h>],[
+      mpfr_t n;
+      mpfr_t x;
+      mpc_t c;
+--- 1465,1522 ----
+    CFLAGS="$CFLAGS $gmpinc"
+    # Check for the recommended and required versions of GMP.
+    AC_MSG_CHECKING([for the correct version of gmp.h])
++   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "gmp.h"]], [[
+    #define GCC_GMP_VERSION_NUM(a,b,c) (((a) << 16L) | ((b) << 8) | (c))
+    #define GCC_GMP_VERSION GCC_GMP_VERSION_NUM(__GNU_MP_VERSION,__GNU_MP_VERSION_MINOR,__GNU_MP_VERSION_PATCHLEVEL)
+    #if GCC_GMP_VERSION < GCC_GMP_VERSION_NUM(4,2,0)
+    choke me
+    #endif
++   ]])],[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <gmp.h>]],[[
+    #define GCC_GMP_VERSION_NUM(a,b,c) (((a) << 16L) | ((b) << 8) | (c))
+    #define GCC_GMP_VERSION GCC_GMP_VERSION_NUM(__GNU_MP_VERSION,__GNU_MP_VERSION_MINOR,__GNU_MP_VERSION_PATCHLEVEL)
+    #if GCC_GMP_VERSION < GCC_GMP_VERSION_NUM(4,3,2)
+    choke me
+    #endif
++   ]])],[AC_MSG_RESULT([yes])],[AC_MSG_RESULT([buggy but acceptable])])],[AC_MSG_RESULT([no]); have_gmp=no])
+  
+    # If we have GMP, check the MPFR version.
+    if test x"$have_gmp" = xyes; then
+      # Check for the recommended and required versions of MPFR.
+      AC_MSG_CHECKING([for the correct version of mpfr.h])
++     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <gmp.h>
++     #include <mpfr.h>]],[[
+      #if MPFR_VERSION < MPFR_VERSION_NUM(2,3,1)
+      choke me
+      #endif
++     ]])],[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <gmp.h>
++     #include <mpfr.h>]],[[
+      #if MPFR_VERSION < MPFR_VERSION_NUM(2,4,2)
+      choke me
+      #endif
++     ]])],[AC_MSG_RESULT([yes])],[AC_MSG_RESULT([buggy but acceptable])])],[AC_MSG_RESULT([no]); have_gmp=no])
+    fi
+  
+    # Check for the MPC header version.
++   if test "x${have_gmp}" = xyes ; then
+      # Check for the recommended and required versions of MPC.
+      AC_MSG_CHECKING([for the correct version of mpc.h])
++     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <mpc.h>]],[[
+      #if MPC_VERSION < MPC_VERSION_NUM(0,8,0)
+      choke me
+      #endif
++     ]])],[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <mpc.h>]],[[
+      #if MPC_VERSION < MPC_VERSION_NUM(0,8,1)
+      choke me
+      #endif
++     ]])],[AC_MSG_RESULT([yes])],[AC_MSG_RESULT([buggy but acceptable])])],[AC_MSG_RESULT([no]); have_gmp=no])
+    fi
+  
+    # Now check the MPFR library.
++   if test "x${have_gmp}" = xyes; then
+      saved_LIBS="$LIBS"
+      LIBS="$LIBS $gmplibs"
+      AC_MSG_CHECKING([for the correct version of the gmp/mpfr/mpc libraries])
++     AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <mpc.h>]],[[
+      mpfr_t n;
+      mpfr_t x;
+      mpc_t c;
+***************
+*** 1533,1539 ****
+  
+  # The library versions listed in the error message below should match
+  # the HARD-minimums enforced above.
+-   if test x$have_gmp != xyes; then
+      AC_MSG_ERROR([Building GCC requires GMP 4.2+, MPFR 2.3.1+ and MPC 0.8.0+.
+  Try the --with-gmp, --with-mpfr and/or --with-mpc options to specify
+  their locations.  Source code for these libraries can be found at
+--- 1543,1549 ----
+  
+  # The library versions listed in the error message below should match
+  # the HARD-minimums enforced above.
++   if test x${have_gmp} != xyes; then
+      AC_MSG_ERROR([Building GCC requires GMP 4.2+, MPFR 2.3.1+ and MPC 0.8.0+.
+  Try the --with-gmp, --with-mpfr and/or --with-mpc options to specify
+  their locations.  Source code for these libraries can be found at
+***************
+*** 1547,1560 ****
+  fi
+  
+  # Flags needed for both GMP, MPFR and/or MPC.
+- AC_SUBST(gmplibs)
+- AC_SUBST(gmpinc)
+- AC_SUBST(extra_mpfr_configure_flags)
+- AC_SUBST(extra_mpc_gmp_configure_flags)
+- AC_SUBST(extra_mpc_mpfr_configure_flags)
+  
+  # Allow host libstdc++ to be specified for static linking with PPL.
+- AC_ARG_WITH(host-libstdcxx,
+  [AS_HELP_STRING([--with-host-libstdcxx=L],
+  		[use linker arguments L to link with libstdc++
+  		 when linking with PPL])])
+--- 1557,1570 ----
+  fi
+  
+  # Flags needed for both GMP, MPFR and/or MPC.
++ AC_SUBST([gmplibs])
++ AC_SUBST([gmpinc])
++ AC_SUBST([extra_mpfr_configure_flags])
++ AC_SUBST([extra_mpc_gmp_configure_flags])
++ AC_SUBST([extra_mpc_mpfr_configure_flags])
+  
+  # Allow host libstdc++ to be specified for static linking with PPL.
++ AC_ARG_WITH([host-libstdcxx],
+  [AS_HELP_STRING([--with-host-libstdcxx=L],
+  		[use linker arguments L to link with libstdc++
+  		 when linking with PPL])])
+***************
+*** 1566,1572 ****
+  esac
+  
+  # Linker flags to use for stage1 or when not boostrapping.
+- AC_ARG_WITH(stage1-ldflags,
+  [AS_HELP_STRING([--with-stage1-ldflags=FLAGS], [linker flags for stage1])],
+  [if test "$withval" = "no" -o "$withval" = "yes"; then
+     stage1_ldflags=
+--- 1576,1582 ----
+  esac
+  
+  # Linker flags to use for stage1 or when not boostrapping.
++ AC_ARG_WITH([stage1-ldflags],
+  [AS_HELP_STRING([--with-stage1-ldflags=FLAGS], [linker flags for stage1])],
+  [if test "$withval" = "no" -o "$withval" = "yes"; then
+     stage1_ldflags=
+***************
+*** 1574,1612 ****
+     stage1_ldflags=$withval
+   fi],
+  [stage1_ldflags=])
+- AC_SUBST(stage1_ldflags)
+  
+  # Libraries to use for stage1 or when not bootstrapping.
+- AC_ARG_WITH(stage1-libs,
+- [AS_HELP_STRING([--with-stage1-libs=LIBS], [libraries for stage1])],
+  [if test "$withval" = "no" -o "$withval" = "yes"; then
+     stage1_libs=
+   else
+-    stage1_libs=$withval
+   fi],
+- [stage1_libs=$with_host_libstdcxx])
+  AC_SUBST(stage1_libs)
+  
+- # Libraries to use for stage2 and later builds.  This defaults to the
+  # argument passed to --with-host-libstdcxx.
+- AC_ARG_WITH(boot-libs,
+- [AS_HELP_STRING([--with-boot-libs=LIBS], [libraries for stage2 and later])],
+  [if test "$withval" = "no" -o "$withval" = "yes"; then
+     poststage1_libs=
+   else
+-    poststage1_libs=$withval
+   fi],
+- [poststage1_libs=$with_host_libstdcxx])
+- AC_SUBST(poststage1_libs)
+  
+  # Linker flags to use for stage2 and later builds.
+- AC_ARG_WITH(boot-ldflags,
+  [AS_HELP_STRING([--with-boot-ldflags=FLAGS],
+  		[linker flags for stage2 and later])],
+  [if test "$withval" = "no" -o "$withval" = "yes"; then
+     poststage1_ldflags=
+   else
+-    poststage1_ldflags=$withval
+   fi],
+  [poststage1_ldflags=
+   # In stages 2 and 3, default to linking libstdc++ and libgcc
+--- 1584,1622 ----
+     stage1_ldflags=$withval
+   fi],
+  [stage1_ldflags=])
++ AC_SUBST([stage1_ldflags])
+  
+  # Libraries to use for stage1 or when not bootstrapping.
++ AC_ARG_WITH([stage1-libs],
++ [AS_HELP_STRING([--with-stage1-libs=LIBS],[libraries for stage1])],
+  [if test "$withval" = "no" -o "$withval" = "yes"; then
+     stage1_libs=
+   else
++    stage1_libs=${withval}
+   fi],
++ [stage1_libs=${with_host_libstdcxx}])
+  AC_SUBST(stage1_libs)
+  
++ # Libraries to use for stage2 and later builds. This defaults to the
+  # argument passed to --with-host-libstdcxx.
++ AC_ARG_WITH([boot-libs],
++ [AS_HELP_STRING([--with-boot-libs=LIBS],[libraries for stage2 and later])],
+  [if test "$withval" = "no" -o "$withval" = "yes"; then
+     poststage1_libs=
+   else
++    poststage1_libs=${withval}
+   fi],
++ [poststage1_libs=${with_host_libstdcxx}])
++ AC_SUBST([poststage1_libs])
+  
+  # Linker flags to use for stage2 and later builds.
++ AC_ARG_WITH([boot-ldflags],
+  [AS_HELP_STRING([--with-boot-ldflags=FLAGS],
+  		[linker flags for stage2 and later])],
+  [if test "$withval" = "no" -o "$withval" = "yes"; then
+     poststage1_ldflags=
+   else
++    poststage1_ldflags=${withval}
+   fi],
+  [poststage1_ldflags=
+   # In stages 2 and 3, default to linking libstdc++ and libgcc
+***************
+*** 1615,1644 ****
+   if test "$poststage1_libs" = ""; then
+     poststage1_ldflags="-static-libstdc++ -static-libgcc"
+   fi])
+- AC_SUBST(poststage1_ldflags)
+  
+  # Check for PPL
+  ppllibs=
+  pplinc=
+  pwllib=
+  
+- AC_ARG_WITH(ppl,
+  [AS_HELP_STRING([--with-ppl=PATH],
+  		[specify prefix directory for the installed PPL package.
+  		 Equivalent to --with-ppl-include=PATH/include
+  		 plus --with-ppl-lib=PATH/lib])])
+- AC_ARG_WITH(ppl-include,
+  [AS_HELP_STRING([--with-ppl-include=PATH],
+  		[specify directory for installed PPL include files])])
+- AC_ARG_WITH(ppl-lib,
+  [AS_HELP_STRING([--with-ppl-lib=PATH],
+  		[specify directory for the installed PPL library])])
+  
+- AC_ARG_ENABLE(ppl-version-check,
+  [AS_HELP_STRING([--disable-ppl-version-check],
+  		[disable check for PPL version])])
+  
+- case $with_ppl in
+    yes | no | "")
+      ;;
+    *)
+--- 1625,1654 ----
+   if test "$poststage1_libs" = ""; then
+     poststage1_ldflags="-static-libstdc++ -static-libgcc"
+   fi])
++ AC_SUBST([poststage1_ldflags])
+  
+  # Check for PPL
+  ppllibs=
+  pplinc=
+  pwllib=
+  
++ AC_ARG_WITH([ppl],
+  [AS_HELP_STRING([--with-ppl=PATH],
+  		[specify prefix directory for the installed PPL package.
+  		 Equivalent to --with-ppl-include=PATH/include
+  		 plus --with-ppl-lib=PATH/lib])])
++ AC_ARG_WITH([ppl-include],
+  [AS_HELP_STRING([--with-ppl-include=PATH],
+  		[specify directory for installed PPL include files])])
++ AC_ARG_WITH([ppl-lib],
+  [AS_HELP_STRING([--with-ppl-lib=PATH],
+  		[specify directory for the installed PPL library])])
+  
++ AC_ARG_ENABLE([ppl-version-check],
+  [AS_HELP_STRING([--disable-ppl-version-check],
+  		[disable check for PPL version])])
+  
++ case ${with_ppl} in
+    yes | no | "")
+      ;;
+    *)
+***************
+*** 1652,1658 ****
+      ;;
+  esac
+  
+- if test x"$with_ppl_include" != x; then
+    pplinc="-I$with_ppl_include $pplinc"
+    with_ppl=yes
+  fi
+--- 1662,1668 ----
+      ;;
+  esac
+  
++ if test "x${with_ppl_include}" != x; then
+    pplinc="-I$with_ppl_include $pplinc"
+    with_ppl=yes
+  fi
+***************
+*** 1662,1669 ****
+    with_ppl=yes
+  fi
+  
+- if test x"$with_ppl$with_ppl_include$with_ppl_lib" = x && test -d ${srcdir}/ppl; then
+-   if test x"$enable_watchdog" = xyes; then
+      pwllib="-lpwl"
+    fi
+    ppllibs='-L$$r/$(HOST_SUBDIR)/ppl/interfaces/C/'"$lt_cv_objdir"' -L$$r/$(HOST_SUBDIR)/ppl/src/'"$lt_cv_objdir"
+--- 1672,1679 ----
+    with_ppl=yes
+  fi
+  
++ if test "x${with_ppl}${with_ppl_include}${with_ppl_lib}" = x && test -d ${srcdir}/ppl; then
++   if test "x${enable_watchdog}" = xyes; then
+      pwllib="-lpwl"
+    fi
+    ppllibs='-L$$r/$(HOST_SUBDIR)/ppl/interfaces/C/'"$lt_cv_objdir"' -L$$r/$(HOST_SUBDIR)/ppl/src/'"$lt_cv_objdir"
+***************
+*** 1676,1682 ****
+    if test "x$pwllib" = x; then
+      saved_LIBS="$LIBS"
+      LIBS="$LIBS $ppllibs -lstdc++ -lm"
+-     AC_CHECK_LIB(pwl, PWL_handle_timeout, [pwllib="-lpwl"])
+      LIBS="$saved_LIBS"
+    fi
+  
+--- 1686,1692 ----
+    if test "x$pwllib" = x; then
+      saved_LIBS="$LIBS"
+      LIBS="$LIBS $ppllibs -lstdc++ -lm"
++     AC_CHECK_LIB([pwl],[PWL_handle_timeout],[pwllib="-lpwl"])
+      LIBS="$saved_LIBS"
+    fi
+  
+***************
+*** 1686,1715 ****
+      saved_CFLAGS="$CFLAGS"
+      CFLAGS="$CFLAGS $pplinc $gmpinc"
+      AC_MSG_CHECKING([for version 0.11 (revision 0 or later) of PPL])
+-     AC_TRY_COMPILE([#include "ppl_c.h"],[
+      #if PPL_VERSION_MAJOR != 0 || PPL_VERSION_MINOR < 11
+      choke me
+      #endif
+-     ], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no]); ppllibs= ; pplinc= ; with_ppl=no ])
+      CFLAGS="$saved_CFLAGS"
+    fi
+  fi
+  
+  # Flags needed for PPL
+- AC_SUBST(ppllibs)
+- AC_SUBST(pplinc)
+  
+  
+  # Check for CLOOG
+  
+- dnl Provide configure switches and initialize clooginc & clooglibs
+- dnl with user input.
+  CLOOG_INIT_FLAGS
+  if test "x$with_ppl" = "xno"; then
+-   dnl Only execute fail-action, if CLooG has been requested.
+-   CLOOG_REQUESTED([graphite_requested=yes], [graphite_requested=no])
+    if test "${graphite_requested}" = yes; then
+-     AC_MSG_ERROR([Unable to find a usable PPL.  See config.log for details.])
+    fi
+    with_cloog=no
+  fi
+--- 1696,1725 ----
+      saved_CFLAGS="$CFLAGS"
+      CFLAGS="$CFLAGS $pplinc $gmpinc"
+      AC_MSG_CHECKING([for version 0.11 (revision 0 or later) of PPL])
++     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "ppl_c.h"]], [[
+      #if PPL_VERSION_MAJOR != 0 || PPL_VERSION_MINOR < 11
+      choke me
+      #endif
++     ]])],[AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no]); ppllibs= ; pplinc= ; with_ppl=no ])
+      CFLAGS="$saved_CFLAGS"
+    fi
+  fi
+  
+  # Flags needed for PPL
++ AC_SUBST([ppllibs])
++ AC_SUBST([pplinc])
+  
+  
+  # Check for CLOOG
+  
++ dnl# Provide configure switches and initialize clooginc & clooglibs
++ dnl# with user input.
+  CLOOG_INIT_FLAGS
+  if test "x$with_ppl" = "xno"; then
++   dnl# Only execute fail-action, if CLooG has been requested.
++   CLOOG_REQUESTED([graphite_requested=yes],[graphite_requested=no])
+    if test "${graphite_requested}" = yes; then
++     AC_MSG_ERROR([Unable to find a usable PPL. See config.log for details.])
+    fi
+    with_cloog=no
+  fi
+***************
+*** 1718,1744 ****
+    clooglibs='-L$$r/$(HOST_SUBDIR)/cloog/'"$lt_cv_objdir"' '
+    clooginc='-I$$r/$(HOST_SUBDIR)/cloog/include -I$$s/cloog/include '
+  fi
+- if test "x$with_cloog" != "xno"; then
+-   dnl The minimal version of CLooG required for Graphite.
+-   dnl
+-   dnl If we use CLooG-Legacy, the provided version information is
+-   dnl ignored.
+    CLOOG_CHECK_VERSION(0,16,1)
+  
+-   dnl Only execute fail-action, if CLooG has been requested.
+    CLOOG_IF_FAILED([
+      AC_MSG_ERROR([Unable to find a usable CLooG.  See config.log for details.])])
+  fi
+  
+  # Check for LTO support.
+- AC_ARG_ENABLE(lto,
+  [AS_HELP_STRING([--enable-lto], [enable link time optimization support])],
+  enable_lto=$enableval,
+  enable_lto=yes; default_enable_lto=yes)
+  
+  ACX_ELF_TARGET_IFELSE([# ELF platforms build the lto-plugin always.
+    build_lto_plugin=yes
+- ],[if test x"$default_enable_lto" = x"yes" ; then
+      case $target in
+        *-apple-darwin9* | *-cygwin* | *-mingw*) ;;
+        # On other non-ELF platforms, LTO has yet to be validated.
+--- 1728,1754 ----
+    clooglibs='-L$$r/$(HOST_SUBDIR)/cloog/'"$lt_cv_objdir"' '
+    clooginc='-I$$r/$(HOST_SUBDIR)/cloog/include -I$$s/cloog/include '
+  fi
++ if test "x${with_cloog}" != "xno"; then
++   dnl# The minimal version of CLooG required for Graphite.
++   dnl#
++   dnl# If we use CLooG-Legacy, the provided version information is
++   dnl# ignored.
+    CLOOG_CHECK_VERSION(0,16,1)
+  
++   dnl# Only execute fail-action, if CLooG has been requested.
+    CLOOG_IF_FAILED([
+      AC_MSG_ERROR([Unable to find a usable CLooG.  See config.log for details.])])
+  fi
+  
+  # Check for LTO support.
++ AC_ARG_ENABLE([lto],
+  [AS_HELP_STRING([--enable-lto], [enable link time optimization support])],
+  enable_lto=$enableval,
+  enable_lto=yes; default_enable_lto=yes)
+  
+  ACX_ELF_TARGET_IFELSE([# ELF platforms build the lto-plugin always.
+    build_lto_plugin=yes
++ ],[if test "x${default_enable_lto}" = x"yes" ; then
+      case $target in
+        *-apple-darwin9* | *-cygwin* | *-mingw*) ;;
+        # On other non-ELF platforms, LTO has yet to be validated.
+***************
+*** 2049,2065 ****
+    *)
+      # Otherwise remove target-boehm-gc depending on target-libjava.
+      if echo " ${noconfigdirs} " | grep "target-libjava" >/dev/null 2>&1; then
+-       noconfigdirs="$noconfigdirs target-boehm-gc"
+      fi
+      ;;
+  esac
+  
+- # Remove the entries in $skipdirs and $noconfigdirs from $configdirs,
+  # $build_configdirs and $target_configdirs.
+- # If we have the source for $noconfigdirs entries, add them to $notsupp.
+  
+  notsupp=""
+- for dir in . $skipdirs $noconfigdirs ; do
+    dirname=`echo $dir | sed -e s/target-//g -e s/build-//g`
+    if test $dir != .  && echo " ${configdirs} " | grep " ${dir} " >/dev/null 2>&1; then
+      configdirs=`echo " ${configdirs} " | sed -e "s/ ${dir} / /"`
+--- 2059,2075 ----
+    *)
+      # Otherwise remove target-boehm-gc depending on target-libjava.
+      if echo " ${noconfigdirs} " | grep "target-libjava" >/dev/null 2>&1; then
++       noconfigdirs="${noconfigdirs} target-boehm-gc"
+      fi
+      ;;
+  esac
+  
++ # Remove the entries in $skipdirs and ${noconfigdirs} from $configdirs,
+  # $build_configdirs and $target_configdirs.
++ # If we have the source for ${noconfigdirs} entries, add them to $notsupp.
+  
+  notsupp=""
++ for dir in . $skipdirs ${noconfigdirs} ; do
+    dirname=`echo $dir | sed -e s/target-//g -e s/build-//g`
+    if test $dir != .  && echo " ${configdirs} " | grep " ${dir} " >/dev/null 2>&1; then
+      configdirs=`echo " ${configdirs} " | sed -e "s/ ${dir} / /"`
+***************
+*** 2268,2279 ****
+  # have requested that this magic not happen.
+  #
+  # The command line options always override the explicit settings in
+- # configure.in, and the settings in configure.in override this magic.
+  #
+- # If the default for a toolchain is to use GNU as and ld, and you don't
+  # want to do that, then you should use the --without-gnu-as and
+- # --without-gnu-ld options for the configure script.  Similarly, if
+- # the default is to use the included zlib and you don't want to do that,
+  # you should use the --with-system-zlib option for the configure script.
+  
+  if test x${use_gnu_as} = x &&
+--- 2278,2289 ----
+  # have requested that this magic not happen.
+  #
+  # The command line options always override the explicit settings in
++ # configure.ac, and the settings in configure.ac override this magic.
+  #
++ # If the default for a toolchain is to use GNU as and ld, and you do NOT
+  # want to do that, then you should use the --without-gnu-as and
++ # --without-gnu-ld options for the configure script. Similarly, if
++ # the default is to use the included zlib and you do NOT want to do that,
+  # you should use the --with-system-zlib option for the configure script.
+  
+  if test x${use_gnu_as} = x &&
+***************
+*** 2372,2379 ****
+      ;;
+    *-*-aix4.[[3456789]]* | *-*-aix[[56789]].*)
+      # nm and ar from AIX 4.3 and above require -X32_64 flag to all ar and nm
+-     # commands to handle both 32-bit and 64-bit objects.  These flags are
+-     # harmless if we're using GNU nm or ar.
+      extra_arflags_for_target=" -X32_64"
+      extra_nmflags_for_target=" -B -X32_64"
+      ;;
+--- 2382,2389 ----
+      ;;
+    *-*-aix4.[[3456789]]* | *-*-aix[[56789]].*)
+      # nm and ar from AIX 4.3 and above require -X32_64 flag to all ar and nm
++     # commands to handle both 32-bit and 64-bit objects. These flags are
++     # harmless if we are using GNU nm or ar.
+      extra_arflags_for_target=" -X32_64"
+      extra_nmflags_for_target=" -B -X32_64"
+      ;;
+***************
+*** 2753,2763 ****
+  
+      case $lib in
+      mpc | mpfr | gmp | ppl | cloog)
+-       # If we're processing --with-$lib, --with-$lib-include or
+        # --with-$lib-lib, for one of the libs above, and target is
+-       # different from host, don't pass the current argument to any
+        # target library's configure.
+-       if test x$is_cross_compiler = xyes; then
+          skip_targ=yes
+        fi
+        ;;
+--- 2763,2773 ----
+  
+      case $lib in
+      mpc | mpfr | gmp | ppl | cloog)
++       # If we are processing --with-$lib, --with-$lib-include or
+        # --with-$lib-lib, for one of the libs above, and target is
++       # different from host, do NOT pass the current argument to any
+        # target library's configure.
++       if test x${is_cross_compiler} = xyes; then
+          skip_targ=yes
+        fi
+        ;;
+***************
+*** 3276,3290 ****
+    # Pass -fkeep-inline-functions for stage 1 if the GCC version supports it.
+    CFLAGS="$CFLAGS -fkeep-inline-functions"
+    AC_MSG_CHECKING([whether -fkeep-inline-functions is supported])
+-   AC_TRY_COMPILE([
+  #if (__GNUC__ < 3) \
+      || (__GNUC__ == 3 && (__GNUC_MINOR__ < 3 \
+  			  || (__GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ < 1)))
+  #error http://gcc.gnu.org/PR29382
+  #endif
+-     ],,
+-     [AC_MSG_RESULT([yes]); stage1_cflags="$stage1_cflags -fkeep-inline-functions"],
+-     [AC_MSG_RESULT([no])])
+  
+    CFLAGS="$saved_CFLAGS"
+  fi
+--- 3310,3322 ----
+    # Pass -fkeep-inline-functions for stage 1 if the GCC version supports it.
+    CFLAGS="$CFLAGS -fkeep-inline-functions"
+    AC_MSG_CHECKING([whether -fkeep-inline-functions is supported])
++   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+  #if (__GNUC__ < 3) \
+      || (__GNUC__ == 3 && (__GNUC_MINOR__ < 3 \
+  			  || (__GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ < 1)))
+  #error http://gcc.gnu.org/PR29382
+  #endif
++     ]], [[]])],[AC_MSG_RESULT([yes]); stage1_cflags="$stage1_cflags -fkeep-inline-functions"],[AC_MSG_RESULT([no])])
+  
+    CFLAGS="$saved_CFLAGS"
+  fi

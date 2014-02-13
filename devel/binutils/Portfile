@@ -4,9 +4,7 @@
 PortSystem             1.0
 
 name                   binutils
-version                2.23.2
-# TODO: update to 2.24
-revision               3
+version                2.24
 description            FSF Binutils for native development.
 long_description       Free Software Foundation development toolchain \
                        ("binutils") for native development. Tools are \
@@ -22,11 +20,11 @@ master_sites           gnu:${name}
 
 use_bzip2              yes
 
-checksums              sha1    042c51073205ebaf88c272d6168f9deb71984b56 \
-                       rmd160  9788e2a8c4a7c74360919347c3bc72040e87b898 \
-                       sha256  fe914e56fed7a9ec2eb45274b1f2e14b0d8b4f41906a5194eac6883cfe5c1097
+checksums              sha1    7ac75404ddb3c4910c7594b51ddfc76d4693debb \
+                       rmd160  b4aa3ea5ba9d0d9f817b2cf136e7f911f692af8d \
+                       sha256  e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137
 
-patchfiles-append      patch-configure.ac.diff
+#TODO: get patch for configure.ac to apply again
 
 depends_build-append   port:intltool \
                        bin:makeinfo:texinfo \
@@ -100,6 +98,7 @@ configure.env-append   SED=${prefix}/bin/gsed \
                        GMSGFMT=${prefix}/bin/msgfmt \
                        XGETTEXT=${prefix}/bin/xgettext \
                        MSGMERGE=${prefix}/bin/msgmerge \
+                       MAKEINFO="${worksrcpath}/missing makeinfo" \
                        INSTALLED_PRODUCT_ASIDES=YES \
                        RC_JASPER=YES \
                        RC_NONARCH_CFLAGS="${configure.optflags}" \
@@ -152,22 +151,14 @@ post-extract {
 pre-patch {
     # For some reason autoreconf-ing fails to install this:
     # (be sure to update the version number if automake is ever updated)
-    xinstall -m 755 -W ${prefix}/share/automake-1.14 missing ${worksrcpath}
+    if {![file exists ${worksrcpath}/missing]} {
+        xinstall -W ${prefix}/share/automake-1.14 missing ${worksrcpath}
+    }
     system -W ${worksrcpath} "${prefix}/bin/autoscan264 >/dev/null"
     system -W ${worksrcpath} "${prefix}/bin/aclocal-17 -I config"
 }
 
-use_autoreconf         yes
-autoreconf.cmd         ${prefix}/bin/autoreconf264
-autoreconf.args        -fvi -Wall -Wno-obsolete
-autoreconf.env-append  AUTOCONF=${prefix}/bin/autoconf264 \
-                       AUTOHEADER=${prefix}/bin/autoheader264 \
-                       AUTOM4TE=${prefix}/bin/autom4te264 \
-                       AUTORECONF=${prefix}/bin/autoreconf264 \
-                       AUTOSCAN=${prefix}/bin/autoscan264 \
-                       AUTOUPDATE=${prefix}/bin/autoupdate264 \
-                       IFNAMES=${prefix}/bin/ifnames264 \
-                       ACLOCAL_AMFLAGS="-I./config --install"
+#TODO: get autoreconf-ing to work again
 
 pre-configure {
     system -W ${prefix} "echo \"ppl `ppl-config -V` is installed with: `${prefix}/bin/ppl-config -O`\""
