@@ -12,7 +12,7 @@ maintainers	         gwmail.gwu.edu:egall openmaintainer
 description	         ${name} Argument Analyser
 license                  GPL-2+
 long_description         ${name} simplifies the life of the programmer: \
-                         you don't have to worry about the arguments \
+                         you do NOT have to worry about the arguments \
                          given to it! A short text written in GAA \
                          language generates C-code which analyses \
                          the arguments and creates your program's help.
@@ -24,7 +24,8 @@ git.url 	         git://github.com/cooljeanius/${name}.git
 
 depends_build-append     port:bison \
                          port:flex \
-                         port:gmake
+                         port:gmake \
+                         bin:makeinfo:texinfo
 
 depends_lib-append       port:yydecode
 depends_lib-delete       port:gobject-introspection

@@ -5,17 +5,16 @@ PortSystem          1.0
 
 name                megatools
 version             1.9.91
-revision            1
+revision            2
 categories          net fuse
 license             GPL-2+
-installs_libs       no
 platforms           darwin
 maintainers         nomaintainer
 description         Command line client application for Mega.
 long_description    Megatools is a collection of programs for accessing \
                     Mega service from the command line on your desktop \
-                    or server. Includes a filesystem for Mega known as \
-                    megafs.
+                    or server. Includes a FUSE filesystem for Mega known \
+                    as megafs.
 
 homepage            http://${name}.megous.com/
 master_sites        http://${name}.megous.com/builds/
@@ -33,33 +32,25 @@ depends_build-append \
                     port:gmake
 
 depends_lib-append  path:lib/pkgconfig/glib-2.0.pc:glib2 \
-                    port:libffi \
-                    port:db46 \
-                    port:libtool \
                     port:gobject-introspection \
                     port:curl \
-                    port:c-ares \
-                    port:libidn \
                     port:gettext \
                     port:libiconv \
-                    port:libssh2 \
-                    port:openldap \
-                    port:cyrus-sasl2 \
-                    port:libcomerr \
-                    port:zlib \
                     port:openssl \
-                    port:libfetch \
                     port:fuse4x
 
-# This is only temporary until I fix my problems with fuse4x
-universal_variant   no
-
-depends_run-append  port:glib-networking
+depends_run-append  port:glib-networking \
+                    port:gjs
 
 configure.args-append \
                     --disable-silent-rules \
-                    --disable-glibtest
-configure.env-append \
-                    PKG_CONFIG=${prefix}/bin/pkg-config
+                    --disable-glibtest \
+                    --enable-introspection=yes
+# Other flags:
+# "--enable-warnings" cannot be used because of the following error:
+# cc1: error: unrecognized command line option "-Wno-unused-local-typedefs"
+#
+
+configure.pkg_config ${prefix}/bin/pkg-config
 
 build.type          gnu

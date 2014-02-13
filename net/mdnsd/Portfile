@@ -3,10 +3,8 @@
 
 PortSystem      1.0
 PortGroup       github 1.0
-PortGroup       compiler_blacklist_versions 1.0
 
-github.setup    cooljeanius mdnsd 0.7J v
-revision        2
+github.setup    cooljeanius mdnsd 0.8.0 v
 categories      net
 maintainers     gwmail.gwu.edu:egall openmaintainer
 description     embeddable Multicast DNS Daemon
@@ -20,28 +18,30 @@ long_description    \
     fully on the .local network just by including a few files and \
     calling a few functions.
 
-fetch.type      git
-git.url         git://github.com/cooljeanius/mdnsd.git
+checksums       rmd160  e15b83112386169ec2675f62a4e776b0497552b9 \
+                sha256  e4c81ffdb85843634de6ffc1651bc7c8ab61abc7d6a28a85d0b0e9a07743c5fd
 
-# code is old, fails with clang but not older versions of gcc
-compiler.blacklist-append *clang* *gcc-4.8
+configure.args-append --includedir=${prefix}/include/${name}
+
+# Testsuite is just a stub so far, but it does exist:
+test.run        yes
+test.target     check
 
 variant autoreconf description {Regenerates configure script before building.} {
     depends_build-append port:gawk \
                          port:grep
     use_autoreconf       yes
-    autoreconf.args      -fvi
-    configure.args-append --disable-silent-rules
+    autoreconf.args      -fvi -Wall
 }
 
 post-destroot {
-    file mkdir ${destroot}${prefix}/bin
+    if {![file exists ${destroot}${prefix}/bin]} {
+        xinstall -d ${destroot}${prefix}/bin
+    }
     if {![file exists ${destroot}${prefix}/bin/mhttp]} {
         xinstall -m 755 ${worksrcpath}/mhttp ${destroot}${prefix}/bin
     }
     if {![file exists ${destroot}${prefix}/bin/mquery]} {
         xinstall -m 755 ${worksrcpath}/mquery ${destroot}${prefix}/bin
     }
-    xinstall -d ${destroot}${prefix}/include/mdnsd
-    eval xinstall [glob ${worksrcpath}/*.h] ${destroot}${prefix}/include/mdnsd
 }

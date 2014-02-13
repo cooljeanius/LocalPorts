@@ -6,7 +6,7 @@ PortSystem             1.0
 name                   binutils
 version                2.23.2
 # TODO: update to 2.24
-revision               1
+revision               3
 description            FSF Binutils for native development.
 long_description       Free Software Foundation development toolchain \
                        ("binutils") for native development. Tools are \
@@ -29,9 +29,10 @@ checksums              sha1    042c51073205ebaf88c272d6168f9deb71984b56 \
 patchfiles-append      patch-configure.ac.diff
 
 depends_build-append   port:intltool \
-                       path:bin/makeinfo:texinfo \
+                       bin:makeinfo:texinfo \
                        port:autoconf264 \
                        port:automake17 \
+                       port:automake \
                        port:flex \
                        port:byacc \
                        port:bison \
@@ -43,20 +44,17 @@ depends_build-append   port:intltool \
                        port:gmake \
                        port:gsed \
                        port:gawk \
-                       port:libtool
+                       port:libtool \
+                       bin:unifdef:developer_cmds
 
 depends_skip_archcheck-append autoconf264
 
 depends_lib-append     port:zlib \
-                       port:libiconv \
                        port:gettext \
                        port:cloog \
-                       port:polylib \
                        port:ppl \
                        port:gmp \
-                       port:gmp-ecm \
                        path:lib/pkgconfig/bdw-gc.pc:boehmgc \
-                       path:lib/libgcc/libgcc_s.1.dylib:libgcc \
                        port:libmpc \
                        port:mpfr \
                        port:isl
@@ -83,7 +81,6 @@ configure.args-append  --infodir='${prefix}/share/info' \
                        --enable-windmc=yes \
                        --enable-bfd=yes \
                        --enable-gas=yes \
-                       --enable-elfcpp=yes \
                        --enable-gprof=yes \
                        --disable-ppl-version-check \
                        --disable-cloog-version-check \
@@ -96,22 +93,24 @@ configure.args-append  --infodir='${prefix}/share/info' \
                        --with-zlib \
                        --enable-libquadmath \
                        --enable-libquadmath-support \
-                       --enable-64-bit-bfd
+                       --disable-64-bit-bfd
 
 configure.env-append   SED=${prefix}/bin/gsed \
                        MSGFMT=${prefix}/bin/msgfmt \
                        GMSGFMT=${prefix}/bin/msgfmt \
                        XGETTEXT=${prefix}/bin/xgettext \
                        MSGMERGE=${prefix}/bin/msgmerge \
-                       MAKEINFO=${prefix}/bin/makeinfo \
                        INSTALLED_PRODUCT_ASIDES=YES \
                        RC_JASPER=YES \
                        RC_NONARCH_CFLAGS="${configure.optflags}" \
                        RC_XBS=YES \
                        SEPARATE_STRIP=YES \
                        UNAME_RELEASE="${os.version}" \
-                       HOST_ARCHITECTURE="${configure.build_arch}"
+                       HOST_ARCHITECTURE="${configure.build_arch}" \
+                       AUTOCONF=${prefix}/bin/autoconf264
 
+# A lot of these variables are taken from work with apple-gdb, which
+# is a similar source tree
 platform darwin {
     configure.env-append \
                        RC_PRIVATE=/private \
@@ -131,8 +130,10 @@ if {[variant_isset universal]} {
                        RC_ARCHS="${configure.build_arch}"
 }
 
+# Defining BFD64 to 0 and BFD_ARCH_SIZE to 32 are hacks to try to fix
+# compilation of binutils/readelf.c
 configure.cppflags-append \
-                       -I${prefix}/include
+                       "-I${prefix}/include -DBFD64=0 -DBFD_ARCH_SIZE=32"
 
 configure.ldflags-append \
     -lgc \
@@ -141,8 +142,7 @@ configure.ldflags-append \
     -lisl \
     -lmpc \
     -lmpfr \
-    -lppl \
-    -L${prefix}/lib/libgcc
+    -lppl
 
 post-extract {
     ui_debug "This step has been moved to pre-patch instead."
@@ -150,6 +150,9 @@ post-extract {
 
 # ...
 pre-patch {
+    # For some reason autoreconf-ing fails to install this:
+    # (be sure to update the version number if automake is ever updated)
+    xinstall -m 755 -W ${prefix}/share/automake-1.14 missing ${worksrcpath}
     system -W ${worksrcpath} "${prefix}/bin/autoscan264 >/dev/null"
     system -W ${worksrcpath} "${prefix}/bin/aclocal-17 -I config"
 }
@@ -167,7 +170,7 @@ autoreconf.env-append  AUTOCONF=${prefix}/bin/autoconf264 \
                        ACLOCAL_AMFLAGS="-I./config --install"
 
 pre-configure {
-    system "echo \"ppl `ppl-config -V` is installed with: `${prefix}/bin/ppl-config -O`\""
+    system -W ${prefix} "echo \"ppl `ppl-config -V` is installed with: `${prefix}/bin/ppl-config -O`\""
 }
 
 post-configure {
@@ -178,6 +181,15 @@ post-configure {
                building ${name}, and then reactivate it later."
         ui_msg "Continuing building anyway for now though..."
     }
+    # Hack to work around readelf build failure:
+    eval reinplace "s|READELF_PROG\=readelf|READELF_PROG\=|g" [glob ${worksrcpath}/binutils/Makefile.*]
+    eval reinplace "s|READELF_PROG\\ \=\\ readelf|READELF_PROG\\ \=|g" [glob ${worksrcpath}/binutils/Makefile.*]
+    eval reinplace "s|READELF_PROG\\\ \=\\\ readelf|READELF_PROG\\\ \=|g" [glob ${worksrcpath}/binutils/Makefile.*]
+    eval reinplace "s|\\$\(READELF_PROG\)||g" [glob ${worksrcpath}/binutils/Makefile.*]
+    # Another attempt at that:
+    system -W ${worksrcpath}/binutils "unifdef -UBFD64 readelf.c > readelf_fixed.c 2>&1 || \[ $? -ne 2 \]"
+    file rename ${worksrcpath}/binutils/readelf.c ${worksrcpath}/binutils/readelf64.c
+    file rename ${worksrcpath}/binutils/readelf_fixed.c ${worksrcpath}/binutils/readelf.c
 }
 
 build.type             gnu
@@ -199,7 +211,13 @@ build.env-append       CPPFLAGS='-I${prefix}/include' \
                        RC_XBS=YES \
                        SEPARATE_STRIP=YES \
                        UNAME_RELEASE="${os.version}" \
-                       HOST_ARCHITECTURE="${build_arch}"
+                       HOST_ARCHITECTURE="${build_arch}" \
+                       AUTOCONF=${prefix}/bin/autoconf264 \
+                       AUTOHEADER=${prefix}/bin/autoheader264 \
+                       ACLOCAL=${prefix}/bin/aclocal-17 \
+                       READELF_PROG=""
+
+build.args-append      READELF_PROG=""
 
 platform darwin {
     build.env-append   RC_PRIVATE=/private \
@@ -211,11 +229,9 @@ platform macosx {
                        RC_TARGET_CONFIG=MacOSX
 }
 if {[variant_isset universal]} {
-    build.env-append \
-                       RC_ARCHS="${configure.universal_archs}"
+    build.env-append   RC_ARCHS="${configure.universal_archs}"
 } else {
-    build.env-append \
-                       RC_ARCHS="${build_arch}"
+    build.env-append   RC_ARCHS="${build_arch}"
 }
 
 post-build {
@@ -235,7 +251,6 @@ post-build {
                        --enable-windmc \
                        --enable-bfd \
                        --enable-gas \
-                       --enable-elfcpp \
                        --enable-gprof \
                        --disable-ppl-version-check \
                        --disable-cloog-version-check \
@@ -244,21 +259,33 @@ post-build {
                        --enable-stage1-checking \
                        --enable-libquadmath \
                        --enable-libquadmath-support
-    configure.args-append --disable-option-checking
+    configure.args-append \
+                       --disable-option-checking \
+                       --prefix=${prefix}
+    ui_debug "entering ${worksrcpath}/gprof and running ${configure.cmd} ${configure.args}"
     system -W ${worksrcpath}/gprof "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gprof/Makefile
+    ui_debug "entering ${worksrcpath}/gprof and running ${build.cmd} ${build.pre_args}"
     system -W ${worksrcpath}/gprof "${build.cmd} ${build.pre_args}"
+    ui_debug "entering ${worksrcpath}/gold and running ${configure.cmd} ${configure.args}"
     system -W ${worksrcpath}/gold "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gold/Makefile
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gold/po/Makefile
+    ui_debug "entering ${worksrcpath}/gold/po and running ${build.cmd} ${build.pre_args}"
     system -W ${worksrcpath}/gold/po "${build.cmd} ${build.pre_args}"
+    ui_debug "entering ${worksrcpath}/gas and running ${configure.cmd} ${configure.args}"
     system -W ${worksrcpath}/gas "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gas/Makefile
     if {[catch "registry_active gdb"]} {
-        system -W ${worksrcpath}/gas "${build.cmd} ${build.pre_args}"
+        ui_debug "entering ${worksrcpath}/gas/doc and running ${build.cmd} ${build.pre_args}"
+        system -W ${worksrcpath}/gas/doc "${build.cmd} ${build.pre_args}"
+        ui_debug "entering ${worksrcpath}/gas/po and running ${build.cmd} ${build.pre_args}"
+        system -W ${worksrcpath}/gas/po "${build.cmd} ${build.pre_args}"
     }
+    ui_debug "entering ${worksrcpath}/ld and running ${configure.cmd} ${configure.args}"
     system -W ${worksrcpath}/ld "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/ld/Makefile
+    ui_debug "entering ${worksrcpath}/ld and running ${build.cmd} ${build.pre_args}"
     system -W ${worksrcpath}/ld "${build.cmd} ${build.pre_args}"
 }
 
@@ -266,14 +293,19 @@ post-build {
 destroot.violate_mtree yes
 
 post-destroot {
-    destroot.destdir prefix=${destroot}${prefix}
+    ui_debug "entering ${worksrcpath}/gprof and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     system -W ${worksrcpath}/gprof "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     if {[catch "registry_active gdb"]} {
-        system -W ${worksrcpath}/gas "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+        ui_debug "entering ${worksrcpath}/gas/doc and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+        system -W ${worksrcpath}/gas/doc "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+        ui_debug "entering ${worksrcpath}/gas/po and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+        system -W ${worksrcpath}/gas/po "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     }
     platform x86_64 {
         ui_msg "Trying to generate ld scripts in ${worksrcpath}/ld..."
+        ui_debug "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} \"\" \"\" no \"\" ppcmacos ppcmacos 2>&1"
         system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} \"\" \"\" no \"\" ppcmacos ppcmacos 2>&1"
+        ui_debug "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} \"\" \"\" no \"\" i386mach i386mach 2>&1"
         system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} x86_64-apple-darwin${os.version} \"\" \"\" no \"\" i386mach i386mach 2>&1"
         foreach ldscript [glob ${worksrcpath}/ld/ldscripts/.*] {
             if [file isfile ${ldscript}] {
@@ -284,6 +316,7 @@ post-destroot {
     }
     platform powerpc {
         ui_msg "Trying to generate ld scripts in ${worksrcpath}/ld..."
+        ui_debug "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin ppc-apple-darwin${os.version} ppc-apple-darwin${os.version} ppc-apple-darwin${os.version} \"\" \"\" no \"\" ppcmacos ppcmacos 2>&1"
         system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin ppc-apple-darwin${os.version} ppc-apple-darwin${os.version} ppc-apple-darwin${os.version} \"\" \"\" no \"\" ppcmacos ppcmacos 2>&1"
         foreach ldscript [glob ${worksrcpath}/ld/ldscripts/.*] {
             if [file isfile ${ldscript}] {
@@ -294,6 +327,7 @@ post-destroot {
     }
     platform i386 {
         ui_msg "Trying to generate ld scripts in ${worksrcpath}/ld..."
+        ui_debug "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin i386-apple-darwin${os.version} i386-apple-darwin${os.version} i386-apple-darwin${os.version} \"\" \"\" no \"\" i386mach i386mach 2>&1"
         system -W ${worksrcpath}/ld "sh ./genscripts.sh . ${prefix}/lib ${prefix} ${prefix}/bin i386-apple-darwin${os.version} i386-apple-darwin${os.version} i386-apple-darwin${os.version} \"\" \"\" no \"\" i386mach i386mach 2>&1"
         foreach ldscript [glob ${worksrcpath}/ld/ldscripts/.*] {
             if [file isfile ${ldscript}] {
@@ -303,6 +337,7 @@ post-destroot {
         }
     }
     platform x86_64 {
+        ui_debug "entering ${worksrcpath}/ld and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         if {[file exists ${destroot}${prefix}/bin/ld]} {
             move ${destroot}${prefix}/bin/ld ${destroot}${prefix}/x86_64-apple-darwin${os.version}/bin
@@ -311,6 +346,7 @@ post-destroot {
         }
     }
     platform i386 {
+        ui_debug "entering ${worksrcpath}/ld and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         if {[file exists ${destroot}${prefix}/bin/ld]} {
             delete ${destroot}${prefix}/bin/ld
@@ -319,6 +355,7 @@ post-destroot {
         }
     }
     platform powerpc {
+        ui_debug "entering ${worksrcpath}/ld and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         if {[file exists ${destroot}${prefix}/bin/ld]} {
             delete ${destroot}${prefix}/bin/ld
@@ -326,9 +363,11 @@ post-destroot {
             delete ${destroot}${prefix}/bin/ld-new
         }
     }
-    file rename ${destroot}${prefix}/share/info/standards.info ${destroot}${prefix}/share/info/${name}-standards.info
-    file rename ${destroot}${prefix}/share/info/configure.info ${destroot}${prefix}/share/info/${name}-configure.info
-    file rename ${destroot}${prefix}/share/info/bfd.info ${destroot}${prefix}/share/info/${name}-bfd.info
+    foreach infofile {standards configure bfd as gprof ld} {
+        if [file exists ${destroot}${prefix}/share/info/${infofile}.info] {
+            file rename ${destroot}${prefix}/share/info/${infofile}.info ${destroot}${prefix}/share/info/${name}-${infofile}.info
+        }
+    }
     xinstall -d ${destroot}${prefix}/include/binutils
     foreach header [glob ${destroot}${prefix}/include/*] {
         if [file isfile ${header}] {
@@ -364,6 +403,16 @@ post-destroot {
     }
     platform x86_64 {
         xinstall -d ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
+    }
+    # use gnubin directory for un-prefixed executables, like as in
+    # coreutils and gmake and so on
+    xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
+    foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {
+        ln -s ${prefix}/bin/${binary} ${destroot}${prefix}/libexec/gnubin/[string range $binary 1 end]
+    }
+    xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin/man/man1
+    foreach manpage [glob -tails -directory ${destroot}${prefix}/share/man/man1 g*] {
+        ln -s ${prefix}/share/man/man1/${manpage}.gz ${destroot}${prefix}/libexec/gnubin/man/man1/[string range $manpage 1 end].gz
     }
 }
 
