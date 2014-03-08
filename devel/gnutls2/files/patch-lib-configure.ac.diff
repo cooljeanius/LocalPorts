@@ -1,120 +1,171 @@
 --- lib/configure.ac.orig	2012-04-22 12:05:34.000000000 -0400
-+++ lib/configure.ac	2013-03-25 05:15:44.000000000 -0400
-@@ -21,16 +21,29 @@
++++ lib/configure.ac	2014-03-06 20:35:47.000000000 -0500
+@@ -1,4 +1,5 @@
+-dnl Process this file with autoconf to produce a configure script.
++dnl#                                               -*- Autoconf -*-
++dnl# Process this file with autoconf to produce a configure script.
+ # Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+ # 2009, 2010 Free Software Foundation, Inc.
+ #
+@@ -21,124 +22,201 @@
  # Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  # MA 02110-1301, USA
  
 -AC_PREREQ(2.61)
-+AC_PREREQ([2.61])
- AC_INIT([libgnutls], [2.12.19], [bug-gnutls@gnu.org])
+-AC_INIT([libgnutls], [2.12.19], [bug-gnutls@gnu.org])
++AC_PREREQ([2.69])
++AC_INIT([libgnutls],[2.12.19],[bug-gnutls@gnu.org])
 +AC_CONFIG_SRCDIR([abstract_int.h])
  AC_CONFIG_AUX_DIR([build-aux])
  AC_CONFIG_MACRO_DIR([m4])
  
 -AM_INIT_AUTOMAKE([1.10 -Wall -Werror -Wno-override])
-+AM_INIT_AUTOMAKE([1.10 -Wall -Wno-override])
- m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 -AM_CONFIG_HEADER(config.h)
++AC_CANONICAL_TARGET
++AC_USE_SYSTEM_EXTENSIONS
+ 
+-AC_PROG_CC
++AM_INIT_AUTOMAKE([1.10 -Wall -Wno-override])
++m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 +AM_MAINTAINER_MODE
 +AC_CONFIG_HEADERS([config.h])
- 
-+AC_CANONICAL_HOST
-+AC_USE_SYSTEM_EXTENSIONS
 +
++# Checks for programs.
 +AM_PROG_AR
-+AC_PROG_AWK
- AC_PROG_CC
++AC_DEFUN([AC_LIB_DUPLICATED_CHECKS],[
++  AC_REQUIRE([AC_PROG_AWK])
++  AC_REQUIRE([AC_PROG_CC])
++  AC_REQUIRE([AC_PROG_MAKE_SET])
++  AC_REQUIRE([AC_PROG_RANLIB])
++  AC_REQUIRE([AC_TYPE_SIZE_T])
++  AC_REQUIRE([AC_FUNC_FSEEKO])
++  AC_REQUIRE([AC_FUNC_MBRTOWC])
++  AC_REQUIRE([AC_FUNC_MMAP])
++  m4_ifdef([AC_TYPE_SSIZE_T],[
++    test -z "${DEFINE_SSIZE_T}"
++    AC_REQUIRE([AC_TYPE_SSIZE_T])
++  ])
++])
++AC_LIB_DUPLICATED_CHECKS
 +AC_PROG_CPP
 +AC_PROG_INSTALL
 +AC_PROG_LN_S
-+AC_PROG_MAKE_SET
-+AC_PROG_RANLIB
 +PKG_PROG_PKG_CONFIG
  lgl_EARLY
  
- AC_LIBTOOL_WIN32_DLL
-@@ -43,44 +56,79 @@
+-AC_LIBTOOL_WIN32_DLL
+-AC_PROG_LIBTOOL
++AC_MSG_CHECKING([libtool things])
++AC_MSG_RESULT([ ])
++LT_INIT([win32-dll dlopen])
  
- AC_C_BIGENDIAN
++AC_MSG_NOTICE([doing libgnutls hook checks])
+ LIBGNUTLS_HOOKS
+ 
++AC_MSG_CHECKING([gettext things])
++AC_MSG_RESULT([ ])
+ AM_GNU_GETTEXT([external])
+-AM_GNU_GETTEXT_VERSION([0.17])
++AM_GNU_GETTEXT_VERSION([0.18.3])
  
 +# Checks for header files.
-+AC_FUNC_ALLOCA
-+AC_CHECK_HEADERS([OS.h fcntl.h float.h inttypes.h langinfo.h libintl.h limits.h locale.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h strings.h sys/ioctl.h sys/param.h sys/socket.h sys/time.h unistd.h wchar.h])
++AC_MSG_CHECKING([headers])
++AC_MSG_RESULT([ ])
++AC_HEADER_STDBOOL dnl# also "_CHECK"s it
++AC_CHECK_HEADERS([OS.h fcntl.h float.h langinfo.h libintl.h \
++                  limits.h locale.h malloc.h malloc/malloc.h netdb.h \
++                  stddef.h sys/ioctl.h sys/param.h sys/socket.h \
++                  sys/time.h wchar.h])
 +
 +# Checks for typedefs, structures, and compiler characteristics.
-+AC_CHECK_HEADER_STDBOOL
-+AC_TYPE_UID_T
++AC_MSG_CHECKING([C characteristics])
++AC_MSG_RESULT([ ])
+ AC_C_BIGENDIAN
 +AC_C_INLINE
++AC_C_RESTRICT
++AC_MSG_CHECKING([types])
++AC_MSG_RESULT([ ])
++AC_TYPE_INT8_T
 +AC_TYPE_INT16_T
 +AC_TYPE_INT32_T
 +AC_TYPE_INT64_T
-+AC_TYPE_INT8_T
 +AC_TYPE_MODE_T
-+AC_FUNC_OBSTACK
 +AC_TYPE_OFF_T
 +AC_TYPE_PID_T
-+AC_C_RESTRICT
-+AC_TYPE_SIZE_T
++AC_TYPE_UID_T
++AC_TYPE_UINT8_T
 +AC_TYPE_UINT16_T
 +AC_TYPE_UINT32_T
 +AC_TYPE_UINT64_T
-+AC_TYPE_UINT8_T
 +AC_CHECK_TYPES([ptrdiff_t])
 +
 +# Checks for library functions.
-+AM_GNU_GETTEXT
-+AC_FUNC_FSEEKO
++AC_MSG_CHECKING([functions])
++AC_MSG_RESULT([ ])
++AC_FUNC_ALLOCA
 +AC_FUNC_MALLOC
-+AC_FUNC_MBRTOWC
-+AC_FUNC_MMAP
++AC_FUNC_OBSTACK
 +AC_FUNC_REALLOC
-+AC_CHECK_FUNCS([getpagesize gettimeofday isascii localeconv localtime_r mblen mbrlen memchr memmove memset nl_langinfo setlocale socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoul strverscmp])
-+
++AC_CHECK_FUNCS([gettimeofday isascii localeconv localtime_r \
++                mblen mbrlen memchr memmove memset nl_langinfo setlocale \
++                socket strchr strdup strerror \
++                strrchr strstr strtol strtoul])
+ 
  # For includes/gnutls/gnutls.h.in.
 -AC_SUBST(MAJOR_VERSION, `echo $PACKAGE_VERSION | sed 's/\(.*\)\..*\..*/\1/g'`)
 -AC_SUBST(MINOR_VERSION, `echo $PACKAGE_VERSION | sed 's/.*\.\(.*\)\..*/\1/g'`)
 -AC_SUBST(PATCH_VERSION, `echo $PACKAGE_VERSION | sed 's/.*\..*\.\(.*\)/\1/g'`)
 -AC_SUBST(NUMBER_VERSION, `printf "0x%02x%02x%02x" $MAJOR_VERSION $MINOR_VERSION $PATCH_VERSION`)
 -AC_CHECK_TYPE(ssize_t,
-+AC_SUBST([MAJOR_VERSION], [`echo $PACKAGE_VERSION | sed 's/\(.*\)\..*\..*/\1/g'`])
-+AC_SUBST([MINOR_VERSION], [`echo $PACKAGE_VERSION | sed 's/.*\.\(.*\)\..*/\1/g'`])
-+AC_SUBST([PATCH_VERSION], [`echo $PACKAGE_VERSION | sed 's/.*\..*\.\(.*\)/\1/g'`])
-+AC_SUBST([NUMBER_VERSION], [`printf "0x%02x%02x%02x" $MAJOR_VERSION $MINOR_VERSION $PATCH_VERSION`])
-+AC_CHECK_TYPE([ssize_t],
-   [
+-  [
++AC_SUBST([MAJOR_VERSION],[`echo ${PACKAGE_VERSION} | sed 's/\(.*\)\..*\..*/\1/g'`])
++AC_SUBST([MINOR_VERSION],[`echo ${PACKAGE_VERSION} | sed 's/.*\.\(.*\)\..*/\1/g'`])
++AC_SUBST([PATCH_VERSION],[`echo ${PACKAGE_VERSION} | sed 's/.*\..*\.\(.*\)/\1/g'`])
++AC_SUBST([NUMBER_VERSION],[`printf "0x%02x%02x%02x" ${MAJOR_VERSION} ${MINOR_VERSION} ${PATCH_VERSION}`])
++unset ac_cv_type_ssize_t
++AC_CHECK_TYPE([ssize_t],[
      DEFINE_SSIZE_T="#include <sys/types.h>"
 -    AC_SUBST(DEFINE_SSIZE_T)
-+    AC_SUBST([DEFINE_SSIZE_T])
-   ], [
+-  ], [
 -    AC_DEFINE(NO_SSIZE_T, 1, [no ssize_t type was found])
-+    AC_DEFINE([NO_SSIZE_T], [1], [no ssize_t type was found])
++    AC_SUBST([DEFINE_SSIZE_T])
++],[
++    AC_DEFINE([NO_SSIZE_T],[1],[no ssize_t type was found])
      DEFINE_SSIZE_T="typedef int ssize_t;"
 -    AC_SUBST(DEFINE_SSIZE_T)
+-  ], [
 +    AC_SUBST([DEFINE_SSIZE_T])
-   ], [
++],[
      #include <sys/types.h>
-   ])
-+AC_TYPE_SSIZE_T
+-  ])
++])
  
  # For minitasn1.
 -AC_CHECK_SIZEOF(unsigned long int, 4)
 -AC_CHECK_SIZEOF(unsigned int, 4)
-+AC_CHECK_SIZEOF([unsigned long int], [4])
-+AC_CHECK_SIZEOF([unsigned int], [4])
- 
+-
 -AC_ARG_WITH(zlib, AS_HELP_STRING([--without-zlib],
 -                                 [disable zlib compression support]),
 -            ac_zlib=$withval, ac_zlib=yes)
-+AC_ARG_WITH([zlib], [AS_HELP_STRING([--without-zlib],
++AC_CHECK_SIZEOF([unsigned long int],[4])
++AC_CHECK_ALIGNOF([unsigned long int])
++AC_CHECK_SIZEOF([unsigned int],[4])
++AC_CHECK_ALIGNOF([unsigned int],[4])
++
++AC_ARG_WITH([zlib],[AS_HELP_STRING([--without-zlib],
 +                                 [disable zlib compression support])],
-+            [ac_zlib=$withval], [ac_zlib=yes])
++            [ac_zlib=${withval}],[ac_zlib=yes])
  AC_MSG_CHECKING([whether to include zlib compression support])
- if test x$ac_zlib != xno; then
+-if test x$ac_zlib != xno; then
 - AC_MSG_RESULT(yes)
-+ AC_MSG_RESULT([yes])
-  AC_LIB_HAVE_LINKFLAGS(z,, [#include <zlib.h>], [compress (0, 0, 0, 0);])
-  if test "$ac_cv_libz" != yes; then
+- AC_LIB_HAVE_LINKFLAGS(z,, [#include <zlib.h>], [compress (0, 0, 0, 0);])
+- if test "$ac_cv_libz" != yes; then
 -   AC_MSG_WARN(
++if test "x${ac_zlib}" != "xno"; then
++ AC_MSG_RESULT([yes])
++ AC_LIB_HAVE_LINKFLAGS([z],[],[#include <zlib.h>],[compress (0, 0, 0, 0);])
++ if test "x${ac_cv_libz}" != "xyes"; then
 +   AC_MSG_WARN([
  *** 
 -*** ZLIB was not found. You will not be able to use ZLIB compression.)
@@ -127,11 +178,20 @@
  fi
  
 -PKG_CHECK_EXISTS(zlib, ZLIB_HAS_PKGCONFIG=y, ZLIB_HAS_PKGCONFIG=n)
-+PKG_CHECK_EXISTS([zlib], [ZLIB_HAS_PKGCONFIG=y], [ZLIB_HAS_PKGCONFIG=n])
++PKG_CHECK_EXISTS([zlib],[ZLIB_HAS_PKGCONFIG=y],[ZLIB_HAS_PKGCONFIG=n])
  
- if test x$ac_zlib != xno; then
-   if test "$ZLIB_HAS_PKGCONFIG" = "y" ; then
-@@ -93,18 +141,18 @@
+-if test x$ac_zlib != xno; then
+-  if test "$ZLIB_HAS_PKGCONFIG" = "y" ; then
+-    if test "x$GNUTLS_REQUIRES_PRIVATE" = "x"; then
++if test "x${ac_zlib}" != "xno"; then
++  if test "x${ZLIB_HAS_PKGCONFIG}" = "xy" ; then
++    if test "x${GNUTLS_REQUIRES_PRIVATE}" = "x"; then
+       GNUTLS_REQUIRES_PRIVATE="Requires.private: zlib"
+     else
+-      GNUTLS_REQUIRES_PRIVATE="$GNUTLS_REQUIRES_PRIVATE , zlib"
++      GNUTLS_REQUIRES_PRIVATE="${GNUTLS_REQUIRES_PRIVATE} , zlib"
+     fi
+   else
      GNUTLS_ZLIB_LIBS_PRIVATE="$LTLIBZ"
    fi
  fi
@@ -140,39 +200,64 @@
 +AC_SUBST([GNUTLS_REQUIRES_PRIVATE])
 +AC_SUBST([GNUTLS_ZLIB_LIBS_PRIVATE])
  
- dnl Check for p11-kit
+-dnl Check for p11-kit
 -AC_ARG_WITH(p11-kit,
-+AC_ARG_WITH([p11-kit],
- 	AS_HELP_STRING([--without-p11-kit],
- 		[Build without p11-kit and PKCS#11 support]))
- AM_CONDITIONAL(ENABLE_PKCS11, test "$with_p11_kit" != "no")
- if test "$with_p11_kit" != "no"; then
+-	AS_HELP_STRING([--without-p11-kit],
+-		[Build without p11-kit and PKCS#11 support]))
+-AM_CONDITIONAL(ENABLE_PKCS11, test "$with_p11_kit" != "no")
+-if test "$with_p11_kit" != "no"; then
 -	PKG_CHECK_MODULES(P11_KIT, [p11-kit-1 >= 0.4], [with_p11_kit=yes], [with_p11_kit=no])
-+	PKG_CHECK_MODULES([P11_KIT], [p11-kit-1 >= 0.4], [with_p11_kit=yes], [with_p11_kit=no])
- 	if test "$with_p11_kit" != "no";then
+-	if test "$with_p11_kit" != "no";then
 -		AC_DEFINE([ENABLE_PKCS11], 1, [Build PKCS#11 support])
-+		AC_DEFINE([ENABLE_PKCS11], [1], [Build PKCS#11 support])
- 		CFLAGS="$CFLAGS $P11_KIT_CFLAGS"
- 		LIBS="$LIBS $P11_KIT_LIBS"
- 		if test "x$GNUTLS_REQUIRES_PRIVATE" = "x"; then
-@@ -117,28 +165,29 @@
+-		CFLAGS="$CFLAGS $P11_KIT_CFLAGS"
+-		LIBS="$LIBS $P11_KIT_LIBS"
+-		if test "x$GNUTLS_REQUIRES_PRIVATE" = "x"; then
+-			GNUTLS_REQUIRES_PRIVATE="Requires.private: p11-kit-1"
+-		else
+-		  	GNUTLS_REQUIRES_PRIVATE="${GNUTLS_REQUIRES_PRIVATE}, p11-kit-1"
+-		fi
+-	else
+-	        AC_MSG_WARN([[
++dnl# Check for p11-kit
++AC_ARG_WITH([p11-kit],
++	[AS_HELP_STRING([--without-p11-kit],
++		[Build without p11-kit and PKCS#11 support])])
++AM_CONDITIONAL([ENABLE_PKCS11],[test "x${with_p11_kit}" != "xno"])
++if test "x${with_p11_kit}" != "xno"; then
++    PKG_CHECK_MODULES([P11_KIT],[p11-kit-1 >= 0.4],[with_p11_kit=yes],[with_p11_kit=no])
++    if test "x${with_p11_kit}" != "xno";then
++        AC_DEFINE([ENABLE_PKCS11],[1],[Build PKCS#11 support])
++        CFLAGS="${CFLAGS} ${P11_KIT_CFLAGS}"
++        LIBS="${LIBS} ${P11_KIT_LIBS}"
++        if test "x${GNUTLS_REQUIRES_PRIVATE}" = "x"; then
++            GNUTLS_REQUIRES_PRIVATE="Requires.private: p11-kit-1"
++        else
++            GNUTLS_REQUIRES_PRIVATE="${GNUTLS_REQUIRES_PRIVATE}, p11-kit-1"
++        fi
++    else
++        AC_MSG_WARN([[
  *** 
  *** p11-kit was not found. PKCS #11 support will be disabled.
  *** You may get it from http://p11-glue.freedesktop.org/p11-kit.html
 -*** ]])
+-	fi
 +*** 
 +]])
- 	fi
++    fi
  fi
  
++AC_MSG_CHECKING([lgnulib things])
++AC_MSG_RESULT([ ])
  lgl_INIT
  
 -AC_CHECK_FUNCS(getrusage,,)
 -AC_LIB_HAVE_LINKFLAGS(pthread,, [#include <pthread.h>], [pthread_mutex_lock (0);])
++unset ac_cv_func_getrusage
 +AC_CHECK_FUNCS([getrusage],[],[])
-+AC_LIB_HAVE_LINKFLAGS([pthread],[], [#include <pthread.h>], [pthread_mutex_lock (0);])
++AC_LIB_HAVE_LINKFLAGS([pthread],[],[#include <pthread.h>],[pthread_mutex_lock (0);])
  
- LIBGNUTLS_LIBS="-L${libdir} -lgnutls $LIBS"
+-LIBGNUTLS_LIBS="-L${libdir} -lgnutls $LIBS"
++LIBGNUTLS_LIBS="-L${libdir} -lgnutls ${LIBS}"
  LIBGNUTLS_CFLAGS="-I${includedir}"
 -AC_SUBST(LIBGNUTLS_LIBS)
 -AC_SUBST(LIBGNUTLS_CFLAGS)
@@ -185,10 +270,10 @@
  AC_SUBST([WARN_CFLAGS])
  AC_PROG_CXX
 -AM_CONDITIONAL(ENABLE_CXX, test "$use_cxx" != "no")
-+AM_CONDITIONAL([ENABLE_CXX], [test "$use_cxx" != "no"])
++AM_CONDITIONAL([ENABLE_CXX],[test "x${use_cxx}" != "xno"])
  
 -AC_DEFINE([GNUTLS_INTERNAL_BUILD], 1, [We allow temporarily usage of deprecated functions - until they are removed.])
-+AC_DEFINE([GNUTLS_INTERNAL_BUILD], [1], [We allow temporarily usage of deprecated functions - until they are removed.])
++AC_DEFINE([GNUTLS_INTERNAL_BUILD],[1],[We allow temporarily usage of deprecated functions - until they are removed.])
  
  AC_CONFIG_FILES([
    Makefile

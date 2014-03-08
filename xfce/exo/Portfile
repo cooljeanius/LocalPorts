@@ -32,7 +32,7 @@ depends_build-append \
                 port:pkgconfig\
                 port:intltool
 depends_lib-append \
-                port:p5.12-uri \
+                port:p5.16-uri \
                 port:libxfce4util \
                 port:gtk2 \
                 port:atk \

@@ -6,7 +6,7 @@ PortGroup           active_variants 1.1
 
 name                libnotify
 version             0.7.6
-revision            0
+revision            1
 set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          devel gnome
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -34,24 +34,19 @@ depends_build-append \
                     port:automake \
                     port:libtool
 
-depends_lib-append  port:dbus-glib \
-                    port:gtk3 \
-                    port:libpng \
+depends_lib-append  port:gtk3 \
                     port:gobject-introspection \
                     port:gdk-pixbuf2 \
                     port:gettext \
-                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
-                    port:libffi \
-                    port:libiconv \
-                    port:zlib
+                    path:lib/pkgconfig/glib-2.0.pc:glib2
 
 configure.args-append \
                     --disable-silent-rules \
                     --disable-gtk-doc \
                     --disable-docbook-docs \
                     --enable-introspection=yes
-configure.env-append \
-                    PKG_CONFIG=${prefix}/bin/pkg-config
+
+configure.pkg_config ${prefix}/bin/pkg-config
 
 variant docs description {Build documentation} {
     depends_build-append \
@@ -60,10 +55,9 @@ variant docs description {Build documentation} {
                     path:bin/docbook2man:docbook2X \
                     path:share/xml/docbook/4.1.2/docbookx.dtd:docbook-xml
     configure.args-delete \
-                    --disable-gtk-doc \
                     --disable-docbook-docs
-    configure.args-append \
-                    --enable-gtk-doc
+    configure.args-replace \
+                    --disable-gtk-doc --enable-gtk-doc
     configure.env-append \
                     XMLTO=${prefix}/bin/xmlto
 }
@@ -71,10 +65,10 @@ variant docs description {Build documentation} {
 variant quartz conflicts x11 {
     require_active_variants gtk3 quartz x11
 }
+
 variant x11 conflicts quartz {
     require_active_variants gtk3 x11 quartz
     require_active_variants gdk-pixbuf2 x11 ""
-    depends_lib-append      port:xorg-libsm
 }
 
 if {![variant_isset quartz]} {
@@ -82,10 +76,10 @@ if {![variant_isset quartz]} {
 }
 
 pre-activate {
-	if {${os.major} == 11 && [lindex [split ${os.version} .] 1] < 2 && ${os.platform} == "darwin"} {
-		ui_error "You must first update to OS X 10.7.2."
-		return -code error "You must first update to OS X 10.7.2."
-	}
+    if {${os.major} == 11 && [lindex [split ${os.version} .] 1] < 2 && ${os.platform} == "darwin"} {
+        ui_error "You must first update to OS X 10.7.2."
+        return -code error "You must first update to OS X 10.7.2."
+    }
 }
 
 livecheck.type      gnome-with-unstable

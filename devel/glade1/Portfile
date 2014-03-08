@@ -6,7 +6,7 @@ PortSystem             1.0
 name                   glade1
 set real_name          glade
 version                1.1.3
-revision               0
+revision               1
 set branch             [join [lrange [split ${version} .] 0 1] .]
 license                GPL-2+
 
@@ -16,10 +16,12 @@ categories             devel gnome
 platforms              darwin
 maintainers            gwmail.gwu.edu:egall openmaintainer
 
-description            Glade is a RAD tool to enable quick & easy development of user interfaces \
-                       for the GTK+ toolkit and the GNOME desktop environment.
+description            Glade is a RAD tool to enable quick and easy \
+                       development of user interfaces for the GTK+ \
+                       toolkit and the GNOME desktop environment.
 
-long_description       ${description} This version is outdated and has been replaced by port 'glade2'.
+long_description       ${description} This version is outdated and has \
+                       been replaced by port 'glade2'.
 
 homepage               http://${real_name}.gnome.org/
 master_sites           gnome:sources/${real_name}/${branch}/
@@ -38,39 +40,50 @@ post-extract {
     reinplace "s|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|" ${worksrcpath}/configure.ac
 }
 
-use_autoreconf         yes
-autoreconf.args        -fvi
+use_autoconf           yes
 
 depends_build-append   port:gettext \
                        port:rarian \
-                       port:automake17 \
-                       port:autoconf263 \
                        port:intltool \
                        port:xdg-utils \
-                       port:desktop-file-utils
+                       port:desktop-file-utils \
+                       path:bin/xmkmf:imake
 
-depends_lib-append     port:gtk1 \
+depends_lib-append     port:gtk2 \
                        port:libxml2 \
-                       port:libgnome \
-                       port:libgnomeui \
-                       port:libgnomecanvas \
-                       port:libgnome-keyring \
-                       port:libbonobo \
-                       port:libbonoboui \
                        port:atk \
                        path:lib/pkgconfig/cairo.pc:cairo \
                        path:lib/pkgconfig/pango.pc:pango \
-                       port:gdk-pixbuf2 \
                        path:lib/pkgconfig/glib-2.0.pc:glib2 \
-                       path:lib/pkgconfig/pixman-1.pc:libpixman \
+                       port:gdk-pixbuf2 \
                        port:freetype \
-                       port:libpng \
-                       port:libart_lgpl \
-                       port:gconf \
-                       port:xorg-xproto \
-                       port:gnome-vfs \
-                       port:orbit2 \
-                       path:bin/dbus-send:dbus
+                       port:fontconfig \
+                       port:gettext \
+                       port:libiconv \
+                       port:xorg-libX11 \
+                       port:xorg-libXau \
+                       port:xorg-libXcomposite \
+                       port:xorg-libXcursor \
+                       port:xorg-libXdamage \
+                       port:xorg-libXdmcp \
+                       port:xorg-libXext \
+                       port:xorg-libXfixes \
+                       port:xorg-libXi \
+                       port:xorg-libXinerama \
+                       port:xorg-libXrandr \
+                       port:xorg-libice \
+                       port:xorg-libsm \
+                       port:xorg-libxcb \
+                       port:xrender
+
+configure.args-append  --with-x \
+                       --x-includes=${prefix}/include \
+                       --x-libraries=${prefix}/lib \
+                       --disable-gnome \
+                       --disable-gnome-db \
+                       --disable-debug
+
+configure.env-append   XMKMF=${prefix}/bin/xmkmf
 
 configure.ldflags-append  -L${prefix}/lib
 configure.cppflags-append -I${prefix}/include/gtk-1.2
@@ -78,13 +91,18 @@ configure.cppflags-delete -I/opt/local/include/gtk-2.0 \
                           -I/opt/local/lib/gtk-2.0/include
 
 pre-configure {
-    ui_msg "This port is outdated and has been replaced by port 'glade2'.  Please install that port instead."
+    ui_warn "This port is outdated and has been replaced by port 'glade2'.  Please install that port instead."
 }
 
 notes "
 Remember to set ACLOCAL_FLAGS=\"-I ${prefix}/share/glade-1\"
 "
 
-livecheck.type      regex
-livecheck.url       http://ftp.gnome.org/pub/gnome/sources/${real_name}/${branch}/
-livecheck.regex     {LATEST-IS-(\d+(?:\.\d+)*)}
+variant debug description {Enable debugging} {
+    configure.args-replace --disable-debug --enable-debug
+    configure.optflags -g
+}
+
+livecheck.type  regex
+livecheck.url   http://ftp.gnome.org/pub/gnome/sources/${real_name}/${branch}/
+livecheck.regex {LATEST-IS-(\d+(?:\.\d+)*)}

@@ -1,0 +1,49 @@
+# -*- Mode: Tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:et:sw=4:ts=4:sts=4
+# $Id: Portfile 112595 2013-10-27 19:07:29Z jmr@macports.org $
+
+PortSystem       1.0
+
+name             gvpe
+version          2.25
+revision         0
+categories       net
+license          {GPL-3+ OpenSSLException}
+maintainers      nomaintainer
+description      GNU Virtual Private Ethernet
+long_description \
+    GVPE creates a virtual ethernet (broadcasts supported, \
+    any protocol that works with a normal ethernet should \
+    work with GVPE) by creating encrypted host-to-host \
+    tunnels between multiple endpoints.
+homepage         http://savannah.gnu.org/projects/gvpe/
+platforms        darwin
+master_sites     gnu
+checksums        sha1    00e99772d0aea959da950307267edbce5445d31d \
+                 rmd160  7010f52e04fa047ef0b755b705c9f700d400774d \
+                 sha256  73c32d9a28fadd6aa531e0fed27c7a96bc0e5e9a5626ebf70368eaad3dbb51bf
+
+
+configure.args-append \
+                 --infodir=${prefix}/share/info \
+                 --mandir=${prefix}/share/man \
+                 --with-libiconv-prefix=${prefix} \
+                 --with-libintl-prefix=${prefix} \
+                 --with-openssl-include=${prefix}/include \
+                 --with-openssl-lib=${prefix}/lib \
+                 --enable-dns
+
+depends_lib-append \
+                 port:gettext \
+                 port:libiconv \
+                 port:openssl \
+                 port:zlib \
+                 port:gmp \
+                 port:libev
+
+# gcc-4.2's c++ headers lead to build errors about 'libintl_setlocale' not
+# being a member of 'std'...
+compiler.blacklist-append *gcc-4.2
+
+livecheck.type   regex
+livecheck.url    http://ftp.gnu.org/gnu/${name}/?C=M&O=D
+livecheck.regex  ${name}-(\\d+\\.\\d+)

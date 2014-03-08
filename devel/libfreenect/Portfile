@@ -19,8 +19,10 @@ long_description    ${description}. It is the main part of the \
 
 homepage            http://www.openkinect.org/
 
-checksums           rmd160  c7ea0bcb8095667f576665e96b920af9b7eb6eef \
-                    sha256  21c79f6eac989d09379f3903f71d007dd9c07388eeeaa17834e505fbf7a8ad8b
+checksums           rmd160  2e145a48062be4558d6a6e5adc93abd94e036178 \
+                    sha256  f561fd5a2350d4c7c65a392348f72879e7f2005a7a8dd86086fff19ff6d1ee7b
+#TODO: use stealth update recipe
+#dist_subdir         <something?>
 
 depends_build-append \
                     port:pkgconfig
@@ -111,6 +113,7 @@ variant debug description {Dummy variant} {
     use_parallel_build no
     configure.args-append \
                     --debug-output
+    configure.optflags -g
 }
 
 default_variants    +examples

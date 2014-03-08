@@ -70,6 +70,7 @@ configure.cppflags-append -I${prefix}/include/freetype2
 configure.env-append XMKMF=${prefix}/bin/xmkmf
 
 variant debug description {Enables debugging} {
+    configure.optflags -g
     configure.args-delete \
         --enable-release
     configure.args-append \

@@ -11,7 +11,8 @@ revision        2
 set tag         6dc468c41136
 platforms       darwin
 maintainers     nomaintainer
-description     Mozilla.org's popular stand-alone web browser, Beta and Release Candidates
+description     Mozilla.org's popular stand-alone web browser, \
+                Beta and Release Candidates
 
 long_description \
     Firefox empowers you to browse faster, more safely and more \
@@ -121,6 +122,7 @@ configure.cc ${configure.cc} -arch ${configure.build_arch}
 configure.cxx ${configure.cxx} -arch ${configure.build_arch}
 
 variant debug description {build with debugging symbols} {
+    configure.optflags      -g
     configure.args-delete   --disable-debug \
                             --disable-mochitest \
                             --enable-optimize='-O2' \
@@ -160,7 +162,7 @@ patchfiles patch-dylib_file.diff egrep.patch
 
 post-patch {
     # https://bugzilla.mozilla.org/show_bug.cgi?id=485857
-    reinplace "s:XP_MACOSX:__APPLE__:g" ${worksrcpath}/xpcom/base/nsStackWalk.cpp 
+    reinplace "s:XP_MACOSX:__APPLE__:g" ${worksrcpath}/xpcom/base/nsStackWalk.cpp
 
     # https://bugzilla.mozilla.org/show_bug.cgi?id=641755
     reinplace "s:XP_MACOSX:__APPLE__:g" ${worksrcpath}/gfx/ycbcr/update.sh
@@ -254,6 +256,7 @@ post-destroot   {
     move ${destroot}${prefix}/bin/${component} ${destroot}${prefix}/bin/${pkg_name}
 }
 
+# should really just disable...
 livecheck.type  regex
 livecheck.url   http://releases.mozilla.org/pub/mozilla.org/${component}/releases
 livecheck.regex ">(\\d+(?:\\.\\d+)*).<"

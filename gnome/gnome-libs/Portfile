@@ -1,0 +1,126 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 104946 2013-04-05 22:26:23Z devans@macports.org $
+
+PortSystem          1.0
+
+name                gnome-libs
+version             1.4.2
+set branch          [join [lrange [split ${version} .] 0 1] .]
+revision            3
+description         These are the GNOME libraries.
+long_description    These are the GNOME libraries, the foundation for \
+                    most of the application of the GNOME project.
+maintainers         nomaintainer
+categories          gnome
+license             {LGPL GPL-2+}
+platforms           darwin
+homepage            http://www.gnome.org/
+master_sites        gnome:sources/${name}/${branch}/
+use_bzip2           yes
+checksums           md5     6111e91b143a90afb30f7a8c1e6cbbd6 \
+                    sha1    359340f41fc038de9554c38af2cea99b71b1ef2a \
+                    rmd160  54717b79694ae94347bd36f20a005bdb7e19eec6
+
+depends_build-append \
+                    port:gnome-common \
+                    port:libtool \
+                    port:gawk \
+                    bin:makeinfo:texinfo \
+                    bin:perl:perl5 \
+                    bin:indent:developer_cmds \
+                    bin:convert:imagemagick \
+                    bin:autoconf:autoconf \
+                    bin:automake:automake
+
+depends_lib-append  port:oaf \
+                    port:gtk1 \
+                    port:libghttp \
+                    port:imlib \
+                    port:audiofile \
+                    port:esound \
+                    port:xpm \
+                    port:xorg-libsm \
+                    port:orbit \
+                    port:gettext \
+                    port:giflib \
+                    port:glib1 \
+                    port:jpeg \
+                    port:libpng \
+                    port:tiff \
+                    port:xorg-libX11 \
+                    port:xorg-libXext \
+                    port:xorg-libice \
+                    port:zlib
+
+# imlib is not universal
+universal_variant   no
+
+patchfiles-append   patch-configure.diff \
+                    patch-ltmain.sh.diff \
+                    patch-XmHTMLP.h.diff \
+                    patch-XmHTMLI.h.diff \
+                    patch-install.diff \
+                    patch-libart_lgpl_libart.m4.diff \
+                    patch-gnome-config.in.diff \
+                    patch-macros_autogen.sh.diff \
+                    patch-Makefile.in.diff
+patch.args-append   --backup
+
+configure.args      --mandir=${prefix}/share/man \
+                    --with-kde-datadir=${prefix}/share \
+                    --disable-gtk-doc \
+                    --disable-test-gnome \
+                    --disable-test-audiofile \
+                    --disable-debug \
+                    --with-x \
+                    --x-includes=${prefix}/include \
+                    --x-libraries=${prefix}/lib \
+                    --with-imlib-prefix=${prefix} \
+                    --with-esd-prefix=${prefix}
+
+configure.cppflags-append "-L${prefix}/lib"
+configure.cflags-append "-fstrict-aliasing -funroll-loops"
+
+post-configure {
+    reinplace "s|docdir = \$(prefix)/doc|docdir = \$(prefix)/share/doc/${name}|g" ${worksrcpath}/devel-docs/Makefile
+    reinplace "s|docdir = \$(datadir)/doc|docdir = \$(datadir)/doc/${name}|g" ${worksrcpath}/tools/gnome-doc/Makefile
+    reinplace "s|gtkrcdir = \$(datadir)|gtkrcdir = \$(datadir)/gtk-1.0|g" \
+              ${worksrcpath}/libgnomeui/Makefile
+    reinplace "s|idldir = \$(datadir)/idl|idldir = \$(datadir)/idl/${name}|g" ${worksrcpath}/idl/Makefile
+    reinplace "s|pixmapdir = \$(datadir)/pixmaps|pixmapdir = \$(datadir)/pixmaps/${name}|g" ${worksrcpath}/images/Makefile
+    reinplace "s|pixmapdir = \$(datadir)/pixmaps|pixmapdir = \$(datadir)/pixmaps/${name}|g" ${worksrcpath}/libgnomeui/pixmaps/Makefile
+    reinplace "s|gbpixmapdir = \$(datadir)/pixmaps|gbpixmapdir = \$(datadir)/pixmaps/${name}|g" ${worksrcpath}/libgnorba/Makefile
+    reinplace "s|HAVE_LIBPNG|HAVE_BAD_LIBPNG|g" ${worksrcpath}/config.h
+}
+
+add_users games group=games
+
+post-destroot {
+    foreach pixmap {error question default-dlg info warning} {
+        if {[file exists ${destroot}${prefix}/share/pixmaps/gnome-${pixmap}.png]} {
+            file rename ${destroot}${prefix}/share/pixmaps/gnome-${pixmap}.png ${destroot}${prefix}/share/pixmaps/gnome-${pixmap}-1.png
+        } else {
+            ui_debug "${destroot}${prefix}/share/pixmaps/gnome-${pixmap}.png does not exist, not renaming"
+        }
+    }
+}
+
+destroot.keepdirs ${destroot}${prefix}/var/games
+
+variant debug description {Enable debugging} {
+    configure.args-replace --disable-debug --enable-debug
+    configure.args-replace --disable-test-gnome --enable-test-gnome
+    configure.optflags -g
+    # Only 5 tests, and they all pass, so run them:
+    test.run yes
+    test.target check
+}
+
+variant docs description {Enable building of documentation} {
+    # This variant is currently broken
+    depends_build-append port:gtk-doc
+    depends_skip_archcheck-append gtk-doc
+    configure.args-replace --disable-gtk-doc --enable-gtk-doc
+}
+
+livecheck.type gnome

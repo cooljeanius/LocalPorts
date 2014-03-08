@@ -6,7 +6,7 @@ PortSystem      1.0
 name            gnutls2
 set my_name     gnutls
 version         2.12.19
-revision        1
+revision        2
 categories      devel security net
 # yes, some of the libs are GPL only
 license         LGPL-2.1+ GPL-3+
@@ -35,7 +35,7 @@ build.type      gnu
 depends_build-append \
                 port:pkgconfig \
                 port:gaa \
-                path:bin/ar:cctools
+                bin:ar:cctools
 
 depends_lib-append \
                 port:libgcrypt \
@@ -47,14 +47,16 @@ depends_lib-append \
                 port:zlib \
                 port:gettext \
                 port:libiconv \
-                port:libgpg-error
+                port:libgpg-error \
+                port:p11-kit
 
 configure.args  --with-lzo \
                 --with-libgcrypt \
                 --with-libgcrypt-prefix=${prefix} \
                 --disable-guile \
-                --without-p11-kit \
+                --with-p11-kit \
                 --disable-silent-rules \
+                --with-included-libcfg \
                 --with-libtasn1-prefix=${prefix} \
                 --with-libnettle-prefix=${prefix} \
                 --with-libpth-prefix=${prefix} \
@@ -73,8 +75,7 @@ configure.env-append \
 variant tests description {Run tests} {
     depends_build-append  path:bin/valgrind:valgrind \
                           path:bin/runtest:dejagnu
-    configure.args-delete --disable-valgrind-tests
-    configure.args-append --enable-valgrind-tests
+    configure.args-replace --disable-valgrind-tests --enable-valgrind-tests
     configure.ccache      no
     test.run              yes
     test.target           check
@@ -84,10 +85,9 @@ variant guile description {Adds guile support - currently broken} {
     depends_lib-append port:guile \
                        port:swig-guile \
                        port:slib-guile
-    configure.args-delete --disable-guile
-    configure.args-append --enable-guile
+    configure.args-replace --disable-guile --enable-guile
     pre-build {
-        ui_msg "Warning: This build will most likely fail."
+        ui_warn "Warning: This build will most likely fail."
     }
     use_parallel_build no
 }
@@ -102,19 +102,21 @@ variant autoreconf description {Runs autoreconf before configuring} {
     patchfiles-append       patch-configure.ac.diff \
                             patch-lib-configure.ac.diff \
                             patch-libextra-configure.ac.diff
+    patch.args-append       --backup
     use_autoreconf          yes
-    autoreconf.args         -fvi
+    autoreconf.args         -fvi -Wall -Wno-obsolete
     depends_build-append    port:gawk \
                             port:grep \
                             port:gsed \
                             port:gettext \
                             port:autobuild \
                             bin:perl:perl5
+    configure.args-append   --enable-gcc-warnings
     use_parallel_build      no
 }
 
-# conflict with universal is only removed because I patched the poppler
-# portfile in my local portfile repo
+# conflict with universal was only removed because I patched the poppler
+# portfile in my local portfile repo, but that is no longer relevant
 variant docs description {Build gtk-doc documentation} {
     PortGroup              archcheck 1.0
     depends_build-append   port:gtk-doc
@@ -125,8 +127,7 @@ variant docs description {Build gtk-doc documentation} {
                            port:texinfo
     }
     depends_skip_archcheck gtk-doc
-    configure.args-delete  --disable-gtk-doc
-    configure.args-append  --enable-gtk-doc
+    configure.args-replace --disable-gtk-doc --enable-gtk-doc
 }
 
 platform darwin 8 {

@@ -16,7 +16,8 @@ description     Mozilla.org's popular stand-alone web browser, X11 version
 
 long_description \
     Firefox empowers you to browse faster, more safely and more \
-    efficiently than with any other browser. This version is integrated with X11.
+    efficiently than with any other browser. This version is integrated \
+    with X11.
 
 universal_variant no
 supported_archs i386 x86_64
@@ -29,9 +30,9 @@ dist_subdir     ${component}
 
 use_bzip2       yes
 
-checksums           sha1    94bbc7152832371dc0be82f411730df043c5c6ac \
-                    rmd160  cabd83f829ba54711f132749282d7d49e33b6334 \
-                    sha256  81ecf63fca67186094d49dd5a6fe7f5dbd143a39f872ad126de38f246334fc04
+checksums      sha1    94bbc7152832371dc0be82f411730df043c5c6ac \
+               rmd160  cabd83f829ba54711f132749282d7d49e33b6334 \
+               sha256  81ecf63fca67186094d49dd5a6fe7f5dbd143a39f872ad126de38f246334fc04
 
 worksrcdir      mozilla-release
 
@@ -52,10 +53,12 @@ depends_lib-append \
 	port:xorg-libXt \
 	port:libnotify
 
-# I added the following libraries after my port-depcheck.sh script said that this port actually links against them.
-# Even if they get pulled in recursively via other dependencies, I still think that it is a good idea to include them
-# anyways to show that they are actually linked against, and to remind people to revbump whenever one of them has
-# a major revision bump.
+# I added the following libraries after my port-depcheck.sh script said
+# that this port actually links against them.
+# Even if they get pulled in recursively via other dependencies, I still
+# think that it is a good idea to include them anyways to show that they
+# are actually linked against, and to remind people to revbump whenever
+# one of them has a major revision bump.
 depends_lib-append \
         port:atk \
         port:bzip2 \
@@ -81,8 +84,8 @@ depends_lib-append \
         port:xrender \
         port:zlib
 
-# The following were listed as dependencies in build instructions I found for Firefox online
-# They are also turned on by configure.args set below
+# The following were listed as dependencies in build instructions I found
+# for Firefox online. They are also turned on by configure.args set below.
 depends_lib-append \
         port:libevent \
         port:libvpx \
@@ -112,11 +115,12 @@ depends_lib-append \
         port:jpeg \
         port:gss \
         port:libpixman \
-        port:libproxy \
-        port:xorg-libXinerama
+        port:libproxy
+# xorg-libXinerama should have been added above
 
 platform darwin 11 {
-    # ticket #31941, bug in system grep, "egrep: Regular expression too big"
+    # ticket #31941, bug in system grep:
+    # "egrep: Regular expression too big"
     depends_build-append port:grep
 }
 
@@ -224,6 +228,7 @@ variant debug description {build for debugging} {
     depends_build-append \
          port:valgrind \
          bin:gdb:gdb
+    configure.optflags      -g
     configure.args-delete   --disable-debug \
                             --disable-mochitest \
                             --enable-optimize='-O2' \
@@ -292,12 +297,12 @@ variant official_branding description {Enables official Firefox branding.  You m
         --enable-splashscreen
 }
 
-patchfiles-append patch-dylib_file.diff 
+patchfiles-append patch-dylib_file.diff
 #patchfiles-append patch-egrep.diff
 
 post-patch {
     # https://bugzilla.mozilla.org/show_bug.cgi?id=485857
-    reinplace "s:XP_MACOSX:__APPLE__:g" ${worksrcpath}/xpcom/base/nsStackWalk.cpp 
+    reinplace "s:XP_MACOSX:__APPLE__:g" ${worksrcpath}/xpcom/base/nsStackWalk.cpp
 
     # https://bugzilla.mozilla.org/show_bug.cgi?id=641755
     reinplace "s:XP_MACOSX:__APPLE__:g" ${worksrcpath}/gfx/ycbcr/update.sh
@@ -359,7 +364,7 @@ post-patch {
 }
 
 pre-configure {
-    system "cd ${worksrcpath}/js/src && ${autoconf.cmd}"
+    system -W ${worksrcpath}/js/src "${autoconf.cmd}"
 }
 
 configure.env \

@@ -130,6 +130,7 @@ configure.args-append \
                     --with-libintl-prefix=${prefix}
 
 variant debug description {Enable debugging} {
+    configure.optflags -g
     configure.args-delete \
                     --enable-debug=no
     configure.args-append \
@@ -175,15 +176,13 @@ platform macosx {
 
 variant avahi description {Use Avahi to advertise remote daemon} {
     depends_lib-append      port:avahi
-    configure.args-delete   --without-avahi
-    configure.args-append   --with-avahi
+    configure.args-replace  --without-avahi --with-avahi
 }
 
 variant python24 conflicts python25 python26 python27 \
                  description {Compile Python 2.4 bindings} {
     depends_lib-append      port:python24
-    configure.args-delete   --without-python
-    configure.args-append   --with-python
+    configure.args-replace  --without-python --with-python
     configure.env-append    PYTHON=${prefix}/bin/python2.4
     configure.cppflags-append -I${prefix}/include/python2.4
 }
@@ -191,8 +190,7 @@ variant python24 conflicts python25 python26 python27 \
 variant python25 conflicts python24 python26 python27 \
                  description {Compile Python 2.5 bindings} {
     depends_lib-append      port:python25
-    configure.args-delete   --without-python
-    configure.args-append   --with-python
+    configure.args-replace  --without-python --with-python
     configure.env-append    PYTHON=${prefix}/bin/python2.5
     configure.cppflags-append -I${prefix}/include/python2.5
 }
@@ -200,8 +198,7 @@ variant python25 conflicts python24 python26 python27 \
 variant python26 conflicts python24 python25 python27 \
                  description {Compile Python 2.6 bindings} {
     depends_lib-append      port:python26
-    configure.args-delete   --without-python
-    configure.args-append   --with-python
+    configure.args-replace  --without-python --with-python
     configure.env-append    PYTHON=${prefix}/bin/python2.6
     configure.cppflags-append -I${prefix}/Library/Frameworks/Python.framework/Versions/2.6/Headers
 }
@@ -209,8 +206,7 @@ variant python26 conflicts python24 python25 python27 \
 variant python27 conflicts python24 python25 python26 \
                  description {Compile Python 2.7 bindings} {
     depends_lib-append      port:python27
-    configure.args-delete   --without-python
-    configure.args-append   --with-python
+    configure.args-replace  --without-python --with-python
     configure.env-append    PYTHON=${prefix}/bin/python2.7
     configure.cppflags-append -I${prefix}/Library/Frameworks/Python.framework/Versions/2.7/Headers
 }
@@ -218,8 +214,7 @@ variant python27 conflicts python24 python25 python26 \
 variant sasl description {Use Cyrus SASL for authentication} {
     depends_lib-append      port:cyrus-sasl2 \
                             port:openldap
-    configure.args-delete   --without-sasl
-    configure.args-append   --with-sasl
+    configure.args-replace  --without-sasl --with-sasl
 }
 
 variant ssh description {Enable ssh support} {

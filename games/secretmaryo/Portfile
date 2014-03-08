@@ -82,6 +82,7 @@ configure.args      --disable-silent-rules \
 
 variant debug description {Enable debugging} {
     configure.args-append --enable-debug
+    configure.optflags -g
 }
 
 build.dir           ${configure.dir}

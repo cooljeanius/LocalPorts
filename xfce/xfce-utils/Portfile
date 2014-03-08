@@ -24,8 +24,8 @@ supported_archs noarch
 
 depends_build-append \
                 bin:perl:perl5 \
-                port:perl5.12 \
-                port:p5.12-xml-parser \
+                port:perl5.16 \
+                port:p5.16-xml-parser \
                 port:intltool \
                 port:xfce4-dev-tools \
                 port:pkgconfig \

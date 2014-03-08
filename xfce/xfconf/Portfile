@@ -25,9 +25,9 @@ depends_build-append \
                 port:intltool \
                 port:pkgconfig \
                 port:gtk-doc \
-                port:p5.12-extutils-depends \
-                port:p5.12-extutils-pkgconfig \
-                port:p5.12-glib \
+                port:p5.16-extutils-depends \
+                port:p5.16-extutils-pkgconfig \
+                port:p5.16-glib \
                 bin:perl:perl5
 
 depends_skip_archcheck-append gtk-doc
@@ -46,9 +46,9 @@ depends_lib-append \
                 path:lib/pkgconfig/glib-2.0.pc:glib2
 
 depends_run-append \
-                port:p5.12-extutils-depends \
-                port:p5.12-extutils-pkgconfig \
-                port:p5.12-glib
+                port:p5.16-extutils-depends \
+                port:p5.16-extutils-pkgconfig \
+                port:p5.16-glib
 
 configure.args-append \
                 --with-x \

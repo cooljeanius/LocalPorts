@@ -96,28 +96,30 @@ variant x11 {
     configure.env-append    XMKMF=${prefix}/bin/xmkmf
 
     post-destroot {
-        system "mkfontscale ${destroot}${prefix}/share/fonts/${name} && mkfontdir ${destroot}${prefix}/share/fonts/${name}"
+        # we use a "bin:"-style dependency for these tools, so just call
+        # them un-prefixed-ly:
+        system -W ${prefix} "mkfontscale ${destroot}${prefix}/share/fonts/${name} && mkfontdir ${destroot}${prefix}/share/fonts/${name}"
     }
 }
 
 variant debug description {Enables debugging} {
     configure.args-append   --enable-debug \
                             --enable-maintainer-mode
+    configure.optflags      -g
 }
 
 variant ghostscript description {Use the ghostscript port from MacPorts} {
     depends_build-append \
                         port:ghostscript
     if {[variant_isset x11]} {
-        # as with gd2, ghostscript should have its "+no_x11" variant 
-        # changed to a "+x11" variant (as per ticket #39383), but in 
-        # the meantime...
+        # "no_x11" is a legacy compatibility variant and will
+        # eventually be removed
         require_active_variants \
-                        ghostscript "" no_x11
+                        ghostscript x11 no_x11
     }
     # I want to use the "--with-gsfontmap=" argument, too, but I think the
     # ghostscript API has changed or something, as now ghostscript installs
-    # multiple fontmaps, and I'm not sure which one to use...
+    # multiple fontmaps, and I am not sure which one to use...
     configure.args-append \
                         --with-gsfontdir=${prefix}/share/ghostscript/fonts
 }

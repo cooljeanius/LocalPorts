@@ -1,6 +1,13 @@
---- configure.ac.orig	2013-03-25 04:32:11.000000000 -0400
-+++ configure.ac	2013-03-25 05:40:35.000000000 -0400
-@@ -21,31 +21,46 @@
+--- configure.ac.orig	2012-04-22 12:05:33.000000000 -0400
++++ configure.ac	2014-03-06 21:28:42.000000000 -0500
+@@ -1,4 +1,5 @@
+-dnl Process this file with autoconf to produce a configure script.
++dnl#                                               -*- Autoconf -*-
++dnl# Process this file with autoconf to produce a configure script.
+ # Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+ # 2009, 2010 Free Software Foundation, Inc.
+ #
+@@ -21,240 +22,362 @@
  # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
  # USA
  
@@ -13,40 +20,60 @@
  AC_CONFIG_MACRO_DIR([m4])
  
 -AM_INIT_AUTOMAKE([1.10 no-dist-gzip dist-bzip2 -Wall -Werror -Wno-override])
-+AM_INIT_AUTOMAKE([1.10 no-dist-gzip dist-bzip2 -Wall -Wno-override])
- m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 -AM_CONFIG_HEADER(config.h)
-+AM_MAINTAINER_MODE
-+AC_CONFIG_HEADERS([config.h])
++AC_CANONICAL_TARGET
++AC_USE_SYSTEM_EXTENSIONS
  
 -AC_MSG_RESULT([***
-+AC_CANONICAL_HOST
-+AC_USE_SYSTEM_EXTENSIONS
++AM_INIT_AUTOMAKE([1.10 dist-bzip2 -Wall -Wno-override subdir-objects])
++m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
++AM_MAINTAINER_MODE
++AC_CONFIG_HEADERS([config.h])
 +
 +AC_MSG_RESULT([
 +***
  *** Checking for compilation programs...
  ])
  
- dnl Checks for programs.
+-dnl Checks for programs.
+-AC_PROG_CC
++dnl# Checks for programs.
 +AM_PROG_AR
-+AC_PROG_AWK
- AC_PROG_CC
++AC_DEFUN([AC_DUPLICATED_CHECKS],[
++  AC_REQUIRE([AC_PROG_AWK])
++  AC_REQUIRE([AC_PROG_CC])
++  AC_REQUIRE([AC_PROG_MAKE_SET])
++  AC_REQUIRE([AC_C_BIGENDIAN])
++  AC_REQUIRE([AC_C_INLINE])
++  AC_REQUIRE([AC_TYPE_PID_T])
++  AC_REQUIRE([AC_FUNC_ERROR_AT_LINE])
++  AC_REQUIRE([AC_FUNC_FORK])
++  AC_REQUIRE([AC_FUNC_FSEEKO])
++  AC_REQUIRE([AC_FUNC_MBRTOWC])
++  AC_REQUIRE([AC_FUNC_MMAP])
++  AC_REQUIRE([AC_FUNC_STRERROR_R])
++])
++AC_DUPLICATED_CHECKS
 +AC_PROG_CPP
 +AC_PROG_INSTALL
  AC_PROG_LN_S
 -GTK_DOC_CHECK(1.1)
-+AC_PROG_MAKE_SET
+-AC_PATH_PROG([GAA], [gaa])
+-if test "x$GAA" = "x"; then
+-   AC_MSG_WARN([[***
+-*** GAA was not found.  It is only needed if you wish to modify
+-*** the source code or command-line description files.  In this case,
 +AC_PROG_RANLIB
 +PKG_PROG_PKG_CONFIG
 +GTK_DOC_CHECK([1.1])
- AC_PATH_PROG([GAA], [gaa])
- if test "x$GAA" = "x"; then
--   AC_MSG_WARN([[***
++AC_ARG_VAR([GAA],[Path to the GAA argument analyzer])
++AC_PATH_PROG([GAA],[gaa])
++if test "x${GAA}" = "x"; then
 +   AC_MSG_WARN([[
 +***
- *** GAA was not found.  It is only needed if you wish to modify
- *** the source code or command-line description files.  In this case,
++*** GAA was not found. It is only needed if you wish to modify
++*** the source code or command-line description files. In this case,
  *** you may want to get it from http://gaa.sourceforge.net/ and
  *** read doc/README.gaa.
 -***]])
@@ -55,179 +82,477 @@
  fi
  
  gl_EARLY
-@@ -58,48 +73,94 @@
-     use_cxx=$enableval, use_cxx=yes)
- if test "$use_cxx" != "no"; then
-   AC_LANG_PUSH(C++)
+-AC_C_INLINE
+ 
+ # For the C++ code
+ AC_PROG_CXX
+-AC_ARG_ENABLE(cxx,
+-  AS_HELP_STRING([--disable-cxx], [unconditionally disable the C++ library]),
+-    use_cxx=$enableval, use_cxx=yes)
+-if test "$use_cxx" != "no"; then
+-  AC_LANG_PUSH(C++)
 -  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])], use_cxx=yes, use_cxx=no)
-+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])], [use_cxx=yes], [use_cxx=no])
-   AC_LANG_POP(C++)
+-  AC_LANG_POP(C++)
++AC_ARG_ENABLE([cxx],
++  [AS_HELP_STRING([--disable-cxx],[unconditionally disable the C++ library])],
++    [use_cxx=${enableval}],[use_cxx=yes])
++if test "x${use_cxx}" != "xno"; then
++  AC_LANG_PUSH([C++])
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]],[[]])],[use_cxx=yes], [use_cxx=no])
++  AC_LANG_POP([C++])
  fi
 -AM_CONDITIONAL(ENABLE_CXX, test "$use_cxx" != "no")
 -AM_CONDITIONAL(WANT_TEST_SUITE, [test -f tests/suite/mini-eagain2.c])
-+AM_CONDITIONAL([ENABLE_CXX], [test "$use_cxx" != "no"])
-+AM_CONDITIONAL([WANT_TEST_SUITE], [test -f tests/suite/mini-eagain2.c])
++AM_CONDITIONAL([ENABLE_CXX],[test "x${use_cxx}" != "xno"])
++AM_CONDITIONAL([WANT_TEST_SUITE],[test -f tests/suite/mini-eagain2.c])
  
++AC_MSG_NOTICE([doing libgnutls hook checks])
  LIBGNUTLS_HOOKS
  LIBGNUTLS_EXTRA_HOOKS
  
-+dnl Checks for libraries.
-+dnl FIXME: Replace `main' with a function in `-ldl':
-+AC_CHECK_LIB([dl], [main])
-+dnl FIXME: Replace `main' with a function in `-lm':
-+AC_CHECK_LIB([m], [main])
-+dnl FIXME: Replace `main' with a function in `-lpthread':
-+AC_CHECK_LIB([pthread], [main])
-+dnl FIXME: Replace `main' with a function in `-lrt':
-+AC_CHECK_LIB([rt], [main])
-+
- AC_HEADER_STDC
+-AC_HEADER_STDC
 -AC_DEFINE([HAVE_STRINGS_H], 1, [Hard-code for src/cfg/.])
 -AC_DEFINE([HAVE_FLOAT_H], 1, [Hard-code for src/cfg/.])
 -AC_DEFINE([HAVE_LIMITS_H], 1, [Hard-code for src/cfg/.])
 -AC_DEFINE([HAVE_MATH_H], 1, [Hard-code for src/cfg/.])
 -AC_DEFINE([HAVE_CTYPE_H], 1, [Hard-code for src/cfg/.])
 -AC_DEFINE([HAVE_ERRNO_H], 1, [Hard-code for src/cfg/.])
-+AC_FUNC_ALLOCA
-+AC_CHECK_HEADERS([OS.h arpa/inet.h fcntl.h float.h inttypes.h langinfo.h libintl.h limits.h locale.h malloc.h memory.h netdb.h netinet/in.h nl_types.h stddef.h stdint.h stdio_ext.h stdlib.h string.h strings.h sys/ioctl.h sys/param.h sys/socket.h sys/time.h sys/timeb.h termios.h unistd.h wchar.h])
-+AC_DEFINE([HAVE_STRINGS_H], [1], [Hard-code for src/cfg/.])
-+AC_DEFINE([HAVE_FLOAT_H], [1], [Hard-code for src/cfg/.])
-+AC_DEFINE([HAVE_LIMITS_H], [1], [Hard-code for src/cfg/.])
-+AC_DEFINE([HAVE_MATH_H], [1], [Hard-code for src/cfg/.])
-+AC_DEFINE([HAVE_CTYPE_H], [1], [Hard-code for src/cfg/.])
-+AC_DEFINE([HAVE_ERRNO_H], [1], [Hard-code for src/cfg/.])
++dnl# Checks for libraries.
++dnl# the libtool checks check for dlopen, so use a different symbol here:
++AC_MSG_CHECKING([libraries])
++AC_MSG_RESULT([ ])
++AC_CHECK_LIB([dl],[dlsym])
++AC_CHECK_LIB([m],[pow])
++LT_LIB_M
++AC_CHECK_LIB([pthread],[pthread_create])
++AC_CHECK_LIB([rt],[clock_gettime])
++AC_SEARCH_LIBS([__lzo_init_v2],[lzo lzo2 lzop])
++AC_SEARCH_LIBS([lzo1x_decompress_safe],[lzo lzo1 lzop])
++AC_SEARCH_LIBS([lzo1x_1_compress],[lzo lzo1 lzop])
++
++dnl# Checks for header files.
++AC_MSG_CHECKING([headers])
++AC_MSG_RESULT([ ])
++AC_HEADER_STDBOOL dnl# also "_CHECK"s it
++AC_HEADER_TIME
++AC_SYS_POSIX_TERMIOS
++AC_CHECK_HEADERS([OS.h arpa/inet.h ctype.h errno.h fcntl.h float.h \
++                  langinfo.h libintl.h limits.h locale.h \
++                  malloc.h malloc/malloc.h math.h netdb.h nl_types.h \
++                  stddef.h stdio.h stdio_ext.h sys/ioctl.h sys/socket.h \
++                  sys/time.h sys/timeb.h termio.h termios.h wchar.h])
++AC_DEFINE([HAVE_STRINGS_H],[1],[Hard-code for src/cfg/.])
++AC_DEFINE([HAVE_FLOAT_H],[1],[Hard-code for src/cfg/.])
++AC_DEFINE([HAVE_LIMITS_H],[1],[Hard-code for src/cfg/.])
++AC_DEFINE([HAVE_MATH_H],[1],[Hard-code for src/cfg/.])
++AC_DEFINE([HAVE_CTYPE_H],[1],[Hard-code for src/cfg/.])
++AC_DEFINE([HAVE_ERRNO_H],[1],[Hard-code for src/cfg/.])
  
  # No fork on MinGW, disable some self-tests until we fix them.
 -AC_CHECK_FUNCS(fork,,)
 -AM_CONDITIONAL(HAVE_FORK, test "$ac_cv_func_fork" != "no")
-+AC_CHECK_FUNCS([fork],[],[])
-+AM_CONDITIONAL([HAVE_FORK], [test "$ac_cv_func_fork" != "no"])
- 
- dnl Check for p11-kit
+-
+-dnl Check for p11-kit
 -AC_ARG_WITH(p11-kit,
-+AC_ARG_WITH([p11-kit],
- 	AS_HELP_STRING([--without-p11-kit],
- 		[Build without p11-kit and PKCS#11 support]))
- AM_CONDITIONAL(ENABLE_PKCS11, test "$with_p11_kit" != "no")
- if test "$with_p11_kit" != "no"; then
+-	AS_HELP_STRING([--without-p11-kit],
+-		[Build without p11-kit and PKCS#11 support]))
+-AM_CONDITIONAL(ENABLE_PKCS11, test "$with_p11_kit" != "no")
+-if test "$with_p11_kit" != "no"; then
 -	PKG_CHECK_MODULES(P11_KIT, [p11-kit-1 >= 0.11])
 -	AC_DEFINE(ENABLE_PKCS11, 1, [Build PKCS#11 support])
-+	PKG_CHECK_MODULES([P11_KIT], [p11-kit-1 >= 0.11])
-+	AC_DEFINE([ENABLE_PKCS11], [1], [Build PKCS#11 support])
- 	CFLAGS="$CFLAGS $P11_KIT_CFLAGS"
- 	LIBS="$LIBS $P11_KIT_LIBS"
+-	CFLAGS="$CFLAGS $P11_KIT_CFLAGS"
+-	LIBS="$LIBS $P11_KIT_LIBS"
++unset ac_cv_func_fork
++AC_CHECK_FUNCS([fork],[],[])
++AM_CONDITIONAL([HAVE_FORK],[test "x${ac_cv_func_fork}" != "xno"])
++
++dnl# Check for p11-kit
++AC_ARG_WITH([p11-kit],
++	[AS_HELP_STRING([--without-p11-kit],
++		[Build without p11-kit and PKCS#11 support])])
++AM_CONDITIONAL([ENABLE_PKCS11],[test "x${with_p11_kit}" != "xno"])
++if test "x${with_p11_kit}" != "xno"; then
++	PKG_CHECK_MODULES([P11_KIT],[p11-kit-1 >= 0.11])
++	AC_DEFINE([ENABLE_PKCS11],[1],[Build PKCS#11 support])
++	CFLAGS="${CFLAGS} ${P11_KIT_CFLAGS}"
++	LIBS="${LIBS} ${P11_KIT_LIBS}"
  	with_p11_kit=yes
  fi
  
 -AC_CHECK_TYPES(uint,,, [
-+dnl Checks for typedefs, structures, and compiler characteristics.
-+AC_CHECK_HEADER_STDBOOL
-+AC_TYPE_UID_T
++dnl# Checks for typedefs, structures, and compiler characteristics.
++AC_MSG_CHECKING([C characteristics])
++AC_MSG_RESULT([ ])
++AC_C_RESTRICT
++AC_C_PROTOTYPES
++AC_MSG_CHECKING([types])
++AC_MSG_RESULT([ ])
++AC_TYPE_INT8_T
 +AC_TYPE_INT16_T
 +AC_TYPE_INT32_T
 +AC_TYPE_INT64_T
-+AC_TYPE_INT8_T
 +AC_TYPE_MODE_T
-+AC_FUNC_OBSTACK
 +AC_TYPE_OFF_T
-+AC_TYPE_PID_T
-+AC_C_RESTRICT
 +AC_TYPE_SIZE_T
 +AC_TYPE_SSIZE_T
++AC_TYPE_UID_T
++AC_TYPE_UINT8_T
 +AC_TYPE_UINT16_T
 +AC_TYPE_UINT32_T
 +AC_TYPE_UINT64_T
-+AC_TYPE_UINT8_T
 +AC_CHECK_TYPES([ptrdiff_t])
 +AC_CHECK_TYPES([uint],[],[], [
  # include <sys/types.h>
  ])
  
-+dnl Checks for library functions.
++dnl# gettext checks
++AC_MSG_CHECKING([gettext things])
++AC_MSG_RESULT([ ])
 +AM_GNU_GETTEXT([external])
-+AM_GNU_GETTEXT_VERSION([0.17])
-+AC_FUNC_ERROR_AT_LINE
-+AC_FUNC_FORK
-+AC_FUNC_FSEEKO
-+AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
++AM_GNU_GETTEXT_VERSION([0.18.3])
++
++dnl# Checks for library functions.
++AC_MSG_CHECKING([functions])
++AC_MSG_RESULT([ ])
++AC_FUNC_ALLOCA
++AC_FUNC_LSTAT dnl# also checks whether it "_FOLLOWS_SLASHED_SYMLINK"
 +AC_FUNC_MALLOC
-+AC_FUNC_MBRTOWC
-+AC_FUNC_MMAP
++AC_FUNC_OBSTACK
 +AC_FUNC_REALLOC
-+AC_FUNC_STRERROR_R
 +AC_FUNC_STRTOD
-+AC_CHECK_FUNCS([alarm clock_gettime dup2 ftruncate getcwd getdelim gethostbyname getpagesize getpass gettimeofday localeconv mblen mbrlen memchr memmove memset mkdir nl_langinfo rmdir select setlocale socket strcasecmp strchr strdup strerror strrchr strspn strstr strtol strtoul tzset])
++AC_CHECK_FUNCS([alarm dup2 ftruncate getcwd getdelim getpass \
++                gettimeofday localeconv mblen mbrlen memchr memmove \
++                memset mkdir nl_langinfo rmdir select setlocale socket \
++                strcasecmp strchr strdup strerror strrchr strspn strstr \
++                strtol strtoul tzset])
 +
  # For Guile bindings.
  opt_guile_bindings=yes
  AC_MSG_CHECKING([whether building Guile bindings])
 -AC_ARG_ENABLE(guile,
+-	AS_HELP_STRING([--enable-guile], [build GNU Guile bindings]),
+-opt_guile_bindings=$enableval)
+-AC_MSG_RESULT($opt_guile_bindings)
 +AC_ARG_ENABLE([guile],
- 	AS_HELP_STRING([--enable-guile], [build GNU Guile bindings]),
- opt_guile_bindings=$enableval)
- AC_MSG_RESULT($opt_guile_bindings)
-@@ -109,7 +170,8 @@
++	[AS_HELP_STRING([--enable-guile],[build GNU Guile bindings])],
++[opt_guile_bindings=${enableval}])
++AC_MSG_RESULT([${opt_guile_bindings}])
+ 
+ AC_ARG_WITH([--with-guile-site-dir],
+   [AS_HELP_STRING([--with-guile-site-dir],
       [use the given directory as the Guile site (use with care)])])
  
- if test "$opt_guile_bindings" = "yes"; then
+-if test "$opt_guile_bindings" = "yes"; then
 -   AC_MSG_RESULT([***
++if test "x${opt_guile_bindings}" = "xyes"; then
 +   AC_MSG_RESULT([
 +***
  *** Detecting GNU Guile...
  ])
  
-@@ -126,7 +188,7 @@
-       CFLAGS="$CFLAGS $GUILE_CFLAGS"
-       LIBS="$LIBS $GUILE_LDFLAGS"
+-   AC_PATH_PROG([guile_snarf], [guile-snarf])
+-   if test "x$guile_snarf" = "x"; then
+-      AC_MSG_WARN([`guile-snarf' from Guile 1.8 not found.  Guile bindings not built.])
++   AC_PATH_PROG([guile_snarf],[guile-snarf])
++   if test "x${guile_snarf}" = "x"; then
++      AC_MSG_WARN([`guile-snarf' from Guile 1.8 not found. Guile bindings not built.])
+       opt_guile_bindings=no
+    else
+       GUILE_PROGS
+       GUILE_FLAGS
+ 
+-      save_CFLAGS="$CFLAGS"
+-      save_LIBS="$LIBS"
+-      CFLAGS="$CFLAGS $GUILE_CFLAGS"
+-      LIBS="$LIBS $GUILE_LDFLAGS"
++      save_CFLAGS="${CFLAGS}"
++      save_LIBS="${LIBS}"
++      CFLAGS="${CFLAGS} ${GUILE_CFLAGS}"
++      LIBS="${LIBS} ${GUILE_LDFLAGS}"
        AC_MSG_CHECKING([whether GNU Guile is recent enough])
 -      AC_LINK_IFELSE(AC_LANG_CALL([], [scm_from_locale_string]),
-+      AC_LINK_IFELSE([AC_LANG_CALL([], [scm_from_locale_string])],
-         [], [opt_guile_bindings=no])
-       CFLAGS="$save_CFLAGS"
-       LIBS="$save_LIBS"
-@@ -174,14 +236,14 @@
+-        [], [opt_guile_bindings=no])
+-      CFLAGS="$save_CFLAGS"
+-      LIBS="$save_LIBS"
++      AC_LINK_IFELSE([AC_LANG_CALL([[]],[[scm_from_locale_string]])],
++        [],[opt_guile_bindings=no])
++      CFLAGS="${save_CFLAGS}"
++      LIBS="${save_LIBS}"
+ 
+-      if test "$opt_guile_bindings" = "yes"; then
++      if test "x${opt_guile_bindings}" = "xyes"; then
+         AC_MSG_RESULT([yes])
+-	case "x$with_guile_site_dir" in 
++	case "x${with_guile_site_dir}" in 
+ 	     xno)
+ 		# Use the default $(GUILE_SITE).
+ 		GUILE_SITE_DIR
+ 		;;
+ 	     x|xyes)
+-		# Automatically derive $(GUILE_SITE) from $(pkgdatadir).  This
+-		# hack is used to allow `distcheck' to work (see
+-		# `DISTCHECK_CONFIGURE_FLAGS' in the top-level `Makefile.am').
++		# Automatically derive $(GUILE_SITE) from $(pkgdatadir).
++		# This hack is used to allow `distcheck' to work (see
++		# `DISTCHECK_CONFIGURE_FLAGS' in the top-level
++		# `Makefile.am').
+ 		GUILE_SITE="\$(datadir)/guile/site"
+-		AC_SUBST(GUILE_SITE)
++		AC_SUBST([GUILE_SITE])
+ 		;;
+ 	     *)
+ 		# Use the user-specified directory as $(GUILE_SITE).
+-		GUILE_SITE="$with_guile_site_dir"
+-		AC_SUBST(GUILE_SITE)
++		GUILE_SITE="${with_guile_site_dir}"
++		AC_SUBST([GUILE_SITE])
+ 		;;
+ 	esac
+         AC_MSG_CHECKING([whether gcc supports -fgnu89-inline])
+-        _gcc_cflags_save="$CFLAGS"
++        _gcc_cflags_save="${CFLAGS}"
+         CFLAGS="${CFLAGS} -fgnu89-inline"
+-        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+-                          gnu89_inline=yes, gnu89_inline=no)
+-        AC_MSG_RESULT($gnu89_inline)
+-        CFLAGS="$_gcc_cflags_save"
++        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]])],
++                          [gnu89_inline=yes],[gnu89_inline=no])
++        AC_MSG_RESULT([${gnu89_inline}])
++        CFLAGS="${_gcc_cflags_save}"
+ 
+ 	# Optional Guile functions.
+-	save_CFLAGS="$CFLAGS"
+-	save_LIBS="$LIBS"
+-	CFLAGS="$CFLAGS $GUILE_CFLAGS"
+-	LIBS="$LIBS $GUILE_LDFLAGS"
++	save_CFLAGS="${CFLAGS}"
++	save_LIBS="${LIBS}"
++	CFLAGS="${CFLAGS} ${GUILE_CFLAGS}"
++	LIBS="${LIBS} ${GUILE_LDFLAGS}"
+ 	AC_CHECK_FUNCS([scm_gc_malloc_pointerless])
+-	CFLAGS="$save_CFLAGS"
+-	LIBS="$save_LIBS"
++	CFLAGS="${save_CFLAGS}"
++	LIBS="${save_LIBS}"
+       else
+         AC_MSG_RESULT([no])
+-        AC_MSG_WARN([A sufficiently recent GNU Guile not found.  Guile bindings not built.])
++        AC_MSG_WARN([A sufficiently recent GNU Guile not found. Guile bindings not built.])
+         opt_guile_bindings=no
        fi
     fi
  fi
 -AM_CONDITIONAL(HAVE_GUILE, test "$opt_guile_bindings" = "yes")
 -AM_CONDITIONAL(HAVE_GCC_GNU89_INLINE_OPTION, test "$gnu89_inline" = "yes"])
 -AM_CONDITIONAL(HAVE_GCC, test "$GCC" = "yes")
-+AM_CONDITIONAL([HAVE_GUILE], [test "$opt_guile_bindings" = "yes"])
-+AM_CONDITIONAL([HAVE_GCC_GNU89_INLINE_OPTION], [test "$gnu89_inline" = "yes"])
-+AM_CONDITIONAL([HAVE_GCC], [test "$GCC" = "yes"])
- 
- dnl Check for libcfg+
- 
- SAVED_LIBS=$LIBS
+-
+-dnl Check for libcfg+
+-
+-SAVED_LIBS=$LIBS
 -AC_ARG_WITH(included-libcfg,
+-	AS_HELP_STRING([--with-included-libcfg],
+-		[use the included libcfg+ (certtool only)]),
+-	libcfg_enabled=$withval, 
+-	libcfg_enabled=no
+-dnl We search for libcfg+ which is used by certtool
+-dnl
+-	AC_CHECK_LIB(cfg+, cfg_get_context,:,
++AM_CONDITIONAL([HAVE_GUILE],[test "x${opt_guile_bindings}" = "xyes"])
++AM_CONDITIONAL([HAVE_GCC_GNU89_INLINE_OPTION],[test "x${gnu89_inline}" = "xyes"])
++AM_CONDITIONAL([HAVE_GCC],[test "x${GCC}" = "xyes"])
++
++dnl# Check for libcfg+
++
++SAVED_LIBS=${LIBS}
 +AC_ARG_WITH([included-libcfg],
- 	AS_HELP_STRING([--with-included-libcfg],
- 		[use the included libcfg+ (certtool only)]),
- 	libcfg_enabled=$withval, 
-@@ -192,13 +254,14 @@
++	[AS_HELP_STRING([--with-included-libcfg],
++		[use the included libcfg+ (certtool only)])],
++	[libcfg_enabled=${withval}], 
++	[libcfg_enabled=no
++dnl# We search for libcfg+ which is used by certtool
++dnl#
++	AC_CHECK_LIB([cfg+],[cfg_get_context],[:],[
                       libcfg_enabled=yes
                       AC_MSG_WARN([[
  *** 
 -*** Libcfg+ was not found. Will use the included one.]])))
 +*** Libcfg+ was not found. Will use the included one.
-+]])))
++]])])])
  
 -AM_CONDITIONAL(HAVE_LIBCFG, test "$libcfg_enabled" = "no")
-+AM_CONDITIONAL([HAVE_LIBCFG], [test "$libcfg_enabled" = "no"])
- LIBS=$SAVED_LIBS
+-LIBS=$SAVED_LIBS
++AM_CONDITIONAL([HAVE_LIBCFG],[test "x${libcfg_enabled}" = "xno"])
++LIBS=${SAVED_LIBS}
  
  AC_MSG_CHECKING([whether to use the included libcfg])
 -AC_MSG_RESULT($libcfg_enabled)
-+AC_MSG_RESULT([$libcfg_enabled])
++AC_MSG_RESULT([${libcfg_enabled}])
  
- AC_LIBTOOL_WIN32_DLL
- AC_PROG_LIBTOOL
-@@ -265,7 +328,7 @@
+-AC_LIBTOOL_WIN32_DLL
+-AC_PROG_LIBTOOL
++AC_MSG_CHECKING([libtool things])
++AC_MSG_RESULT([ ])
++LT_INIT([win32-dll dlopen])
+ 
++AC_MSG_CHECKING([gnulib things])
++AC_MSG_RESULT([ ])
+ gl_INIT
+ 
+ AC_ARG_ENABLE([gcc-warnings],
+   [AS_HELP_STRING([--enable-gcc-warnings],
+ 		  [turn on lots of GCC warnings (for developers)])],
+-  [case $enableval in
++  [case ${enableval} in
+      yes|no) ;;
+-     *)      AC_MSG_ERROR([bad value $enableval for gcc-warnings option]) ;;
++     *)      AC_MSG_ERROR([bad value ${enableval} for gcc-warnings option]) ;;
+    esac
+-   gl_gcc_warnings=$enableval],
+-  [gl_gcc_warnings=no]
+-)
+-
+-if test "$gl_gcc_warnings" = yes; then
+-  gl_WARN_ADD([-Werror], [WERROR_CFLAGS])
+-  gl_WARN_ADD([-Wframe-larger-than=5120], [WSTACK_CFLAGS])
+-
+-  nw="$nw -Wsystem-headers"         # Don't let system headers trigger warnings
+-  nw="$nw -Wc++-compat"             # We don't care about C++ compilers
+-  nw="$nw -Wundef"                  # Warns on '#if GNULIB_FOO' etc in gnulib
+-  nw="$nw -Wtraditional"            # Warns on #elif which we use often
+-  nw="$nw -Wlogical-op"             # Too many false positives
+-  nw="$nw -Wold-style-definition"   # 
+-  nw="$nw -Wpadded"                 # Our structs are not padded
+-  nw="$nw -Wunreachable-code"       # Too many false positives
+-  nw="$nw -Wtraditional-conversion" # Too many warnings for now
+-  nw="$nw -Wcast-qual"              # Too many warnings for now
+-  nw="$nw -Waggregate-return"       # Too many warnings for now
+-  nw="$nw -Wshadow"                 # Too many warnings for now
+-  nw="$nw -Wswitch-default"         # Too many warnings for now
+-  nw="$nw -Wswitch-enum"            # Too many warnings for now
+-  nw="$nw -Wconversion"             # Too many warnings for now
+-  nw="$nw -Wsign-conversion"        # Too many warnings for now
+-  nw="$nw -Wformat-y2k"             # Too many warnings for now
+-  nw="$nw -Wvla"                    # There is no point to avoid C99 variable length arrays
+-  nw="$nw -Wformat-nonliteral"      # Incompatible with gettext _()
+-  nw="$nw -Wunsafe-loop-optimizations"
+-  nw="$nw -Wstrict-overflow"
+-  nw="$nw -Wmissing-noreturn"
++   gl_gcc_warnings=${enableval}],
++  [gl_gcc_warnings=no])
++
++AC_ARG_ENABLE([gcc-errors],
++  [AS_HELP_STRING([--enable-gcc-errors],
++		  [turn GCC warnings into errors (for developers)])],
++  [case ${enableval} in
++     yes|no) ;;
++     *)      AC_MSG_ERROR([bad value ${enableval} for gcc-errors option]) ;;
++   esac
++   gl_gcc_errors=${enableval}],
++  [gl_gcc_errors=no])
++
++if test "x${gl_gcc_warnings}" = "xyes"; then
++  AC_MSG_CHECKING([gcc warnings])
++  AC_MSG_RESULT([ ])
++  if test "x${GCC}" = "xyes"; then
++    :
++  else
++    AC_MSG_WARN([you requested gcc warnings but are not using GCC!])
++  fi
++  if test "x${gl_gcc_errors}" = "xyes"; then
++    AC_MSG_WARN([turning warnings into errors can lead to build failures])
++    gl_WARN_ADD([-Werror],[WERROR_CFLAGS])
++  else
++    nw="${nw} -Werror"
++  fi
++  gl_WARN_ADD([-Wframe-larger-than=5120],[WSTACK_CFLAGS])
++
++  nw="${nw} -Wsystem-headers" # Do NOT let system headers trigger warnings
++  nw="${nw} -Wc++-compat"             # We do NOT care about C++ compilers
++  nw="${nw} -Wundef"             # Warns on '#if GNULIB_FOO' etc in gnulib
++  nw="${nw} -Wtraditional"             # Warns on #elif which we use often
++  nw="${nw} -Wlogical-op"                       # Too many false positives
++  nw="${nw} -Wold-style-definition"                              # Too old
++  nw="${nw} -Wpadded"                         # Our structs are not padded
++  nw="${nw} -Wunreachable-code"                 # Too many false positives
++  nw="${nw} -Wtraditional-conversion"          # Too many warnings for now
++  nw="${nw} -Wcast-qual"                       # Too many warnings for now
++  nw="${nw} -Waggregate-return"                # Too many warnings for now
++  nw="${nw} -Wshadow"                          # Too many warnings for now
++  nw="${nw} -Wswitch-default"                  # Too many warnings for now
++  nw="${nw} -Wswitch-enum"                     # Too many warnings for now
++  nw="${nw} -Wconversion"                      # Too many warnings for now
++  nw="${nw} -Wsign-conversion"                 # Too many warnings for now
++  nw="${nw} -Wformat-y2k"                      # Too many warnings for now
++  nw="${nw} -Wvla" # There is no point to avoid C99 variable length arrays
++  nw="${nw} -Wformat-nonliteral"           # Incompatible with gettext _()
++  nw="${nw} -Wunsafe-loop-optimizations"
++  nw="${nw} -Wstrict-overflow"
++  nw="${nw} -Wmissing-noreturn"
++  nw="${nw} -Wabi"                    # Valid for C++/ObjC++ but not for C
++  nw="${nw} -Wdeprecated"             # Valid for C++/ObjC++ but not for C
+ 
+   gl_MANYWARN_ALL_GCC([ws])
+-  gl_MANYWARN_COMPLEMENT(ws, [$ws], [$nw])
+-  for w in $ws; do
+-    gl_WARN_ADD([$w])
++  gl_MANYWARN_COMPLEMENT([ws],[${ws}],[${nw}])
++  for w in ${ws}; do
++    gl_WARN_ADD([${w}])
+   done
+ 
+-  gl_WARN_ADD([-Wno-missing-field-initializers]) # We need this one
+-  gl_WARN_ADD([-Wno-sign-compare])     # Too many warnings for now
+-  gl_WARN_ADD([-Wno-pointer-sign])     # Too many warnings for now
+-  gl_WARN_ADD([-Wno-unused-parameter]) # Too many warnings for now
+-  gl_WARN_ADD([-Wno-unused-parameter]) # Too many warnings for now
+-  gl_WARN_ADD([-Wno-stack-protector])  # Some functions cannot be protected
++  gl_WARN_ADD([-Wno-missing-field-initializers])        # We need this one
++  gl_WARN_ADD([-Wno-sign-compare])             # Too many warnings for now
++  gl_WARN_ADD([-Wno-pointer-sign])             # Too many warnings for now
++  gl_WARN_ADD([-Wno-unused-parameter])         # Too many warnings for now
++  gl_WARN_ADD([-Wno-stack-protector]) # Some functions cannot be protected
+   gl_WARN_ADD([-Wno-int-to-pointer-cast])  # Some files cannot be compiled with that (gl_fd_to_handle)
+   gl_WARN_ADD([-fdiagnostics-show-option])
+ fi
+@@ -265,12 +388,12 @@
  export WARN_CFLAGS
  export use_cxx
  
 -AC_DEFINE([GNUTLS_COMPAT_H], 1, [Make sure we don't use old features in code.])
-+AC_DEFINE([GNUTLS_COMPAT_H], [1], [Make sure we don't use old features in code.])
++AC_DEFINE([GNUTLS_COMPAT_H],[1],[Make sure we avoid using old features in code.])
  
  AC_CONFIG_SUBDIRS([lib])
  AC_CONFIG_SUBDIRS([libextra])
+ 
+-AC_CONFIG_FILES([guile/pre-inst-guile], [chmod +x guile/pre-inst-guile])
++AC_CONFIG_FILES([guile/pre-inst-guile],[chmod +x guile/pre-inst-guile])
+ AC_CONFIG_FILES([
+   Makefile
+   doc/Makefile
+@@ -313,17 +436,17 @@
+ 
+ AC_MSG_NOTICE([summary of build options:
+ 
+-  version:          ${VERSION} shared $LT_CURRENT:$LT_REVISION:$LT_AGE
++  version:          ${VERSION} shared ${LT_CURRENT}:${LT_REVISION}:${LT_AGE}
+   Host type:        ${host}
+   Install prefix:   ${prefix}
+   Compiler:         ${CC}
+   Warning flags:    errors: ${WERROR_CFLAGS} warnings: ${WARN_CFLAGS}
+   Library types:    Shared=${enable_shared}, Static=${enable_static}
+-  Valgrind:         $opt_valgrind_tests ${VALGRIND}
+-  Guile wrappers:   $opt_guile_bindings
+-  C++ library:      $use_cxx
+-  OpenSSL library:  $enable_openssl
+-  /dev/crypto:      $enable_cryptodev
+-  Crypto library:   $cryptolib
+-  PKCS#11 support:  $with_p11_kit
++  Valgrind:         ${opt_valgrind_tests} ${VALGRIND}
++  Guile wrappers:   ${opt_guile_bindings}
++  C++ library:      ${use_cxx}
++  OpenSSL library:  ${enable_openssl}
++  /dev/crypto:      ${enable_cryptodev}
++  Crypto library:   ${cryptolib}
++  PKCS#11 support:  ${with_p11_kit}
+ ])

@@ -19,22 +19,23 @@ livecheck.type      none
 
 fetch.type          svn
 svn.url             https://svn.macports.org/repository/macports/contrib/${name}
-svn.revision        101883
+svn.revision        105372
+revision            ${svn.revision}
 
-depends_lib-append  port:p5.12-module-depends \
-                    port:p5.12-list-moreutils \
-                    port:p5.12-module-corelist \
-                    port:p5.12-yaml \
-                    port:p5.12-file-path \
-                    port:p5.12-pod-simple \
-                    port:p5.12-carp-clan \
-                    port:p5.12-getopt-simple \
-                    port:p5.12-parse-cpan-meta \
-                    port:p5.12-cpan-meta-yaml
+depends_lib-append  port:p5.16-module-depends \
+                    port:p5.16-list-moreutils \
+                    port:p5.16-module-corelist \
+                    port:p5.16-yaml \
+                    port:p5.16-file-path \
+                    port:p5.16-pod-simple \
+                    port:p5.16-carp-clan \
+                    port:p5.16-getopt-simple \
+                    port:p5.16-parse-cpan-meta \
+                    port:p5.16-cpan-meta-yaml
 
 worksrcdir          ${name}
 
-configure.perl      ${prefix}/bin/perl5.12
+configure.perl      ${prefix}/bin/perl5.16
 
 configure {
     reinplace "s|#! /usr/bin/env perl|#!${configure.perl}|g" ${worksrcpath}/${name}

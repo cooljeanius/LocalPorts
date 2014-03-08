@@ -3,6 +3,7 @@
 
 PortSystem            1.0
 PortGroup             qt4 1.0
+
 #TODO: use qmake portgroup instead, it includes the qt4 one and is more
 # specific to this.
 
@@ -86,6 +87,7 @@ build.env-append      ${configure.env}
 # put something in it
 variant debug description {Set for debugging} {
     use_parallel_build no
+    configure.optflags -g
 }
 
 # Apparently putting stuff in ${applications_dir} counts as violating

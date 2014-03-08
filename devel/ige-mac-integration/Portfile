@@ -92,7 +92,7 @@ variant autoreconf description {Regenerates configure script before building.} {
                          port:vala \
                          port:zlib
     use_autoreconf       yes
-    autoreconf.args      -fvi
+    autoreconf.args      -fvi -Wall
     configure.args-append --disable-silent-rules
 }
 

@@ -482,8 +482,8 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
                             port:grib_api \
                             port:ssdeep \
                             port:swig-perl \
-                            port:p5.12-www-curl \
-                            port:p5.12-xml-sax-expat \
+                            port:p5.16-www-curl \
+                            port:p5.16-xml-sax-expat \
                             port:swig-python \
                             port:swig-ruby \
                             port:rb-xmlparser \

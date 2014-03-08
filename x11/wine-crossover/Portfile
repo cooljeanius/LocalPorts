@@ -299,8 +299,8 @@ depends_lib-append          port:gphoto2 \
                             port:dosbox \
                             port:xorg-libpthread-stubs \
                             path:bin/valgrind:valgrind \
-                            port:p5.12-ole-storage_lite \
-                            port:p5.12-lwp-protocol-https \
+                            port:p5.16-ole-storage_lite \
+                            port:p5.16-lwp-protocol-https \
                             port:psutils \
                             port:cmdftp \
                             port:unrtf \

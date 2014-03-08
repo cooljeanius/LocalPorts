@@ -1,0 +1,10 @@
+--- gnome-config.in.orig	2001-03-05 17:17:43.000000000 -0500
++++ gnome-config.in	2014-02-13 18:17:25.000000000 -0500
+@@ -7,6 +7,7 @@
+ sbindir=@sbindir@
+ libexecdir=@libexecdir@
+ datadir=@datadir@
++datarootdir=@datarootdir@
+ sysconfdir=@sysconfdir@
+ sharedstatedir=@sharedstatedir@
+ localstatedir=@localstatedir@
