@@ -1,0 +1,11 @@
+--- gui2/Makefile.in.orig	2013-11-05 11:58:59.000000000 -0500
++++ gui2/Makefile.in	2014-03-11 17:46:24.000000000 -0400
+@@ -213,7 +213,7 @@
+ 	$(AMP)$(LIBTOOL) --mode=link $(CCV) $(LDFLAGS) -o $@ $< ../lib/libgretl-1.0.la $(XML_LIBS)
+ 
+ $(GRETL_LANG): $(MKLANG)
+-	$(MKLANG) > $@
++	env DYLD_LIBRARY_PATH="../lib/.libs:$$DYLD_LIBRARY_PATH" $(MKLANG) > $@
+ 
+ .deps:
+ 	$(AMP)mkdir $@

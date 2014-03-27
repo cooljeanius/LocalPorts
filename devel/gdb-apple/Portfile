@@ -1,0 +1,195 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 108929 2013-08-04 19:53:27Z jeremyhu@macports.org $
+
+PortSystem      1.0
+PortGroup       muniversal 1.0
+
+name            gdb-apple
+version         1824
+revision        1
+categories      devel
+license         GPL-2+
+maintainers     jeremyhu openmaintainer
+description     GDB: The GNU Project Debugger with Apple Modifications \
+                (based on 6.3.50)
+
+long_description \
+GDB, the GNU Project debugger, allows you to see what is going on \
+'inside' another program while it executes -- or what another program was \
+doing at the moment it crashed. GDB can do four main kinds of things \
+(plus other things in support of these) to help you catch bugs in action: \
+\n\
+    a) start your program, specifying anything that might affect its \
+       behavior, \n\
+    b) make your program stop on specified conditions, \n\
+    c) examine what has happened, when your program has stopped, \n\
+    d) change things in your program, so you can experiment with \
+       correcting the effects of 1 bug and go on to learn about another.\n\
+\n\
+The program being debugged can be written in Ada, C, C++, Objective-C, or \
+Pascal, as well as many other languages. Those programs might be \
+executing on the same machine as GDB (native) or on another machine \
+(remote). GDB can run on most popular UNIX and Microsoft Windows variants \
+(this version is primarily for OS X though).
+
+homepage        http://opensource.apple.com/source/gdb
+platforms       darwin
+supported_archs x86_64 i386
+
+# xm.h can be created out of order
+use_parallel_build no
+
+distname        gdb-${version}
+master_sites    http://opensource.apple.com/tarballs/gdb
+
+checksums       rmd160  90290c3950dd06c1691a477b9ee302c00b681ed1 \
+                sha256  d25b056a826015e1e0ea338b9b8f03e40dce3ff4696faf95df259ae1a42698da
+
+depends_build-append \
+                port:gettext \
+                port:zlib \
+                port:flex \
+                port:gsed
+# Removed texinfo because we now force the use of the system makeinfo
+
+# port-depcheck.sh reports these linkages:
+depends_lib-append \
+                port:libiconv \
+                port:ncurses \
+                port:sqlite3
+
+# The configure script is one level deeper; the top-level Makefile is
+# hand-written and full of Apple-internal-specific things:
+worksrcdir      ${worksrcdir}/src
+
+post-patch {
+    # https://trac.macports.org/ticket/37790
+    reinplace "s/-mmacosx-version-min=10.7//" \
+        ${worksrcpath}/gdb/config/i386/macosx.mh \
+        ${worksrcpath}/libiberty/config/mh-macosx \
+        ${worksrcpath}/bfd/configure.host
+}
+
+configure.args-append \
+    --infodir=${prefix}/share/info \
+    --mandir=${prefix}/share/man \
+    --with-docdir=${prefix}/share/doc \
+    --program-suffix=-apple \
+    --disable-werror \
+    --with-mpfr=${prefix} \
+    --with-gmp=${prefix} \
+    --enable-libada \
+    --enable-libssp
+
+configure.env-append \
+    SED=${prefix}/bin/gsed \
+    MSGFMT=${prefix}/bin/msgfmt \
+    GMSGFMT=${prefix}/bin/msgfmt \
+    XGETTEXT=${prefix}/bin/xgettext \
+    MSGMERGE=${prefix}/bin/msgmerge \
+    MAKEINFO="${worksrcpath}/missing makeinfo" \
+    INSTALLED_PRODUCT_ASIDES=YES \
+    RC_JASPER=YES \
+    RC_NONARCH_CFLAGS="${configure.optflags}" \
+    RC_XBS=YES \
+    SEPARATE_STRIP=YES \
+    UNAME_RELEASE="${os.version}" \
+    HOST_ARCHITECTURE="${configure.build_arch}"
+
+platform macosx {
+    configure.args-append \
+        --enable-carbon-framework \
+        --enable-debug-symbols-framework
+    configure.env-append \
+        RC_OS=macos \
+        RC_TARGET_CONFIG=MacOSX
+    build.env-append \
+        RC_OS=macos \
+        RC_TARGET_CONFIG=MacOSX
+}
+
+platform darwin {
+    configure.env-append \
+        RC_PRIVATE=/private \
+        UNAME_SYSNAME=Darwin \
+        NEXT_ROOT=""
+    build.env-append \
+        RC_PRIVATE=/private \
+        UNAME_SYSNAME=Darwin \
+        NEXT_ROOT=""
+}
+
+build.args-append \
+    MAKEINFO="/usr/bin/makeinfo" \
+    LEXLIB="${prefix}/lib/libfl.a" \
+    READELF_PROG=""
+
+build.env-append \
+    MAKEINFO="/usr/bin/makeinfo" \
+    LEXLIB="${prefix}/lib/libfl.a" \
+    SED=${prefix}/bin/gsed \
+    MSGFMT=${prefix}/bin/msgfmt \
+    GMSGFMT=${prefix}/bin/msgfmt \
+    XGETTEXT=${prefix}/bin/xgettext \
+    MSGMERGE=${prefix}/bin/msgmerge \
+    INSTALLED_PRODUCT_ASIDES=YES \
+    RC_JASPER=YES \
+    RC_XBS=YES \
+    SEPARATE_STRIP=YES \
+    UNAME_RELEASE="${os.version}" \
+    HOST_ARCHITECTURE="${build_arch}" \
+    READELF_PROG=""
+
+destroot.args-append \
+    MAKEINFO="/usr/bin/makeinfo" \
+    LEXLIB="${prefix}/lib/libfl.a"
+
+destroot.env-append \
+    MAKEINFO="/usr/bin/makeinfo" \
+    LEXLIB="${prefix}/lib/libfl.a"
+
+post-destroot {
+    system "chgrp procmod ${destroot}${prefix}/bin/*-apple"
+    system "chmod g+s ${destroot}${prefix}/bin/*-apple"
+
+    foreach info [glob -tails -directory ${destroot}${prefix}/share/info g*] {
+        move ${destroot}${prefix}/share/info/${info} ${destroot}${prefix}/share/info/apple-${info}
+    }
+
+    # avoid conflicts with other gdb/binutils installations from MacPorts:
+    xinstall -d ${destroot}${prefix}/lib/${name}
+    eval move [glob ${destroot}${prefix}/lib/*.{,l}a] ${destroot}${prefix}/lib/${name}
+    eval reinplace "s|${prefix}/lib|${prefix}/lib/${name}|g" [glob ${destroot}${prefix}/lib/${name}/*.la]
+    xinstall -d ${destroot}${prefix}/include/${name}
+    eval move [glob ${destroot}${prefix}/include/*.h] ${destroot}${prefix}/include/${name}
+    xinstall -d ${destroot}${prefix}/share/info/${name}
+    eval move [glob ${destroot}${prefix}/share/info/{annotate,bfd,stabs}.info] ${destroot}${prefix}/share/info/${name}
+    foreach msgs [glob ${destroot}${prefix}/share/locale/*/LC_MESSAGES/*.mo] {
+        if [file isfile ${msgs}] {
+            move ${msgs} [file dirname ${msgs}]/${name}-[file tail ${msgs}]
+        }
+    }
+    xinstall -d ${destroot}${prefix}/share/${name}
+    eval xinstall -m 644 [glob ${worksrcpath}/../conf/*.gdb] ${destroot}${prefix}/share/${name}
+    xinstall -d ${destroot}${prefix}/etc/${name}
+    xinstall ${worksrcpath}/../gdb.conf ${destroot}${prefix}/etc/${name}
+    xinstall -d ${destroot}${prefix}/share/doc/${name}
+    xinstall ${worksrcpath}/../doc/refcard.pdf ${destroot}${prefix}/share/doc/${name}
+    eval delete [glob ${destroot}${prefix}/*darwin*]
+}
+
+if {${os.platform} eq "darwin" && ${os.major} >= 12} {
+    notes "
+You will need to make sure /System/Library/LaunchDaemons/com.apple.taskgated.plist\
+has the '-p' option, e.g.
+            <key>ProgramArguments</key>
+            <array>
+                    <string>/usr/libexec/taskgated</string>
+                    <string>-sp</string>
+            </array>
+"
+}
+
+livecheck.type          regex
+livecheck.url           http://opensource.apple.com/tarballs/gdb
+livecheck.regex         gdb-(\\d+(?:\\.\\d+)*)\\.tar

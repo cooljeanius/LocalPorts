@@ -1,0 +1,185 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+PortGroup           muniversal 1.0
+
+name                gretl
+version             1.9.14
+revision            1
+categories          math finance science office
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             GPL-3
+
+description         GNU Econometrics package
+
+long_description    ${name}, the Gnu Regression, Econometrics and \
+                    Time-series Library, is an econometrics package. \
+                    It comprises a shared library, a command-line client \
+                    and a gui client that uses GTK. gretl offers several \
+                    least-squares based estimators. Besides reading data \
+                    files in its own format it also reads RATS 4 \
+                    databases, among others. It has a built-in \
+                    spreadsheet for editing data, and uses gnuplot for \
+                    graphing. It can output regression results in LaTeX \
+                    format.
+
+homepage            http://${name}.sourceforge.net/
+master_sites        http://ricardo.ecn.wfu.edu/pub/${name}/ \
+                    sourceforge:project/${name}/${name}/${version}
+
+use_xz              yes
+
+# md5 is used because this package was originally based off of Fink's
+# package for gretl, which still uses md5
+checksums           md5     dc5eae84b48af29b9de98a0e75b5bf05 \
+                    rmd160  ce36e8d6503934c9643434fad9bd712a96e537b3 \
+                    sha256  ceabb8cbf461ab340093f3d38d9c87d91f6d17c62906d3d8d7bfe58812ba965b
+
+patchfiles-append   patch-gui2_Makefile.in.diff \
+                    patch-tests_Makefile.in.diff
+
+patch.args-append   --backup
+
+post-patch {
+    reinplace "s|need_relink=yes|need_relink=no|g" ${worksrcpath}/tools/ltmain.sh
+    # the reinplace to use DYLD_LIBRARY_PATH failed, so it has been turned
+    # into two separate patches
+    reinplace "s|/INTL_MACOSX_LIBS/s|-Wl,-framework -Wl,CoreFoundation|g" ${worksrcpath}/configure
+# Avoid getting /usr/local into the .la files (and into the build)...
+    reinplace "s|\-L/usr/local/lib||g" ${worksrcpath}/lib/Makefile.in
+    # (the reinplace to let the .pc and -config files specify the correct
+    # inc dir failed, so it has been removed)
+    ui_debug "skipping a reinplace in ${worksrcpath}"
+# Replace some fink paths:
+    copy ${worksrcpath}/osx/myconf.fink ${worksrcpath}/osx/myconf.macports
+    reinplace "s|/sw/|${prefix}/|g" ${worksrcpath}/osx/myconf.macports
+}
+
+depends_build-append \
+                    bin:latex:texlive-latex \
+                    bin:xdg-mime:xdg-utils \
+                    bin:gawk:gawk \
+                    bin:etags:emacs \
+                    port:pkgconfig \
+                    port:gmake \
+                    port:libtool
+
+depends_lib-append  port:gmp \
+                    port:readline \
+                    port:gettext \
+                    port:libiconv \
+                    port:zlib \
+                    path:include/odbcinst.h:unixODBC \
+                    port:mpfr \
+                    port:gnuplot \
+                    port:gtksourceview3 \
+                    port:libpng \
+                    port:libgsf \
+                    path:lib/pkgconfig/fftw3.pc:fftw-3 \
+                    port:curl \
+                    port:libxml2 \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    port:ncurses \
+                    port:atk \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    port:fontconfig \
+                    port:freetype \
+                    port:gdk-pixbuf2 \
+                    port:gtk3 \
+                    port:libidn \
+                    path:lib/pkgconfig/pango.pc:pango
+# The path-style dependency for unixODBC is because it conflicts with
+# libiodbc (which also works here)
+# c-ares, libssh2, and openssl might get linkages made to them depending
+# on if they appear in `curl-config --libs`, which depends on what variants
+# curl is installed with. gretl uses no symbols from any of those though.
+
+depends_run-append  bin:xdg-mime:xdg-utils
+
+configure.pkg_config ${prefix}/bin/pkg-config
+
+configure.optflags -Os
+configure.cflags -Wall ${configure.optflags} -fstrict-aliasing -ftree-loop-im -ftree-loop-linear -ftree-loop-ivcanon -fivopts -funroll-loops -freorder-blocks -ffast-math
+
+configure.args-append --enable-static \
+                      --enable-shared \
+                      --with-gmp-prefix=${prefix} \
+                      --with-mpfr-prefix=${prefix} \
+                      --with-readline-prefix=${prefix} \
+                      --with-libintl-prefix=${prefix} \
+                      --with-libiconv-prefix=${prefix} \
+                      --with-odbc \
+                      --with-ODBC-prefix=${prefix} \
+                      --enable-pkgbuild \
+                      --with-gsf \
+                      --with-gmake \
+                      --disable-gnuplot-checks
+#TODO: make the gui a variant (perhaps 2, one for gtk2 and one for gtk3)
+# '--enable-build-doc' cannot be used because it is missing a Makefile.in
+
+post-configure {
+    eval reinplace "s|gcc|${configure.cc}|g" [glob ${worksrcpath}/utils/FR*/Makefile]
+}
+
+use_parallel_build no
+
+build.type gnu
+build.cmd ${prefix}/bin/gmake
+# "lib" has to go first:
+build.target lib subdirs tags
+# (pdfdocs target is broken, as is osx-dist)
+
+post-build {
+    #TODO: obey env and flags and stuff when building these:
+    system -W ${worksrcpath}/utils/FRB "${build.cmd} frb2db"
+    system -W ${worksrcpath}/utils/FRED "${build.cmd} fred2db"
+}
+
+# tests succeed for x86_64, but fail for i386:
+if {![variant_isset universal] && ${os.arch} == "x86_64"} {
+    test.run yes
+    test.target tests check
+}
+
+post-destroot {
+    if {[file exists ${worksrcpath}/${name}-config]} {
+        xinstall -m 755 ${worksrcpath}/${name}-config ${destroot}${prefix}/bin
+    }
+# Install the utils
+    if {[file exists ${worksrcpath}/utils/economagic/magicget]} {
+        xinstall -m 755 ${worksrcpath}/utils/economagic/magicget ${destroot}${prefix}/bin
+    }
+    xinstall -m 755 ${worksrcpath}/utils/nber/get_nber_data.sh ${destroot}${prefix}/bin/get_nber_data
+    xinstall -m 755 ${worksrcpath}/utils/nber/idx_abbrev.pl ${destroot}${prefix}/bin/idx_abbrev
+    xinstall -m 755 ${worksrcpath}/utils/nber/nberhist.pl ${destroot}${prefix}/bin/nberhist
+    if {[file exists ${worksrcpath}/utils/emacs/${name}.el]} {
+        xinstall -d ${destroot}${prefix}/share/emacs/site-lisp
+        xinstall ${worksrcpath}/utils/emacs/${name}.el ${destroot}${prefix}/share/emacs/site-lisp
+    }
+    xinstall -m 755 ${worksrcpath}/utils/FRB/frb2db ${destroot}${prefix}/bin
+    xinstall -m 755 ${worksrcpath}/utils/FRED/fred2db ${destroot}${prefix}/bin
+    ui_debug "copying whole utils directory to datadir..."
+    copy ${worksrcpath}/utils ${destroot}${prefix}/share/${name}
+# The DocFiles
+    set docdir ${destroot}${prefix}/share/doc/${name}
+    xinstall -d ${docdir}
+    xinstall -m 644 -W ${worksrcpath} README COPYING ChangeLog CompatLog ${docdir}
+#TODO: install rest of docs
+# (see notes about building docs being broken above)
+}
+
+platform macosx {
+}
+
+#TODO:
+# - openmp support
+# - fix default settings
+# - R support
+# - make gnuplot support a variant?
+# - variant for experimental audio support?
+# - variant to use lapack from MacPorts instead of the one from
+#   veclib.framework?
+# - make an app bundle

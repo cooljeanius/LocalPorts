@@ -1,0 +1,114 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 107381 2013-06-26 18:47:43Z mww@macports.org $
+
+PortSystem          1.0
+
+name                autogen
+version             5.18.2
+categories          devel
+platforms           darwin
+maintainers         mww openmaintainer
+license             GPL-3
+description         tool to simplify the creation and maintenance of \
+                    programs and text
+long_description    AutoGen is a tool designed to simplify the creation \
+                    and maintenance of programs that contain large \
+                    amounts of repetitious text. It is especially \
+                    valuable in programs that have several blocks of \
+                    text that must be kept synchronized.
+
+homepage            http://autogen.sourceforge.net/
+master_sites        sourceforge gnu:autogen/rel${version}
+checksums           rmd160  b26653253f7a2d397ecee03ebe02cf2627b12fa6 \
+                    sha256  1fad5687a5f0fb110fe78d13dccde11346b5e072b44cf8d4e6871fdf42e02c6b
+
+use_xz              yes
+
+patchfiles-append   patch-Makefile.am.diff \
+                    patch-doc_Makefile.am.diff \
+                    patch-configure.ac.diff \
+                    patch-config_unlocked-io.m4.diff \
+                    patch-config_libopts.m4.diff \
+                    patch-config_extensions.m4.diff \
+                    patch-config_ag_macros.m4.diff \
+                    patch-agen5_Makefile.am.diff
+# patchfiles:
+# -Makefile.am: silence some warnings while autoreconfing
+# -doc_Makefile.am: ditto
+# -configure.ac: misc. configury tweaks, such as silencing autoreconf and
+#                autoscan warnings, as well as solving other issues
+# -config_unlocked-io.m4: not actually needed, the issue turned out to be
+#                         extensions.m4 instead
+# -config_libopts.m4: same as configure.ac
+# -config_extensions.m4: same as configure.ac
+# -config_ag_macros.m4: originally started as a workaround for the stray
+#                       '-R' in 'autoopts-config --libs', now more similar
+#                       in purpose to the rest of the patches for the m4
+#                       macro files
+# -agen5_Makefile.am: dirty hack to fix compilation issue with libguile
+
+patch.args-append   --backup
+
+use_autoreconf      yes
+autoreconf.args     -fvi -Wall
+
+depends_build-append \
+                    bin:texi2html:texi2html \
+                    bin:gawk:gawk \
+                    bin:grep:grep \
+                    bin:gsed:gsed
+depends_lib-append  port:guile \
+                    port:libiconv \
+                    port:libxml2 \
+                    port:zlib \
+                    port:coreutils \
+                    port:gettext \
+                    port:gmp \
+                    port:libtool \
+                    port:rx \
+                    port:gnuregex
+# coreutils is not exactly linked against, but it is still needed
+# the regex libs were added while I was trying to debug a build issue; now
+# they are "just in case" (can probably be removed)
+
+configure.args-append \
+                    --mandir=${prefix}/share/man \
+                    --infodir=${prefix}/share/info \
+                    --libdir=${prefix}/lib \
+                    --enable-snprintfv-install \
+                    --with-libguile=${prefix} \
+                    --with-libxml2=${prefix} \
+                    --with-libxml2-cflags="-I${prefix}/include/libxml2" \
+                    --with-guile-ver=1.8 \
+                    --with-libiconv-prefix=${prefix} \
+                    --with-libintl-prefix=${prefix} \
+                    --enable-shell
+
+configure.env-append libdir=${prefix}/lib
+
+test.run            yes
+test.target         check
+test.env-append     LDFLAGS="-L${prefix}/lib -lintl" \
+                    LIB="-L${prefix}/lib -lintl" \
+                    CPPFLAGS="-I{prefix}/include" \
+                    INC="-I{prefix}/include"
+# Tests use custom envvars when compiling; setting these reduces the number
+# of test failures from 20 to 1
+
+# info was missing after I upgraded:
+destroot.target-append install-info
+
+variant debug description {enable debugging of autogen} {
+    #depends_lib-append lib:dmalloc:dmalloc
+    configure.args-append --enable-debug
+    # cannot use '--with-dmalloc' because of #42843
+    configure.optflags -g
+}
+
+platform darwin 8 {
+    configure.cppflags-append "-D_WINT_T"
+}
+
+livecheck.type      regex
+livecheck.url       http://ftp.gnu.org/gnu/${name}/?C=M&O=D
+livecheck.regex     rel(\\d+(?:\\.\\d+)*)

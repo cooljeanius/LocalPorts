@@ -1,0 +1,99 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 114817 2013-12-16 07:46:32Z ryandesign@macports.org $
+
+PortSystem          1.0
+
+PortGroup           muniversal 1.0
+
+name                distcc
+version             3.2rc1
+revision            1
+categories          devel net
+platforms           darwin
+maintainers         nomaintainer
+license             GPL-2+
+
+description         Distributed C compiler
+
+long_description    distcc is a program to distribute compilation of C or \
+                    C++ code across several machines on a network without \
+                    requiring that they share filesystems, have the same \
+                    headers/libraries or have syncronized clocks. distcc \
+                    should always generate the same results as a local \
+                    compile but is often 2 to 3 times faster.
+
+homepage            http://distcc.org/
+master_sites        googlecode
+use_bzip2           yes
+
+checksums           rmd160  505447b910d90ea403a98fe0d0a3a0fa92cd7039 \
+                    sha256  311671e844625d7fdb18dd3d096cd855751cfe8de13827682bcb7beff9133b30
+
+depends_build       port:pkgconfig
+
+depends_lib         port:popt
+
+patchfiles-append   patch-zeroconf-reg.c.diff
+
+configure.args-append \
+                    ac_cv_path_PYTHON="" \
+                    --disable-Werror \
+                    --without-avahi \
+                    --without-gtk \
+                    --without-gnome \
+                    --without-included-popt
+
+configure.env-append \
+                    ac_cv_path_PYTHON=""
+#TODO: add python variants so that it can be possible to run all the tests
+
+test.run yes
+test.target maintainer-check
+
+post-destroot {
+    if {[file exists ${worksrcpath}/pump]} {
+        xinstall -m 0755 ${worksrcpath}/pump ${destroot}${prefix}/bin/distcc-pump
+    }
+    if {[file exists ${destroot}${prefix}/share/man/man1/pump.1.gz]} {
+        copy ${destroot}${prefix}/share/man/man1/pump.1.gz ${destroot}${prefix}/share/man/man1/distcc-pump.1.gz
+    }
+    if {[file exists ${destroot}${prefix}/bin/distcc-pump] && [file exists ${filespath}/distcc-pumpedshell]} {
+        xinstall -m 0755 ${filespath}/distcc-pumpedshell ${destroot}${prefix}/bin
+    }
+    if {![file exists ${prefix}/Library/LaunchDaemons/org.macports.distccd.plist]} {
+        xinstall -d -m 0755 ${destroot}${prefix}/Library/LaunchDaemons
+        xinstall -m 0644 ${filespath}/org.macports.distccd.plist ${destroot}${prefix}/Library/LaunchDaemons
+    }
+}
+
+variant zeroconf description {use Avahi to advertise distcc via ZeroConf} {
+    depends_lib-append  port:avahi
+
+    configure.args-replace --without-avahi --with-avahi
+}
+
+variant gtk description {Build GTK interface to distccmon} {
+    depends_lib-append  port:gtk2 \
+                        port:libglade2 \
+                        path:lib/pkgconfig/glib-2.0.pc:glib2
+    # it will also opportunistically link with a bunch of gtk libraries
+    # that it does not actually use symbols from: atk, cairo, fontconfig,
+    # freetype, gdk-pixbuf2, gettext, pango, xorg-libX11,
+    # xorg-libXcomposite, xorg-libXcursor, xorg-libXdamage, xorg-libXext,
+    # xorg-libXfixes, xorg-libXi, xorg-libXinerama, xorg-libXrandr, and
+    # xrender
+
+    configure.args-replace --without-gtk --with-gtk
+}
+
+variant gnome requires gtk description {Add GNOME support to the GTK interface to distccmon} {
+    depends_lib-append  port:libgnome \
+                        port:libgnomeui \
+                        path:lib/pkgconfig/pango.pc:pango
+    # it will also opportunistically link with a bunch of gnome libraries
+    # that it does not actually use symbols from: besides the ones listed
+    # under gtk, append also: gconf, gnome-vfs, libart_lgpl, libbonobo,
+    # libbonoboui, libgnomecanvas, orbit2, xorg-libice, and xorg-libsm
+
+    configure.args-replace --without-gnome --with-gnome
+}

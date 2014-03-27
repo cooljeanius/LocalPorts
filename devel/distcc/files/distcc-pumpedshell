@@ -1,0 +1,20 @@
+#!/bin/sh
+
+CleanUp(){
+	distcc-pump --shutdown
+}
+
+eval `distcc-pump --startup`
+
+trap "CleanUp" 0
+trap "CleanUp" 1
+trap "CleanUp" 2
+
+if [ "$SHELL" != "" ] ;then
+	"$SHELL" "$@"
+	RET=$?
+else
+	bash "$@"
+	RET=$?
+fi
+exit $RET

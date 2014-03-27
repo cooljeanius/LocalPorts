@@ -173,14 +173,14 @@ post-configure {
         ui_msg "Continuing building anyway for now though..."
     }
     # Hack to work around readelf build failure:
-    eval reinplace "s|READELF_PROG\=readelf|READELF_PROG\=|g" [glob ${worksrcpath}/binutils/Makefile.*]
-    eval reinplace "s|READELF_PROG\\ \=\\ readelf|READELF_PROG\\ \=|g" [glob ${worksrcpath}/binutils/Makefile.*]
-    eval reinplace "s|READELF_PROG\\\ \=\\\ readelf|READELF_PROG\\\ \=|g" [glob ${worksrcpath}/binutils/Makefile.*]
-    eval reinplace "s|\\$\(READELF_PROG\)||g" [glob ${worksrcpath}/binutils/Makefile.*]
+    eval reinplace "s|READELF_PROG\=readelf|READELF_PROG\=|g" [glob ${worksrcpath}/${name}/Makefile.*]
+    eval reinplace "s|READELF_PROG\\ \=\\ readelf|READELF_PROG\\ \=|g" [glob ${worksrcpath}/${name}/Makefile.*]
+    eval reinplace "s|READELF_PROG\\\ \=\\\ readelf|READELF_PROG\\\ \=|g" [glob ${worksrcpath}/${name}/Makefile.*]
+    eval reinplace "s|\\$\(READELF_PROG\)||g" [glob ${worksrcpath}/${name}/Makefile.*]
     # Another attempt at that:
-    system -W ${worksrcpath}/binutils "unifdef -UBFD64 readelf.c > readelf_fixed.c 2>&1 || \[ $? -ne 2 \]"
-    file rename ${worksrcpath}/binutils/readelf.c ${worksrcpath}/binutils/readelf64.c
-    file rename ${worksrcpath}/binutils/readelf_fixed.c ${worksrcpath}/binutils/readelf.c
+    system -W ${worksrcpath}/${name} "unifdef -UBFD64 readelf.c > readelf_fixed.c 2>&1 || \[ $? -ne 2 \]"
+    file rename ${worksrcpath}/${name}/readelf.c ${worksrcpath}/${name}/readelf64.c
+    file rename ${worksrcpath}/${name}/readelf_fixed.c ${worksrcpath}/${name}/readelf.c
 }
 
 build.type             gnu
@@ -359,13 +359,13 @@ post-destroot {
             file rename ${destroot}${prefix}/share/info/${infofile}.info ${destroot}${prefix}/share/info/${name}-${infofile}.info
         }
     }
-    xinstall -d ${destroot}${prefix}/include/binutils
+    xinstall -d ${destroot}${prefix}/include/${name}
     foreach header [glob ${destroot}${prefix}/include/*] {
         if [file isfile ${header}] {
             move ${header} ${destroot}${prefix}/include/${name}
         }
     }
-    xinstall -d ${destroot}${prefix}/lib/binutils-staticlibs
+    xinstall -d ${destroot}${prefix}/lib/${name}-staticlibs
     foreach library [glob ${destroot}${prefix}/lib/*.*a] {
         if [file isfile ${library}] {
             move ${library} ${destroot}${prefix}/lib/${name}-staticlibs
@@ -373,19 +373,19 @@ post-destroot {
     }
     eval reinplace "s|${prefix}/lib|${prefix}/lib/${name}-staticlibs|g" [glob ${destroot}${prefix}/lib/${name}-staticlibs/*.la]
     platform x86_64 {
-        xinstall -d ${destroot}${prefix}/lib/x86_64/binutils
-        move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/x86_64/binutils
+        xinstall -d ${destroot}${prefix}/lib/x86_64/${name}
+        move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/x86_64/${name}
     }
     platform i386 {
-        xinstall -d ${destroot}${prefix}/lib/i386/binutils
+        xinstall -d ${destroot}${prefix}/lib/i386/${name}
         if [file exists ${destroot}${prefix}/lib/x86_64/libiberty.a] {
-            move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/i386/binutils
+            move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/i386/${name}
         } elseif [file exists ${destroot}${prefix}/lib/i386/libiberty.a] {
-            move ${destroot}${prefix}/lib/i386/libiberty.a ${destroot}${prefix}/lib/i386/binutils
+            move ${destroot}${prefix}/lib/i386/libiberty.a ${destroot}${prefix}/lib/i386/${name}
         }
     }
     platform powerpc {
-        xinstall -d ${destroot}${prefix}/lib/ppc/binutils
+        xinstall -d ${destroot}${prefix}/lib/ppc/${name}
     }
     foreach msgs [glob ${destroot}${prefix}/share/locale/*/LC_MESSAGES/*.mo] {
         if [file isfile ${msgs}] {
@@ -411,13 +411,13 @@ platform x86_64 {
     destroot.keepdirs ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
 }
 platform i386 {
-    if {![file exists ${destroot}${prefix}/lib/i386/binutils/libiberty.a]} {
-        destroot.keepdirs ${destroot}${prefix}/lib/i386/binutils
-    } elseif {![file exists ${destroot}${prefix}/lib/x86_64/binutils/libiberty.a]} {
-        destroot.keepdirs ${destroot}${prefix}/lib/x86_64/binutils
+    if {![file exists ${destroot}${prefix}/lib/i386/${name}/libiberty.a]} {
+        destroot.keepdirs ${destroot}${prefix}/lib/i386/${name}
+    } elseif {![file exists ${destroot}${prefix}/lib/x86_64/${name}/libiberty.a]} {
+        destroot.keepdirs ${destroot}${prefix}/lib/x86_64/${name}
     }
 }
 platform powerpc {
-    destroot.keepdirs ${destroot}${prefix}/lib/ppc/binutils
+    destroot.keepdirs ${destroot}${prefix}/lib/ppc/${name}
 }
 

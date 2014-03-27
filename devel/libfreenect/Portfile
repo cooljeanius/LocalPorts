@@ -21,8 +21,8 @@ homepage            http://www.openkinect.org/
 
 checksums           rmd160  2e145a48062be4558d6a6e5adc93abd94e036178 \
                     sha256  f561fd5a2350d4c7c65a392348f72879e7f2005a7a8dd86086fff19ff6d1ee7b
-#TODO: use stealth update recipe
-#dist_subdir         <something?>
+# Stealth update(?):
+dist_subdir         ${name}/${version}_1 
 
 depends_build-append \
                     port:pkgconfig

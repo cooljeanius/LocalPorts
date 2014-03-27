@@ -1,0 +1,11 @@
+--- tests/Makefile.in.orig	2012-11-07 11:08:30.000000000 -0500
++++ tests/Makefile.in	2014-03-11 17:52:01.000000000 -0400
+@@ -36,7 +36,7 @@
+ .PHONY :
+ 
+ check: nistcheck
+-	./nistcheck $(topsrc)/tests
++	env DYLD_LIBRARY_PATH="../lib/.libs:$$DYLD_LIBRARY_PATH" ./nistcheck $(topsrc)/tests
+ 
+ clean:
+ 	rm -f nistcheck *.o test.out

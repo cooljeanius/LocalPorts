@@ -1,0 +1,19 @@
+*** src/zeroconf-reg.c.orig	Tue Apr  5 20:58:58 2011
+--- src/zeroconf-reg.c	Tue Mar 25 13:25:17 2014
+***************
+*** 249,255 ****
+      }
+  
+      if (!(ctx->client = avahi_client_new(avahi_threaded_poll_get(ctx->threaded_poll), AVAHI_CLIENT_NO_FAIL, client_callback, ctx, &error))) {
+!         rs_log_crit("Failed to create client object: %s\n", avahi_strerror(avahi_client_errno(ctx->client)));
+          goto fail;
+      }
+  
+--- 249,255 ----
+      }
+  
+      if (!(ctx->client = avahi_client_new(avahi_threaded_poll_get(ctx->threaded_poll), AVAHI_CLIENT_NO_FAIL, client_callback, ctx, &error))) {
+!         rs_log_crit("Failed to create client object: %s\n", avahi_strerror(error));
+          goto fail;
+      }
+  

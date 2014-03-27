@@ -4,8 +4,8 @@
 PortSystem          1.0
 
 name                dpkg
-version             1.16.10
-revision            1
+version             1.16.12
+revision            0
 platforms           darwin freebsd
 categories          sysutils archivers
 license             GPL-2+
@@ -18,22 +18,22 @@ long_description    ${name} is the basis of the ${description}. \
 homepage            http://wiki.debian.org/Teams/Dpkg
 
 master_sites        debian:d/${name}/
-checksums           md5     a20a06a5272717274a8b009368f237da \
-                    sha1    bd67ce10236a674a2349d13feaa096b41fea4c9c \
-                    rmd160  e04b3834056cd97c1cb955007f02e1358a8e8fa0 \
-                    sha256  aeaacf0884039940d9463901102194f9a42eb5702157b9e7a23f43e0d9f65cf2
+checksums           md5     b7e9cac52ff7882b088a3058b52081b5 \
+                    sha1    5969bb7f30ade840a56f512571ca5ab56d434af1 \
+                    rmd160  1912afd35b835901e661d2c0df563198de4e8420 \
+                    sha256  af96447758ecbfda51fc57d4b3bc3d208ad6393e71b91c9b52c6687697a208da
 
 use_xz              yes
 extract.asroot      yes
 
 depends_build-append \
                     port:pkgconfig \
-                    path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
-                    path:share/aclocal/xorg-macros.m4:xorg-util-macros \
+                    port:autoconf-archive \
+                    port:xorg-util-macros \
+                    port:gnutar \
+                    port:perl5 \
                     bin:git:git-core \
-                    bin:gnutar:gnutar \
-                    bin:lzma:xz \
-                    bin:perl:perl5
+                    bin:lzma:xz
 
 # Use MacPorts versions explicitly
 depends_lib-append  port:gettext \
@@ -46,7 +46,7 @@ depends_lib-append  port:gettext \
                     port:gnutar \
                     path:lib/pkgconfig/liblzma.pc:xz
 
-depends_run-append  bin:gnutar:gnutar \
+depends_run-append  port:gnutar \
                     bin:lzma:xz \
                     bin:perl:perl5 \
                     port:debianutils
@@ -55,10 +55,9 @@ depends_run-append  bin:gnutar:gnutar \
 distname            ${name}_${version}
 worksrcdir          ${name}-${version}
 
-configure.env-append \
-                    PERL=${prefix}/bin/perl5 \
-                    PKG_CONFIG=${prefix}/bin/pkg-config \
-                    TAR=${prefix}/bin/gnutar
+configure.perl      ${prefix}/bin/perl5
+configure.pkg_config ${prefix}/bin/pkg-config
+configure.env-append TAR=${prefix}/bin/gnutar
 configure.args-append \
                     --with-libintl-prefix=${prefix} \
                     --with-libiconv-prefix=${prefix} \
@@ -109,6 +108,8 @@ patchfiles-append   patch-configure.ac.diff \
                     patch-src_archives.c.diff \
                     patch-utils_start-stop-daemon.c.diff
 
+patch.args-append   --backup
+
 post-patch {
     set scripts ${worksrcpath}/scripts
     reinplace "s|/etc/${name}/|${prefix}/etc/${name}/|" \
@@ -144,20 +145,12 @@ platform freebsd {
     depends_build-append    bin:gmake:gmake
 }
 
-# This variant currently hangs while building and fails to actually
-# install the documentation, not entirely sure why...
-# Example error message:
-# dot[21000:907] CoreText CopyPropertiesForFont received mig IPC error (FFFFFFFFFFFFFECC) from font server
-# (issue with the graphviz port? see #40807 on trac)
+# This variant sometimes hangs while building...
 variant docs description {Build documentation (warning: building documentation takes a long time)} {
-    PortGroup               archcheck 1.0
     depends_build-append    port:doxygen \
                             path:bin/dot:graphviz \
-                            bin:mig:bootstrap_cmds \
-                            bin:lcov:lcov \
-                            port:fondu \
-                            port:fontconfig
-    depends_skip_archcheck-append bootstrap_cmds lcov fondu fontconfig
+                            port:fontconfig \
+                            port:freefont-ttf
     set docdir ${prefix}/share/doc/${name}
     configure.args-append   --docdir=${docdir} \
                             --htmldir=${docdir}/html \
@@ -167,9 +160,10 @@ variant docs description {Build documentation (warning: building documentation t
     build.target-append     doc
     pre-build {
         elevateToRoot "doxygen"
+        system -W ${worksrcpath}/doc "${prefix}/bin/doxygen -u"
     }
     post-build {
-        system -W ${worksrcpath}/doc "doxygen"
+        system -W ${worksrcpath}/doc "${prefix}/bin/doxygen"
         dropPrivileges
         set destroot_docdir ${destroot}${prefix}/share/doc/${name}
         xinstall -d ${destroot_docdir}
@@ -181,7 +175,7 @@ variant docs description {Build documentation (warning: building documentation t
     }
 }
 
-# Tests currently fail, this needs to be fixed eventually
+# Tests currently fail, this needs to be fixed eventually:
 test.run            yes
 test.target         check
 

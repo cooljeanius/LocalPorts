@@ -8,7 +8,7 @@ PortGroup       archcheck 1.0
 
 name            texlive-bin
 version         2013
-revision        2
+revision        5
 
 categories      tex
 maintainers     dports openmaintainer
@@ -31,10 +31,10 @@ license         Copyleft Permissive LGPL-2.1+ BSD
 # Our distfile is a stripped-down version of the texlive source
 # tarball, available from CTAN in systems/texlive/Source. For faster
 # download time, it omits a number of libraries and utilities that we
-# don't build. However, the port should still work with an unmodified
+# do NOT build. However, the port should still work with an unmodified
 # texlive distfile.
 master_sites    http://giraffe.cs.washington.edu/texlive/
-set distversion 20130619
+set distversion ${version}0619
 use_xz          yes
 distname        texlive-source-${distversion}-stripped
 worksrcdir      ${distname}
@@ -92,6 +92,8 @@ patchfiles-append   patch-texk_kpathsea_Makefile.in.diff \
 # # fixes for makefile brokenness not otherwise specified
 patchfiles-append   patch-libs-freetype-Makefile.in.diff
 
+# The equivalent Portfile in trunk includes backported fixes from upstream
+
 post-patch {
     reinplace "s|@@TEXMFDIST@@|${texlive_texmfdist}|" ${worksrcpath}/texk/texlive/linked_scripts/Makefile.in
     reinplace "s|@@TEXMFDIST@@|${texlive_texmfdist}|" ${worksrcpath}/texk/texlive/tl_scripts/Makefile.in
@@ -118,6 +120,8 @@ post-patch {
 # llvm-gcc apparently fails on Xcode 4.0.x (#30758)
 compiler.blacklist {llvm-gcc-4.2 < 2335.15}
 
+# Fix build failure on Tiger due to use of -isystem
+compiler.blacklist-append gcc-4.0 gcc-3.3
 
 # We use MacPorts-provided libraries instead of the ones included in
 # texlive whenever possible, to avoid redundancy and to better keep
@@ -126,7 +130,7 @@ compiler.blacklist {llvm-gcc-4.2 < 2335.15}
 # Exceptions are freetype1 (not in MacPorts anymore)
 #
 # Many of the --with-system-* and --disable-* flags are actually
-# redundant because we've removed those components from the distfile,
+# redundant because we have removed those components from the distfile,
 # but we leave them here for compatibility with the stock distfile.
 configure.args  --bindir=${texlive_bindir} \
                 --mandir=${texlive_bindir} \
@@ -174,10 +178,10 @@ configure.args  --bindir=${texlive_bindir} \
 # makejvf has some invalid character encodings in one of its source
 # files, which cause certain versions of clang to hang (#38643). Using
 # -Wno-invalid-source-encoding avoids this problem.
-# It appears to be specific to Xcode 4.6, but there's no harm in
+# It appears to be specific to Xcode 4.6, but there should be no harm in
 # silencing the warning for all versions of clang.
 post-patch {
-    if {[string match *clang* ${configure.compiler}]} { 
+    if {[string match *clang* ${configure.compiler}]} {
         reinplace "/^WARNING_CFLAGS =/s/$/ -Wno-invalid-source-encoding/" ${worksrcpath}/texk/makejvf/Makefile.in
         build.env-append    WARNING_CFLAGS=-Wno-invalid-source-encoding
     }
@@ -193,10 +197,31 @@ configure.env-append        OBJCXX=${configure.cxx} \
 
 # work around bug in texlive makefiles where $OBJC is not recorded
 # during configure phase
-build.env                   OBJC=${configure.objc} \
-                            OBJCFLAGS="${configure.objcflags} [get_canonical_archflags objc]" \
-                            OBJCXX=${configure.cxx} \
-                            OBJCXXFLAGS="${configure.objcflags} [get_canonical_archflags objc]"            
+#TODO: use configure.objcxx unconditionally once MacPorts 2.3 is released
+build.env-append            OBJC=${configure.objc} \
+                            OBJCFLAGS="${configure.objcflags} [get_canonical_archflags objc]"
+
+if {[info exists configure.objcxxflags]} {
+    build.env-append        OBJCXX=${configure.objcxx}
+    if {[info exists configure.cxx_stdlib] &&
+        ${configure.cxx_stdlib} ne {} &&
+        [string match *clang* ${configure.cxx}]
+    } then {
+        build.env-append    OBJCXXFLAGS="${configure.objcxxflags} [get_canonical_archflags objcxx] -stdlib=${configure.cxx_stdlib}"
+    } else {
+        build.env-append    OBJCXXFLAGS="${configure.objcxxflags} [get_canonical_archflags objcxx]"
+    }
+} else {
+    build.env-append        OBJCXX=${configure.cxx}
+    if {[info exists configure.cxx_stdlib] &&
+        ${configure.cxx_stdlib} ne {} &&
+        [string match *clang* ${configure.cxx}]
+    } then {
+        build.env-append    OBJCXXFLAGS="${configure.objcflags} [get_canonical_archflags objc] -stdlib=${configure.cxx_stdlib}"
+    } else {
+        build.env-append    OBJCXXFLAGS="${configure.objcflags} [get_canonical_archflags objc]"
+    }
+}
 
 post-destroot   {
     # Anything that gets installed into texmf-dist will be installed
@@ -213,7 +238,7 @@ post-destroot   {
         delete ${destroot}${texlive_texmfmain}/scripts/texlive/tlmgr.pl
     }
     delete ${destroot}${texlive_bindir}/latexmk
-    delete ${destroot}${texlive_bindir}/tlmgr    
+    delete ${destroot}${texlive_bindir}/tlmgr
 
     # Do not install the pre-generated fmtutil.cnf; we generate our own
     if {[file isfile ${destroot}${texlive_texmfmain}/web2c/fmtutil.cnf]} {
@@ -222,13 +247,15 @@ post-destroot   {
 
     # install the tlpkg/TeXLive perl module
     xinstall -d ${destroot}${prefix}/share/tlpkg
+    ui_debug "copying tlpkg perl module..."
     copy ${workpath}/${tlpkgdistname} ${destroot}${prefix}/share/tlpkg/TeXLive
 
     # gzip manpages that are installed into texlive_bindir
     foreach manpage [glob -directory ${destroot}${texlive_bindir} man*/*] {
-        # need to make sure it isn't a symlink
+        # need to make sure it is NOT a symlink
         if {[file type $manpage] == "file"} {
-            system "gzip $manpage"
+            ui_debug "gzipping ${manpage}"
+            system "gzip ${manpage}"
         }
     }
 
@@ -275,9 +302,10 @@ pre-activate {
 }
 
 post-activate {
-    system "${texlive_bindir}/mktexlsr"
+    system -W ${prefix} "${texlive_bindir}/mktexlsr"
 }
 
+# variant overrides global description here?
 variant x11 conflicts no_x11 description {Build with x11 support, using Xaw widgets for xdvi} {
     depends_lib-append     port:xorg-libXp
     configure.args-delete  --without-x --without-pdfopen

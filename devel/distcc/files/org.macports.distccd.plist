@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Disabled</key>
+	<false/>
+	<key>GroupName</key>
+	<string>nobody</string>
+	<key>Label</key>
+	<string>org.macports.distccd</string>
+	<key>OnDemand</key>
+	<false/>
+	<key>Program</key>
+	<string>/opt/local/bin/distccd</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/opt/local/bin/distccd</string>
+		<string>--no-detach</string>
+		<string>--daemon</string>
+		<string>-j</string>
+		<string>2</string>
+		<string>--allow</string>
+		<string>127.0.0.1</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>UserName</key>
+	<string>nobody</string>
+</dict>
+</plist>
