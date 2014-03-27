@@ -87,11 +87,11 @@ configure.ldflags-delete  -Wvla
 configure.cxxflags-delete -Wmissing-declarations
 
 post-configure {
-    #TODO: maybe use 'fs-traverse' here?
-    reinplace "s|-Wvla||" ${worksrcpath}/Makefile
-    eval reinplace "s|-Wvla||" [glob ${worksrcpath}/*/Makefile]
-    eval reinplace "s|-Wvla||" [glob ${worksrcpath}/lib/*/Makefile]
-    reinplace "s|-Wvla||" ${worksrcpath}/lib/dpkg/test/Makefile
+    fs-traverse f_makefile ${worksrcpath} {
+        if {[file tail ${f_makefile}] eq "Makefile"} {
+            reinplace "s|-Wvla||" ${f_makefile}
+        }
+    }
     reinplace "s|-Wmissing-declarations||" ${worksrcpath}/dselect/Makefile
 }
 
