@@ -23,6 +23,10 @@ checksums           md5     b7e9cac52ff7882b088a3058b52081b5 \
                     rmd160  1912afd35b835901e661d2c0df563198de4e8420 \
                     sha256  af96447758ecbfda51fc57d4b3bc3d208ad6393e71b91c9b52c6687697a208da
 
+# got to do some underscore-to-hyphen twiddling...
+distname            ${name}_${version}
+worksrcdir          ${name}-${version}
+
 use_xz              yes
 extract.asroot      yes
 
@@ -46,66 +50,24 @@ depends_lib-append  port:gettext \
                     port:gnutar \
                     path:lib/pkgconfig/liblzma.pc:xz
 
+# Some of the things needed at build time are also needed at runtime, but
+# do not count as library dependencies because they are not actually
+# linked against:
 depends_run-append  port:gnutar \
                     bin:lzma:xz \
                     bin:gzip:gzip \
                     bin:perl:perl5 \
                     port:debianutils
 
-# got to do some underscore-to-hyphen twiddling...
-distname            ${name}_${version}
-worksrcdir          ${name}-${version}
-
-configure.perl      ${prefix}/bin/perl5
-configure.pkg_config ${prefix}/bin/pkg-config
-configure.env-append TAR=${prefix}/bin/gnutar \
-                     POD2MAN=${prefix}/bin/pod2man
-configure.args-append \
-                    --with-libintl-prefix=${prefix} \
-                    --with-libiconv-prefix=${prefix} \
-                    --with-admindir=${prefix}/var/db/${name} \
-                    --with-logdir=${prefix}/var/log \
-                    --mandir=${prefix}/share/man \
-                    --with-zlib \
-                    --with-bz2 \
-                    --with-liblzma \
-                    --disable-linker-optimisations \
-                    --disable-silent-rules
-# Got the start-stop-daemon to build again, no longer have to disable it
-# with a configure flag here!
-
-# ccache is trouble
-configure.ccache          no
-
-# Older versions of gcc choke with the -Wvla warning flag:
-configure.cflags-delete   -Wvla
-configure.cppflags-delete -Wvla
-configure.cxxflags-delete -Wvla
-configure.ldflags-delete  -Wvla
-
-# Also -Wmissing-declarations is not valid for C++:
-configure.cxxflags-delete -Wmissing-declarations
-
-post-configure {
-    fs-traverse f_makefile ${worksrcpath} {
-        if {[file tail ${f_makefile}] eq "Makefile"} {
-            reinplace "s|-Wvla||" ${f_makefile}
-        }
-    }
-    reinplace "s|-Wmissing-declarations||" ${worksrcpath}/dselect/Makefile
+# These platform variants had previously had patches associated
+# with them...
+platform darwin {
+    depends_build-append    bin:gnumake:gmake
 }
 
-compiler.blacklist-append cc gcc-3.3 gcc-4.0 apple-gcc-4.0
-
-build.type          gnu
-
-set vardpkg ${destroot}${prefix}/var/db/${name}
-destroot.keepdirs-append \
-                    ${vardpkg} \
-                    ${vardpkg}/updates \
-                    ${vardpkg}/info \
-                    ${destroot}${prefix}/var/log \
-                    ${destroot}${prefix}/etc/${name}
+platform freebsd {
+    depends_build-append    bin:gmake:gmake
+}
 
 patchfiles-append   patch-configure.ac.diff \
                     patch-lib_dpkg_dpkg.h.diff \
@@ -151,6 +113,60 @@ post-patch {
 use_autoreconf      yes
 autoreconf.args     -fvi --warnings=all
 
+configure.perl      ${prefix}/bin/perl5
+configure.pkg_config ${prefix}/bin/pkg-config
+configure.env-append TAR=${prefix}/bin/gnutar \
+                     POD2MAN=${prefix}/bin/pod2man
+configure.args-append \
+                    --with-libintl-prefix=${prefix} \
+                    --with-libiconv-prefix=${prefix} \
+                    --with-admindir=${prefix}/var/db/${name} \
+                    --with-logdir=${prefix}/var/log \
+                    --mandir=${prefix}/share/man \
+                    --with-zlib \
+                    --with-bz2 \
+                    --with-liblzma \
+                    --disable-linker-optimisations \
+                    --disable-silent-rules
+# Got the start-stop-daemon to build again, no longer have to disable it
+# with a configure flag here!
+
+# ccache is trouble
+configure.ccache          no
+
+# blacklist old versions of gcc:
+compiler.blacklist-append cc gcc-3.3 gcc-4.0 apple-gcc-4.0
+
+# Older versions of gcc choke with the -Wvla warning flag:
+configure.cflags-delete   -Wvla
+configure.cppflags-delete -Wvla
+configure.cxxflags-delete -Wvla
+configure.ldflags-delete  -Wvla
+
+# Also -Wmissing-declarations is not valid for C++:
+configure.cxxflags-delete -Wmissing-declarations
+
+# The flags have to be actually removed from the Makefiles to be deleted
+# for real:
+post-configure {
+    fs-traverse f_makefile ${worksrcpath} {
+        if {[file tail ${f_makefile}] eq "Makefile"} {
+            reinplace "s|-Wvla||" ${f_makefile}
+        }
+    }
+    reinplace "s|-Wmissing-declarations||" ${worksrcpath}/dselect/Makefile
+}
+
+build.type          gnu
+
+set vardpkg ${destroot}${prefix}/var/db/${name}
+destroot.keepdirs-append \
+                    ${vardpkg} \
+                    ${vardpkg}/updates \
+                    ${vardpkg}/info \
+                    ${destroot}${prefix}/var/log \
+                    ${destroot}${prefix}/etc/${name}
+
 pre-destroot {
     file mkdir ${destroot}${prefix}/share/doc/${name}
 }
@@ -160,16 +176,6 @@ post-destroot {
     file mkdir ${vardpkg}/updates
     file mkdir ${vardpkg}/info
     system "touch ${vardpkg}/available ${vardpkg}/status"
-}
-
-# These platform variants had previously had patches associated
-# with them...
-platform darwin {
-    depends_build-append    bin:gnumake:gmake
-}
-
-platform freebsd {
-    depends_build-append    bin:gmake:gmake
 }
 
 # This variant sometimes hangs while building...
