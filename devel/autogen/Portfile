@@ -33,19 +33,19 @@ patchfiles-append   patch-Makefile.am.diff \
                     patch-config_ag_macros.m4.diff \
                     patch-agen5_Makefile.am.diff
 # patchfiles:
-# -Makefile.am: silence some warnings while autoreconfing
-# -doc_Makefile.am: ditto
-# -configure.ac: misc. configury tweaks, such as silencing autoreconf and
-#                autoscan warnings, as well as solving other issues
-# -config_unlocked-io.m4: not actually needed, the issue turned out to be
-#                         extensions.m4 instead
-# -config_libopts.m4: same as configure.ac
-# -config_extensions.m4: same as configure.ac
-# -config_ag_macros.m4: originally started as a workaround for the stray
-#                       '-R' in 'autoopts-config --libs', now more similar
-#                       in purpose to the rest of the patches for the m4
-#                       macro files
-# -agen5_Makefile.am: dirty hack to fix compilation issue with libguile
+# - Makefile.am: silence some warnings while autoreconfing
+# - doc_Makefile.am: ditto
+# - configure.ac: misc. configury tweaks, such as silencing autoreconf and
+#   autoscan warnings, as well as solving other issues
+# - config_unlocked-io.m4: not actually needed, the issue turned out to be
+#   extensions.m4 instead
+# - config_libopts.m4: same as configure.ac
+# - config_extensions.m4: same as configure.ac
+# - config_ag_macros.m4: originally started as a workaround for the stray
+#   '-R' flag in the output of 'autoopts-config --libs'
+#   (see https://trac.macports.org/ticket/42728 for reference), now more
+#   similar in purpose to the rest of the patches for the m4 macro files
+# - agen5_Makefile.am: dirty hack to fix compilation issue with libguile
 
 patch.args-append   --backup
 

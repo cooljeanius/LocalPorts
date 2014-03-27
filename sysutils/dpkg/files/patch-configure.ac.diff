@@ -1,6 +1,6 @@
---- configure.ac.bak	2013-08-17 15:07:59.000000000 -0400
-+++ configure.ac	2013-08-17 15:27:30.000000000 -0400
-@@ -1,21 +1,22 @@
+--- configure.ac.orig	2013-09-30 10:47:55.000000000 -0400
++++ configure.ac	2014-03-27 12:50:23.000000000 -0400
+@@ -1,23 +1,28 @@
 +#                                               -*- Autoconf -*-
  # Process this file with autoconf to produce a configure script.
  
@@ -14,10 +14,14 @@
  AC_CONFIG_MACRO_DIR([m4])
  AC_CONFIG_AUX_DIR([build-aux])
  
++AC_CANONICAL_TARGET
++
  AC_USE_SYSTEM_EXTENSIONS
  
 -AM_INIT_AUTOMAKE([1.8 foreign nostdinc no-dist-gzip dist-xz])
-+AM_INIT_AUTOMAKE([1.8 dejagnu foreign nostdinc no-dist-gzip dist-xz tar-ustar -Wall])
++AM_INIT_AUTOMAKE([1.11 dejagnu foreign nostdinc no-dist-gzip dist-xz tar-ustar -Wall])
++
++AM_MAINTAINER_MODE
  
 -m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])],
 -                            [AC_SUBST([AM_DEFAULT_VERBOSITY], [1])])
@@ -27,9 +31,12 @@
 -AM_GNU_GETTEXT_VERSION([0.18])
 +AM_GNU_GETTEXT_VERSION([0.18.3])
  AM_GNU_GETTEXT([external])
- DPKG_DIST_CHECK([test "$GMSGFMT" = ":" && test "$USE_NLS" = "yes"],
+-DPKG_DIST_CHECK([test "$GMSGFMT" = ":" && test "$USE_NLS" = "yes"],
++DPKG_DIST_CHECK([test "${GMSGFMT}" = ":" && test "${USE_NLS}" = "yes"],
                  [gettext required when NLS support enabled])
-@@ -27,19 +28,46 @@
+ 
+ # Allow compilation without optional programs
+@@ -27,19 +32,46 @@
  DPKG_BUILD_PROG([install-info])
  
  # Allow alternate directories
@@ -43,13 +50,13 @@
  # Checks for programs.
 -AC_PROG_CC
 +AM_PROG_AR
-+if test "x$CC" = "x"; then
-+	test -z "$CC"
-+	AC_PROG_CC
++# tests are to prevent conditions from being empty:
++if test "x${CC}" = "x"; then
++  test -z "${CC}"
++  AC_PROG_CC
 +else
-+	test ! -z "$CC"
-+	export CC
-+	AC_SUBST([CC])
++  test ! -z "${CC}" && export CC
++  AC_SUBST([CC])
 +fi
  AC_PROG_CXX
 -AC_PROG_LEX
@@ -57,34 +64,34 @@
 -AC_PROG_RANLIB
 -AC_CHECK_PROGS([DOXYGEN], [doxygen])
 -AC_CHECK_PROG([HAVE_DOT], [dot], [YES], [NO])
-+if test "x$INSTALL" = "x"; then
-+	test -z "$INSTALL"
-+	AC_PROG_INSTALL
-+	AM_PROG_INSTALL_STRIP
++if test "x${INSTALL}" = "x"; then
++  test -z "${INSTALL}"
++  AC_PROG_INSTALL
++  AM_PROG_INSTALL_STRIP
 +else
-+	test ! -z "$INSTALL"
-+	export INSTALL
-+	AC_SUBST([INSTALL])
++  test ! -z "${INSTALL}" && export INSTALL
++  AC_SUBST([INSTALL])
 +fi
 +AM_PROG_LEX
-+DPKG_DIST_CHECK([test "$LEX" = ":"],[lex program required])
-+if test "x$RANLIB" = "x"; then
-+	test -z "$RANLIB"
-+	AC_PROG_RANLIB
++DPKG_DIST_CHECK([test "${LEX}" = ":"],[lex program required])
++AC_PROG_MKDIR_P
++if test "x${RANLIB}" = "x"; then
++  test -z "${RANLIB}"
++  AC_PROG_RANLIB
 +else
-+	test ! -z "$RANLIB"
-+	export RANLIB
-+	AC_SUBST([RANLIB])
++  test ! -z "${RANLIB}" && export RANLIB
++  AC_SUBST([RANLIB])
 +fi
 +AC_CHECK_PROGS([DOXYGEN],[doxygen])
 +AC_CHECK_PROG([HAVE_DOT],[dot],[YES],[NO])
 +AX_CHECK_GNU_MAKE
++dnl# TODO: should bsdtar be considered here as well?
 +AC_PATH_PROG([TAR],[gnutar gtar tar])
 +
  DPKG_PROG_PO4A
  DPKG_PROG_PERL
  DPKG_PROG_POD2MAN
-@@ -47,6 +75,8 @@
+@@ -47,83 +79,120 @@
  
  # Checks for operating system services and capabilities.
  AC_SYS_LARGEFILE
@@ -93,20 +100,31 @@
  
  # Checks for libraries.
  DPKG_LIB_ZLIB
-@@ -61,69 +91,100 @@
+ DPKG_LIB_BZ2
+ DPKG_LIB_LZMA
+ DPKG_LIB_SELINUX
+-if test "x$build_dselect" = "xyes"; then
++if test "x${build_dselect}" = "xyes"; then
+    DPKG_LIB_CURSES
+ fi
+-if test "x$build_start_stop_daemon" = "xyes"; then
++if test "x${build_start_stop_daemon}" = "xyes"; then
+    DPKG_LIB_SSD
  fi
  
  # Checks for header files.
 -AC_HEADER_STDC
 -AC_CHECK_HEADERS([stddef.h error.h locale.h libintl.h kvm.h \
 -                  sys/syscall.h linux/fiemap.h])
-+AC_CHECK_HEADERS([error.h fcntl.h libintl.h limits.h \
-+                 linux/fiemap.h locale.h kvm.h \
-+                 stddef.h stdio.h sys/file.h sys/ioctl.h \
-+                 sys/time.h sys/syscall.h sys/vfs.h utime.h])
++AC_HEADER_STDBOOL dnl# also "_CHECK"s it
++AC_HEADER_TIME
++AC_CHECK_HEADERS([err.h error.h fcntl.h inflate.h libintl.h limits.h \
++                  linux/fiemap.h locale.h kvm.h sched.h \
++                  stddef.h stdio.h sys/file.h sys/ioctl.h \
++                  sys/param.h sys/proc.h sys/time.h sys/syscall.h \
++                  sys/sysctl.h sys/vfs.h utime.h zconf.h])
  
  # Checks for typedefs, structures, and compiler characteristics.
-+AC_HEADER_STDBOOL
  AC_C_BIGENDIAN
  AC_C_CONST
 +AC_C_FLEXIBLE_ARRAY_MEMBER
@@ -115,21 +133,21 @@
 +AC_C_VARARRAYS
  AC_C_VOLATILE
  DPKG_C_C99
++AC_TYPE_INT8_T
 +AC_TYPE_INT16_T
 +AC_TYPE_INT32_T
-+AC_TYPE_INT8_T
++AC_TYPE_INTMAX_T
  AC_TYPE_MODE_T
-+AC_FUNC_OBSTACK
 +AC_TYPE_OFF_T
  AC_TYPE_PID_T
  AC_TYPE_SIZE_T
 +AC_TYPE_SSIZE_T
 +AC_CHECK_MEMBERS([struct stat.st_rdev])
 +AC_CHECK_DECLS([sys_siglist])
++AC_TYPE_UINT8_T
 +AC_TYPE_UINT16_T
 +AC_TYPE_UINT32_T
 +AC_TYPE_UINT64_T
-+AC_TYPE_UINT8_T
 +AC_TYPE_UID_T
  DPKG_TYPES_U_INT_T
  DPKG_TYPE_PTRDIFF_T
@@ -161,6 +179,7 @@
 +AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
 +AC_FUNC_MALLOC
 +AC_FUNC_MMAP
++AC_FUNC_OBSTACK
 +AC_FUNC_REALLOC
 +AC_FUNC_STRNLEN
 +AC_CHECK_DECLS([strnlen],[[#include <string.h>]])
@@ -168,12 +187,13 @@
 -               [], [AC_ERROR([missing required function])])
 -AC_CHECK_FUNCS([strtoimax isascii setsid getdtablesize \
 -                getprogname getexecname lutimes posix_fadvise])
-+               [],[AC_MSG_ERROR(missing required function)])
-+AC_CHECK_FUNCS([dup2 ftruncate getdtablesize getexecname \
-+                getprogname gettimeofday isascii lutimes memchr memmove memset mkdir \
-+                mkfifo munmap posix_fadvise putenv regcomp rmdir select setenv setlocale \
-+                setsid strcasecmp strchr strcspn strdup strncasecmp \
-+                strpbrk strrchr strspn strstr strtoimax strtol])
++               [],[AC_MSG_ERROR([missing required function])])
++AC_CHECK_FUNCS([check dup2 ftruncate getdtablesize getexecname \
++                getprogname gettimeofday isascii lutimes memchr memmove \
++                memset mkdir mkfifo munmap posix_fadvise putenv regcomp \
++                rmdir sched_setscheduler select setenv setlocale setsid \
++                strcasecmp strchr strcspn strdup strncasecmp strpbrk \
++                strrchr strspn strstr strtoimax strtol sysctl])
  
  DPKG_MMAP
  

@@ -1,11 +1,11 @@
---- utils/start-stop-daemon.c.orig	2013-05-16 15:05:34.000000000 -0400
-+++ utils/start-stop-daemon.c	2013-05-16 15:08:45.000000000 -0400
+--- utils/start-stop-daemon.c.orig	2013-09-30 10:47:59.000000000 -0400
++++ utils/start-stop-daemon.c	2014-03-27 12:55:41.000000000 -0400
 @@ -39,6 +39,8 @@
  #  define OSFreeBSD
  #elif defined(__NetBSD__)
  #  define OSNetBSD
 +#elif defined(__APPLE__)
-+#  define OSDarwin
++#  define OSDarwin 1
  #else
  #  error Unknown architecture - cannot build start-stop-daemon
  #endif
@@ -19,28 +19,71 @@
  #include <sys/param.h>
  #include <sys/proc.h>
  
-@@ -1810,3 +1813,78 @@
- 	execv(startas, argv);
- 	fatal("unable to start %s", startas);
+@@ -104,12 +107,15 @@
+ #endif
+ 
+ #ifdef _POSIX_PRIORITY_SCHEDULING
+-#include <sched.h>
++# include <sched.h>
++/* has prototype for sched_setscheduler() on Linux, but NOT on Darwin */
++/* on the other hand, there is no harm in including it on Darwin anyways, even
++ * if it does not have the necessary prototype... */
+ #else
+-#define SCHED_OTHER -1
+-#define SCHED_FIFO -1
+-#define SCHED_RR -1
+-#endif
++# define SCHED_OTHER -1
++# define SCHED_FIFO -1
++# define SCHED_RR -1
++#endif /* _POSIX_PRIORITY_SCHEDULING */
+ 
+ #if defined(OSLinux)
+ /* This comes from TASK_COMM_LEN defined in Linux' include/linux/sched.h. */
+@@ -663,13 +669,18 @@
+ set_proc_schedule(struct res_schedule *sched)
+ {
+ #ifdef _POSIX_PRIORITY_SCHEDULING
++/* defined as "-1" in darwin's <unistd.h>, where this does not work: */
++# if (_POSIX_PRIORITY_SCHEDULING != -1) || defined(HAVE_SCHED_SETSCHEDULER)
++/* (not sure if that "||" should be an "&&"...) */
+ 	struct sched_param param;
+ 
+ 	param.sched_priority = sched->priority;
+ 
+-	if (sched_setscheduler(getpid(), sched->policy, &param) == -1)
++	if (sched_setscheduler(getpid(), sched->policy, &param) == -1) {
+ 		fatal("unable to set process scheduler");
+-#endif
++	}
++# endif /* (_POSIX_PRIORITY_SCHEDULING != -1) || HAVE_SCHED_SETSCHEDULER */
++#endif /* _POSIX_PRIORITY_SCHEDULING */
  }
-+
-+
+ 
+ #ifdef HAVE_IOPRIO_SET
+@@ -1279,6 +1290,61 @@
+ }
+ #endif
+ 
++/* begin helper functions for darwin added by patch */
++/* (need to put these before they are used) */
 +#if defined(OSDarwin)
 +#include <sys/sysctl.h>
-+int
++static int
 +pid_is_user(pid_t pid, uid_t uid)
 +{
 +	int mib[4];
 +	size_t size;
 +	struct kinfo_proc ki;
-+    
++
 +	size = sizeof(ki);
 +	mib[0] = CTL_KERN;
 +	mib[1] = KERN_PROC;
 +	mib[2] = KERN_PROC_PID;
 +	mib[3] = pid;
-+	if (sysctl(mib, 4, &ki, &size, NULL, 0) < 0)
++	if (sysctl(mib, 4, &ki, &size, NULL, 0) < 0) {
 +		errx(1, "%s", "Failure calling sysctl");
++	}
 +	return (uid == ki.kp_eproc.e_pcred.p_ruid);
 +}
 +
@@ -50,25 +93,51 @@
 +	int mib[4];
 +	size_t size;
 +	struct kinfo_proc ki;
-+    
++
 +	size = sizeof(ki);
 +	mib[0] = CTL_KERN;
 +	mib[1] = KERN_PROC;
 +	mib[2] = KERN_PROC_PID;
 +	mib[3] = pid;
-+	if (sysctl(mib, 4, &ki, &size, NULL, 0) < 0)
++	if (sysctl(mib, 4, &ki, &size, NULL, 0) < 0) {
 +		errx(1, "%s", "Failure calling sysctl");
++	}
 +	return (!strncmp(name, ki.kp_proc.p_comm, MAXCOMLEN));
 +}
 +
-+static void
++/* TODO: need to actually implement pid_is_exec() for darwin
++ * (try choosing an implementation from above) */
++/* So far using the one for OSLinux compiles, but is probably wrong due to its
++ * usage of "/proc", which darwin does not have by default. The ones for OSHurd,
++ * OShpux, and HAVE_KVM_H all error out when compiling. For now just stub in an
++ * incomplete implementation that just returns 'false': */
++static bool
++pid_is_exec(pid_t pid, const struct stat *esb)
++{
++	return false;
++}
++
++#endif /* OSDarwin */
++/* end helper functions added by patch */
++
+ static enum status_code
+ pid_check(pid_t pid)
+ {
+@@ -1296,6 +1362,62 @@
+ 	return status_ok;
+ }
+ 
++/* begin other function for darwin added by patch */
++/* (needs to go after 'pid_check()' is declared) */
++#if defined(OSDarwin)
++static enum status_code
 +do_procinit(void)
 +{
 +	int mib[3];
 +	size_t size;
 +	int nprocs, ret, i;
 +	struct kinfo_proc *procs = NULL, *newprocs;
-+	
++
 +	mib[0] = CTL_KERN;
 +	mib[1] = KERN_PROC;
 +	mib[2] = KERN_PROC_ALL;
@@ -78,23 +147,48 @@
 +		size += size / 10;
 +		newprocs = realloc(procs, size);
 +		if (newprocs == NULL) {
-+			if (procs)
++			if (procs) {
 +				free(procs);
++			}
 +			errx(1, "%s", "Could not reallocate memory");
++			return status_dead; /* unsure if it is correct to return here... */
 +		}
 +		procs = newprocs;
 +		ret = sysctl(mib, 3, procs, &size, NULL, 0);
-+	} while (ret >= 0 && errno == ENOMEM);
-+    
-+	if (ret < 0)
++	} while ((ret >= 0) && (errno == ENOMEM));
++
++	if (ret < 0) {
 +		errx(1, "%s", "Failure calling sysctl");
-+    
-+	/* Verify size of proc structure */
-+	if (size % sizeof(struct kinfo_proc) != 0)
-+		errx(1, "%s", "proc size mismatch, userland out of sync with kernel");
-+	nprocs = size / sizeof(struct kinfo_proc);
-+	for (i = 0; i < nprocs; i++) {
-+		check(procs[i].kp_proc.p_pid);
++		return status_dead; /* unsure if it is correct to return here... */
 +	}
++
++	/* Verify size of proc structure */
++	if (size % sizeof(struct kinfo_proc) != 0) {
++		errx(1, "%s", "proc size mismatch, userland out of sync with kernel");
++		return status_dead; /* unsure if it is correct to return here... */
++	}
++	nprocs = (size / sizeof(struct kinfo_proc));
++	for ((i = 0); (i < nprocs); i++) {
++		pid_check(procs[i].kp_proc.p_pid);
++		/* (I am assuming that the usage of 'check()' here was just a typo for
++		 * 'pid_check()') */
++	}
++
++	/* not sure if this is the correct value to return: */
++	return status_unknown;
++	/* (could also have been 'status_ok'... it is also tempting to think that it
++	 * could have been 'prog_status' as well, but that is undeclared in this
++	 * condition...) */
 +}
 +#endif /* OSDarwin */
++/* end other function for darwin added by patch */
++
+ static enum status_code
+ do_pidfile(const char *name)
+ {
+@@ -1810,3 +1932,5 @@
+ 	execv(startas, argv);
+ 	fatal("unable to start %s", startas);
+ }
++
++/* EOF */

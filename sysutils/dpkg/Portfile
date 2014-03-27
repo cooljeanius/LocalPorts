@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                dpkg
 version             1.16.12
-revision            0
+revision            1
 platforms           darwin freebsd
 categories          sysutils archivers
 license             GPL-2+
@@ -48,6 +48,7 @@ depends_lib-append  port:gettext \
 
 depends_run-append  port:gnutar \
                     bin:lzma:xz \
+                    bin:gzip:gzip \
                     bin:perl:perl5 \
                     port:debianutils
 
@@ -57,7 +58,8 @@ worksrcdir          ${name}-${version}
 
 configure.perl      ${prefix}/bin/perl5
 configure.pkg_config ${prefix}/bin/pkg-config
-configure.env-append TAR=${prefix}/bin/gnutar
+configure.env-append TAR=${prefix}/bin/gnutar \
+                     POD2MAN=${prefix}/bin/pod2man
 configure.args-append \
                     --with-libintl-prefix=${prefix} \
                     --with-libiconv-prefix=${prefix} \
@@ -68,20 +70,24 @@ configure.args-append \
                     --with-bz2 \
                     --with-liblzma \
                     --disable-linker-optimisations \
-                    --disable-silent-rules \
-                    --disable-start-stop-daemon
-# The start-stop-daemon patch now applies again, but now it leads to build
-# errors, so disabling it with a configure flag again (as done above)
+                    --disable-silent-rules
+# Got the start-stop-daemon to build again, no longer have to disable it
+# with a configure flag here!
 
 # ccache is trouble
 configure.ccache          no
 
-# Older versions of gcc choke with the -Wvla warning flag
+# Older versions of gcc choke with the -Wvla warning flag:
 configure.cflags-delete   -Wvla
 configure.cppflags-delete -Wvla
+configure.cxxflags-delete -Wvla
 configure.ldflags-delete  -Wvla
 
+# Also -Wmissing-declarations is not valid for C++:
+configure.cxxflags-delete -Wmissing-declarations
+
 post-configure {
+    #TODO: maybe use 'fs-traverse' here?
     reinplace "s|-Wvla||" ${worksrcpath}/Makefile
     eval reinplace "s|-Wvla||" [glob ${worksrcpath}/*/Makefile]
     eval reinplace "s|-Wvla||" [glob ${worksrcpath}/lib/*/Makefile]
@@ -107,6 +113,26 @@ patchfiles-append   patch-configure.ac.diff \
                     patch-src_remove.c.diff \
                     patch-src_archives.c.diff \
                     patch-utils_start-stop-daemon.c.diff
+# patchfiles:
+# - configure.ac: new patch, runs autoupdate and makes some other configury
+#   changes that I normally like to make
+# - lib/dpkg/dpkg.h: used to be "patch-lib_dpkg.h", forces the use of
+#   gnutar instead of just "tar"
+# - lib/dpkg/tarfn.c: used to be "patch-lib_tarfn.c", adds support for
+#   dpkgs built with the ustar format, which fixes long filename handling
+#   when not using gnutar. It also fixes a bug in dpkg's stripping of '/'
+#   characters when there were not any.
+# - src/archives.c: used to be "patch-main_achives.c", also adds support
+#   for handling format differences between bsdtar and gnutar related to
+#   pathname prefixes
+# - src/remove.c: used to be "patch-main_remove.c", fixes the issue of
+#   removing the last package on the system causing issues due to the
+#   inclusion of '/.'
+# - utils/start-stop-daemon.c: formerly "patch-utils_start-stop-daemon.c",
+#   it adds Mac OS X support to the various process handling functions
+#   debian uses to start/stop/monitor daemons. Still had to be disabled
+#   with a configure flag for a while though (see above)
+
 
 patch.args-append   --backup
 
@@ -118,6 +144,7 @@ post-patch {
     reinplace "s|AC_ERROR|AC_MSG_ERROR|" ${worksrcpath}/m4/dpkg-build.m4
     file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
     file copy ${prefix}/share/aclocal/xorg-macros.m4 ${worksrcpath}/m4
+    # build system seems to expect it to be in a git repo:
     system -W ${worksrcpath} "git init"
 }
 
