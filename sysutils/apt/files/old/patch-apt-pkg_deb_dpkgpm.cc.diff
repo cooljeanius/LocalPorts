@@ -1,0 +1,11 @@
+--- apt-pkg/deb/dpkgpm.cc.orig	2014-04-09 13:19:45.000000000 -0400
++++ apt-pkg/deb/dpkgpm.cc	2014-04-09 13:19:45.000000000 -0400
+@@ -8,7 +8,7 @@
+    ##################################################################### */
+ 									/*}}}*/
+ // Includes								/*{{{*/
+-#ifdef __GNUG__
++#if defined(__GNUG__) && !defined(__APPLE_CC__)
+ #pragma implementation "apt-pkg/dpkgpm.h"
+ #endif
+ #include <apt-pkg/dpkgpm.h>

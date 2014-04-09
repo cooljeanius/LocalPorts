@@ -1,0 +1,11 @@
+--- apt-pkg/contrib/system.h.orig	1999-12-10 18:40:29.000000000 -0500
++++ apt-pkg/contrib/system.h	2014-04-09 13:19:45.000000000 -0400
+@@ -26,7 +26,7 @@
+ #endif
+ 
+ // GNU C++ has a min/max operator <coolio>
+-#if defined(__GNUG__)
++#if defined(__GNUG__) && !defined(__llvm__)
+ #define MIN(A,B) ((A) <? (B))
+ #define MAX(A,B) ((A) >? (B))
+ #endif

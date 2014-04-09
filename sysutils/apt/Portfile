@@ -7,7 +7,7 @@ PortSystem          1.0
 
 name                apt
 version             0.5.27
-revision            8
+revision            10
 platforms           darwin freebsd
 categories          sysutils
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -21,7 +21,11 @@ long_description    Apt is Debian's next generation front-end for the \
                     simpler, safer way to install and upgrade packages.
 
 homepage            http://packages.qa.debian.org/a/apt.html
-master_sites        fink
+master_sites        fink \
+                    debian \
+                    debian:a/${name} \
+                    debian:pool/main/a/${name} \
+                    http://ftp.debian.org/debian/pool/main/a/apt/
 checksums           md5     36f0b6012806569d27be98c80a6d57ff \
                     sha1    a84519a72889aadf6411cb6fb99323e7c4bdfd57 \
                     rmd160  045035783259ae69cde5f4e90d1ca450bca9c2c0
@@ -30,43 +34,75 @@ checksums           md5     36f0b6012806569d27be98c80a6d57ff \
 distname            ${name}_${version}
 worksrcdir          ${name}-${version}
 
+depends_build-append port:gettext
 depends_lib-append  path:bin/dpkg:dpkg \
-                    bin:bash:bash
+                    bin:bash:bash \
+                    port:libiconv
+# gettext is added as a library dependency in each platform
+
+# would normally be a candidate for muniversal, but that fails because
+# we override the destroot, so instead just disable universal:
+universal_variant   no
 
 pre-patch {
     file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+    file copy ${worksrcpath}/aclocal.m4 ${worksrcpath}/acinclude.m4
 }
 
-patchfiles-append   patch-ostable.diff \
+patchfiles-append   patch-buildlib_ostable.diff \
                     patch-paths.diff \
                     patch-aclocal.m4.diff \
+                    patch-acinclude.m4.diff \
                     patch-configure.ac.diff \
                     patch-configure.diff \
                     patch-static-constructors.diff \
-                    patch-soname-magic.diff \
+                    patch-buildlib_environment.mak.in.diff \
                     patch-apt-pkg-contrib-system.h.diff \
+                    patch-apt-pkg_init.h.diff \
                     patch-apt-inst-deb-dpkgdb.cc.diff
 # patches:
-# - patch-soname-magic: actually patches "buildlib/environment.mak.in"
-# - patch-ostable: actually patches "buildlib/ostable"
+# - patch-buildlib_environment.mak.in: used to be "patch-soname-magic"
+# - patch-buildlib_ostable: used to be just "patch-ostable"
+# - patch-acinclude.m4: TODO: figure out how to silence some of the
+#   warnings that it produces, and still be able to autoreconf
 
 patch.args-append   --backup
 
+post-patch {
+    system "echo \"x86_64\tx86_64\" >> ${worksrcpath}/buildlib/archtable"
+    xinstall ${prefix}/share/gettext/gettext.h ${worksrcpath}
+}
+
 use_autoreconf      yes
 autoreconf.args     -fvi -Wall
+# autopoint will create the "m4" subdirectory for us:
+autoreconf.env-append ACLOCAL="aclocal -I m4 --install"
 # Work around case insensitive file system issues:
 configure.cmd       ../configure
 configure.dir       ${worksrcpath}/build
 pre-configure       { file mkdir ${worksrcpath}/build }
+# (should be fixed now, with the latest configure.ac patches, but keeping
+# this around for a while just in case...)
 
+configure.optflags -O2
 configure.cflags-append "-L${prefix}/lib"
-configure.cxxflags-append "-D__USE_MISC"
+# what fink uses:
+configure.cxxflags-append "-DEMULATE_MMAP -D__USE_MISC -fconstant-cfstrings -DHAVE_SOCKLEN_T=1"
+# I was messing around with autoheader:
+configure.cppflags-append "-I. -I.. -DHAVE_BINDTEXTDOMAIN -DHAVE_TEXTDOMAIN"
+configure.ldflags-append -lintl
 
-configure.args-append   --without-sgml-doc \
-                        --disable-rpath
+configure.args-append   --with-libiconv-prefix=${prefix} \
+                        --with-libintl-prefix=${prefix} \
+                        --disable-nls
 
 build.dir           ${configure.dir}
 build.type          gnu
+build.pre_args      -f GNUMakefile ${build.target}
+build.post_args     NOISY=1
+build.env-append    NOISY=1
+# The build system chooses the number of make jobs on its own:
+use_parallel_build  no
 
 set varapt          ${destroot}${prefix}/var/db/apt
 destroot.keepdirs   ${varapt} \
@@ -78,7 +114,8 @@ destroot.keepdirs   ${varapt} \
 # This project has buggy code, and clang is right to complain about it.
 # That is because this version is ancient though.
 # TODO: see if updating to a newer version allows building with clang
-compiler.blacklist      *clang*
+compiler.blacklist-append *clang* *gcc-4.2
+# (gcc-4.2 also breaks)
 
 ### Operating System Variants ###
 platform darwin {
@@ -98,17 +135,19 @@ platform darwin {
 
     depends_lib-append      port:gettext
     depends_build-append    bin:gnumake:gmake
-    # c++pragma.diff generated with the following, provided by
+    # patch-01-c++pragma.diff generated with the following, provided by
     # Peter O'Gorman:
     # for i in `grep -rl '#ifdef __GNUG__' .` ; do perl -pi -e 's/#ifdef
     # __GNUG__/#if defined(__GNUG__) && !defined(__APPLE_CC__)/' $i; done
-    patchfiles-append   patch-sig_t.diff \
-                        patch-c++pragma.diff \
-                        patch-darwinshlibs-hack.diff \
+    patchfiles-append   patch-01-c++pragma.diff \
+                        patch-sig_t.diff \
+                        patch-buildlib_library.mak.diff \
                         patch-use-libintl.diff
     # patches:
-    # - patch-sig_t: actually patches "apt-pkg/deb/dpkgpm.cc"
-    # - patch-darwinshlibs-hack: actually patches "buildlib/library.mak"
+    # - patch-sig_t: should eventually be renamed to
+    #   "patch-apt-pkg_deb_dpkgpm.cc", but only after the conflict with
+    #   patch-01-c++pragma is fixed
+    # - patch-buildlib_library.mak: used to be "patch-darwinshlibs-hack"
 }
 
 platform freebsd {
@@ -244,7 +283,19 @@ destroot {
 }
 
 post-destroot {
-    system "cd /designed/to/fail"
+    system "sleep 1"
+}
+
+post-activate {
+    set vardpkg ${prefix}/var/db/dpkg
+    set cmethoptfile ${vardpkg}/cmethopt
+    if {[file isdirectory ${vardpkg}]} {
+        ui_debug "checking ${vardpkg} for dselect method file"
+        if {![file exists ${cmethoptfile}]} {
+            system "echo \"apt apt\" > ${cmethoptfile}"
+            file attributes ${cmethoptfile} -permissions 644
+        }
+    }
 }
 
 #livecheck currently fails... 0.5.27 is newer than what fink uses
@@ -256,3 +307,4 @@ post-destroot {
 #  stable 0.9.7.9
 #  testing 0.9.16.1
 #  unstable 1.0
+
