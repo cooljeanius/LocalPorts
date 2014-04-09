@@ -25,6 +25,7 @@ universal_variant   no
 
 # The ruby portgroup now adds a dependency on rb-rake for us, so we can
 # now stop manually specifying it here
+# (although maybe we should switch to rb19-rake instead though?)
 
 depends_lib-append  port:rb-archive-tar-minitar \
                     port:rb-erubis \
@@ -60,3 +61,5 @@ variant test description {Build tests} {
         file mkdir ${workpath}/.home
     }
 }
+
+# TODO: update to 1.5.0

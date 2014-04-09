@@ -1,0 +1,29 @@
+--- src/Makefile.in.orig	2004-02-17 11:37:47.000000000 -0500
++++ src/Makefile.in	2014-04-05 17:26:31.000000000 -0400
+@@ -88,17 +88,17 @@
+ include_HEADERS = cfg+.h
+ include_SYMLINK = cfg.h
+ noinst_HEADERS  = cfgfile.h \
+-				  cmdline.h \
+-				  shared.h \
+-				  platon/str/charsets.h \
+-				  platon/str/dynfgets.h \
+-				  platon/str/strctype.h \
+-				  platon/str/strdyn.h \
+-				  platon/str/strplus.h
++			cmdline.h \
++			shared.h \
++			platon/str/charsets.h \
++			platon/str/dynfgets.h \
++			platon/str/strctype.h \
++			platon/str/strdyn.h \
++			platon/str/strplus.h
+ 
+ LIBSTATIC   = $(PACKAGE).a
+-LIBDYNAMIC  = $(PACKAGE).so
+-LIBDYNAMICV = $(PACKAGE).so.$(VERSION)
++LIBDYNAMIC  = $(PACKAGE).dylib
++LIBDYNAMICV = $(PACKAGE).$(VERSION).dylib
+ 
+ install_LIB     = $(LIBSTATIC) $(LIBDYNAMICV)
+ 

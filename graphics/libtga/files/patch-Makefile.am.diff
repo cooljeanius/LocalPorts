@@ -1,0 +1,7 @@
+--- Makefile.am.orig	2002-05-28 16:58:16.000000000 -0400
++++ Makefile.am	2014-04-06 13:37:36.000000000 -0400
+@@ -1,2 +1,4 @@
++ACLOCAL_AMFLAGS = -I m4 --install
++
+ SUBDIRS = src examples doc
+ EXTRA_DIST = COPYING.LIB COPYING.DOC KNOWN_BUGS

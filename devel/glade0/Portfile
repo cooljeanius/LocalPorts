@@ -6,10 +6,12 @@ PortSystem             1.0
 name                   glade0
 set real_name          glade
 version                0.6.4
-revision               1
+revision               2
 set branch             [join [lrange [split ${version} .] 0 1] .]
 license                GPL-2+
 
+# can remove conflict after further testing:
+conflicts-append       glade
 replaced_by            glade2
 
 categories             devel gnome
@@ -39,6 +41,16 @@ post-extract {
     reinplace "s|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|" ${worksrcpath}/configure.ac
 }
 
+post-patch {
+    fs-traverse f_makefile_in ${worksrcpath} {
+        if {[file tail ${f_makefile_in}] eq "Makefile.in"} {
+            ui_debug "Fixing ${f_makefile_in} so it obeys datarootdir"
+            system -W [file dirname ${f_makefile_in}] \
+                "echo \"datarootdir = @datarootdir@\" >> ${f_makefile_in}"
+        }
+    }
+}
+
 use_autoconf           yes
 
 depends_build-append   port:gettext \
@@ -46,8 +58,8 @@ depends_build-append   port:gettext \
                        port:intltool \
                        port:xdg-utils \
                        port:desktop-file-utils \
-                       bin:makeinfo:texinfo \
-                       bin:perl:perl5
+                       path:bin/perl:perl5 \
+                       bin:makeinfo:texinfo
 
 depends_lib-append     port:gtk1 \
                        port:gnome-libs \
@@ -71,11 +83,17 @@ depends_lib-append     port:gtk1 \
 universal_variant no
 
 configure.args-append     --with-bonobo \
-                          --enable-gnome-db
+                          --enable-gnome \
+                          --enable-gnome-db \
+                          --disable-debug \
+                          --program-suffix=0
+
 configure.ldflags-append  -L${prefix}/lib -lintl
 configure.cppflags-append -I${prefix}/include/gtk-1.2
 configure.cppflags-delete -I/opt/local/include/gtk-2.0 \
                           -I/opt/local/lib/gtk-2.0/include
+
+configure.perl            ${prefix}/bin/perl
 
 pre-configure {
     ui_warn "This port is outdated and has been replaced by port 'glade1'.  Please install that port instead."
@@ -84,6 +102,11 @@ pre-configure {
 notes "
 Remember to set ACLOCAL_FLAGS=\"-I ${prefix}/share/glade-0\"
 "
+
+variant debug description {Enable debugging} {
+    configure.args-replace --disable-debug --enable-debug
+    configure.optflags -g
+}
 
 livecheck.type      regex
 livecheck.url       http://ftp.gnome.org/pub/gnome/sources/${real_name}/${branch}/

@@ -13,12 +13,14 @@ platforms           darwin
 maintainers         gwmail.gwu.edu:egall cal openmaintainer
 license             LGPL-3+
 
-description         ${name} is a library to manipulate so called CUDF documents.
+description         ${name} is a library to manipulate so-called \
+                    CUDF documents.
 
 long_description    ${description} A CUDF \
-                    (Common Upgradeability Description Format) document describes an \
-                    \"upgrade scenario\", as faced by package managers in popular \
-                    package-based FOSS (Free and Open Source Software) distributions.
+                    (Common Upgradeability Description Format) document \
+                    describes an \"upgrade scenario\", as faced by \
+                    package managers in popular package-based FOSS \
+                    (Free and Open Source Software) distributions.
 
 homepage            http://www.mancoosi.org/cudf/
 
@@ -42,7 +44,7 @@ use_parallel_build  no
 
 build.target-append opt
 
-build.env-append    CC=${configure.cc}\
+build.env-append    CC=${configure.cc} \
                     CFLAGS=\"${configure.cflags} [get_canonical_archflags cc]\" \
                     LDFLAGS=\"${configure.ldflags} [get_canonical_archflags ld]\" \
 
@@ -57,6 +59,7 @@ post-destroot {
     }
 }
 
+# Making a variant for this until ticket #38208 is resolved.
 variant tests description {Run the test suite} {
     depends_build-append port:ocaml-ounit
     test.run        yes
@@ -68,7 +71,7 @@ variant tests description {Run the test suite} {
 }
 
 variant native description {Stub variant; just pulls in some extra dependencies for now} {
-    depends_lib-append port:glib2 \
+    depends_lib-append path:lib/pkgconfig/glib-2.0.pc:glib2 \
                        port:swig-ocaml \
                        port:pkgconfig \
                        port:ncurses

@@ -1,0 +1,43 @@
+--- doc/Makefile.am.orig	2002-11-22 09:18:45.000000000 -0500
++++ doc/Makefile.am	2014-04-06 18:02:30.000000000 -0400
+@@ -3,23 +3,27 @@
+ 
+ EXTRA_DIST=api.sgml
+ 
+-pdf: api.sgml
+-	@(which db2pdf > /dev/null 2>&1) || \
+-	 (echo "*** You need to install DocBook stylesheets ***"; \
++#TODO: check for these programs in the autoconf-generated configure script:
++pdf-local: api.sgml
++	@(which $(DOCBOOK2PDF) > /dev/null 2>&1) || \
++	 (echo "*** The \"$(DOCBOOK2PDF)\" program is missing ***"; \
++	  echo "*** You need to install DocBook stylesheets ***"; \
+ 	  exit 1)
+-	db2pdf $<
++	$(DOCBOOK2PDF) $<
+ 
+-ps: api.sgml
+-	@(which db2ps > /dev/null 2>&1) || \
+-	 (echo "*** You need to install DocBook stylesheets ***"; \
++ps-local: api.sgml
++	@(which $(DOCBOOK2PS) > /dev/null 2>&1) || \
++	 (echo "*** The \"$(DOCBOOK2PS)\" program is missing ***"; \
++	  echo "*** You need to install DocBook stylesheets ***"; \
+ 	  exit 1)
+-	db2ps $<
++	$(DOCBOOK2PS) $<
+ 
+-html: api.sgml
+-	@(which db2html > /dev/null 2>&1) || \
+-	 (echo "*** You need to install DocBook stylesheets ***"; \
++html-local: api.sgml
++	@(which $(DOCBOOK2HTML) > /dev/null 2>&1) || \
++	 (echo "*** The \"$(DOCBOOK2HTML)\" program is missing ***"; \
++	  echo "*** You need to install DocBook stylesheets ***"; \
+ 	  exit 1)
+-	db2html $<
++	$(DOCBOOK2HTML) $<
+ 
+-clean:
++clean-local:
+ 	rm -rf api.ps api.pdf api

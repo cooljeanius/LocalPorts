@@ -1,0 +1,50 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 57375 2009-09-10 08:16:41Z ryandesign@macports.org $
+
+PortSystem       1.0
+
+name             dmalloc
+version          5.5.2
+revision         1
+categories       devel
+maintainers      toby openmaintainer
+description      Debug Malloc Library
+long_description \
+    The debug memory allocation or dmalloc library \
+    has been designed as a drop in replacement for \
+    the system's malloc, realloc, calloc, free and \
+    other memory management routines while providing \
+    powerful debugging facilities configurable at runtime.
+homepage         http://${name}.com/
+platforms        darwin
+
+# license is CC BY-SA 3.0, which MacPorts appears not to recognize yet...
+
+master_sites     ${homepage}releases/
+extract.suffix   .tgz
+checksums        md5     f92e5606c23a8092f3d5694e8d1c932e \
+                 sha1    20719de78decbd724bc3ab9d6dce2ea5e5922335 \
+                 rmd160  2cfe4daa453337e0fae0656bdbdaad1214d6243d
+
+patchfiles-append    patch-configure.ac.diff
+
+patch.args-append    --backup
+
+use_autoreconf   yes
+autoreconf.args  -fvi -Wall
+
+configure.args-append \
+                 --enable-cxx \
+                 --enable-threads \
+                 --enable-shlib
+
+# testsuite fails:
+test.run         yes
+test.target      heavy
+# "heavy" also calls "light", which is equivalent to "check"
+
+destroot.destdir prefix=${destroot}${prefix}
+
+livecheck.type   regex
+livecheck.url    [lindex ${master_sites} 0]
+livecheck.regex  href=\"dmalloc-(\[0-9\]+\\.\[0-9\]+\\.\[0-9\]+)\\.tgz\"

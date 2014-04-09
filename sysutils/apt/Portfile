@@ -1,0 +1,258 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 114325 2013-12-05 09:20:31Z ryandesign@macports.org $
+
+# Thanks to the Fink Project for their work on porting apt
+
+PortSystem          1.0
+
+name                apt
+version             0.5.27
+revision            8
+platforms           darwin freebsd
+categories          sysutils
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             GPL-2+
+
+description         Advanced front-end for dpkg
+
+long_description    Apt is Debian's next generation front-end for the \
+                    dpkg package manager. It provides the apt-get \
+                    utility and APT dselect method that provides a \
+                    simpler, safer way to install and upgrade packages.
+
+homepage            http://packages.qa.debian.org/a/apt.html
+master_sites        fink
+checksums           md5     36f0b6012806569d27be98c80a6d57ff \
+                    sha1    a84519a72889aadf6411cb6fb99323e7c4bdfd57 \
+                    rmd160  045035783259ae69cde5f4e90d1ca450bca9c2c0
+
+# got to do some underscore-to-hyphen twiddling...
+distname            ${name}_${version}
+worksrcdir          ${name}-${version}
+
+depends_lib-append  path:bin/dpkg:dpkg \
+                    bin:bash:bash
+
+pre-patch {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
+
+patchfiles-append   patch-ostable.diff \
+                    patch-paths.diff \
+                    patch-aclocal.m4.diff \
+                    patch-configure.ac.diff \
+                    patch-configure.diff \
+                    patch-static-constructors.diff \
+                    patch-soname-magic.diff \
+                    patch-apt-pkg-contrib-system.h.diff \
+                    patch-apt-inst-deb-dpkgdb.cc.diff
+# patches:
+# - patch-soname-magic: actually patches "buildlib/environment.mak.in"
+# - patch-ostable: actually patches "buildlib/ostable"
+
+patch.args-append   --backup
+
+use_autoreconf      yes
+autoreconf.args     -fvi -Wall
+# Work around case insensitive file system issues:
+configure.cmd       ../configure
+configure.dir       ${worksrcpath}/build
+pre-configure       { file mkdir ${worksrcpath}/build }
+
+configure.cflags-append "-L${prefix}/lib"
+configure.cxxflags-append "-D__USE_MISC"
+
+configure.args-append   --without-sgml-doc \
+                        --disable-rpath
+
+build.dir           ${configure.dir}
+build.type          gnu
+
+set varapt          ${destroot}${prefix}/var/db/apt
+destroot.keepdirs   ${varapt} \
+                    ${varapt}/cache/archives/partial \
+                    ${varapt}/state/lists/partial \
+                    ${destroot}${prefix}/etc/apt \
+                    ${destroot}${prefix}/etc/apt/apt.conf.d
+
+# This project has buggy code, and clang is right to complain about it.
+# That is because this version is ancient though.
+# TODO: see if updating to a newer version allows building with clang
+compiler.blacklist      *clang*
+
+### Operating System Variants ###
+platform darwin {
+    global aptpkg-longversion aptpkg-version aptpkg-shortversion
+    global aptinst-longversion aptinst-version aptinst-shortversion
+    global apt-libsuffix
+
+    set apt-libsuffix   dylib
+
+    set aptpkg-longversion  3.3.0.dylib
+    set aptpkg-version      3.3.dylib
+    set aptpkg-shortversion 3.dylib
+
+    set aptinst-longversion     1.0.0.dylib
+    set aptinst-version         1.0.dylib
+    set aptinst-shortversion    1.dylib
+
+    depends_lib-append      port:gettext
+    depends_build-append    bin:gnumake:gmake
+    # c++pragma.diff generated with the following, provided by
+    # Peter O'Gorman:
+    # for i in `grep -rl '#ifdef __GNUG__' .` ; do perl -pi -e 's/#ifdef
+    # __GNUG__/#if defined(__GNUG__) && !defined(__APPLE_CC__)/' $i; done
+    patchfiles-append   patch-sig_t.diff \
+                        patch-c++pragma.diff \
+                        patch-darwinshlibs-hack.diff \
+                        patch-use-libintl.diff
+    # patches:
+    # - patch-sig_t: actually patches "apt-pkg/deb/dpkgpm.cc"
+    # - patch-darwinshlibs-hack: actually patches "buildlib/library.mak"
+}
+
+platform freebsd {
+    global aptpkg-longversion aptpkg-version aptpkg-shortversion
+    global aptinst-longversion aptinst-version aptinst-shortversion
+    global apt-libsuffix
+
+    set apt-libsuffix   so
+
+    set aptpkg-longversion  so.3.3.0
+    set aptpkg-version      so.3.3
+    set aptpkg-shortversion so.3
+
+    set aptinst-longversion     so.1.0.0
+    set aptinst-version         so.1.0
+    set aptinst-shortversion    so.1
+
+    depends_lib-append      port:gettext
+    depends_build-append    bin:gmake:gmake
+    patchfiles-append   patch-sig_t.diff \
+                        patch-use-libintl.diff
+    # patchfiles: both are also used on darwin, see notes for them above
+}
+
+### Target Overrides ###
+post-patch {
+    reinplace "s|@PREFIX@|${prefix}|g" \
+            ${worksrcpath}/buildlib/environment.mak.in \
+            ${worksrcpath}/apt-pkg/deb/debsystem.cc \
+            ${worksrcpath}/apt-pkg/init.cc \
+            ${worksrcpath}/dselect/install \
+            ${worksrcpath}/dselect/setup \
+            ${worksrcpath}/dselect/update
+    # Hack for lack of post-patch-append:
+    if {${os.platform} eq "freebsd"} {
+        reinplace "s|make -s|gmake -s|g" ${worksrcpath}/configure
+    }
+}
+
+# apt's makefiles do not have an install target, so do everything manually:
+destroot {
+    set build ${build.dir}
+
+    # Install binaries:
+    set bindest ${destroot}${prefix}/bin/
+    file mkdir ${bindest}
+    xinstall -m 755 ${build}/bin/apt-cache ${bindest}
+    xinstall -m 755 ${build}/bin/apt-cdrom ${bindest}
+    xinstall -m 755 ${build}/bin/apt-config ${bindest}
+    xinstall -m 755 ${build}/bin/apt-extracttemplates ${bindest}
+    xinstall -m 755 ${build}/bin/apt-get ${bindest}
+    xinstall -m 755 ${build}/bin/apt-sortpkgs ${bindest}
+
+    # Install libraries:
+    set libdest ${destroot}${prefix}/lib/
+    file mkdir ${libdest}
+
+    xinstall -m 644 ${build}/bin/libapt-pkg.${aptpkg-longversion} ${libdest}
+    system  "cd ${libdest} && \
+         ln -sf libapt-pkg.${aptpkg-longversion} libapt-pkg.${aptpkg-version} && \
+         ln -sf libapt-pkg.${aptpkg-version} libapt-pkg.${aptpkg-shortversion} && \
+         ln -sf libapt-pkg.${aptpkg-shortversion} libapt-pkg.${apt-libsuffix}"
+
+    xinstall -m 644 ${build}/bin/libapt-inst.${aptinst-longversion} ${libdest}
+    system  "cd ${libdest} && \
+         ln -sf libapt-inst.${aptinst-longversion} libapt-inst.${aptinst-version} && \
+         ln -sf libapt-inst.${aptinst-version} libapt-inst.${aptinst-shortversion} && \
+         ln -sf libapt-inst.${aptinst-shortversion} libapt-inst.${apt-libsuffix}"
+
+    # Install methods:
+    set methdest ${destroot}${prefix}/libexec/apt/methods/
+    file mkdir ${methdest}
+    xinstall -m 755 ${build}/bin/methods/cdrom ${methdest}
+    xinstall -m 755 ${build}/bin/methods/copy ${methdest}
+    xinstall -m 755 ${build}/bin/methods/file ${methdest}
+    xinstall -m 755 ${build}/bin/methods/ftp ${methdest}
+    xinstall -m 755 ${build}/bin/methods/gzip ${methdest}
+    xinstall -m 755 ${build}/bin/methods/http ${methdest}
+    xinstall -m 755 ${build}/bin/methods/rsh ${methdest}
+    system  "cd ${methdest} && \
+         ln -sf rsh ssh"
+
+    file mkdir ${methdest}/apt
+    xinstall -m 644 ${build}/scripts/dselect/desc.apt ${methdest}/apt/
+    xinstall -m 755 ${build}/scripts/dselect/install ${methdest}/apt/
+    xinstall -m 644 ${build}/scripts/dselect/names ${methdest}/apt/
+    xinstall -m 755 ${build}/scripts/dselect/setup ${methdest}/apt/
+    xinstall -m 755 ${build}/scripts/dselect/update ${methdest}/apt/
+
+    # Install includes:
+    set incdest ${destroot}${prefix}/include/apt-pkg/
+    file mkdir ${incdest}
+    foreach file [readdir ${build}/include/apt-pkg/] {
+        if {"$file" == "." || "$file" == ".."} {
+            continue
+        }
+        xinstall -m 644 ${build}/include/apt-pkg/${file} \
+            ${incdest}
+    }
+
+    # Install man pages:
+    set mandest ${destroot}${prefix}/share/man
+    file mkdir ${mandest}
+    file mkdir ${mandest}/man1
+    file mkdir ${mandest}/man5
+    file mkdir ${mandest}/man8
+    xinstall -m 644 ${build}/docs/apt-cache.8 \
+            ${build}/docs/apt-cdrom.8 \
+            ${build}/docs/apt-config.8 \
+            ${build}/docs/apt-get.8 \
+                ${mandest}/man8/
+
+    xinstall -m 644 ${build}/docs/apt-extracttemplates.1 \
+            ${build}/docs/apt-ftparchive.1 \
+            ${build}/docs/apt-sortpkgs.1 \
+                ${mandest}/man1/
+
+    xinstall -m 644 ${build}/docs/apt.conf.5 \
+            ${build}/docs/apt_preferences.5 \
+            ${build}/docs/sources.list.5 \
+            ${build}/docs/vendors.list.5 \
+                ${mandest}/man5/
+
+    # Install configuration files:
+    set confdest ${destroot}${prefix}/etc/apt/apt.conf.d
+    file mkdir ${confdest}
+    xinstall -m 644 ${filespath}/sources.list ${destroot}${prefix}/etc/apt/sources.list
+    xinstall -m 644 ${worksrcpath}/build/docs/examples/apt.conf ${destroot}${prefix}/etc/apt/apt.conf
+
+    # Create var directories:
+    file mkdir ${destroot}${prefix}/var/db/apt/cache/archives/partial
+    file mkdir ${destroot}${prefix}/var/db/apt/state/lists/partial
+}
+
+post-destroot {
+    system "cd /designed/to/fail"
+}
+
+#livecheck currently fails... 0.5.27 is newer than what fink uses
+# (they use 0.5.4 still), so I have no idea how we are able to fetch a
+# newer version than what they use from their mirrors... According to
+# debian upstream, the last version in the 0.5.x series was 0.5.32, and, as
+# of April 2014, the current versions were:
+#  oldstable 0.8.10.3
+#  stable 0.9.7.9
+#  testing 0.9.16.1
+#  unstable 1.0

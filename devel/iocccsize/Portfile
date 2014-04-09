@@ -6,7 +6,7 @@ PortSystem          1.0
 name                iocccsize
 version             2013
 revision            1
-categories          devel
+categories          devel amusements
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
 license             public-domain
@@ -26,9 +26,9 @@ configure {
     file copy ${filespath}/${name}.c ${worksrcpath}
 }
 
-# Too old
+# Too old:
 compiler.blacklist-append gcc-3.3
-# What the header comment says to use
+# What the header comment says to use:
 compiler.whitelist-append cc
 
 build {
@@ -50,7 +50,7 @@ destroot {
     xinstall -m 755 "${worksrcpath}/${name}" "${destroot}${prefix}/bin/${name}"
 }
 
-# TODO: put docs here
+# TODO: put docs here:
 destroot.keepdirs "${destroot}${prefix}/share/doc/${name}"
 
 livecheck.type  none

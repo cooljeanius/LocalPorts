@@ -1,0 +1,88 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+PortGroup           muniversal 1.0
+
+name                TrouSerS
+set lowername       trousers
+version             0.3.11.2
+# remember to keep the one in the gtk variant one higher:
+revision            0
+categories          security devel
+platforms           darwin
+maintainers         gwmail.gwu:egall openmaintainer
+license             BSD
+
+description         Trousers is an open-source TCG Software Stack (TSS)
+
+long_description    ${description}, released under the BSD License. \
+                    Trousers aims to be compliant with the 1.1b and 1.2 \
+                    TSS specifications available from the Trusted \
+                    Computing Group website.
+
+homepage            http://${lowername}.sourceforge.net/
+master_sites        sourceforge \
+                    https://sourceforge.net/projects/${lowername}/files/${lowername}/0.3.11 \
+                    https://sourceforge.net/projects/${lowername}/files/latest/download?source=files
+
+distname            ${lowername}-${version}
+
+checksums           rmd160  b826bdc6b7597c66c972622d1e504fa3a6b274ff \
+                    sha256  9bdc3001e00e215c09ac50810940c5c32a0fe057952916e5e836c858bf0e870d
+
+patchfiles-append   patch-01-everything.diff
+
+depends_lib-append  port:openssl
+
+configure.args-append \
+                    --with-gui=none \
+                    --with-openssl=${prefix} \
+                    --enable-silent-rules \
+                    --disable-static
+
+# Needs to be defined to build on OS X:
+configure.cppflags-append \
+                    -DBSD_CONST=\"const\"
+
+# Do actually want dependency tracking:
+configure.universal_args-replace --disable-dependency-tracking --enable-dependency-tracking
+# (this makes it necessary to use muniversal, but that is what it takes to
+# get it to build properly)
+
+variant debug description {Enable debugging} {
+    configure.args-append --enable-debug
+    configure.args-replace --enable-silent-rules --disable-silent-rules
+    configure.optflags -g
+}
+
+variant gmp description {build ${name} with GMP math lib (used in DAA)} {
+    depends_lib-append port:gmp
+    # just append it instead of adding "--without-gmp" above and then
+    # replacing it here, because the configure script stupidly treats
+    # "--without-gmp" and "--with-gmp" the same way:
+    configure.args-append --with-gmp
+    #TODO: make the configure script pick up -lgmp automatically:
+    configure.ldflags-append -lgmp
+}
+
+variant gui description {build a gtk gui} {
+    # should be one higher than the normal one:
+    revision 1
+    patchfiles-append patch-02-gtk.diff
+    depends_build-append path:bin/glib-gettextize:glib2 \
+                         port:pkgconfig
+    depends_lib-append port:gtk2 \
+                       port:atk \
+                       port:gdk-pixbuf2 \
+                       path:lib/glib-2.0.pc:glib2
+    # will also opportunistically link against other ports depending on the
+    # output of `pkg-config --libs gtk+-2.0`, but the above linkages are
+    # the only ones where symbols are actually used.
+    pre-configure {
+        system -W ${worksrcpath} "${prefix}/bin/glib-gettextize --copy --force"
+    }
+    configure.cppflags-append -UENABLE_NLS
+    configure.args-replace --with-gui=none --with-gui=gtk
+}

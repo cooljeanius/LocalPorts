@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                dpkg
 version             1.16.12
-revision            1
+revision            3
 platforms           darwin freebsd
 categories          sysutils archivers
 license             GPL-2+
@@ -36,19 +36,18 @@ depends_build-append \
                     port:xorg-util-macros \
                     port:gnutar \
                     port:perl5 \
-                    bin:git:git-core \
                     bin:lzma:xz
 
-# Use MacPorts versions explicitly
-depends_lib-append  port:gettext \
+# Use MacPorts versions explicitly:
+depends_lib-append  port:bzip2 \
+                    port:gettext \
                     port:libiconv \
+                    port:ncurses \
+                    path:lib/pkgconfig/liblzma.pc:xz \
+                    port:zlib \
                     port:perl5 \
                     port:coreutils \
-                    port:bzip2 \
-                    port:zlib \
-                    port:ncurses \
-                    port:gnutar \
-                    path:lib/pkgconfig/liblzma.pc:xz
+                    port:gnutar
 
 # Some of the things needed at build time are also needed at runtime, but
 # do not count as library dependencies because they are not actually
@@ -95,7 +94,6 @@ patchfiles-append   patch-configure.ac.diff \
 #   debian uses to start/stop/monitor daemons. Still had to be disabled
 #   with a configure flag for a while though (see above)
 
-
 patch.args-append   --backup
 
 post-patch {
@@ -106,8 +104,9 @@ post-patch {
     reinplace "s|AC_ERROR|AC_MSG_ERROR|" ${worksrcpath}/m4/dpkg-build.m4
     file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
     file copy ${prefix}/share/aclocal/xorg-macros.m4 ${worksrcpath}/m4
-    # build system seems to expect it to be in a git repo:
-    system -W ${worksrcpath} "git init"
+    # some things that fink does:
+    # there needs to be a tab in this string, do NOT untabify it:
+    system -W ${worksrcpath} "echo \"x86_64-darwin			darwin-x86_64\" >> debian/archtable"
 }
 
 use_autoreconf      yes
@@ -123,6 +122,8 @@ configure.args-append \
                     --with-admindir=${prefix}/var/db/${name} \
                     --with-logdir=${prefix}/var/log \
                     --mandir=${prefix}/share/man \
+                    --infodir=${prefix}/share/info \
+                    --srcdir=${worksrcpath} \
                     --with-zlib \
                     --with-bz2 \
                     --with-liblzma \
@@ -134,7 +135,7 @@ configure.args-append \
 # ccache is trouble
 configure.ccache          no
 
-# blacklist old versions of gcc:
+# blacklist older versions of gcc:
 compiler.blacklist-append cc gcc-3.3 gcc-4.0 apple-gcc-4.0
 
 # Older versions of gcc choke with the -Wvla warning flag:
@@ -159,64 +160,133 @@ post-configure {
 
 build.type          gnu
 
-set vardpkg ${destroot}${prefix}/var/db/${name}
+# Tests currently fail, this needs to be fixed eventually:
+test.run            yes
+test.target         check
+
+#TODO: add depends_test-style dependencies once those are available
+# (or just make a variant)
+pre-test {
+    elevateToRoot "test"
+}
+post-test {
+    dropPrivileges
+}
+
+# I would assign all of these in a loop, but:
+#  1. I do not know if that can be done outside of a phase
+#  2. vardpkg refers to a directory one level deeper than the rest
+set vardpkg ${prefix}/var/db/${name}
+set destvardpkg ${destroot}${vardpkg}
+set etcdpkg ${prefix}/etc/${name}
+set destetcdpkg ${destroot}${etcdpkg}
+set sharedpkg ${prefix}/share/${name}
+set destsharedpkg ${destroot}${sharedpkg}
+set libdpkg ${prefix}/lib/${name}
+set destlibdpkg ${destroot}${libdpkg}
 destroot.keepdirs-append \
-                    ${vardpkg} \
-                    ${vardpkg}/updates \
-                    ${vardpkg}/info \
-                    ${destroot}${prefix}/var/log \
-                    ${destroot}${prefix}/etc/${name}
+                    ${destvardpkg}/parts \
+                    ${destvardpkg}/updates \
+                    ${destvardpkg}/info \
+                    ${destvardpkg}/alternatives \
+                    ${destvardpkg}/methods/multicd \
+                    ${destvardpkg}/methods/mnt \
+                    ${destvardpkg}/methods/ftp \
+                    ${destvardpkg}/methods/floppy \
+                    ${destvardpkg}/methods/disk \
+                    ${destroot}${prefix}/var/log
 
 pre-destroot {
-    file mkdir ${destroot}${prefix}/share/doc/${name}
+    set docdir ${prefix}/share/doc/${name}
+    set destdocdir ${destroot}${docdir}
+    file mkdir ${destdocdir}
+    # directory will be empty if docs are not built:
+    if {![variant_isset docs]} {
+        destroot.keepdirs-append ${destdocdir}
+    }
 }
 
 post-destroot {
-    file mkdir ${vardpkg}
-    file mkdir ${vardpkg}/updates
-    file mkdir ${vardpkg}/info
-    system "touch ${vardpkg}/available ${vardpkg}/status"
+    file mkdir ${destvardpkg}
+    file mkdir ${destvardpkg}/updates
+    file mkdir ${destvardpkg}/info
+    system "touch ${destvardpkg}/available ${destvardpkg}/status"
+    xinstall -d -m 0755 ${destlibdpkg}/base-files
+    destroot.keepdirs-append ${destlibdpkg}/base-files
+    xinstall -m 644 ${worksrcpath}/debian/archtable ${destsharedpkg}
+    xinstall -d ${destsharedpkg}/origins
+    destroot.keepdirs-append ${destsharedpkg}/origins
+    xinstall -d ${destetcdpkg}/origins
+    eval xinstall -m 644 [glob ${filespath}/origins/*] ${destetcdpkg}/origins
+    destroot.keepdirs-append ${destetcdpkg}/dselect.cfg.d ${destetcdpkg}/${name}.cfg.d
+    set shlibsdefault ${destetcdpkg}/shlibs.default
+    system "touch ${shlibsdefault}"
+    # Need to handle other shared library extensions to be able to do this
+    # on other platforms:
+    platform darwin {
+        ui_debug "Generating ${shlibsdefault}"
+        # the shlibs used here should be the libraries that dpkg actually
+        # links against and actually uses symbols from; use the
+        # port-depcheck.sh script from macportsscripts to help figure out
+        # which ones those are:
+        foreach shlib {bzip2 gettext libiconv ncurses xz zlib} {
+            # Trying to do this in Tcl was too much of a pain, so instead I
+            # just wrote a separate shell script for it:
+            system "sh ${filespath}/format_for_shlibs.default.sh ${prefix} ${shlib} | tee -a ${shlibsdefault}"
+        }
+    }
 }
 
-# This variant sometimes hangs while building...
+post-activate {
+    foreach dpkgneedfile {diversions statoverride} {
+        if {![file exists ${vardpkg}/${dpkgneedfile}]} {
+            system "touch ${vardpkg}/${dpkgneedfile}"
+            file attributes ${vardpkg}/${dpkgneedfile} -permissions 644
+        }
+    }
+}
+
+# I used to think that this hung while building, but it turned out that
+# it only seemed that way because the Doxyfile had "QUIET" set to "YES"...
 variant docs description {Build documentation (warning: building documentation takes a long time)} {
+    patchfiles-append       patch-doc_Doxyfile.in.diff
+    # patchfiles:
+    # - patch-doc_Doxyfile.in: updates the Doxyfile, and removes some of
+    #   the options that can make doxygen take forever (this also results
+    #   in less documentation being generated, but I am impatient. I can
+    #   add some of the things back if there is demand for it)
     depends_build-append    port:doxygen \
-                            path:bin/dot:graphviz \
-                            port:fontconfig \
-                            port:freefont-ttf
+                            path:bin/dot:graphviz
     set docdir ${prefix}/share/doc/${name}
     configure.args-append   --docdir=${docdir} \
                             --htmldir=${docdir}/html \
                             --dvidir=${docdir}/dvi \
                             --pdfdir=${docdir}/pdf \
                             --psdir=${docdir}/ps
+    # keep doxygen output from getting mixed in with regular make output:
+    use_parallel_build      no
+    # the "doc" target calls doxygen for us:
     build.target-append     doc
-    pre-build {
-        elevateToRoot "doxygen"
-        system -W ${worksrcpath}/doc "${prefix}/bin/doxygen -u"
-    }
     post-build {
-        system -W ${worksrcpath}/doc "${prefix}/bin/doxygen"
-        dropPrivileges
-        set destroot_docdir ${destroot}${prefix}/share/doc/${name}
-        xinstall -d ${destroot_docdir}
-        copy ${worksrcpath}/doc/doc ${destroot_docdir}
-        copy ${worksrcpath}/doc/html ${destroot_docdir}
-        foreach docfile {coding-style.txt triggers.txt README.feature-removal-schedule frontend.txt README.api} {
-            xinstall -m 644 ${worksrcpath}/doc/${docfile} ${destroot_docdir}
+        set docdir ${prefix}/share/doc/${name}
+        set destdocdir ${destroot}${docdir}
+        xinstall -d ${destdocdir}
+        if {[file isdirectory ${worksrcpath}/doc/doc]} {
+            copy ${worksrcpath}/doc/doc ${destdocdir}
+        }
+        copy ${worksrcpath}/doc/html ${destdocdir}
+        foreach docfile {AUTHORS ChangeLog ChangeLog.old COPYING NEWS README README.translators THANKS TODO} {
+            xinstall -m 644 ${worksrcpath}/${docfile} ${destdocdir}
+        }
+        set debdocdir ${destdocdir}/debian
+        xinstall -d ${debdocdir}
+        foreach debdocfile {changelog copyright} {
+            xinstall -m 644 ${worksrcpath}/debian/${debdocfile} ${debdocdir}
+        }
+        foreach docdocfile {coding-style.txt triggers.txt README.feature-removal-schedule frontend.txt README.api} {
+            xinstall -m 644 ${worksrcpath}/doc/${docdocfile} ${destdocdir}
         }
     }
-}
-
-# Tests currently fail, this needs to be fixed eventually:
-test.run            yes
-test.target         check
-
-pre-test {
-    elevateToRoot "test"
-}
-post-test {
-    dropPrivileges
 }
 
 # odd-numbered releases are unstable, so ignore them

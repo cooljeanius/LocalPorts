@@ -6,7 +6,7 @@ PortSystem             1.0
 name                   glade1
 set real_name          glade
 version                1.1.3
-revision               1
+revision               2
 set branch             [join [lrange [split ${version} .] 0 1] .]
 license                GPL-2+
 
@@ -38,6 +38,16 @@ depends_extract-append port:gzip \
 post-extract {
     file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
     reinplace "s|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|" ${worksrcpath}/configure.ac
+}
+
+post-patch {
+    fs-traverse f_makefile_in ${worksrcpath} {
+        if {[file tail ${f_makefile_in}] eq "Makefile.in"} {
+            ui_debug "Fixing ${f_makefile_in} so it obeys datarootdir"
+            system -W [file dirname ${f_makefile_in}] \
+                "echo \"datarootdir = @datarootdir@\" >> ${f_makefile_in}"
+        }
+    }
 }
 
 use_autoconf           yes
@@ -81,12 +91,16 @@ configure.args-append  --with-x \
                        --x-libraries=${prefix}/lib \
                        --disable-gnome \
                        --disable-gnome-db \
-                       --disable-debug
+                       --disable-debug \
+                       --program-transform-name="s|2|1|g"
 
-configure.env-append   XMKMF=${prefix}/bin/xmkmf
+configure.env-append   XMKMF=${prefix}/bin/xmkmf \
+                       GETTEXT_PACKGE='glade-1.0' \
+                       PACKAGE='glade1'
 
 configure.ldflags-append  -L${prefix}/lib
-configure.cppflags-append -I${prefix}/include/gtk-1.2
+configure.cppflags-append -I${prefix}/include/gtk-1.2 \
+                          -DGETTEXT_PACKAGE="glade-1.0"
 configure.cppflags-delete -I/opt/local/include/gtk-2.0 \
                           -I/opt/local/lib/gtk-2.0/include
 
@@ -97,6 +111,7 @@ pre-configure {
 notes "
 Remember to set ACLOCAL_FLAGS=\"-I ${prefix}/share/glade-1\"
 "
+# might actually end up being "2" instead of "1"?
 
 variant debug description {Enable debugging} {
     configure.args-replace --disable-debug --enable-debug

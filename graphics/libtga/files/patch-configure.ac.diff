@@ -1,0 +1,85 @@
+--- configure.ac.orig	2002-11-22 09:18:43.000000000 -0500
++++ configure.ac	2014-04-06 18:01:24.000000000 -0400
+@@ -1,35 +1,69 @@
++#                                               -*- Autoconf -*-
+ # Process this file with autoconf to produce a configure script.
+-AC_INIT
+-AM_INIT_AUTOMAKE(libtga, 1.0.1)
+-AC_REVISION($Revision: 1.14 $)dnl
+ 
+-AM_CONFIG_HEADER(src/tgaconfig.h)
+-AC_PROG_MAKE_SET
++AC_PREREQ([2.69])
++AC_INIT([libtga],[1.0.1],[http://sf.net/projects/tgalib])
++AM_INIT_AUTOMAKE([dist-bzip2])
++AM_MAINTAINER_MODE
++AC_REVISION([$Revision: 1.14 $])dnl
++AC_CONFIG_MACRO_DIR([m4])
++
++AC_CONFIG_HEADERS([src/tgaconfig.h])
++AH_BOTTOM([
++#if defined(HAVE_STRING_H) && !defined(memset)
++# include <string.h>
++#endif /* HAVE_STRING_H && !memset */
++])
++
++dnl# automake will already check "MAKE_SET" for us
+ 
+ LIBTGA_DEBUG
+ 
+-CFLAGS_=" $CFLAGS"
++# Checks for programs.
++CFLAGS_=" ${CFLAGS}"
+ AC_PROG_CC
+ 
+-if test "$GCC" = yes; then
+-    if test "$ac_cv_enable_debug" != "no"; then
+-        CFLAGS="-g -O2 $CFLAGS_"
++if test "x${GCC}" = "xyes"; then
++    if test "x${ac_cv_enable_debug}" != "xno"; then
++      CFLAGS="-g -O2 ${CFLAGS_}"
+     else
+-      CFLAGS="-O2 $CFLAGS_"
++      CFLAGS="-O2 ${CFLAGS_}"
+     fi
+ fi
+ 
++AC_PROG_CXX
+ AC_PROG_INSTALL
+ AC_PROG_RANLIB
+-AM_PROG_LIBTOOL
++AM_PROG_AR
++LT_INIT([win32-dll])
++
++# These are for the documentation:
++AC_PATH_PROGS([DOCBOOK2PDF],[db2pdf docbook2pdf],[db2pdf])
++AC_PATH_PROGS([DOCBOOK2PS],[db2ps docbook2ps],[db2ps])
++AC_PATH_PROGS([DOCBOOK2HTML],[db2html docbook2html],[db2html])
++
++# Checks for libraries.
++AC_CHECK_LIB([tga],[TGAOpen])
++
++# Checks for header files.
++AC_CHECK_HEADERS([stdio.h])
+ 
+-AC_HEADER_STDC
++# Checks for typedefs, structures, and compiler characteristics.
+ AC_TYPE_SIZE_T
+ 
+-AC_CHECK_SIZEOF(unsigned int)
++AC_CHECK_SIZEOF([unsigned int])
++AC_CHECK_ALIGNOF([unsigned int])
++AC_C_BIGENDIAN
+ AC_C_CONST
++AC_C_PROTOTYPES
+ 
++# Checks for library functions.
++AC_FUNC_ERROR_AT_LINE
++AC_FUNC_MALLOC
++AC_FUNC_REALLOC
++AC_CHECK_FUNCS([memset])
+ 
++# Output
+ AC_CONFIG_FILES([
+ Makefile
+ src/Makefile

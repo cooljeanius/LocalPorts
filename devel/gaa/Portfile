@@ -44,7 +44,7 @@ variant autoreconf description {Regenerates configure script before \
                          port:grep \
                          port:autoconf-archive
     use_autoreconf       yes
-    autoreconf.args      -fvi
+    autoreconf.args      -fvi -Wall
     configure.args-append --disable-silent-rules
 }
 
@@ -55,12 +55,12 @@ variant docs description {Generate additional documentation by \
     depends_lib-delete   port:poppler
     use_parallel_build   no
     post-build {
-        system -W ${worksrcpath}/doc "latex2html *.tex"
+        system -W ${worksrcpath}/doc "${prefix}/bin/latex2html *.tex"
     }
     post-destroot {
         foreach docdir {gaa ref tut} {
             xinstall -d ${destroot}${prefix}/share/doc/${name}/${docdir}
-            eval xinstall [glob ${worksrcpath}/doc/${docdir}/*] ${destroot}${prefix}/share/doc/${name}/${docdir}
+            eval xinstall -m 644 [glob ${worksrcpath}/doc/${docdir}/*] ${destroot}${prefix}/share/doc/${name}/${docdir}
         }
     }
 }

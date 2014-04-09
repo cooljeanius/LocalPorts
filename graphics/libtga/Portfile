@@ -1,0 +1,80 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                libtga
+version             1.0.1
+revision            1
+categories          graphics devel
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+# The library itself is LGPL, other components have their licenses appended
+# in variants:
+license             LGPL-2
+
+description         The TGA library is a library to read and write \
+                    TGA images.
+
+long_description    ${description}
+
+#TODO: consider only using the sourceforge fetchgroup?
+homepage            http://tgalib.sf.net
+master_sites        http://sf.net/projects/tgalib \
+                    sourceforge \
+                    https://sourceforge.net/projects/tgalib/files/${name}/${version}/
+
+checksums           rmd160  8f0195a5ca007a312219a8fbd7e059ee68f1ba49 \
+                    sha256  038ff0dad25ae97cd7ece547bfab5d0328945d2c8c24c3ade75f682988797be3
+
+pre-patch {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+    xinstall -d ${worksrcpath}/m4
+}
+
+patchfiles-append   patch-acinclude.m4.diff \
+                    patch-configure.ac.diff \
+                    patch-doc_Makefile.am.diff \
+                    patch-Makefile.am.diff
+
+patch.args-append   --backup
+
+use_autoreconf      yes
+autoreconf.args     -fvi -Wall
+
+post-destroot {
+    set docdir ${destroot}${prefix}/share/doc/${name}
+    xinstall -d ${docdir}
+    xinstall -W ${worksrcpath} -m 644 AUTHORS ChangeLog COPYING.LIB INSTALL KNOWN_BUGS NEWS README TODO ${docdir}
+}
+
+variant debug description {Enable debugging} {
+    configure.args-append --enable-debug
+    configure.optflags -g
+}
+
+variant examples description {Build and install examples} {
+    license-append  GPL-2
+    post-destroot {
+        set docdir ${destroot}${prefix}/share/doc/${name}
+        xinstall -W ${worksrcpath} -m 644 COPYING ${docdir}
+        set example_bindir ${destroot}${prefix}/share/examples/${name}/bin
+        xinstall -d ${example_bindir}
+        xinstall -W ${worksrcpath}/examples -m 755 decode encode tgadump ${example_bindir}
+        set example_srcdir ${destroot}${prefix}/share/examples/${name}/src
+        xinstall -d ${example_srcdir}
+        eval xinstall [glob ${worksrcpath}/examples/*.c] ${example_srcdir}
+    }
+}
+
+# actually building docs is broken:
+variant docs description {Build and install documentation} {
+    license-append  GFDL
+    depends_build-append bin:docbook2pdf:docbook-utils
+    # commented out due to being broken:
+    #build.target-append pdf ps html
+    post-destroot {
+        set docdir ${destroot}${prefix}/share/doc/${name}
+        xinstall -W ${worksrcpath} -m 644 COPYING.DOC doc/api.sgml ${docdir}
+    }
+}

@@ -1,0 +1,50 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                dpkg-base-files
+version             0.3
+revision            1
+categories          sysutils
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             GPL-2+
+
+description         replaceme
+
+long_description    replaceme
+
+homepage            replaceme
+master_sites        fink
+
+checksums           md5     b2cbd67423d5dde4de56fb8a23ef8dfa \
+                    rmd160  f87b3238e3aea0f90b1722be57b8617fb1b0f57f \
+                    sha256  3df6e2f498708ca5779910a036553880148b23b342ec118285d29a90becdc648
+
+# Just scripts and stuff:
+supported_archs     noarch
+
+depends_lib-append  port:dpkg
+
+configure {
+    eval reinplace "s|Fink\\ |MacPorts|g" [glob ${worksrcpath}/*.sh]
+    reinplace "s|/sw|${prefix}|g" ${worksrcpath}/install.sh
+    # This is the lib directory that the MacPorts dpkg creates instead:
+    reinplace "s|lib/fink/dpkg\-|lib/dpkg/|g" ${worksrcpath}/install.sh
+    eval reinplace "s|FINK_PACKAGE_NAME|MACPORTS_PORT_NAME|g" [glob ${worksrcpath}/p*.in]
+    # The amount of escaping required in this next one is obscene:
+    eval reinplace "s|\\.\\ @PREFIX@/bin/init.sh|test\\ \-e\\ @PREFIX@/bin/init.sh\\ \\\\\\&\\\\\\&\\ \\.\\ @PREFIX@/bin/init.sh|g" [glob ${worksrcpath}/p*.in]
+    # This is the var directory that the MacPorts dpkg creates instead:
+    reinplace "s|/var/lib/dpkg|/var/db/dpkg|g" ${worksrcpath}/postinst.in
+}
+
+build {
+    ui_debug "./setup.sh ${prefix}"
+    system -W ${worksrcpath} "sh ./setup.sh ${prefix}"
+}
+
+destroot {
+    ui_debug "./install.sh ${destroot}${prefix}"
+    system -W ${worksrcpath} "sh ./install.sh ${destroot}${prefix}"
+}

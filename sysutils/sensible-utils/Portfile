@@ -1,0 +1,75 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                sensible-utils
+version             0.0.9
+categories          sysutils
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall
+license             GPL-2+
+
+description         Utilities for sensible alternative selection
+
+long_description    This package provides a number of small utilities \
+                    which are used by programs to sensibly select and \
+                    spawn an appropriate browser, editor, or pager.
+
+homepage            http://packages.debian.org/unstable/sensible-utils
+master_sites        debian \
+                    fink \
+                    debian:pool/main/s/${name} \
+                    debian:s/${name}
+
+checksums           rmd160  2efa14d90e962031c1dbaeeb3aee8ed3e1ea00e7 \
+                    sha256  6fcb5cc0f7f1cf80421840cfa17b1b3fa5afaf3fe852dc984a789023af2f70c6
+
+# got to do some underscore-to-hyphen twiddling...
+distname            ${name}_${version}
+worksrcdir          ${name}-${version}
+
+# just scripts:
+supported_archs     noarch
+
+depends_build-append bin:xgettext:gettext
+depends_run-append  bin:gettext:gettext \
+                    bin:update-alternatives:dpkg \
+                    port:nano
+
+#TODO: add back po4a once there is a po4a port (#41227):
+post-patch {
+    reinplace "s|SUBDIRS = po4a|SUBDIRS = |g" ${worksrcpath}/Makefile.in
+    reinplace "s|Makefile po4a/Makefile po4a/de/Makefile po4a/es/Makefile po4a/fr/Makefile po4a/it/Makefile po4a/ja/Makefile po4a/pl/Makefile|Makefile|g" ${worksrcpath}/configure
+    reinplace "s|/usr|${prefix}|g" ${worksrcpath}/debian/mime
+    reinplace "s|/usr|${prefix}|g" ${worksrcpath}/sensible-browser
+    reinplace "s|/usr|${prefix}|g" ${worksrcpath}/select-editor
+    reinplace "s|/bin/nano|${prefix}/bin/nano|g" ${worksrcpath}/select-editor
+    platform darwin {
+        # darwin's default "true" is in /usr/bin:
+        reinplace "s|/bin/true|/usr/bin/true|g" ${worksrcpath}/select-editor
+    }
+}
+
+configure.env-append SENSIBLE_UTILS_VERSION=${version}
+configure.args-append --mandir=${prefix}/share/man
+
+post-build {
+    system -W ${worksrcpath} "xgettext -o - -L Shell select-editor"
+}
+
+post-destroot {
+    xinstall -d ${destroot}${prefix}/lib/mime/packages
+    xinstall -m 0644 ${worksrcpath}/debian/mime ${destroot}${prefix}/lib/mime/packages/${name}
+    set docdir ${destroot}${prefix}/share/doc/${name}
+    xinstall -d ${docdir}
+    xinstall -W ${worksrcpath} -m 0644 debian/changelog debian/copyright ${docdir}
+}
+
+post-activate {
+    system -W ${prefix} "sh ${filespath}/PostInstScript.sh"
+}
+
+post-deactivate {
+    system -W ${prefix} "sh ${filespath}/PostRmScript.sh"
+}

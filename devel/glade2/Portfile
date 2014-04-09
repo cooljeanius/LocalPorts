@@ -6,28 +6,32 @@ PortSystem           1.0
 name                 glade2
 set real_name        glade
 version              2.12.2
-revision             4
+revision             5
 set branch           [join [lrange [split ${version} .] 0 1] .]
 license              GPL-2+
 
+# would conflict with glade1, but that is marked as 'replaced_by' this port
 replaced_by          glade3
 
 categories           devel gnome
 platforms            darwin
 maintainers          gwmail.gwu.edu:egall openmaintainer
 
-description          Glade is a RAD tool to enable quick & easy development of user interfaces \
-                     for the GTK+ toolkit and the GNOME desktop environment.
+description          Glade is a RAD tool to enable quick & easy \
+                     development of user interfaces for the GTK+ \
+                     toolkit and the GNOME desktop environment.
 
-long_description     ${description} This version is outdated and has been replaced by port 'glade3'.
+long_description     ${description} This version is outdated and has \
+                     been replaced by port 'glade3'.
 
 homepage             http://glade.gnome.org/
 master_sites         gnome:sources/${real_name}/${branch}/
 distname             ${real_name}-${version}
 use_bzip2            yes
 
-checksums            sha1    a43d89b147296244ba4b2efc67e8772d5155afff \
-                     md5     54082e44bba1c75770aa0bff2f38987e \
+checksums            md5     54082e44bba1c75770aa0bff2f38987e \
+                     sha1    a43d89b147296244ba4b2efc67e8772d5155afff \
+                     rmd160  6035749c249492279794d508d3558a8aac17b6f0 \
                      sha256  50712d1e5cb369ee1399e9c78ac410e3e69c7582ac9bf1e11d27a7348d3d0a58
 
 patchfiles-append    patch-glade-gbwidgets-gbclist.c.diff \
@@ -38,14 +42,15 @@ patchfiles-append    patch-glade-gbwidgets-gbclist.c.diff \
 depends_build-append port:pkgconfig \
                      port:gettext \
                      port:rarian \
-                     port:gconf
+                     port:gconf \
+                     path:bin/xmkmf:imake \
+                     path:bin/perl:perl5
 
 depends_lib-append   port:gtk2 \
                      port:libxml2 \
                      port:libgnome \
                      port:libgnomeui \
                      port:libgnomecanvas \
-                     port:libgnome-keyring \
                      port:libbonobo \
                      port:libbonoboui \
                      port:orbit2 \
@@ -53,54 +58,70 @@ depends_lib-append   port:gtk2 \
                      path:lib/pkgconfig/cairo.pc:cairo \
                      path:lib/pkgconfig/pango.pc:pango \
                      port:gdk-pixbuf2 \
-                     port:glib2 \
-                     path:lib/pkgconfig/pixman-1.pc:libpixman \
+                     path:lib/pkgconfig/glib-2.0.pc:glib2 \
                      port:freetype \
-                     port:libpng \
-                     port:harfbuzz \
                      port:libart_lgpl \
                      port:gnome-vfs \
-                     port:gnome-vfs-monikers \
                      path:bin/dbus-send:dbus \
-                     port:bzip2 \
-                     port:audiofile \
                      port:dbus-glib \
-                     port:eggdbus \
-                     port:esound \
-                     port:expat \
                      port:fontconfig \
-                     port:graphite2 \
-                     port:icu \
+                     port:gconf \
+                     port:gettext \
                      port:libffi \
-                     port:libgcrypt \
-                     port:libgpg-error \
                      port:libiconv \
                      port:openssl \
                      port:popt \
                      port:xorg-libX11 \
+                     port:xorg-libXau \
+                     port:xorg-libXcomposite \
+                     port:xorg-libXcursor \
+                     port:xorg-libXdamage \
+                     port:xorg-libXdmcp \
+                     port:xorg-libXext \
+                     port:xorg-libXfixes \
+                     port:xorg-libXi \
+                     port:xorg-libXinerama \
+                     port:xorg-libXrandr \
+                     port:xorg-libice \
+                     port:xorg-libsm \
                      port:xorg-libxcb \
                      port:xrender \
-                     port:xorg-libXext \
-                     port:xorg-libXau \
-                     port:xorg-libXdmcp \
                      port:xz \
                      port:zlib
 
 configure.ldflags-append -L${prefix}/lib
 
-configure.args       --disable-gnome-db
+configure.args-append \
+                     --disable-gnome-db \
+                     --with-x \
+                     --x-includes=${prefix}/include \
+                     --x-libraries=${prefix}/lib \
+                     --enable-gnome \
+                     --disable-debug
 
-variant gnomedb description {Enable GNOME DB support} {
+configure.env-append XMKMF=${prefix}/bin/xmkmf
+
+configure.perl       ${prefix}/bin/perl
+configure.pkg_config ${prefix}/bin/pkg-config
+
+variant gnomedb description {Enable GNOME DB support instead of libgda} {
     configure.args-delete --disable-gnome-db
     depends_lib-append    port:libgnomedb
     depends_lib-delete    port:libgda
 }
-variant gail conflicts universal description {Require libgail} {
+
+variant gail conflicts universal description {Require libgail over atk} {
     depends_lib-append    port:libgail-gnome \
                           port:gdk-pixbuf
     depends_lib-delete    port:at-spi \
                           port:atk
 }
+
+variant debug description {Enable debugging} {
+    configure.args-replace --disable-debug --enable-debug
+    configure.optflags -g
+}
+
 pre-configure {
     ui_msg "This port is outdated and has been replaced by port 'glade3'.  Please install that port instead."
 }
