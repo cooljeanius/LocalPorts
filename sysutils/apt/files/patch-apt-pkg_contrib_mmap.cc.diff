@@ -1,0 +1,97 @@
+--- apt-pkg/contrib/mmap.cc.orig	2001-05-27 01:19:30.000000000 -0400
++++ apt-pkg/contrib/mmap.cc	2014-04-10 10:46:20.000000000 -0400
+@@ -41,7 +41,7 @@
+ // ---------------------------------------------------------------------
+ /* */
+ MMap::MMap(FileFd &F,unsigned long Flags) : Flags(Flags), iSize(0),
+-                     Base(0)
++                     Base(0), iFd(0)
+ {
+    if ((Flags & NoImmMap) != NoImmMap)
+       Map(F);
+@@ -51,7 +51,7 @@
+ // ---------------------------------------------------------------------
+ /* */
+ MMap::MMap(unsigned long Flags) : Flags(Flags), iSize(0),
+-                     Base(0)
++                     Base(0), iFd(0)
+ {
+ }
+ 									/*}}}*/
+@@ -68,6 +68,7 @@
+ /* */
+ bool MMap::Map(FileFd &Fd)
+ {
++   iFd = &Fd;
+    iSize = Fd.Size();
+    
+    // Set the permissions.
+@@ -81,10 +82,22 @@
+    if (iSize == 0)
+       return _error->Error(_("Can't mmap an empty file"));
+    
++#ifndef EMULATE_MMAP
+    // Map it.
+    Base = mmap(0,iSize,Prot,Map,Fd.Fd(),0);
+    if (Base == (void *)-1)
+       return _error->Errno("mmap",_("Couldn't make mmap of %lu bytes"),iSize);
++#else /* do actually EMULATE_MMAP: */
++	Base = new unsigned char[iSize];
++	if (Base == NULL) {
++		return _error->Errno("mmap",
++							 _("Failed to allocate %lu bytes to emulate mmap"),
++							 iSize);
++	}
++
++	Fd.Seek(0);
++	Fd.Read(Base, iSize, true);
++#endif /* !EMULATE_MMAP */
+ 
+    return true;
+ }
+@@ -100,8 +113,16 @@
+    if (DoSync == true)
+       Sync();
+    
++#ifndef EMULATE_MMAP
+    if (munmap((char *)Base,iSize) != 0)
+       _error->Warning("Unable to munmap");
++#else /* do actually EMULATE_MMAP: */
++	if ((Flags & ReadOnly) != ReadOnly && iFd != 0) {
++		iFd->Seek(0);
++		iFd->Write(Base, iSize);
++	}
++	delete [] (unsigned char *)Base;
++#endif /* !EMULATE_MMAP */
+    
+    iSize = 0;
+    Base = 0;
+@@ -117,11 +138,13 @@
+    if ((Flags & UnMapped) == UnMapped)
+       return true;
+    
++#ifndef EMULATE_MMAP
+ #ifdef _POSIX_SYNCHRONIZED_IO   
+    if ((Flags & ReadOnly) != ReadOnly)
+       if (msync((char *)Base,iSize,MS_SYNC) != 0)
+ 	 return _error->Errno("msync","Unable to write mmap");
+ #endif   
++#endif /* !EMULATE_MMAP */
+    return true;
+ }
+ 									/*}}}*/
+@@ -133,12 +156,14 @@
+    if ((Flags & UnMapped) == UnMapped)
+       return true;
+    
++#ifndef EMULATE_MMAP
+ #ifdef _POSIX_SYNCHRONIZED_IO
+    unsigned long PSize = sysconf(_SC_PAGESIZE);
+    if ((Flags & ReadOnly) != ReadOnly)
+       if (msync((char *)Base+(int)(Start/PSize)*PSize,Stop - Start,MS_SYNC) != 0)
+ 	 return _error->Errno("msync","Unable to write mmap");
+ #endif   
++#endif /* !EMULATE_MMAP */
+    return true;
+ }
+ 									/*}}}*/

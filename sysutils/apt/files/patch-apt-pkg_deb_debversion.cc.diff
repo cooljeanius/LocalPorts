@@ -1,0 +1,14 @@
+--- apt-pkg/deb/debversion.cc.orig	2003-09-10 19:39:49.000000000 -0400
++++ apt-pkg/deb/debversion.cc	2014-04-10 12:01:33.000000000 -0400
+@@ -24,6 +24,11 @@
+ 
+ debVersioningSystem debVS;
+ 
++void init_deb3()
++{
++	(void)debVS;
++}
++
+ // debVS::debVersioningSystem - Constructor				/*{{{*/
+ // ---------------------------------------------------------------------
+ /* */

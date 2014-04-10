@@ -1,0 +1,14 @@
+--- apt-pkg/deb/debindexfile.cc.orig	2004-01-04 02:41:30.000000000 -0500
++++ apt-pkg/deb/debindexfile.cc	2014-04-10 12:01:33.000000000 -0400
+@@ -505,3 +505,11 @@
+ }
+ 
+ 									/*}}}*/
++void init_deb2()
++{
++	(void)_apt_DebType;
++	(void)_apt_DebSrcType;
++	(void)_apt_Src;
++	(void)_apt_Pkg;
++	(void)_apt_Status;
++}

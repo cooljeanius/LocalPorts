@@ -1,5 +1,5 @@
---- apt-pkg/deb/dpkgpm.cc.orig	2014-04-09 17:22:59.000000000 -0400
-+++ apt-pkg/deb/dpkgpm.cc	2014-04-09 17:22:59.000000000 -0400
+--- apt-pkg/deb/dpkgpm.cc.orig	2004-01-26 21:25:01.000000000 -0500
++++ apt-pkg/deb/dpkgpm.cc	2014-04-10 12:01:33.000000000 -0400
 @@ -436,8 +436,8 @@
           it forks scripts. What happens is that when you hit ctrl-c it sends
  	 it to all processes in the group. Since dpkg ignores the signal 

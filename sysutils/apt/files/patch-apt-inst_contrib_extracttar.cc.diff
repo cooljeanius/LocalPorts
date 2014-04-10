@@ -1,0 +1,32 @@
+--- apt-inst/contrib/extracttar.cc.orig	2004-01-07 15:39:37.000000000 -0500
++++ apt-inst/contrib/extracttar.cc	2014-04-10 12:01:33.000000000 -0400
+@@ -148,6 +148,18 @@
+    return true;
+ }
+ 									/*}}}*/
++
++// Handle the ridiculous way that tar stores large numbers
++static bool TarUIDToNum(const char *Str, unsigned long &Res, unsigned Len) {
++	switch (*Str) {
++		case '\200':
++			Res = ntohl(*((unsigned long *)(Str + Len - sizeof(unsigned long))));
++			return true;
++		default:
++			return StrToNum(Str+1, Res, Len-1, 8);
++	}
++}
++
+ // ExtractTar::Go - Perform extraction					/*{{{*/
+ // ---------------------------------------------------------------------
+ /* This reads each 512 byte block from the archive and extracts the header
+@@ -195,8 +207,8 @@
+       // Decode all of the fields
+       pkgDirStream::Item Itm;
+       if (StrToNum(Tar->Mode,Itm.Mode,sizeof(Tar->Mode),8) == false ||
+-	  StrToNum(Tar->UserID,Itm.UID,sizeof(Tar->UserID),8) == false ||
+-	  StrToNum(Tar->GroupID,Itm.GID,sizeof(Tar->GroupID),8) == false ||
++	  TarUIDToNum(Tar->UserID,Itm.UID,sizeof(Tar->UserID)) == false ||
++	  TarUIDToNum(Tar->GroupID,Itm.GID,sizeof(Tar->GroupID)) == false ||
+ 	  StrToNum(Tar->Size,Itm.Size,sizeof(Tar->Size),8) == false ||
+ 	  StrToNum(Tar->MTime,Itm.MTime,sizeof(Tar->MTime),8) == false ||
+ 	  StrToNum(Tar->Major,Itm.Major,sizeof(Tar->Major),8) == false ||

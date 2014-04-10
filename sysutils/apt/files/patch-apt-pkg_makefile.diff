@@ -1,0 +1,11 @@
+--- apt-pkg/makefile.orig	2003-02-09 17:02:45.000000000 -0500
++++ apt-pkg/makefile	2014-04-10 12:04:13.000000000 -0400
+@@ -45,7 +45,7 @@
+ # In theory the deb headers do not need to be exported..
+ SOURCE+= deb/deblistparser.cc deb/debrecords.cc deb/dpkgpm.cc \
+          deb/debsrcrecords.cc deb/debversion.cc deb/debsystem.cc \
+-	 deb/debindexfile.cc deb/debindexfile.cc
++	 deb/debsystem_darwin.cc deb/debindexfile.cc deb/debindexfile.cc
+ HEADERS+= debversion.h debsrcrecords.h dpkgpm.h debrecords.h \
+ 	  deblistparser.h debsystem.h debindexfile.h
+ 

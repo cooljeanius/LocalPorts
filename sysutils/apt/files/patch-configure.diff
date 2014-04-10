@@ -1,5 +1,5 @@
 --- configure.orig	2004-07-30 01:58:14.000000000 -0400
-+++ configure	2014-04-09 20:18:20.000000000 -0400
++++ configure	2014-04-10 12:02:29.000000000 -0400
 @@ -1,110 +1,96 @@
  #! /bin/sh
  # Guess values for system-dependent variables and create Makefiles.
@@ -14692,7 +14692,7 @@
 +                putenv read realpath regcomp rmdir select setlocale \
 +                socket stpcpy strcasecmp strchr strcspn strdup strerror \
 +                strncasecmp strrchr strstr strtol strtoul textdomain \
-+                utime
++                uname utime
 +do :
 +  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 +ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"

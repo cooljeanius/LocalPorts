@@ -1,5 +1,5 @@
 --- buildlib/environment.mak.in.orig	2004-05-08 15:41:01.000000000 -0400
-+++ buildlib/environment.mak.in	2014-04-09 17:23:00.000000000 -0400
++++ buildlib/environment.mak.in	2014-04-10 12:01:31.000000000 -0400
 @@ -62,7 +62,19 @@
  ifneq ($(words $(filter linux-gnu gnu% %gnu,$(HOST_OS))),0)
     SONAME_MAGIC=-Wl,-soname -Wl,

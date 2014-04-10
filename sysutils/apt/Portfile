@@ -7,7 +7,7 @@ PortSystem          1.0
 
 name                apt
 version             0.5.27
-revision            11
+revision            12
 platforms           darwin freebsd
 categories          sysutils
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -57,9 +57,9 @@ patchfiles-append   patch-buildlib_ostable.diff \
                     patch-configure.diff \
                     patch-static-constructors.diff \
                     patch-buildlib_environment.mak.in.diff \
-                    patch-apt-pkg-contrib-system.h.diff \
+                    patch-apt-pkg_contrib_system.h.diff \
                     patch-apt-pkg_init.h.diff \
-                    patch-apt-inst-deb-dpkgdb.cc.diff \
+                    patch-apt-inst_deb_dpkgdb.cc.diff \
                     patch-apt-pkg_deb_deblistparser.cc.diff \
                     patch-cmdline_apt-get.cc.diff \
                     patch-cmdline_apt-sortpkgs.cc.diff \
@@ -71,20 +71,22 @@ patchfiles-append   patch-buildlib_ostable.diff \
                     patch-doc_sources.list.5.diff \
                     patch-methods_connect.cc.diff \
                     patch-methods_ftp.cc.diff \
-                    patch-methods_rfc2553emu.h.diff
+                    patch-methods_rfc2553emu.h.diff \
+                    patch-apt-pkg_deb_debindexfile.cc.diff \
+                    patch-apt-pkg_deb_debversion.cc.diff \
+                    patch-apt-inst_contrib_extracttar.cc.diff
 # patches:
 # - patch-buildlib_environment.mak.in: used to be "patch-soname-magic"
 # - patch-buildlib_ostable: used to be just "patch-ostable"
 # - patch-acinclude.m4: TODO: figure out how to silence some of the
 #   warnings that it produces, and still be able to autoreconf
-#
+# patches that do not work yet:
+# - patch-apt-pkg_contrib_mmap.cc
+# - patch-apt-pkg_contrib_mmap.h
 
 patch.args-append   --backup
 
-post-patch {
-    system "echo \"x86_64\tx86_64\" >> ${worksrcpath}/buildlib/archtable"
-    xinstall ${prefix}/share/gettext/gettext.h ${worksrcpath}
-}
+# there is already a "post-patch" section later
 
 use_autoreconf      yes
 autoreconf.args     -fvi -Wall
@@ -93,7 +95,7 @@ autoreconf.env-append ACLOCAL="aclocal -I m4 --install"
 # Work around case insensitive file system issues:
 configure.cmd       ../configure
 configure.dir       ${worksrcpath}/build
-pre-configure       { file mkdir ${worksrcpath}/build }
+# (this pre-configure step has been merged with the other)
 # (should be fixed now, with the latest configure.ac patches, but keeping
 # this around for a while just in case...)
 
@@ -146,23 +148,12 @@ platform darwin {
 
     depends_lib-append      port:gettext
     depends_build-append    bin:gnumake:gmake
-    # patch-01-c++pragma.diff generated with the following, provided by
-    # Peter O'Gorman:
-    # for i in `grep -rl '#ifdef __GNUG__' .` ; do perl -pi -e 's/#ifdef
-    # __GNUG__/#if defined(__GNUG__) && !defined(__APPLE_CC__)/' $i; done
-    #(TODO: instead of making the above a patch, do it with a reinplace so
-    # that way I do not have .orig backups for pretty much every single
-    # file, and so that it can be more robust when new files are added, and
-    # so that it will not conflict with any other patches that I might want
-    # to apply that would conflict with it)
-    patchfiles-append   patch-01-c++pragma.diff \
-                        patch-sig_t.diff \
+    # patch-01-c++pragma.diff has been turned into a script
+    patchfiles-append   patch-apt-pkg_deb_dpkgpm.cc.diff \
                         patch-buildlib_library.mak.diff \
                         patch-use-libintl.diff
     # patches:
-    # - patch-sig_t: should eventually be renamed to
-    #   "patch-apt-pkg_deb_dpkgpm.cc", but only after the conflict with
-    #   patch-01-c++pragma is fixed
+    # - patch-apt-pkg_deb_dpkgpm.cc: used to be "patch-sig_t"
     # - patch-buildlib_library.mak: used to be "patch-darwinshlibs-hack"
 }
 
@@ -183,13 +174,17 @@ platform freebsd {
 
     depends_lib-append      port:gettext
     depends_build-append    bin:gmake:gmake
-    patchfiles-append   patch-sig_t.diff \
+    patchfiles-append   patch-apt-pkg_deb_dpkgpm.cc.diff \
                         patch-use-libintl.diff
     # patchfiles: both are also used on darwin, see notes for them above
 }
 
 ### Target Overrides ###
-post-patch {
+# changed from "post-patch" to "pre-configure" to give me room to work on
+# patches without reinplaces messing them up:
+pre-configure {
+    file mkdir ${worksrcpath}/build
+    # These "@PREFIX@"es are all inserted by patches:
     reinplace "s|@PREFIX@|${prefix}|g" \
             ${worksrcpath}/buildlib/environment.mak.in \
             ${worksrcpath}/apt-pkg/deb/debsystem.cc \
@@ -199,10 +194,20 @@ post-patch {
             ${worksrcpath}/dselect/update
     eval reinplace "s|@PREFIX@|${prefix}|g" [glob ${worksrcpath}/doc/*.8]
     eval reinplace "s|@PREFIX@|${prefix}|g" [glob ${worksrcpath}/doc/*.5]
+    xinstall -m 644 ${filespath}/debsystem_darwin.cc ${worksrcpath}/apt-pkg/deb
+    # This script comes from Fink:
+    ui_debug "Running script to patch usage of flush"
+    system -W ${worksrcpath} "sh ${filespath}/patch_flush.sh"
     # Hack for lack of post-patch-append:
     if {${os.platform} eq "freebsd"} {
         reinplace "s|make -s|gmake -s|g" ${worksrcpath}/configure
     }
+    if {${os.platform} eq "darwin"} {
+        ui_debug "Running script to fix c++ pragmas"
+        system -W ${worksrcpath} "sh ${filespath}/patch-01-c++pragma.sh"
+    }
+    system "echo \"x86_64\tx86_64\" >> ${worksrcpath}/buildlib/archtable"
+    xinstall ${prefix}/share/gettext/gettext.h ${worksrcpath}
 }
 
 # tests are still a WIP:
