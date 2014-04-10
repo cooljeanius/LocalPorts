@@ -1,5 +1,5 @@
 --- aclocal.m4.orig	2004-07-30 01:58:12.000000000 -0400
-+++ aclocal.m4	2014-04-09 13:25:04.000000000 -0400
++++ aclocal.m4	2014-04-09 20:18:18.000000000 -0400
 @@ -1,2803 +1,128 @@
 -dnl aclocal.m4 generated automatically by aclocal 1.4-p6
 +# generated automatically by aclocal 1.14.1 -*- Autoconf -*-

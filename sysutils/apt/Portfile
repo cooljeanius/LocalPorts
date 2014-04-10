@@ -7,7 +7,7 @@ PortSystem          1.0
 
 name                apt
 version             0.5.27
-revision            10
+revision            11
 platforms           darwin freebsd
 categories          sysutils
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -59,12 +59,25 @@ patchfiles-append   patch-buildlib_ostable.diff \
                     patch-buildlib_environment.mak.in.diff \
                     patch-apt-pkg-contrib-system.h.diff \
                     patch-apt-pkg_init.h.diff \
-                    patch-apt-inst-deb-dpkgdb.cc.diff
+                    patch-apt-inst-deb-dpkgdb.cc.diff \
+                    patch-apt-pkg_deb_deblistparser.cc.diff \
+                    patch-cmdline_apt-get.cc.diff \
+                    patch-cmdline_apt-sortpkgs.cc.diff \
+                    patch-doc_apt_preferences.5.diff \
+                    patch-doc_apt-cache.8.diff \
+                    patch-doc_apt-cdrom.8.diff \
+                    patch-doc_apt-config.8.diff \
+                    patch-doc_apt-get.8.diff \
+                    patch-doc_sources.list.5.diff \
+                    patch-methods_connect.cc.diff \
+                    patch-methods_ftp.cc.diff \
+                    patch-methods_rfc2553emu.h.diff
 # patches:
 # - patch-buildlib_environment.mak.in: used to be "patch-soname-magic"
 # - patch-buildlib_ostable: used to be just "patch-ostable"
 # - patch-acinclude.m4: TODO: figure out how to silence some of the
 #   warnings that it produces, and still be able to autoreconf
+#
 
 patch.args-append   --backup
 
@@ -105,10 +118,8 @@ build.env-append    NOISY=1
 use_parallel_build  no
 
 set varapt          ${destroot}${prefix}/var/db/apt
-destroot.keepdirs   ${varapt} \
-                    ${varapt}/cache/archives/partial \
+destroot.keepdirs   ${varapt}/cache/archives/partial \
                     ${varapt}/state/lists/partial \
-                    ${destroot}${prefix}/etc/apt \
                     ${destroot}${prefix}/etc/apt/apt.conf.d
 
 # This project has buggy code, and clang is right to complain about it.
@@ -139,6 +150,11 @@ platform darwin {
     # Peter O'Gorman:
     # for i in `grep -rl '#ifdef __GNUG__' .` ; do perl -pi -e 's/#ifdef
     # __GNUG__/#if defined(__GNUG__) && !defined(__APPLE_CC__)/' $i; done
+    #(TODO: instead of making the above a patch, do it with a reinplace so
+    # that way I do not have .orig backups for pretty much every single
+    # file, and so that it can be more robust when new files are added, and
+    # so that it will not conflict with any other patches that I might want
+    # to apply that would conflict with it)
     patchfiles-append   patch-01-c++pragma.diff \
                         patch-sig_t.diff \
                         patch-buildlib_library.mak.diff \
@@ -181,11 +197,19 @@ post-patch {
             ${worksrcpath}/dselect/install \
             ${worksrcpath}/dselect/setup \
             ${worksrcpath}/dselect/update
+    eval reinplace "s|@PREFIX@|${prefix}|g" [glob ${worksrcpath}/doc/*.8]
+    eval reinplace "s|@PREFIX@|${prefix}|g" [glob ${worksrcpath}/doc/*.5]
     # Hack for lack of post-patch-append:
     if {${os.platform} eq "freebsd"} {
         reinplace "s|make -s|gmake -s|g" ${worksrcpath}/configure
     }
 }
+
+# tests are still a WIP:
+test.run yes
+test.dir ${worksrcpath}/test
+test.target ""
+test.env-append NOISY=1
 
 # apt's makefiles do not have an install target, so do everything manually:
 destroot {
@@ -271,6 +295,14 @@ destroot {
             ${build}/docs/vendors.list.5 \
                 ${mandest}/man5/
 
+    # Other docs:
+    set docdir ${destroot}${prefix}/share/doc/apt
+    xinstall -d ${docdir}
+    xinstall -W ${worksrcpath} -m 644 AUTHORS COMPILING COPYING COPYING.GPL  README.make ${docdir}
+    xinstall -W ${worksrcpath}/doc -m 644 Bugs libapt-pkg2_to_3.txt style.txt ${docdir}
+    xinstall -d ${docdir}/debian
+    xinstall -W ${worksrcpath}/debian -m 644 changelog NEWS.Debian ${docdir}/debian
+
     # Install configuration files:
     set confdest ${destroot}${prefix}/etc/apt/apt.conf.d
     file mkdir ${confdest}
@@ -280,11 +312,12 @@ destroot {
     # Create var directories:
     file mkdir ${destroot}${prefix}/var/db/apt/cache/archives/partial
     file mkdir ${destroot}${prefix}/var/db/apt/state/lists/partial
+    xinstall -d ${destroot}${prefix}/var/lib/apt/lists/partial
+    destroot.keepdirs-append ${destroot}${prefix}/var/lib/apt/lists/partial
+    xinstall -d ${destroot}${prefix}/var/cache/apt/archives/partial
+    destroot.keepdirs-append ${destroot}${prefix}/var/cache/apt/archives/partial
 }
-
-post-destroot {
-    system "sleep 1"
-}
+# ...
 
 post-activate {
     set vardpkg ${prefix}/var/db/dpkg

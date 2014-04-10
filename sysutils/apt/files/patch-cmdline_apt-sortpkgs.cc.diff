@@ -1,0 +1,11 @@
+--- cmdline/apt-sortpkgs.cc.orig	2003-01-11 02:18:44.000000000 -0500
++++ cmdline/apt-sortpkgs.cc	2014-04-09 17:55:56.000000000 -0400
+@@ -162,7 +162,7 @@
+ }
+ 									/*}}}*/
+ 
+-int main(unsigned int argc,const char *argv[])
++int main(int argc, const char *argv[])
+ {
+    CommandLine::Args Args[] = {
+       {'h',"help","help",0},

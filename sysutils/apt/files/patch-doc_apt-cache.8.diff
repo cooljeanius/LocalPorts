@@ -1,0 +1,21 @@
+--- doc/apt-cache.8.orig	2004-07-30 01:58:29.000000000 -0400
++++ doc/apt-cache.8	2014-04-09 18:26:41.000000000 -0400
+@@ -222,15 +222,15 @@
+ .SH "FILES"
+ 
+ .TP
+-\fI/etc/apt/sources\&.list\fR
++\fI@PREFIX@/etc/apt/sources\&.list\fR
+ Locations to fetch packages from\&. Configuration Item: Dir::Etc::SourceList\&.
+ 
+ .TP
+-\fI/var/lib/apt/lists/\fR
++\fI@PREFIX@/var/lib/apt/lists/\fR
+ Storage area for state information for each package resource specified in \fB\fIsources\&.list\fR\fR(5) Configuration Item: Dir::State::Lists\&.
+ 
+ .TP
+-\fI/var/lib/apt/lists/partial/\fR
++\fI@PREFIX@/var/lib/apt/lists/partial/\fR
+ Storage area for state information in transit\&. Configuration Item: Dir::State::Lists (implicit partial)\&.
+ 
+ .SH "SEE ALSO"

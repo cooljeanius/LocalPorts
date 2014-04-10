@@ -1,0 +1,29 @@
+--- doc/apt_preferences.5.orig	2004-07-30 01:58:38.000000000 -0400
++++ doc/apt_preferences.5	2014-04-09 18:53:20.000000000 -0400
+@@ -23,7 +23,7 @@
+ .SH "DESCRIPTION"
+ 
+ .PP
+-The APT preferences file \fI/etc/apt/preferences\fR can be used to control which versions of packages will be selected for installation\&.
++The APT preferences file \fI@PREFIX@/etc/apt/preferences\fR can be used to control which versions of packages will be selected for installation\&.
+ 
+ .PP
+ Several versions of a package may be available for installation when the \fB\fIsources\&.list\fR\fR(5) file contains references to more than one distribution (for example, stable and testing)\&. APT assigns a priority to each version that is available\&. Subject to dependency constraints, \fBapt\-get\fR selects the version with the highest priority for installation\&. The APT preferences file overrides the priorities that APT assigns to package versions by default, thus giving the user control over which one is selected for installation\&.
+@@ -34,7 +34,7 @@
+ .SS "APT's Default Priority Assignments"
+ 
+ .PP
+-If there is no preferences file or if there is no entry in the file that applies to a particular version then the priority assigned to that version is the priority of the distribution to which that version belongs\&. It is possible to single out a distribution, "the target release", which receives a higher priority than other distributions do by default\&. The target release can be set on the \fBapt\-get\fR command line or in the APT configuration file \fI/etc/apt/apt\&.conf\fR\&. For example, 
++If there is no preferences file or if there is no entry in the file that applies to a particular version then the priority assigned to that version is the priority of the distribution to which that version belongs\&. It is possible to single out a distribution, "the target release", which receives a higher priority than other distributions do by default\&. The target release can be set on the \fBapt\-get\fR command line or in the APT configuration file \fI@PREFIX@/etc/apt/apt\&.conf\fR\&. For example, 
+ 
+ .nf
+ 
+@@ -291,7 +291,7 @@
+  
+ 
+ .PP
+-All of the \fIPackages\fR and \fIRelease\fR files retrieved from locations listed in the \fB\fIsources\&.list\fR\fR(5) file are stored in the directory \fI/var/lib/apt/lists\fR, or in the file named by the variable Dir::State::Lists in the \fIapt\&.conf\fR file\&. For example, the file \fIdebian\&.lcs\&.mit\&.edu_debian_dists_unstable_contrib_binary\-i386_Release\fR contains the \fIRelease\fR file retrieved from the site debian\&.lcs\&.mit\&.edu for binary\-i386 architecture files from the contrib component of the unstable distribution\&.
++All of the \fIPackages\fR and \fIRelease\fR files retrieved from locations listed in the \fB\fIsources\&.list\fR\fR(5) file are stored in the directory \fI@PREFIX@/var/lib/apt/lists\fR, or in the file named by the variable Dir::State::Lists in the \fIapt\&.conf\fR file\&. For example, the file \fIdebian\&.lcs\&.mit\&.edu_debian_dists_unstable_contrib_binary\-i386_Release\fR contains the \fIRelease\fR file retrieved from the site debian\&.lcs\&.mit\&.edu for binary\-i386 architecture files from the contrib component of the unstable distribution\&.
+ 
+ .SS "Optional Lines in an APT Preferences Record"
+ 

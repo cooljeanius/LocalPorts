@@ -1,0 +1,115 @@
+--- cmdline/apt-get.cc.orig	2004-02-26 14:17:55.000000000 -0500
++++ cmdline/apt-get.cc	2014-04-09 20:34:59.000000000 -0400
+@@ -331,7 +331,13 @@
+ 		  if (Cache[Targ].CandidateVerIter(Cache).end() == true)
+ 		  {
+ 		     if (Targ->ProvidesList == 0)
+-			out << _("but it is not installable");
++			 {
++			out << _("but it is not installable. This could mean that");
++			out << _("you have attempted to install a package from a binary");
++			out << _("distribution that has a license conflict with one of");
++			out << _("its dependencies that prevents it from being");
++			out << _("distributable in binary form.");
++			 }
+ 		     else
+ 			out << _("but it is a virtual package");
+ 		  }		  
+@@ -637,6 +643,8 @@
+       return false;
+    
+    // Nothing is broken
++   // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++   // use that here)
+    if (DCache->BrokenCount() == 0 || AllowBroken == true)
+       return true;
+ 
+@@ -703,6 +711,8 @@
+    Stats(c1out,Cache);
+    
+    // Sanity check
++   // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++   // use that here)
+    if (Cache->BrokenCount() != 0)
+    {
+       ShowBroken(c1out,Cache,false);
+@@ -1095,6 +1105,8 @@
+       ExpectedInst++;
+    
+    // Install it with autoinstalling enabled.
++   // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++   // use that here)
+    if (State.InstBroken() == true && BrokenFix == false)
+       Cache.MarkInstall(Pkg,true);
+    return true;
+@@ -1457,6 +1469,8 @@
+    /* If we are in the Broken fixing mode we do not attempt to fix the
+       problems. This is if the user invoked install without -f and gave
+       packages */
++   // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++   // use that here)
+    if (BrokenFix == true && Cache->BrokenCount() != 0)
+    {
+       c1out << _("You might want to run `apt-get -f install' to correct these:") << endl;
+@@ -1467,10 +1481,14 @@
+    
+    // Call the scored problem resolver
+    Fix.InstallProtect();
++   // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++   // use that here)
+    if (Fix.Resolve(true) == false)
+       _error->Discard();
+ 
+    // Now we check the state of the packages,
++   // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++   // use that here)
+    if (Cache->BrokenCount() != 0)
+    {
+       c1out << 
+@@ -1505,12 +1523,14 @@
+ 	 if ((*Cache)[I].Install() == false)
+ 	    continue;
+ 
+-	 const char **J;
+-	 for (J = CmdL.FileList + 1; *J != 0; J++)
+-	    if (strcmp(*J,I.Name()) == 0)
++	 const char **K;
++	 for ((K = (CmdL.FileList + 1)); (*K != 0); K++) {
++		 if (strcmp(*K,I.Name()) == 0) {
+ 		break;
++		 }
++	 }
+ 	 
+-	 if (*J == 0) {
++	 if (*K == 0) {
+ 	    List += string(I.Name()) + " ";
+         VersionsList += string(Cache[I].CandVersion) + "\n";
+      }
+@@ -2355,6 +2375,8 @@
+    _config->Set("APT::Get::Simulate",false);
+    _config->Set("APT::Get::Assume-Yes",false);
+    _config->Set("APT::Get::Fix-Broken",false);
++   // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++   // use that here)
+    _config->Set("APT::Get::Force-Yes",false);
+    _config->Set("APT::Get::APT::Get::No-List-Cleanup",true);
+ }
+@@ -2393,6 +2415,8 @@
+       {'y',"yes","APT::Get::Assume-Yes",0},
+       {'y',"assume-yes","APT::Get::Assume-Yes",0},      
+       {'f',"fix-broken","APT::Get::Fix-Broken",0},
++      // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++      // use that here)
+       {'u',"show-upgraded","APT::Get::Show-Upgraded",0},
+       {'m',"ignore-missing","APT::Get::Fix-Missing",0},
+       {'t',"target-release","APT::Default-Release",CommandLine::HasArg},
+@@ -2456,6 +2480,9 @@
+       return 0;
+    }
+    
++   // (TODO: once we have implemented APT::Get::Ignore-Breakage like Fink has,
++   // use that here)
++
+    // Deal with stdout not being a tty
+    if (!isatty(STDOUT_FILENO) && _config->FindI("quiet",0) < 1)
+       _config->Set("quiet","1");

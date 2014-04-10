@@ -1,0 +1,99 @@
+--- doc/apt-get.8.orig	2004-07-30 01:58:31.000000000 -0400
++++ doc/apt-get.8	2014-04-09 18:53:25.000000000 -0400
+@@ -38,11 +38,11 @@
+ 
+ .TP
+ update
+-update is used to resynchronize the package index files from their sources\&. The indexes of available packages are fetched from the location(s) specified in \fI/etc/apt/sources\&.list\fR\&. For example, when using a Debian archive, this command retrieves and scans the \fIPackages\&.gz\fR files, so that information about new and updated packages is available\&. An update should always be performed before an upgrade or dist\-upgrade\&. Please be aware that the overall progress meter will be incorrect as the size of the package files cannot be known in advance\&.
++update is used to resynchronize the package index files from their sources\&. The indexes of available packages are fetched from the location(s) specified in \fI@PREFIX@/etc/apt/sources\&.list\fR\&. For example, when using a Debian archive, this command retrieves and scans the \fIPackages\&.gz\fR files, so that information about new and updated packages is available\&. An update should always be performed before an upgrade or dist\-upgrade\&. Please be aware that the overall progress meter will be incorrect as the size of the package files cannot be known in advance\&.
+ 
+ .TP
+ upgrade
+-upgrade is used to install the newest versions of all packages currently installed on the system from the sources enumerated in \fI/etc/apt/sources\&.list\fR\&. Packages currently installed with new versions available are retrieved and upgraded; under no circumstances are currently installed packages removed, or packages not already installed retrieved and installed\&. New versions of currently installed packages that cannot be upgraded without changing the install status of another package will be left at their current version\&. An update must be performed first so that \fBapt\-get\fR knows that new versions of packages are available\&.
++upgrade is used to install the newest versions of all packages currently installed on the system from the sources enumerated in \fI@PREFIX@/etc/apt/sources\&.list\fR\&. Packages currently installed with new versions available are retrieved and upgraded; under no circumstances are currently installed packages removed, or packages not already installed retrieved and installed\&. New versions of currently installed packages that cannot be upgraded without changing the install status of another package will be left at their current version\&. An update must be performed first so that \fBapt\-get\fR knows that new versions of packages are available\&.
+ 
+ .TP
+ dselect\-upgrade
+@@ -50,11 +50,11 @@
+ 
+ .TP
+ dist\-upgrade
+-dist\-upgrade in addition to performing the function of upgrade, also intelligently handles changing dependencies with new versions of packages; \fBapt\-get\fR has a "smart" conflict resolution system, and it will attempt to upgrade the most important packages at the expense of less important ones if necessary\&. The \fI/etc/apt/sources\&.list\fR file contains a list of locations from which to retrieve desired package files\&. See also \fB\fBapt_preferences\fR\fR(5) for a mechanism for overriding the general settings for individual packages\&.
++dist\-upgrade in addition to performing the function of upgrade, also intelligently handles changing dependencies with new versions of packages; \fBapt\-get\fR has a "smart" conflict resolution system, and it will attempt to upgrade the most important packages at the expense of less important ones if necessary\&. The \fI@PREFIX@/etc/apt/sources\&.list\fR file contains a list of locations from which to retrieve desired package files\&. See also \fB\fBapt_preferences\fR\fR(5) for a mechanism for overriding the general settings for individual packages\&.
+ 
+ .TP
+ install
+-install is followed by one or more packages desired for installation\&. Each package is a package name, not a fully qualified filename (for instance, in a Debian GNU/Linux system, libc6 would be the argument provided, not libc6_1\&.9\&.6\-2\&.deb) All packages required by the package(s) specified for installation will also be retrieved and installed\&. The \fI/etc/apt/sources\&.list\fR file is used to locate the desired packages\&. If a hyphen is appended to the package name (with no intervening space), the identified package will be removed if it is installed\&. Similarly a plus sign can be used to designate a package to install\&. These latter features may be used to override decisions made by apt\-get's conflict resolution system\&.
++install is followed by one or more packages desired for installation\&. Each package is a package name, not a fully qualified filename (for instance, in a Debian GNU/Linux system, libc6 would be the argument provided, not libc6_1\&.9\&.6\-2\&.deb) All packages required by the package(s) specified for installation will also be retrieved and installed\&. The \fI@PREFIX@/etc/apt/sources\&.list\fR file is used to locate the desired packages\&. If a hyphen is appended to the package name (with no intervening space), the identified package will be removed if it is installed\&. Similarly a plus sign can be used to designate a package to install\&. These latter features may be used to override decisions made by apt\-get's conflict resolution system\&.
+ 
+ A specific version of a package can be selected for installation by following the package name with an equals and the version of the package to select\&. This will cause that version to be located and selected for install\&. Alternatively a specific distribution can be selected by following the package name with a slash and the version of the distribution or the Archive name (stable, testing, unstable)\&.
+ 
+@@ -86,7 +86,7 @@
+ 
+ .TP
+ clean
+-clean clears out the local repository of retrieved package files\&. It removes everything but the lock file from \fI/var/cache/apt/archives/\fR and \fI/var/cache/apt/archives/partial/\fR\&. When APT is used as a \fB\fBdselect\fR\fR(8) method, clean is run automatically\&. Those who do not use dselect will likely want to run apt\-get clean from time to time to free up disk space\&.
++clean clears out the local repository of retrieved package files\&. It removes everything but the lock file from \fI@PREFIX@/var/cache/apt/archives/\fR and \fI@PREFIX@/var/cache/apt/archives/partial/\fR\&. When APT is used as a \fB\fBdselect\fR\fR(8) method, clean is run automatically\&. Those who do not use dselect will likely want to run apt\-get clean from time to time to free up disk space\&.
+ 
+ .TP
+ autoclean
+@@ -165,7 +165,7 @@
+ 
+ .TP
+ \fB\-\-list\-cleanup\fR
+-This option defaults to on, use \-\-no\-list\-cleanup to turn it off\&. When on \fBapt\-get\fR will automatically manage the contents of \fI/var/lib/apt/lists\fR to ensure that obsolete files are erased\&. The only reason to turn it off is if you frequently change your source list\&. Configuration Item: APT::Get::List\-Cleanup\&.
++This option defaults to on, use \-\-no\-list\-cleanup to turn it off\&. When on \fBapt\-get\fR will automatically manage the contents of \fI@PREFIX@/var/lib/apt/lists\fR to ensure that obsolete files are erased\&. The only reason to turn it off is if you frequently change your source list\&. Configuration Item: APT::Get::List\-Cleanup\&.
+ 
+ .TP
+ \fB\-t\fR, \fB\-\-target\-release\fR, \fB\-\-default\-release\fR
+@@ -210,41 +210,41 @@
+ .SH "FILES"
+ 
+ .TP
+-\fI/etc/apt/sources\&.list\fR
++\fI@PREFIX@/etc/apt/sources\&.list\fR
+ Locations to fetch packages from\&. Configuration Item: Dir::Etc::SourceList\&.
+ 
+ .TP
+-\fI/etc/apt/apt\&.conf\fR
++\fI@PREFIX@/etc/apt/apt\&.conf\fR
+ APT configuration file\&. Configuration Item: Dir::Etc::Main\&.
+ 
+ .TP
+-\fI/etc/apt/apt\&.conf\&.d/\fR
++\fI@PREFIX@/etc/apt/apt\&.conf\&.d/\fR
+ APT configuration file fragments Configuration Item: Dir::Etc::Parts\&.
+ 
+ .TP
+-\fI/etc/apt/preferences\fR
++\fI@PREFIX@/etc/apt/preferences\fR
+ Version preferences file\&. This is where you would specify "pinning", i\&.e\&. a preference to get certain packages from a separate source or from a different version of a distribution\&. Configuration Item: Dir::Etc::Preferences\&.
+ 
+ .TP
+-\fI/var/cache/apt/archives/\fR
++\fI@PREFIX@/var/cache/apt/archives/\fR
+ Storage area for retrieved package files\&. Configuration Item: Dir::Cache::Archives\&.
+ 
+ .TP
+-\fI/var/cache/apt/archives/partial/\fR
++\fI@PREFIX@/var/cache/apt/archives/partial/\fR
+ Storage area for package files in transit\&. Configuration Item: Dir::Cache::Archives (implicit partial)\&.
+ 
+ .TP
+-\fI/var/lib/apt/lists/\fR
++\fI@PREFIX@/var/lib/apt/lists/\fR
+ Storage area for state information for each package resource specified in \fB\fIsources\&.list\fR\fR(5) Configuration Item: Dir::State::Lists\&.
+ 
+ .TP
+-\fI/var/lib/apt/lists/partial/\fR
++\fI@PREFIX@/var/lib/apt/lists/partial/\fR
+ Storage area for state information in transit\&. Configuration Item: Dir::State::Lists (implicit partial)\&.
+ 
+ .SH "SEE ALSO"
+ 
+ .PP
+-\fB\fBapt\-cache\fR\fR(8), \fB\fBapt\-cdrom\fR\fR(8), \fB\fBdpkg\fR\fR(8), \fB\fBdselect\fR\fR(8), \fB\fIsources\&.list\fR\fR(5), \fB\fIapt\&.conf\fR\fR(5), \fB\fBapt\-config\fR\fR(8), The APT User's guide in /usr/share/doc/apt/, \fB\fBapt_preferences\fR\fR(5), the APT Howto\&.
++\fB\fBapt\-cache\fR\fR(8), \fB\fBapt\-cdrom\fR\fR(8), \fB\fBdpkg\fR\fR(8), \fB\fBdselect\fR\fR(8), \fB\fIsources\&.list\fR\fR(5), \fB\fIapt\&.conf\fR\fR(5), \fB\fBapt\-config\fR\fR(8), The APT User's guide in @PREFIX@/share/doc/apt/, \fB\fBapt_preferences\fR\fR(5), the APT Howto\&.
+ 
+ .SH "DIAGNOSTICS"
+ 

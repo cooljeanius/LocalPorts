@@ -1,0 +1,15 @@
+--- methods/ftp.cc.orig	2004-01-07 15:39:38.000000000 -0500
++++ methods/ftp.cc	2014-04-09 19:53:50.000000000 -0400
+@@ -697,7 +697,11 @@
+       if (WaitFd(DataFd,true,TimeOut) == false)
+ 	 return _error->Error(_("Could not connect data socket, connection timed out"));
+       unsigned int Err;
+-      unsigned int Len = sizeof(Err);
++#ifndef HAVE_SOCKLEN_T
++      int Len = sizeof(Err);
++#else
++      socklen_t Len = sizeof(Err);
++#endif /* !HAVE_SOCKLEN_T */
+       if (getsockopt(DataFd,SOL_SOCKET,SO_ERROR,&Err,&Len) != 0)
+ 	 return _error->Errno("getsockopt",_("Failed"));
+       if (Err != 0)
