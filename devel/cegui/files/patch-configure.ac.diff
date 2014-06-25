@@ -1,31 +1,41 @@
---- configure.ac.bak	2013-08-12 14:58:31.000000000 -0400
-+++ configure.ac	2013-08-12 14:57:49.000000000 -0400
-@@ -1,43 +1,102 @@
+--- configure.ac.orig	2013-01-12 12:07:24.000000000 -0500
++++ configure.ac	2014-06-19 13:15:56.000000000 -0400
+@@ -1,66 +1,146 @@
 -AC_PREREQ(2.59)
-+#                                               -*- Autoconf -*-
-+# Process this file with autoconf to produce a configure script.
++dnl#                                               -*- Autoconf -*-
++dnl# Process this file with autoconf to produce a configure script.
  
 -dnl Define the sub-version numbers for this release
 -dnl
 -dnl now done like this to save repetition, and make it more explicit where
 -dnl we should define these numbers (we could pick up the same info by other means
 -dnl though this leaves nobody in any doubt about where this is being defined).
-+AC_PREREQ([2.59])
-+
+-m4_define([CEGUI_MAJ_VER], 0)
+-m4_define([CEGUI_MIN_VER], 7)
+-m4_define([CEGUI_REL_VER], 9)
++AC_PREREQ([2.59])dnl
+ 
+-dnl Construct the final version number out of the sub-version values specified above
+-m4_define([CEGUI_RELEASE_VERSION], [CEGUI_MAJ_VER.CEGUI_MIN_VER.CEGUI_REL_VER])
+-
+-AC_INIT([CEGUI], [CEGUI_RELEASE_VERSION], [http://mantis.cegui.org.uk/], [CEGUI])
 +dnl# Define the sub-version numbers for this release
 +dnl#
 +dnl# now done like this to save repetition, and make it more explicit where
-+dnl# we should define these numbers (we could pick up the same info by other means
-+dnl# though this leaves nobody in any doubt about where this is being defined).
- m4_define([CEGUI_MAJ_VER], 0)
- m4_define([CEGUI_MIN_VER], 7)
- m4_define([CEGUI_REL_VER], 9)
- 
--dnl Construct the final version number out of the sub-version values specified above
-+dnl# Construct the final version number out of the sub-version values specified above
- m4_define([CEGUI_RELEASE_VERSION], [CEGUI_MAJ_VER.CEGUI_MIN_VER.CEGUI_REL_VER])
- 
- AC_INIT([CEGUI], [CEGUI_RELEASE_VERSION], [http://mantis.cegui.org.uk/], [CEGUI])
++dnl# we should define these numbers (we could pick up the same info by
++dnl# other means, though this leaves nobody in any doubt about where this
++dnl# is being defined).
++m4_define([CEGUI_MAJ_VER],[0])
++m4_define([CEGUI_MIN_VER],[7])
++m4_define([CEGUI_REL_VER],[9])
++
++dnl# Construct the final version number out of the sub-version values
++dnl# specified above
++m4_define([CEGUI_RELEASE_VERSION],
++          [CEGUI_MAJ_VER.CEGUI_MIN_VER.CEGUI_REL_VER])
++
++AC_INIT([CEGUI],[CEGUI_RELEASE_VERSION],[http://mantis.cegui.org.uk/],
++        [CEGUI])
 +AC_CONFIG_HEADERS([cegui/include/config.h])
 +AC_CONFIG_MACRO_DIR([m4])
  AC_CONFIG_SRCDIR([cegui/src/CEGUIBase.cpp])
@@ -38,8 +48,8 @@
 +AC_USE_SYSTEM_EXTENSIONS
 +AC_MSG_CHECKING([automake stuff])
 +AC_MSG_RESULT([ ])
-+AM_INIT_AUTOMAKE([1.11 foreign dejagnu dist-bzip2 dist-lzip dist-xz dist-zip \
-+                  tar-ustar -Wall subdir-objects])
++AM_INIT_AUTOMAKE([1.11 foreign dejagnu dist-bzip2 dist-lzip dist-xz \
++                  dist-zip tar-ustar -Wall subdir-objects])
 +AM_MAINTAINER_MODE
  
  # Checks for programs.
@@ -53,56 +63,63 @@
 -AC_CHECK_PROG([DOXYGEN], [doxygen], [doxygen], [])
 -AC_CHECK_PROG([DOXYGENDOT], [dot], [dot], [])
 +AC_PROG_CXXCPP
-+if test "x$AWK" = "x"; then
-+	AC_PROG_AWK
++if test "x${AWK}" = "x"; then
++  test -z "${AWK}"
++  AC_PROG_AWK
 +else
-+	export AWK
++  test -n "${AWK}" && export AWK
 +fi
-+if test "x$CC" = "x"; then
-+	AC_PROG_CC
++if test "x${CC}" = "x"; then
++  test -z "${CC}"
++  AC_PROG_CC
 +else
-+	export CC
++  test -n "${CC}" && export CC
 +fi
 +AC_PROG_GCC_TRADITIONAL
-+if test "x$CPP" = "x"; then
-+	AC_PROG_CPP
++if test "x${CPP}" = "x"; then
++  test -z "${CPP}"
++  AC_PROG_CPP
 +else
-+	export CPP
++  test -n "${CPP}" && export CPP
 +fi
-+if test "x$INSTALL" = "x"; then
-+	test -z "$INSTALL"
-+	AC_PROG_INSTALL
++if test "x${INSTALL}" = "x"; then
++  test -z "${INSTALL}"
++  AC_PROG_INSTALL
 +else
-+	export INSTALL
++  test -n "${INSTALL}" && export INSTALL
 +fi
-+if test "x$LN_S" = "x"; then
-+	AC_PROG_LN_S
++if test "x${LN_S}" = "x"; then
++  test -z "${LN_S}"
++  AC_PROG_LN_S
 +else
-+	export LN_S
++  test -n "${LN_S}" && export LN_S
 +fi
++AC_PROG_MKDIR_P
 +AC_PROG_OBJC
 +AC_PROG_OBJCPP
 +AC_PROG_OBJCXX
 +AC_PROG_OBJCXXCPP
 +
-+AC_LANG([C++])
++AC_LANG([C++])dnl
 +
-+AC_CHECK_PROG([DOXYGEN],[doxygen],[doxygen],[])
-+AC_CHECK_PROG([DOXYGENDOT],[dot],[dot],[])
-+AC_PATH_PROG([FRIBIDI_BIN],[fribidi])
++AC_CHECK_PROG([DOXYGEN],[doxygen],[doxygen],[])dnl
++AC_CHECK_PROG([DOXYGENDOT],[dot],[dot],[])dnl
++AC_PATH_PROG([FRIBIDI_BIN],[fribidi])dnl
 +AC_PATH_PROG([GLEWINFO_BIN],[glewinfo])
-+if test "x$GLEWINFO_BIN" != "x"; then
-+	test -x $GLEWINFOBIN && $GLEWINFO_BIN > glewinfo_output.txt
++if test "x${GLEWINFO_BIN}" != "x"; then
++  test -n "${GLEWINFO_BIN}" && test -x ${GLEWINFOBIN} && (${GLEWINFO_BIN} > glewinfo_output.txt)
 +fi
  
 -PKG_PROG_PKG_CONFIG
-+PKG_PROG_PKG_CONFIG([0.9.1])
- if test -z "$PKG_CONFIG"; then
+-if test -z "$PKG_CONFIG"; then
 -    AC_MSG_ERROR([pkg-config was not found.  Please ensure pkg-config is installed and / or set the PKG_CONFIG variable])
-+    AC_MSG_ERROR([pkg-config was not found.  Please ensure pkg-config is installed and/or set the PKG_CONFIG variable in the environment.])
++PKG_PROG_PKG_CONFIG([0.9.1])
++if test -z "${PKG_CONFIG}"; then
++  AC_MSG_ERROR([pkg-config was not found. Please ensure that pkg-config is installed and/or set the PKG_CONFIG variable in the environment.])
  fi
  
- # Disable building static library
+-# Disable building static library
++# Disable building static library:
  AC_DISABLE_STATIC
  
 -# We want DLLs on Win32 platform
@@ -110,73 +127,108 @@
 -
 -# Initialise libtool
 -AM_PROG_LIBTOOL
-+# Initialise libtool (we want DLLs on Win32 platform)
++# Initialize libtool (we want DLLs on Win32 platform):
 +AC_MSG_CHECKING([libtool stuff])
 +AC_MSG_RESULT([ ])
-+LT_INIT([win32-dll])
-+LT_LANG([C++])
++LT_INIT([disable-static win32-dll dlopen])
++LT_LANG([C++])dnl
 +
-+if test "x$RANLIB" = "x"; then
-+	AC_PROG_RANLIB
++if test "x${RANLIB}" = "x"; then
++  test -z "${RANLIB}"
++  AC_PROG_RANLIB
 +else
-+	export RANLIB
++  test -n "${RANLIB}" && export RANLIB
 +fi
  
- # Setup some stuff depending on the system we're running on
- case $host_os in
-@@ -52,15 +111,21 @@
+-# Setup some stuff depending on the system we're running on
+-case $host_os in
++# Setup some stuff depending on the system on which we are running:
++case ${host_os} in
+     *mingw32* ) MINGW32=yes
+                 cegui_pc_platform_libs=-lwinmm
+                 ;;
+      *darwin* ) MACOSX=yes
+-                cegui_pc_platform_libs=
++                cegui_pc_platform_libs=""
+                 ;;
+             * ) MINGW32=no
+-                cegui_pc_platform_libs=
++                cegui_pc_platform_libs=""
                  ;;
  esac
  
 -AC_SUBST(cegui_pc_platform_libs)
-+AC_SUBST([cegui_pc_platform_libs])
++AC_SUBST([cegui_pc_platform_libs])dnl
  
- AM_CONDITIONAL([MINGW32_BUILD], [test x$MINGW32 = xyes])
- AM_CONDITIONAL([MACOSX_BUILD], [test x$MACOSX = xyes])
+-AM_CONDITIONAL([MINGW32_BUILD], [test x$MINGW32 = xyes])
+-AM_CONDITIONAL([MACOSX_BUILD], [test x$MACOSX = xyes])
++AM_CONDITIONAL([MINGW32_BUILD],[test "x${MINGW32}" = "xyes"])dnl
++AM_CONDITIONAL([MACOSX_BUILD],[test "x${MACOSX}" = "xyes"])dnl
  
- # Checks for libraries (skip on mingw32).
-+AC_MSG_CHECKING([libraries])
-+AC_MSG_RESULT([ ])
- if test x$MINGW32 != xyes; then
+-# Checks for libraries (skip on mingw32).
+-if test x$MINGW32 != xyes; then
 -    AC_CHECK_LIB([dl], [dlopen])
 -    AC_CHECK_LIB([pthread], [pthread_create],, AC_MSG_ERROR([cannot find pthread library]))
-+    AC_CHECK_LIB([dl],[dlopen])
-+    AC_CHECK_LIB([pthread],[pthread_create],[],[AC_MSG_ERROR([cannot find pthread library])])
-+    AC_CHECK_LIB([CF],[CFRelease])
-+    AC_CHECK_LIB([fribidi],[main])
-+    AC_CHECK_LIB([freeimage],[main])
++# Checks for libraries (skip on mingw32; it links differently).
++AC_MSG_CHECKING([libraries])
++AC_MSG_RESULT([ ])
++if test "x${MINGW32}" != "xyes"; then
++    dnl# libtool already checks for dlopen, so use a different symbol here:
++    AC_CHECK_LIB([dl],[dlsym])dnl
++    AC_CHECK_LIB([pthread],[pthread_create],[],
++                 [AC_CHECK_LIB([pthread],[main],[],
++                               [AC_MSG_ERROR([cannot find pthread library])
++                 ])dnl
++    ])dnl
++    AC_CHECK_LIB([CF],[CFRelease])dnl
++    AC_CHECK_LIB([fribidi],[main])dnl
++    AC_CHECK_LIB([freeimage],[main])dnl
 +    AC_CHECK_LIB([freeimageplus],[main])
  fi
  
  CEGUI_CODE_OPTIONS
-@@ -72,33 +137,154 @@
+@@ -68,257 +148,419 @@
+ CEGUI_CHECK_FREETYPE
+ CEGUI_CHECK_PCRE
+ 
++AC_MSG_CHECKING([xml parsers])
++AC_MSG_RESULT([ ])
+ CEGUI_CHECK_XML_PARSERS
++AC_MSG_CHECKING([image codecs])
++AC_MSG_RESULT([ ])
  CEGUI_CHECK_IMAGE_CODECS
  
++# X11 (another macro might also check these):
++AC_DEFUN([AC_REQUIRE_X_XTRA],[
++  AC_REQUIRE([AC_PATH_XTRA])dnl
++])dnl
++AC_REQUIRE_X_XTRA
++
  # Checks for header files.
 -AC_HEADER_STDC
 -AC_CHECK_HEADERS([limits.h locale.h malloc.h stddef.h stdlib.h string.h])
-+AC_PATH_X
 +AC_MSG_CHECKING([external headers])
 +AC_MSG_RESULT([ ])
-+AC_CHECK_HEADERS([CoreFoundation/CoreFoundation.h FreeImagePlus.h fribidi.h fribidi/fribidi.h \
-+gl.h glu.h glx.h glew.h GL/gl.h GL/glu.h GL/glx.h GL/glew.h libxml/parser.h libxml/tree.h \
-+libxml/xmlmemory.h libxml/xmlerror.h limits.h locale.h malloc.h \
-+stddef.h stdio.h sys/time.h time.h wchar.h])
++AC_HEADER_DIRENT
++AC_HEADER_STAT
++AC_HEADER_STDBOOL dnl# also "_CHECK"s it
++AC_HEADER_TIME
++AC_CHECK_HEADERS([CoreFoundation/CoreFoundation.h FreeImagePlus.h \
++fribidi.h fribidi/fribidi.h gl.h glu.h glx.h glew.h \
++GL/gl.h GL/glu.h GL/glx.h GL/glew.h libxml/parser.h \
++libxml/tree.h libxml/xmlmemory.h libxml/xmlerror.h limits.h locale.h \
++malloc.h malloc/malloc.h stddef.h stdio.h sys/time.h time.h wchar.h])
 +AC_MSG_CHECKING([CEGUI internal headers])
 +AC_MSG_RESULT([ ])
 +AC_CHECK_HEADERS([CEGUIFreeImageImageCodec.h \
-+                  CEGUIFreeImageImageCodecModule.h \
-+                  CEGUINullGeometryBuffer.h \
-+                  CEGUINullTexture.h \
-+                  CEGUIOpenGLFBOTextureTarget.h \
-+                  CEGUIOpenGLApplePBTextureTarget.h \
-+                  CEGUIOpenGLRenderer.h \
-+                  CEGUIOpenGLTexture.h \
-+                  FalButton.h])
++CEGUIFreeImageImageCodecModule.h CEGUINullGeometryBuffer.h \
++CEGUINullTexture.h CEGUIOpenGLFBOTextureTarget.h \
++CEGUIOpenGLApplePBTextureTarget.h CEGUIOpenGLRenderer.h \
++CEGUIOpenGLTexture.h FalButton.h])dnl
  
  # Checks for typedefs, structures, and compiler characteristics.
- AC_HEADER_STDBOOL
-+AC_STRUCT_TM
+-AC_HEADER_STDBOOL
++AC_STRUCT_TIMEZONE dnl# also checks the "_TM" one
 +AC_MSG_CHECKING([C compiler characteristics])
 +AC_MSG_RESULT([ ])
 +AC_C_BIGENDIAN
@@ -186,6 +238,7 @@
 -AC_STRUCT_TM
 +AC_C_PROTOTYPES
  AC_C_VOLATILE
+-AC_CHECK_TYPES([ptrdiff_t])
 +AC_MSG_CHECKING([types])
 +AC_MSG_RESULT([ ])
 +AC_TYPE_INT8_T
@@ -198,104 +251,110 @@
 +AC_TYPE_UINT16_T
 +AC_TYPE_UINT32_T
 +AC_TYPE_UINT64_T
- AC_CHECK_TYPES([ptrdiff_t])
-+AC_CHECK_TYPES([OSStatus])
-+AC_CHECK_TYPES([WindowRef])
-+AC_CHECK_TYPES([HIViewRef])
-+AC_CHECK_TYPES([UInt8])
-+AC_CHECK_TYPES([UInt16])
-+AC_CHECK_TYPES([UInt32])
-+AC_CHECK_TYPES([UInt64])
++AC_CHECK_TYPES([ptrdiff_t])dnl
++AC_CHECK_TYPES([OSStatus])dnl
++AC_CHECK_TYPES([WindowRef])dnl
++AC_CHECK_TYPES([HIViewRef])dnl
++AC_CHECK_TYPES([UInt8])dnl
++AC_CHECK_TYPES([UInt16])dnl
++AC_CHECK_TYPES([UInt32])dnl
++AC_CHECK_TYPES([UInt64])dnl
 +
 +# Checks for declarations
 +AC_MSG_CHECKING([decls])
 +AC_MSG_RESULT([ ])
-+AC_CHECK_DECLS([actualStateName])
-+AC_CHECK_DECLS([appendGeometry])
-+AC_CHECK_DECLS([CEGUI])
-+AC_CHECK_DECLS([CFRelease])
-+AC_CHECK_DECLS([CFURLRef])
-+AC_CHECK_DECLS([cur_node])
-+AC_CHECK_DECLS([currAttr])
-+AC_CHECK_DECLS([doc])
-+AC_CHECK_DECLS([d_activeTexture])
-+AC_CHECK_DECLS([d_area])
-+AC_CHECK_DECLS([d_CEGUITexture])
-+AC_CHECK_DECLS([d_clipRect])
-+AC_CHECK_DECLS([d_effect])
-+AC_CHECK_DECLS([d_frameBuffer])
-+AC_CHECK_DECLS([d_owner])
-+AC_CHECK_DECLS([d_pivot])
-+AC_CHECK_DECLS([d_rotation])
-+AC_CHECK_DECLS([d_supportedFormat])
-+AC_CHECK_DECLS([d_texture])
-+AC_CHECK_DECLS([d_translation])
-+AC_CHECK_DECLS([d_vertices])
-+AC_CHECK_DECLS([d_window])
-+AC_CHECK_DECLS([err])
-+AC_CHECK_DECLS([datafilesURL])
-+AC_CHECK_DECLS([FalagardButton])
-+AC_CHECK_DECLS([FreeImageImageCodec])
-+AC_CHECK_DECLS([FriBidiChar])
-+AC_CHECK_DECLS([FriBidiCharType])
-+AC_CHECK_DECLS([fribidi_boolean])
-+AC_CHECK_DECLS([fribidi_get_type])
-+AC_CHECK_DECLS([FRIBIDI_TYPE_LTR])
-+AC_CHECK_DECLS([FRIBIDI_TYPE_RTL])
-+AC_CHECK_DECLS([FRIBIDI_TYPE_ON])
-+AC_CHECK_DECLS([getLookNFeel])
-+AC_CHECK_DECLS([glGetPointervEXT])
-+AC_CHECK_DECLS([imageCodec])
-+AC_CHECK_DECLS([LIBXML_TEST_VERSION])
-+AC_CHECK_DECLS([NullGeometryBuffer])
-+AC_CHECK_DECLS([NullTexture])
-+AC_CHECK_DECLS([OpenGLApplePBTextureTarget])
-+AC_CHECK_DECLS([OpenGLFBOTextureTarget])
-+AC_CHECK_DECLS([OpenGLRenderTarget])
-+AC_CHECK_DECLS([PFNGLBUFFERREGIONENABLEDEXTPROC])
-+AC_CHECK_DECLS([PFNGLDELETEBUFFERREGIONEXTPROC])
-+AC_CHECK_DECLS([PFNGLDRAWBUFFERREGIONEXTPROC])
-+AC_CHECK_DECLS([PFNGLGETPOINTERVEXTPROC])
-+AC_CHECK_DECLS([PFNGLNEWBUFFERREGIONEXTPROC])
-+AC_CHECK_DECLS([PFNGLREADBUFFERREGIONEXTPROC])
-+AC_CHECK_DECLS([res])
-+AC_CHECK_DECLS([resizeRenderTexture])
-+AC_CHECK_DECLS([root])
-+AC_CHECK_DECLS([setArea])
-+AC_CHECK_DECLS([UInt8])
-+AC_CHECK_DECLS([UInt16])
-+AC_CHECK_DECLS([UInt32])
-+AC_CHECK_DECLS([UInt64])
-+AC_CHECK_DECLS([val])
-+AC_CHECK_DECLS([xmlAttrPtr])
-+AC_CHECK_DECLS([xmlChar])
-+AC_CHECK_DECLS([xmlCleanupParser])
-+AC_CHECK_DECLS([xmlDocGetRootElement])
-+AC_CHECK_DECLS([xmlDocPtr])
-+AC_CHECK_DECLS([xmlFree])
-+AC_CHECK_DECLS([xmlFreeDoc])
-+AC_CHECK_DECLS([xmlGetLastError])
-+AC_CHECK_DECLS([xmlGetProp])
-+AC_CHECK_DECLS([xmlNode])
-+AC_CHECK_DECLS([XML_ELEMENT_NODE])
-+AC_CHECK_DECLS([XML_TEXT_NODE])
++AC_CHECK_DECLS([actualStateName])dnl
++AC_CHECK_DECLS([appendGeometry])dnl
++AC_CHECK_DECLS([CEGUI])dnl
++AC_CHECK_DECLS([CFRelease])dnl
++AC_CHECK_DECLS([CFURLRef])dnl
++AC_CHECK_DECLS([cur_node])dnl
++AC_CHECK_DECLS([currAttr])dnl
++AC_CHECK_DECLS([doc])dnl
++AC_CHECK_DECLS([d_activeTexture])dnl
++AC_CHECK_DECLS([d_area])dnl
++AC_CHECK_DECLS([d_CEGUITexture])dnl
++AC_CHECK_DECLS([d_clipRect])dnl
++AC_CHECK_DECLS([d_effect])dnl
++AC_CHECK_DECLS([d_frameBuffer])dnl
++AC_CHECK_DECLS([d_owner])dnl
++AC_CHECK_DECLS([d_pivot])dnl
++AC_CHECK_DECLS([d_rotation])dnl
++AC_CHECK_DECLS([d_supportedFormat])dnl
++AC_CHECK_DECLS([d_texture])dnl
++AC_CHECK_DECLS([d_translation])dnl
++AC_CHECK_DECLS([d_vertices])dnl
++AC_CHECK_DECLS([d_window])dnl
++AC_CHECK_DECLS([err])dnl
++AC_CHECK_DECLS([datafilesURL])dnl
++AC_CHECK_DECLS([FalagardButton])dnl
++AC_CHECK_DECLS([FreeImageImageCodec])dnl
++AC_CHECK_DECLS([FriBidiChar])dnl
++AC_CHECK_DECLS([FriBidiCharType])dnl
++AC_CHECK_DECLS([fribidi_boolean])dnl
++AC_CHECK_DECLS([fribidi_get_type])dnl
++AC_CHECK_DECLS([FRIBIDI_TYPE_LTR])dnl
++AC_CHECK_DECLS([FRIBIDI_TYPE_RTL])dnl
++AC_CHECK_DECLS([FRIBIDI_TYPE_ON])dnl
++AC_CHECK_DECLS([getLookNFeel])dnl
++AC_CHECK_DECLS([glGetPointervEXT])dnl
++AC_CHECK_DECLS([imageCodec])dnl
++AC_CHECK_DECLS([LIBXML_TEST_VERSION])dnl
++AC_CHECK_DECLS([NullGeometryBuffer])dnl
++AC_CHECK_DECLS([NullTexture])dnl
++AC_CHECK_DECLS([OpenGLApplePBTextureTarget])dnl
++AC_CHECK_DECLS([OpenGLFBOTextureTarget])dnl
++AC_CHECK_DECLS([OpenGLRenderTarget])dnl
++AC_CHECK_DECLS([PFNGLBUFFERREGIONENABLEDEXTPROC])dnl
++AC_CHECK_DECLS([PFNGLDELETEBUFFERREGIONEXTPROC])dnl
++AC_CHECK_DECLS([PFNGLDRAWBUFFERREGIONEXTPROC])dnl
++AC_CHECK_DECLS([PFNGLGETPOINTERVEXTPROC])dnl
++AC_CHECK_DECLS([PFNGLNEWBUFFERREGIONEXTPROC])dnl
++AC_CHECK_DECLS([PFNGLREADBUFFERREGIONEXTPROC])dnl
++AC_CHECK_DECLS([res])dnl
++AC_CHECK_DECLS([resizeRenderTexture])dnl
++AC_CHECK_DECLS([root])dnl
++AC_CHECK_DECLS([setArea])dnl
++AC_CHECK_DECLS([UInt8])dnl
++AC_CHECK_DECLS([UInt16])dnl
++AC_CHECK_DECLS([UInt32])dnl
++AC_CHECK_DECLS([UInt64])dnl
++AC_CHECK_DECLS([val])dnl
++AC_CHECK_DECLS([xmlAttrPtr])dnl
++AC_CHECK_DECLS([xmlChar])dnl
++AC_CHECK_DECLS([xmlCleanupParser])dnl
++AC_CHECK_DECLS([xmlDocGetRootElement])dnl
++AC_CHECK_DECLS([xmlDocPtr])dnl
++AC_CHECK_DECLS([xmlFree])dnl
++AC_CHECK_DECLS([xmlFreeDoc])dnl
++AC_CHECK_DECLS([xmlGetLastError])dnl
++AC_CHECK_DECLS([xmlGetProp])dnl
++AC_CHECK_DECLS([xmlNode])dnl
++AC_CHECK_DECLS([XML_ELEMENT_NODE])dnl
++AC_CHECK_DECLS([XML_TEXT_NODE])dnl
  
  # Checks for library functions.
 +AC_MSG_CHECKING([functions])
 +AC_MSG_RESULT([ ])
++AC_FUNC_CLOSEDIR_VOID
  AC_FUNC_ERROR_AT_LINE
 +AC_FUNC_MALLOC
  AC_FUNC_MEMCMP
  AC_FUNC_MKTIME
 +AC_FUNC_REALLOC
++AC_FUNC_SELECT_ARGTYPES
++AC_FUNC_STAT
  AC_FUNC_STRCOLL
  AC_FUNC_STRFTIME
 -AC_CHECK_FUNCS([atexit floor memchr memmove memset pow regcomp setlocale sqrt strchr strcspn strerror strpbrk strtoul])
-+AC_CHECK_FUNCS([atexit CFRelease CFURLRef floor gettimeofday memchr memmove \
-+memset pow printf regcomp scanf select setenv setlocale sqrt strchr strcspn \
-+strerror strpbrk strrchr strtol strtoul])
- 
- # check for renderers
+-
+-# check for renderers
++AC_CHECK_FUNCS([atexit CFRelease CFURLRef floor gettimeofday \
++                memchr memmove memset pow printf regcomp scanf select \
++                setenv setlocale sqrt strchr strcspn strerror strpbrk \
++                strrchr strtol strtoul])dnl
++
++# check for renderers:
 +AC_MSG_CHECKING([renderers])
 +AC_MSG_RESULT([ ])
  CEGUI_ENABLE_OPENGL_RENDERER
@@ -304,32 +363,435 @@
  CEGUI_ENABLE_IRRLICHT_RENDERER
  CEGUI_ENABLE_DIRECTFB_RENDERER
  
+-# decide whether to use gtk dialog in samples
++# other custom stuff:
 +AC_MSG_CHECKING([a few more things])
 +AC_MSG_RESULT([ ])
- # decide whether to use gtk dialog in samples
++# decide whether to use gtk dialog in samples:
++AC_MSG_CHECKING([gtk])
++AC_MSG_RESULT([ ])
  CEGUI_CHECK_GTK_FOR_SAMPLES
  
-@@ -121,7 +307,13 @@
+-# decide whether to build the samples
++# decide whether to build the samples:
++AC_MSG_CHECKING([samples])
++AC_MSG_RESULT([ ])
+ CEGUI_CHECK_WANTS_SAMPLES
+ 
+-# decide whether to build the lua module
++# decide whether to build the lua module:
++AC_MSG_CHECKING([lua])
++AC_MSG_RESULT([ ])
+ CEGUI_CHECK_LUA
+ 
+-# decide whether to build the python bindings
++# decide whether to build the python bindings:
++AC_MSG_CHECKING([python])
++AC_MSG_RESULT([ ])
+ CEGUI_CHECK_PYTHON
+ 
+ # handle config for bi-directional text support.
++AC_MSG_CHECKING([bidi])
++AC_MSG_RESULT([ ])
+ CEGUI_CHECK_BIDI
+ 
++AC_MSG_CHECKING([logger])
++AC_MSG_RESULT([ ])
+ CEGUI_CHECK_DEFAULT_LOGGER
++AC_MSG_CHECKING([minizip])
++AC_MSG_RESULT([ ])
+ CEGUI_CHECK_MINIZIP_RESOURCE_PROVIDER
+ 
++AC_MSG_CHECKING([libtool options])
++AC_MSG_RESULT([ ])
+ CEGUI_LIBTOOL_OPTIONS
++AC_MSG_CHECKING([build suffix])
++AC_MSG_RESULT([ ])
  CEGUI_CHECK_BUILD_SUFFIX
++AC_MSG_CHECKING([static build settings])
++AC_MSG_RESULT([ ])
  CEGUI_CHECK_STATIC
  
 -dnl Create the makefiles
+-AC_CONFIG_FILES([cegui/CEGUI-NULL.pc
+-                 cegui/CEGUI-OGRE.pc
+-                 cegui/CEGUI-OPENGL.pc
+-                 cegui/CEGUI.pc
+-                 cegui/CEGUI.spec
+-                 cegui/Makefile
+-                 cegui/include/elements/Makefile
+-                 cegui/include/falagard/Makefile
+-                 cegui/include/ImageCodecModules/CoronaImageCodec/Makefile
+-                 cegui/include/ImageCodecModules/DevILImageCodec/Makefile
+-                 cegui/include/ImageCodecModules/FreeImageImageCodec/Makefile
+-                 cegui/include/ImageCodecModules/Makefile
+-                 cegui/include/ImageCodecModules/SILLYImageCodec/Makefile
+-                 cegui/include/ImageCodecModules/STBImageCodec/Makefile
+-                 cegui/include/ImageCodecModules/TGAImageCodec/Makefile
+-                 cegui/include/Makefile
+-                 cegui/include/RendererModules/Direct3D10/Makefile
+-                 cegui/include/RendererModules/Direct3D11/Makefile
+-                 cegui/include/RendererModules/Direct3D9/Makefile
+-                 cegui/include/RendererModules/DirectFB/Makefile
+-                 cegui/include/RendererModules/Irrlicht/Makefile
+-                 cegui/include/RendererModules/Null/Makefile
+-                 cegui/include/RendererModules/Ogre/Makefile
+-                 cegui/include/RendererModules/OpenGL/Makefile
+-                 cegui/include/RendererModules/Makefile
+-                 cegui/include/ScriptingModules/LuaScriptModule/Makefile
+-                 cegui/include/ScriptingModules/LuaScriptModule/support/Makefile
+-                 cegui/include/ScriptingModules/LuaScriptModule/support/tolua++/Makefile
+-                 cegui/include/ScriptingModules/Makefile
+-                 cegui/include/WindowRendererSets/Falagard/Makefile
+-                 cegui/include/WindowRendererSets/Makefile
+-                 cegui/include/XMLParserModules/ExpatParser/Makefile
+-                 cegui/include/XMLParserModules/LibxmlParser/Makefile
+-                 cegui/include/XMLParserModules/Makefile
+-                 cegui/include/XMLParserModules/RapidXMLParser/Makefile
+-                 cegui/include/XMLParserModules/TinyXMLParser/Makefile
+-                 cegui/include/XMLParserModules/XercesParser/Makefile
+-                 cegui/src/ImageCodecModules/CoronaImageCodec/Makefile
+-                 cegui/src/ImageCodecModules/DevILImageCodec/Makefile
+-                 cegui/src/ImageCodecModules/FreeImageImageCodec/Makefile
+-                 cegui/src/ImageCodecModules/Makefile
+-                 cegui/src/ImageCodecModules/SILLYImageCodec/Makefile
+-                 cegui/src/ImageCodecModules/STBImageCodec/Makefile
+-                 cegui/src/ImageCodecModules/TGAImageCodec/Makefile
+-                 cegui/src/Makefile
+-                 cegui/src/RendererModules/Direct3D10/Makefile
+-                 cegui/src/RendererModules/Direct3D11/Makefile
+-                 cegui/src/RendererModules/Direct3D9/Makefile
+-                 cegui/src/RendererModules/DirectFB/Makefile
+-                 cegui/src/RendererModules/Irrlicht/Makefile
+-                 cegui/src/RendererModules/Null/Makefile
+-                 cegui/src/RendererModules/Ogre/Makefile
+-                 cegui/src/RendererModules/OpenGL/Makefile
+-                 cegui/src/RendererModules/Makefile
+-                 cegui/src/ScriptingModules/LuaScriptModule/Makefile
+-                 cegui/src/ScriptingModules/LuaScriptModule/package/Makefile
+-                 cegui/src/ScriptingModules/LuaScriptModule/support/Makefile
+-                 cegui/src/ScriptingModules/LuaScriptModule/support/tolua++bin/Makefile
+-                 cegui/src/ScriptingModules/LuaScriptModule/support/tolua++/Makefile
+-                 cegui/src/ScriptingModules/Makefile
+-                 cegui/src/ScriptingModules/PythonScriptModule/Makefile
+-                 cegui/src/ScriptingModules/PythonScriptModule/bindings/Makefile
+-                 cegui/src/WindowRendererSets/Falagard/Makefile
+-                 cegui/src/WindowRendererSets/Makefile
+-                 cegui/src/XMLParserModules/ExpatParser/Makefile
+-                 cegui/src/XMLParserModules/LibxmlParser/Makefile
+-                 cegui/src/XMLParserModules/Makefile
+-                 cegui/src/XMLParserModules/RapidXMLParser/Makefile
+-                 cegui/src/XMLParserModules/TinyXMLParser/Makefile
+-                 cegui/src/XMLParserModules/XercesParser/Makefile
+-                 datafiles/Makefile
+-                 doc/Makefile
+-                 doc/doxygen/doxyfile
+-                 doc/doxygen/Makefile
+-                 projects/Makefile
+-                 Samples/common/include/Makefile
+-                 Samples/common/Makefile
+-                 Samples/common/src/Makefile
+-                 Samples/Demo6/Makefile
+-                 Samples/Demo7/Makefile
+-                 Samples/Demo8/Makefile
+-                 Samples/DragDropDemo/Makefile
+-                 Samples/FalagardDemo1/Makefile
+-                 Samples/FirstWindow/Makefile
+-                 Samples/InventoryDemo/Makefile
+-                 Samples/FontDemo/Makefile
+-                 Samples/Makefile
+-                 Samples/Minesweeper/Makefile
+-                 Samples/ScrollablePaneDemo/Makefile
+-                 Samples/TabControlDemo/Makefile
+-                 Samples/TextDemo/Makefile
+-                 Samples/TreeDemo/Makefile
+-                 Makefile])
 +AC_SUBST([AM_CPPFLAGS])
-+if test "x$CEGUI_LIB_LINK_FLAGS" != "x"; then
-+	export CEGUI_LIB_LINK_FLAGS
-+	AC_SUBST([CEGUI_LIB_LINK_FLAGS])
++if test "x${CEGUI_LIB_LINK_FLAGS}" != "x"; then
++  test -n "${CEGUI_LIB_LINK_FLAGS}" && export CEGUI_LIB_LINK_FLAGS
++  AC_SUBST([CEGUI_LIB_LINK_FLAGS])
 +fi
 +
-+dnl# Create the makefiles
- AC_CONFIG_FILES([cegui/CEGUI-NULL.pc
-                  cegui/CEGUI-OGRE.pc
-                  cegui/CEGUI-OPENGL.pc
-@@ -217,7 +409,7 @@
-                  Makefile])
++dnl# Create the Makefiles, and other output files:
++AC_CONFIG_FILES([ \
++  cegui/CEGUI-NULL.pc \
++  cegui/CEGUI-OGRE.pc \
++  cegui/CEGUI-OPENGL.pc \
++  cegui/CEGUI.pc \
++  cegui/CEGUI.spec \
++  cegui/Makefile \
++  cegui/include/elements/Makefile \
++  cegui/include/falagard/Makefile \
++  cegui/include/ImageCodecModules/CoronaImageCodec/Makefile \
++  cegui/include/ImageCodecModules/DevILImageCodec/Makefile \
++  cegui/include/ImageCodecModules/FreeImageImageCodec/Makefile \
++  cegui/include/ImageCodecModules/Makefile \
++  cegui/include/ImageCodecModules/SILLYImageCodec/Makefile \
++  cegui/include/ImageCodecModules/STBImageCodec/Makefile \
++  cegui/include/ImageCodecModules/TGAImageCodec/Makefile \
++  cegui/include/Makefile \
++  cegui/include/RendererModules/Direct3D10/Makefile \
++  cegui/include/RendererModules/Direct3D11/Makefile \
++  cegui/include/RendererModules/Direct3D9/Makefile \
++  cegui/include/RendererModules/DirectFB/Makefile \
++  cegui/include/RendererModules/Irrlicht/Makefile \
++  cegui/include/RendererModules/Null/Makefile \
++  cegui/include/RendererModules/Ogre/Makefile \
++  cegui/include/RendererModules/OpenGL/Makefile \
++  cegui/include/RendererModules/Makefile \
++  cegui/include/ScriptingModules/LuaScriptModule/Makefile \
++  cegui/include/ScriptingModules/LuaScriptModule/support/Makefile \
++  cegui/include/ScriptingModules/LuaScriptModule/support/tolua++/Makefile \
++  cegui/include/ScriptingModules/Makefile \
++  cegui/include/WindowRendererSets/Falagard/Makefile \
++  cegui/include/WindowRendererSets/Makefile \
++  cegui/include/XMLParserModules/ExpatParser/Makefile \
++  cegui/include/XMLParserModules/LibxmlParser/Makefile \
++  cegui/include/XMLParserModules/Makefile \
++  cegui/include/XMLParserModules/RapidXMLParser/Makefile \
++  cegui/include/XMLParserModules/TinyXMLParser/Makefile \
++  cegui/include/XMLParserModules/XercesParser/Makefile \
++  cegui/src/ImageCodecModules/CoronaImageCodec/Makefile \
++  cegui/src/ImageCodecModules/DevILImageCodec/Makefile \
++  cegui/src/ImageCodecModules/FreeImageImageCodec/Makefile \
++  cegui/src/ImageCodecModules/Makefile \
++  cegui/src/ImageCodecModules/SILLYImageCodec/Makefile \
++  cegui/src/ImageCodecModules/STBImageCodec/Makefile \
++  cegui/src/ImageCodecModules/TGAImageCodec/Makefile \
++  cegui/src/Makefile \
++  cegui/src/RendererModules/Direct3D10/Makefile \
++  cegui/src/RendererModules/Direct3D11/Makefile \
++  cegui/src/RendererModules/Direct3D9/Makefile \
++  cegui/src/RendererModules/DirectFB/Makefile \
++  cegui/src/RendererModules/Irrlicht/Makefile \
++  cegui/src/RendererModules/Null/Makefile \
++  cegui/src/RendererModules/Ogre/Makefile \
++  cegui/src/RendererModules/OpenGL/Makefile \
++  cegui/src/RendererModules/Makefile \
++  cegui/src/ScriptingModules/LuaScriptModule/Makefile \
++  cegui/src/ScriptingModules/LuaScriptModule/package/Makefile \
++  cegui/src/ScriptingModules/LuaScriptModule/support/Makefile \
++  cegui/src/ScriptingModules/LuaScriptModule/support/tolua++bin/Makefile \
++  cegui/src/ScriptingModules/LuaScriptModule/support/tolua++/Makefile \
++  cegui/src/ScriptingModules/Makefile \
++  cegui/src/ScriptingModules/PythonScriptModule/Makefile \
++  cegui/src/ScriptingModules/PythonScriptModule/bindings/Makefile \
++  cegui/src/WindowRendererSets/Falagard/Makefile \
++  cegui/src/WindowRendererSets/Makefile \
++  cegui/src/XMLParserModules/ExpatParser/Makefile \
++  cegui/src/XMLParserModules/LibxmlParser/Makefile \
++  cegui/src/XMLParserModules/Makefile \
++  cegui/src/XMLParserModules/RapidXMLParser/Makefile \
++  cegui/src/XMLParserModules/TinyXMLParser/Makefile \
++  cegui/src/XMLParserModules/XercesParser/Makefile 
++  datafiles/Makefile \
++  doc/Makefile \
++  doc/doxygen/doxyfile \
++  doc/doxygen/Makefile \
++  projects/Makefile \
++  Samples/common/include/Makefile \
++  Samples/common/Makefile \
++  Samples/common/src/Makefile \
++  Samples/Demo6/Makefile \
++  Samples/Demo7/Makefile \
++  Samples/Demo8/Makefile \
++  Samples/DragDropDemo/Makefile \
++  Samples/FalagardDemo1/Makefile \
++  Samples/FirstWindow/Makefile \
++  Samples/InventoryDemo/Makefile \
++  Samples/FontDemo/Makefile \
++  Samples/Makefile \
++  Samples/Minesweeper/Makefile \
++  Samples/ScrollablePaneDemo/Makefile \
++  Samples/TabControlDemo/Makefile \
++  Samples/TextDemo/Makefile \
++  Samples/TreeDemo/Makefile \
++  Makefile])dnl
  AC_OUTPUT
  
 -dnl Now generate some output to summarise what we have done here
-+dnl# Now generate some output to summarise what we have done here
- echo
- echo "********************************************************************************"
+-echo
+-echo "********************************************************************************"
++dnl# Now generate some output to summarize what we have done here:
++echo ""
++echo "********************************************************************"
  echo "* Crazy Eddie's GUI System - Configuration Results Summary"
+-echo "********************************************************************************"
+-echo "* Library Release Version:                              CEGUI_RELEASE_VERSION"
++echo "********************************************************************"
++echo "* Library Release Version:                    CEGUI_RELEASE_VERSION"
+ echo "*"
+ echo "* Code options:"
+-echo "*         Building CEGUI in debug mode:                 ${cegui_enable_debug-no}"
++echo "*   Building CEGUI in debug mode:             ${cegui_enable_debug-no}"
+ echo "*"
+-echo "* Bi-directional text support:                          ${cegui_enable_bidi-no}"
+-if test x$cegui_enable_bidi = xyes; then
+-    if test x$cegui_with_minibidi = xyes; then
+-echo "*         Using: internal minibidi library"
++echo "* Bi-directional text support:                ${cegui_enable_bidi-no}"
++if test "x${cegui_enable_bidi}" = "xyes"; then
++    if test "x${cegui_with_minibidi}" = "xyes"; then
++echo "*   Using: internal minibidi library"
+     else
+-echo "*         Using: external fribidi library"
++echo "*   Using: external fribidi library"
+     fi
+ fi
+ echo "*"
+-echo "* Building MinizipResourceProvider:                     ${cegui_enable_minizip_rp-no}"
++echo "* Building MinizipResourceProvider:           ${cegui_enable_minizip_rp-no}"
+ echo "*"
+ echo "* Renderer Modules:"
+-echo "*         Building OpenGL Renderer:                     ${cegui_enable_opengl-no}"
+-echo "*             Using external GLEW library:              ${cegui_found_glew-no}"
+-echo "*         Building Ogre Renderer:                       ${cegui_enable_ogre-no}"
+-echo "*         Building Irrlicht Renderer:                   ${cegui_enable_irrlicht-no}"
+-echo "*         Building DirectFB Renderer:                   ${cegui_enable_directfb-no}"
+-echo "*         Building Null Renderer:                       ${cegui_enable_null-no}"
++echo "*   Building OpenGL Renderer:                 ${cegui_enable_opengl-no}"
++echo "*     Using external GLEW library:            ${cegui_found_glew-no}"
++echo "*   Building Ogre Renderer:                   ${cegui_enable_ogre-no}"
++echo "*   Building Irrlicht Renderer:               ${cegui_enable_irrlicht-no}"
++echo "*   Building DirectFB Renderer:               ${cegui_enable_directfb-no}"
++echo "*   Building Null Renderer:                   ${cegui_enable_null-no}"
+ echo "*"
+ echo "* Image Loading Codec Modules:"
+-echo "*         Building Corona Image Codec:                  ${cegui_with_corona-no}"
+-echo "*         Building DevIL Image Codec:                   ${cegui_with_devil-no}"
+-echo "*         Building FreeImage Image Codec:               ${cegui_with_freeimage-no}"
+-echo "*         Building SILLY Image Codec:                   ${cegui_with_silly-no}"
+-echo "*         Building STB Image Codec:                     ${cegui_with_stb-no}"
+-echo "*         Building TGA Image Codec:                     ${cegui_with_tga-no}"
+-echo "*"
+-echo "*         Default Image Codec will be:                  ${cegui_default_image_codec}"
+-if test x"$cegui_default_image_codec" != x"DevILImageCodec" &&
+-   test x"$cegui_default_image_codec" != x"FreeImageImageCodec" &&
+-   test x"$cegui_default_image_codec" != x"SILLYImageCodec" &&
+-   test x"$cegui_default_image_codec" != x"CoronaImageCodec" &&
+-   test x"$cegui_default_image_codec" != x"STBImageCodec" &&
+-   test x"$cegui_default_image_codec" != x"TGAImageCodec"; then
+-echo "*"
+-echo "*         WARNING!  Default codec is not set to one of the pre-made codecs:"
+-echo "*         WARNING!      DevILImageCodec, FreeImageImageCodec, SILLYImageCodec,"
+-echo "*         WARNING!      CoronaImageCodec, STBImageCodec or TGAImageCodec."
+-echo "*         WARNING!"
+-echo "*         WARNING!  This is fine if you meant to do this and are using a custom"
+-echo "*         WARNING!  codec as the 'hard-coded' default, else you should go back"
+-echo "*         WARNING!  and check the config values specified for building codecs"
+-echo "*         WARNING!  and setting the default codec (--with-default-image-codec)."
++echo "*   Building Corona Image Codec:              ${cegui_with_corona-no}"
++echo "*   Building DevIL Image Codec:               ${cegui_with_devil-no}"
++echo "*   Building FreeImage Image Codec:           ${cegui_with_freeimage-no}"
++echo "*   Building SILLY Image Codec:               ${cegui_with_silly-no}"
++echo "*   Building STB Image Codec:                 ${cegui_with_stb-no}"
++echo "*   Building TGA Image Codec:                 ${cegui_with_tga-no}"
++echo "*"
++echo "*   Default Image Codec will be:              ${cegui_default_image_codec}"
++if test x"${cegui_default_image_codec}" != x"DevILImageCodec" &&
++   test x"${cegui_default_image_codec}" != x"FreeImageImageCodec" &&
++   test x"${cegui_default_image_codec}" != x"SILLYImageCodec" &&
++   test x"${cegui_default_image_codec}" != x"CoronaImageCodec" &&
++   test x"${cegui_default_image_codec}" != x"STBImageCodec" &&
++   test x"${cegui_default_image_codec}" != x"TGAImageCodec"; then
++echo "*"
++echo "*   WARNING! Default codec is not set to one of the pre-made codecs:"
++echo "*   WARNING!  DevILImageCodec, FreeImageImageCodec, SILLYImageCodec,"
++echo "*   WARNING!  CoronaImageCodec, STBImageCodec or TGAImageCodec."
++echo "*   WARNING!"
++echo "*   WARNING! This is fine if you meant to do this and are using a custom"
++echo "*   WARNING! codec as the 'hard-coded' default, else you should go back"
++echo "*   WARNING! and check the config values specified for building codecs"
++echo "*   WARNING! and setting the default codec (--with-default-image-codec)."
+ fi
+ echo "*"
+ echo "* XML Parser Modules:"
+-echo "*         Building TinyXMLParser:                       ${cegui_with_tinyxml-no}"
+-if test x$cegui_with_tinyxml = xyes; then
+-echo "*             Using external TinyXML library:           ${cegui_found_tinyxml-no}"
+-fi
+-echo "*         Building ExpatParser:                         ${cegui_with_expat-no}"
+-echo "*         Building LibXMLParser:                        ${cegui_with_libxml-no}"
+-echo "*         Building XercesParser:                        ${cegui_with_xerces-no}"
+-echo "*         Building RapidXMLParser:                      ${cegui_with_rapidxml-no}"
+-echo "*"
+-echo "*         Default XML Parser is:                        ${cegui_default_parser-none}"
+-if test x"$cegui_default_parser" != x"XercesParser" &&
+-   test x"$cegui_default_parser" != x"ExpatParser" &&
+-   test x"$cegui_default_parser" != x"LibxmlParser" &&
+-   test x"$cegui_default_parser" != x"RapidXMLParser" &&
+-   test x"$cegui_default_parser" != x"TinyXMLParser"; then
+-echo "*"
+-echo "*         WARNING!  Default parser is not set to one of the pre-made parsers:"
+-echo "*         WARNING!  XercesParser, ExpatParser, LibxmlParser, RapidXMLParser"
+-echo "*         WARNING!  or TinyXMLParser."
+-echo "*         WARNING!"
+-echo "*         WARNING!  This is fine if you meant to do this and are using a custom"
+-echo "*         WARNING!  parser as the 'hard-coded' default, else you should go back"
+-echo "*         WARNING!  and check the config values specified for building parsers"
+-echo "*         WARNING!  and setting the default parser (--with-default-xml-parser)."
++echo "*   Building TinyXMLParser:                   ${cegui_with_tinyxml-no}"
++if test "x${cegui_with_tinyxml}" = "xyes"; then
++echo "*     Using external TinyXML library:         ${cegui_found_tinyxml-no}"
++fi
++echo "*   Building ExpatParser:                     ${cegui_with_expat-no}"
++echo "*   Building LibXMLParser:                    ${cegui_with_libxml-no}"
++echo "*   Building XercesParser:                    ${cegui_with_xerces-no}"
++echo "*   Building RapidXMLParser:                  ${cegui_with_rapidxml-no}"
++echo "*"
++echo "*   Default XML Parser is:                    ${cegui_default_parser-none}"
++if test x"${cegui_default_parser}" != x"XercesParser" &&
++   test x"${cegui_default_parser}" != x"ExpatParser" &&
++   test x"${cegui_default_parser}" != x"LibxmlParser" &&
++   test x"${cegui_default_parser}" != x"RapidXMLParser" &&
++   test x"${cegui_default_parser}" != x"TinyXMLParser"; then
++echo "*"
++echo "*   WARNING! Default parser is not set to one of the pre-made parsers:"
++echo "*   WARNING!  XercesParser, ExpatParser, LibxmlParser,"
++echo "*   WARNING!  RapidXMLParser, or TinyXMLParser."
++echo "*   WARNING!"
++echo "*   WARNING! This is fine if you meant to do this and are using a custom"
++echo "*   WARNING! parser as the 'hard-coded' default, else you should go back"
++echo "*   WARNING! and check the config values specified for building parsers"
++echo "*   WARNING! and setting the default parser (--with-default-xml-parser)."
+ fi
+ echo "*"
+ echo "* Scripting:"
+-echo "*         Building Lua scripting module:                ${cegui_with_lua-no}"
+-if test x$cegui_with_lua = xyes; then
+-echo "*             Safety checks enabled:                    ${cegui_enable_safe_lua-no}"
++echo "*   Building Lua scripting module:            ${cegui_with_lua-no}"
++if test "x${cegui_with_lua}" = "xyes"; then
++echo "*     Safety checks enabled:                  ${cegui_enable_safe_lua-no}"
+ fi
+-echo "*         Building tolua++cegui generator:              ${cegui_build_toluatool-no}"
+-if test x$cegui_with_lua = xyes; then
+-echo "*             Using external tolua++ library:           ${cegui_found_toluapp-no}"
++echo "*   Building tolua++cegui generator:          ${cegui_build_toluatool-no}"
++if test "x${cegui_with_lua}" = "xyes"; then
++echo "*     Using external tolua++ library:         ${cegui_found_toluapp-no}"
+ fi
+ echo "*"
+-echo "*         Building Python extension module(s):          ${cegui_with_python-no}"
++echo "*   Building Python extension module(s):      ${cegui_with_python-no}"
+ echo "*"
+ echo "* Samples Framework:"
+-echo "*         Building Samples:                             ${cegui_build_samples-no}"
+-echo "*         GTK2 based dialog for renderer selection:     ${cegui_with_gtk-no}"
+-echo "*         OpenGL Renderer available in samples:         ${cegui_samples_use_opengl-no}"
+-echo "*         Irrlicht Renderer available in samples:       ${cegui_samples_use_irrlicht-no}"
+-echo "*         DirectFB Renderer available in samples:       ${cegui_samples_use_directfb-no}"
+-echo "*         Ogre3D Renderer available in samples:         ${cegui_samples_use_ogre-no}"
+-echo "********************************************************************************"
+-echo
++echo "*   Building Samples:                         ${cegui_build_samples-no}"
++echo "*   GTK2-based dialog for renderer selection: ${cegui_with_gtk-no}"
++echo "*   OpenGL Renderer available in samples:     ${cegui_samples_use_opengl-no}"
++echo "*   Irrlicht Renderer available in samples:   ${cegui_samples_use_irrlicht-no}"
++echo "*   DirectFB Renderer available in samples:   ${cegui_samples_use_directfb-no}"
++echo "*   Ogre3D Renderer available in samples:     ${cegui_samples_use_ogre-no}"
++echo "********************************************************************"
++echo ""
+ echo "Now you can do make && make install.  Good Luck!"
+-echo
++echo ""

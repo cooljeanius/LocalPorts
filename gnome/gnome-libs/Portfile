@@ -16,7 +16,9 @@ license             {LGPL GPL-2+}
 platforms           darwin
 homepage            http://www.gnome.org/
 master_sites        gnome:sources/${name}/${branch}/
+
 use_bzip2           yes
+
 checksums           md5     6111e91b143a90afb30f7a8c1e6cbbd6 \
                     sha1    359340f41fc038de9554c38af2cea99b71b1ef2a \
                     rmd160  54717b79694ae94347bd36f20a005bdb7e19eec6
@@ -52,7 +54,7 @@ depends_lib-append  port:oaf \
                     port:xorg-libice \
                     port:zlib
 
-# imlib is not universal
+# imlib is not universal:
 universal_variant   no
 
 patchfiles-append   patch-configure.diff \
@@ -66,6 +68,8 @@ patchfiles-append   patch-configure.diff \
                     patch-Makefile.in.diff
 patch.args-append   --backup
 
+# seeing as I normally append, I assume that I must have
+# wanted to override something here...
 configure.args      --mandir=${prefix}/share/man \
                     --with-kde-datadir=${prefix}/share \
                     --disable-gtk-doc \
@@ -78,6 +82,7 @@ configure.args      --mandir=${prefix}/share/man \
                     --with-imlib-prefix=${prefix} \
                     --with-esd-prefix=${prefix}
 
+# A linker flag in CPPFLAGS? What?
 configure.cppflags-append "-L${prefix}/lib"
 configure.cflags-append "-fstrict-aliasing -funroll-loops"
 
@@ -98,6 +103,7 @@ add_users games group=games
 post-destroot {
     foreach pixmap {error question default-dlg info warning} {
         if {[file exists ${destroot}${prefix}/share/pixmaps/gnome-${pixmap}.png]} {
+            ui_debug "renaming '${pixmap}' pixmap"
             file rename ${destroot}${prefix}/share/pixmaps/gnome-${pixmap}.png ${destroot}${prefix}/share/pixmaps/gnome-${pixmap}-1.png
         } else {
             ui_debug "${destroot}${prefix}/share/pixmaps/gnome-${pixmap}.png does not exist, not renaming"
@@ -117,7 +123,7 @@ variant debug description {Enable debugging} {
 }
 
 variant docs description {Enable building of documentation} {
-    # This variant is currently broken
+    # (This variant is currently broken)
     depends_build-append port:gtk-doc
     depends_skip_archcheck-append gtk-doc
     configure.args-replace --disable-gtk-doc --enable-gtk-doc

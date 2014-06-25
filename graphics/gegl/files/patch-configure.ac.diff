@@ -1,20 +1,1868 @@
---- configure.ac.orig	2013-10-17 08:37:24.000000000 -0700
-+++ configure.ac	2013-10-17 08:37:25.000000000 -0700
-@@ -582,6 +582,17 @@
- AM_PATH_PYTHON([2.5.0],, [:])
- AM_CONDITIONAL([HAVE_PYTHON], [test "$PYTHON" != :])
+--- configure.ac.orig	2014-06-23 13:27:32.000000000 -0400
++++ configure.ac	2014-06-24 13:17:12.000000000 -0400
+@@ -1,76 +1,77 @@
+-dnl Process this file with autoconf to produce a configure script.
++dnl#                                               -*- Autoconf -*-
++dnl# Process this file with autoconf to produce a configure script.
  
-+dnl Override standard python locations with MacPorts version specific ones
+-AC_PREREQ(2.54)
++AC_PREREQ([2.54])dnl
+ 
+-dnl Making releases on the stable branch:
+-dnl   GEGL_MICRO_VERSION += 1;
+-dnl   GEGL_INTERFACE_AGE += 1;
+-dnl   GEGL_BINARY_AGE += 1;
+-dnl if any functions have been added,
+-dnl    set GEGL_INTERFACE_AGE to 0.
+-dnl if backwards compatibility has been broken,
+-dnl    set GEGL_BINARY_AGE _and_ GEGL_INTERFACE_AGE to 0.
+-
+-
+-m4_define([gegl_major_version], [0])
+-m4_define([gegl_minor_version], [2])
+-m4_define([gegl_micro_version], [0])
++dnl# Making releases on the stable branch:
++dnl#   GEGL_MICRO_VERSION += 1;
++dnl#   GEGL_INTERFACE_AGE += 1;
++dnl#   GEGL_BINARY_AGE += 1;
++dnl# if any functions have been added,
++dnl#    set GEGL_INTERFACE_AGE to 0.
++dnl# if backwards compatibility has been broken,
++dnl#    set GEGL_BINARY_AGE _and_ GEGL_INTERFACE_AGE to 0.
 +
-+AC_SUBST([PYTHON_PREFIX], [`$PYTHON -c 'import sys; print(sys.prefix);'`])
-+AC_SUBST([PYTHON_EXEC_PREFIX], [`$PYTHON -c 'import sys; print(sys.exec_prefix)'`])
++m4_define([gegl_major_version],[0])dnl
++m4_define([gegl_minor_version],[2])dnl
++m4_define([gegl_micro_version],[0])dnl
+ m4_define([gegl_real_version],
+-          [gegl_major_version.gegl_minor_version.gegl_micro_version])
+-m4_define([gegl_version], [gegl_real_version])
++          [gegl_major_version.gegl_minor_version.gegl_micro_version])dnl
++m4_define([gegl_version],[gegl_real_version])dnl
+ 
+-dnl Number of releases since we've added interfaces
+-m4_define([gegl_interface_age], [1])
++dnl# Number of releases since we have added interfaces:
++m4_define([gegl_interface_age],[1])dnl
+ m4_define([gegl_binary_age],
+-          [m4_eval(100 * gegl_minor_version + gegl_micro_version)])
++          [m4_eval(100 * gegl_minor_version + gegl_micro_version)])dnl
+ 
+-m4_define([gegl_api_version], [gegl_major_version.gegl_minor_version])
++m4_define([gegl_api_version],[gegl_major_version.gegl_minor_version])dnl
+ 
+ m4_define([stability_version_number],
+-          m4_if(m4_eval(gegl_major_version || gegl_minor_version), [0], 
+-                        [gegl_micro_version], [gegl_minor_version]))
++          m4_if(m4_eval(gegl_major_version || gegl_minor_version),[0], 
++                        [gegl_micro_version],[gegl_minor_version]))dnl
+ m4_define([gegl_unstable],
+-          m4_if(m4_eval(stability_version_number % 2), [1], [yes], [no]))
++          m4_if(m4_eval(stability_version_number % 2),[1],[yes],[no]))dnl
+ m4_define([gegl_stable],
+-          m4_if(m4_eval(stability_version_number % 2), [0], [yes], [no]))
++          m4_if(m4_eval(stability_version_number % 2),[0],[yes],[no]))dnl
+ 
+-m4_define([gimp_full_name], [Generic Graphical Library])
++m4_define([gimp_full_name],[Generic Graphical Library])dnl
+ 
+-# required versions of external libraries
+-m4_define([babl_required_version], [0.1.10])
+-m4_define([cairo_required_version], [0.0.0])
+-m4_define([gdk_pixbuf_required_version], [2.18.0])
+-m4_define([glib_required_version], [2.28.0])
+-m4_define([graphviz_required_version], [0.0.0])
+-m4_define([jasper_required_version], [1.900.1])
+-m4_define([lensfun_required_version], [0.2.5])
+-m4_define([librsvg_required_version], [2.14.0])
+-m4_define([lua_required_version], [5.1.0])
+-m4_define([openexr_required_version], [0.0.0])
+-m4_define([openraw_required_version], [0.0.5])
+-m4_define([pango_required_version], [0.0.0])
+-m4_define([pangocairo_required_version], [0.0.0])
+-m4_define([png_required_version], [0.0.0])
+-m4_define([sdl_required_version], [0.0.0])
+-
+-AC_INIT(gegl, gegl_major_version.gegl_minor_version.gegl_micro_version)
+-
+-AC_CONFIG_HEADERS([config.h])
+-AC_CONFIG_SRCDIR([gegl/gegl.h])
+-AC_CONFIG_MACRO_DIR([m4])
++# required versions of external libraries:
++m4_define([babl_required_version],[0.1.10])dnl
++m4_define([cairo_required_version],[0.0.0])dnl
++m4_define([gdk_pixbuf_required_version],[2.18.0])dnl
++m4_define([glib_required_version],[2.28.0])dnl
++m4_define([graphviz_required_version],[0.0.0])dnl
++m4_define([jasper_required_version],[1.900.1])dnl
++m4_define([lensfun_required_version],[0.2.5])dnl
++m4_define([librsvg_required_version],[2.14.0])dnl
++m4_define([lua_required_version],[5.1.0])dnl
++m4_define([openexr_required_version],[0.0.0])dnl
++m4_define([openraw_required_version],[0.0.5])dnl
++m4_define([pango_required_version],[0.0.0])dnl
++m4_define([pangocairo_required_version],[0.0.0])dnl
++m4_define([png_required_version],[0.0.0])dnl
++m4_define([sdl_required_version],[0.0.0])dnl
 +
-+am_cv_python_pythondir=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages
-+am_cv_python_pyexecdir=$PYTHON_EXEC_PREFIX/lib/python$PYTHON_VERSION/site-packages
++AC_INIT([gegl],[gegl_major_version.gegl_minor_version.gegl_micro_version],
++        [https://bugzilla.gnome.org/enter_bug.cgi?product=GEGL])dnl
 +
-+AC_SUBST([pythondir], [$am_cv_python_pythondir])
-+AC_SUBST([pyexecdir], [$am_cv_python_pyexecdir])
++AC_CONFIG_HEADERS([config.h])dnl
++AC_CONFIG_SRCDIR([gegl/gegl.h])dnl
++AC_CONFIG_MACRO_DIR([m4])dnl
+ 
+ # Enable silent build rules by default, requires at least
+ # Automake-1.11. Disable by either passing --disable-silent-rules to
+ # configure or passing V=1 to make
+ m4_ifdef([AM_SILENT_RULES],
+          [AM_SILENT_RULES([yes])],
+-         [AC_SUBST([AM_DEFAULT_VERBOSITY], [1])])
++         [AC_SUBST([AM_DEFAULT_VERBOSITY],[1])])dnl
+ 
+-dnl ==========================================================================
+-dnl                              Versioning              
+-dnl ==========================================================================
++dnl#=======================================================================
++dnl#                             Versioning              
++dnl#=======================================================================
+ 
+-dnl The triplet 
++dnl# The triplet:
+ GEGL_MAJOR_VERSION=gegl_major_version
+ GEGL_MINOR_VERSION=gegl_minor_version
+ GEGL_MICRO_VERSION=gegl_micro_version
+@@ -80,121 +81,148 @@
+ GEGL_REAL_VERSION=gegl_real_version
+ GEGL_VERSION=gegl_version
+ GEGL_API_VERSION=gegl_api_version
+-AC_SUBST(GEGL_MAJOR_VERSION)
+-AC_SUBST(GEGL_MINOR_VERSION)
+-AC_SUBST(GEGL_MICRO_VERSION)
+-AC_SUBST(GEGL_INTERFACE_AGE)
+-AC_SUBST(GEGL_BINARY_AGE)
+-AC_SUBST(GEGL_VERSION)
+-AC_SUBST(GEGL_REAL_VERSION)
+-AC_SUBST(GEGL_API_VERSION)
++AC_SUBST([GEGL_MAJOR_VERSION])dnl
++AC_SUBST([GEGL_MINOR_VERSION])dnl
++AC_SUBST([GEGL_MICRO_VERSION])dnl
++AC_SUBST([GEGL_INTERFACE_AGE])dnl
++AC_SUBST([GEGL_BINARY_AGE])dnl
++AC_SUBST([GEGL_VERSION])dnl
++AC_SUBST([GEGL_REAL_VERSION])dnl
++AC_SUBST([GEGL_API_VERSION])dnl
+ 
+ GEGL_RELEASE=gegl_api_version
+-AC_SUBST(GEGL_RELEASE)
++AC_SUBST([GEGL_RELEASE])dnl
+ 
+ 
+-AC_DEFINE_UNQUOTED(GEGL_LIBRARY, "$PACKAGE_NAME-$GEGL_API_VERSION",
+-                   [The name of the GEGL library])
++AC_DEFINE_UNQUOTED([GEGL_LIBRARY],["${PACKAGE_NAME}-${GEGL_API_VERSION}"],
++                   [The name of the GEGL library])dnl
+ 
+ 
+-dnl The symbol GEGL_UNSTABLE is defined above for substitution in
+-dnl Makefiles and conditionally defined here as a preprocessor symbol
+-dnl and automake conditional.
++dnl# The symbol GEGL_UNSTABLE is defined above for substitution in
++dnl# Makefiles and conditionally defined here as a preprocessor symbol
++dnl# and automake conditional.
+ GEGL_UNSTABLE=gegl_unstable
+-if test "x$GEGL_UNSTABLE" = "xyes"; then
+-  AC_DEFINE(GEGL_UNSTABLE, 1,
++if test "x${GEGL_UNSTABLE}" = "xyes"; then
++  AC_DEFINE([GEGL_UNSTABLE],[1],
+             [Define to 1 if this is an unstable version of GEGL])
+ fi
+-AM_CONDITIONAL(GEGL_UNSTABLE, test "x$GEGL_UNSTABLE" = "xyes")
++AM_CONDITIONAL([GEGL_UNSTABLE],[test "x${GEGL_UNSTABLE}" = "xyes"])dnl
+ 
+ 
+-dnl libtool versioning
+-m4_define([lt_current], [m4_eval(100 * gegl_minor_version + gegl_micro_version - gegl_interface_age)])
+-m4_define([lt_revision], [gegl_interface_age])
+-m4_define([lt_age], [m4_eval(gegl_binary_age - gegl_interface_age)])
++dnl# libtool versioning:
++m4_define([lt_current],[m4_eval(100 * gegl_minor_version + gegl_micro_version - gegl_interface_age)])dnl
++m4_define([lt_revision],[gegl_interface_age])
++m4_define([lt_age],[m4_eval(gegl_binary_age - gegl_interface_age)])
+ GEGL_LIBRARY_VERSION="lt_current:lt_revision:lt_age"
+ GEGL_CURRENT_MINUS_AGE=m4_eval(lt_current - lt_age)
+-AC_SUBST(GEGL_LIBRARY_VERSION)
+-AC_SUBST(GEGL_CURRENT_MINUS_AGE)
++AC_SUBST([GEGL_LIBRARY_VERSION])dnl
++AC_SUBST([GEGL_CURRENT_MINUS_AGE])dnl
+ 
+-gegltargetlib=libgegl-$GEGL_API_VERSION.la
+-AC_SUBST(gegltargetlib)
++gegltargetlib=libgegl-${GEGL_API_VERSION}.la
++AC_SUBST([gegltargetlib])dnl
+ 
+ GLIB_REQUIRED_VERSION=glib_required_version
+-AC_SUBST(GLIB_REQUIRED_VERSION)
++AC_SUBST([GLIB_REQUIRED_VERSION])dnl
+ 
+ LUA_REQUIRED_VERSION=lua_required_version
+-AC_SUBST(LUA_REQUIRED_VERSION)
++AC_SUBST([LUA_REQUIRED_VERSION])dnl
+ 
+-dnl ==========================================================================
++dnl#=======================================================================
+ 
+ AM_INIT_AUTOMAKE([1.11 no-define dist-bzip2 no-dist-gzip -Wno-portability])
+-dnl Initialize maintainer mode
+-AM_MAINTAINER_MODE([enable])
++dnl# Initialize maintainer mode:
++AM_MAINTAINER_MODE([enable])dnl
+ 
+ 
+ ###############
+ # Generic stuff
+ ###############
+ 
+-dnl Checks for programs.
++dnl# Checks for programs.
+ AC_PROG_CC
++AC_PROG_CPP
+ AC_PROG_CXX
++AC_PROG_GCC_TRADITIONAL
++AC_SUBST([GCC])dnl
++dnl# taken from emacs configure script:
++AC_CACHE_CHECK([whether the compiler is actually clang],[gegl_cv_clang],
++  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
++	  #ifndef __clang__
++	    #error "not clang"
++	  #endif /* !__clang__ */
++        ]])],
++     [gegl_cv_clang=yes],
++     [gegl_cv_clang=no])dnl
++])dnl
 +
++dnl# use a non-cached variable as an alias to subst:
++export USING_CLANG="${gegl_cv_clang}"
++AC_SUBST([USING_CLANG])dnl
++
++dnl# More checks for programs.
+ AC_PROG_INSTALL
++AC_PROG_LN_S
+ AC_PROG_MAKE_SET
++AC_PROG_MKDIR_P
+ 
+-dnl Large file support.
++dnl# Large file support.
+ AC_SYS_LARGEFILE
+ 
+-dnl Initialize libtool
+-LT_PREREQ([2.2])
+-LT_INIT([disable-static win32-dll dlopen])
++dnl# Initialize libtool:
++LT_PREREQ([2.2])dnl
++LT_INIT([disable-static win32-dll dlopen])dnl
++LT_LANG([C])dnl
++LT_LANG([C++])dnl
+ 
+ GEGL_VARIADIC_MACROS
+ 
+ AC_MSG_CHECKING([whether to turn on debugging])
+-AC_ARG_ENABLE(debug,
+-              [  --enable-debug          turn on  debugging (default=no)],
+-              if eval "test x$enable_debug = xyes"; then
+-                DEBUGFLAG="-g -DGEGL_ENABLE_DEBUG"
+-              fi)
++AC_ARG_ENABLE([debug],
++              [AS_HELP_STRING([--enable-debug],
++                              [turn on debugging (default=no)])],
++              [if eval "test x${enable_debug} = xyes"; then
++                 DEBUGFLAG="-g -DGEGL_ENABLE_DEBUG"
++               fi])dnl
+ 
+-if test -n "$DEBUGFLAG"; then
++if test -n "${DEBUGFLAG}"; then
+   AC_MSG_RESULT([yes])
+-  CFLAGS="$DEBUGFLAG $CFLAGS"
++  CFLAGS="${DEBUGFLAG} ${CFLAGS}"
++  AC_PATH_PROGS([GDB],[gdb ggdb gdb-apple])
+ else
+   AC_MSG_RESULT([no])
+ fi
+ 
+ AC_MSG_CHECKING([whether to turn on profiling])
+-AC_ARG_ENABLE(profile,
+-              [  --enable-profile        turn on profiling (default=no)],
+-              if eval "test x$enable_profile = xyes"; then
+-                PROFFLAG="-pg"
+-              fi)
++AC_ARG_ENABLE([profile],
++              [AS_HELP_STRING([--enable-profile],
++                              [turn on profiling (default=no)])],
++              [if eval "test x${enable_profile} = xyes"; then
++                 PROFFLAG="-pg"
++               fi])
+ 
+-if test -n "$PROFFLAG"; then
++if test -n "${PROFFLAG}"; then
+   AC_MSG_RESULT([yes])
+-  CFLAGS="$PROFFLAG $CFLAGS"
++  CFLAGS="${PROFFLAG} ${CFLAGS}"
+ else
+   AC_MSG_RESULT([no])
+ fi
+ 
+ AC_C_RESTRICT
+ 
+-dnl disable docs generation.
++dnl# disable docs generation.
+ AC_ARG_ENABLE([docs],
+-              [  --disable-docs          disable docs generation (default=no)],,
+-              enable_docs="yes")
++              [AS_HELP_STRING([--disable-docs],
++                              [disable docs generation (default=no)])],
++              [],[enable_docs="yes"])dnl
+ 
+-AM_CONDITIONAL(ENABLE_DOCS, test "x$enable_docs" = "xyes")
++AM_CONDITIONAL([ENABLE_DOCS],[test "x${enable_docs}" = "xyes"])dnl
+ 
+ 
+-dnl Cache $ACLOCAL_FLAGS
+-AC_CACHE_CHECK([for aclocal flags], ac_cv_gegl_aclocal_flags,[
+-   ac_cv_gegl_aclocal_flags="$ACLOCAL_FLAGS"
++dnl# Cache ${ACLOCAL_FLAGS}:
++AC_CACHE_CHECK([for aclocal flags],[ac_cv_gegl_aclocal_flags],[
++   ac_cv_gegl_aclocal_flags="${ACLOCAL_FLAGS}"
+ ])
+-ACLOCAL="$ACLOCAL $ac_cv_gegl_aclocal_flags"
++ACLOCAL="${ACLOCAL} ${ac_cv_gegl_aclocal_flags}"
+ 
+ 
+ ###########################
+@@ -202,40 +230,44 @@
+ ###########################
+ 
+ AC_MSG_CHECKING([for target architecture])
+-case x"$target" in
++case x"${target}" in
+   xNONE | x)
+-    target_or_host="$host" ;;
++    target_or_host="${host}" ;;
+   *)
+-    target_or_host="$target" ;;
++    target_or_host="${target}" ;;
+ esac
+-AC_MSG_RESULT([$target_or_host])
++AC_MSG_RESULT([${target_or_host}])dnl
+ 
+-case "$target_or_host" in
++case "${target_or_host}" in
+   i*86-*-*)
+     have_x86=yes
+-    AC_DEFINE(ARCH_X86, 1, [Define to 1 if you are compiling for ix86.])
++    AC_DEFINE([ARCH_X86],[1],[Define to 1 if you are compiling for ix86.])
+     ;;
+   x86_64-*-*)
+     have_x86=yes
+     have_64_bit=yes
+-    AC_DEFINE(ARCH_X86, 1, [Define to 1 if you are compiling for ix86.])
+-    AC_DEFINE(ARCH_X86_64, 1, [Define to 1 if you are compiling for amd64.])
++    AC_DEFINE([ARCH_X86],[1],[Define to 1 if you are compiling for ix86.])
++    AC_DEFINE([ARCH_X86_64],[1],
++              [Define to 1 if you are compiling for amd64.])
+     ;;
+   ppc-*-* | powerpc-*)
+     have_ppc=yes
+-    AC_DEFINE(ARCH_PPC, 1, [Define to 1 if you are compiling for PowerPC.])
++    AC_DEFINE([ARCH_PPC],[1],
++              [Define to 1 if you are compiling for PowerPC.])
+     ;;
+   ppc64-*-* | powerpc64-*)
+     have_ppc=yes
+     have_64_bit=yes
+-    AC_DEFINE(ARCH_PPC, 1, [Define to 1 if you are compiling for PowerPC.])
+-    AC_DEFINE(ARCH_PPC64, 1, [Define to 1 if you are compiling for PowerPC64.])
++    AC_DEFINE([ARCH_PPC],[1],
++              [Define to 1 if you are compiling for PowerPC.])
++    AC_DEFINE([ARCH_PPC64],[1],
++              [Define to 1 if you are compiling for PowerPC64.])
+     ;;
+   *)
+     ;;
+ esac
+ 
+-AM_CONDITIONAL(HAVE_64_BIT, test "x$have_64_bit" = "xyes")  
++AM_CONDITIONAL([HAVE_64_BIT],[test "x${have_64_bit}" = "xyes"])dnl  
+ 
+ 
+ ####################################################
+@@ -243,7 +275,7 @@
+ ####################################################
+ 
+ AC_MSG_CHECKING([for dynamic library filename suffix])
+-case "$target_or_host" in 
++case "${target_or_host}" in 
+   *-*-darwin*)                 # darwin
+     shrext=.dylib
+     ;;
+@@ -258,13 +290,14 @@
+     ;;
+ esac
+ 
+-AC_MSG_RESULT([${shrext}])
++AC_MSG_RESULT([${shrext}])dnl
+ 
+-SHREXT=$shrext
+-AC_SUBST(SHREXT)
+-AC_DEFINE_UNQUOTED(SHREXT,     "$shrext",     [File extension for shared libraries])
++SHREXT="${shrext}"
++AC_SUBST([SHREXT])dnl
++AC_DEFINE_UNQUOTED([SHREXT],["${shrext}"],
++                   [File extension for shared libraries])dnl
+ 
+-dnl ===========================================================================
++dnl#=======================================================================
+ 
+ #######################
+ # Check for Darwin/OSX
+@@ -279,8 +312,8 @@
+     platform_darwin=no
+     ;;
+ esac
+-AC_MSG_RESULT([$platform_darwin])
+-AM_CONDITIONAL(PLATFORM_DARWIN, test "$platform_darwin" = "yes")
++AC_MSG_RESULT([${platform_darwin}])
++AM_CONDITIONAL([PLATFORM_DARWIN],[test "x${platform_darwin}" = "xyes"])dnl
+ 
+ 
+ #################
+@@ -288,7 +321,7 @@
+ #################
+ 
+ AC_MSG_CHECKING([for some Win32 platform])
+-case "$target_or_host" in 
++case "${target_or_host}" in 
+   *-*-mingw* | *-*-cygwin*)
+     platform_win32=yes
+     ;;
+@@ -296,197 +329,223 @@
+     platform_win32=no
+     ;;
+ esac
+-AC_MSG_RESULT([$platform_win32])
+-AM_CONDITIONAL(PLATFORM_WIN32, test "$platform_win32" = "yes")
++AC_MSG_RESULT([${platform_win32}])
++AM_CONDITIONAL([PLATFORM_WIN32],[test "x${platform_win32}" = "xyes"])
+ 
+ MATH_LIB=-lm
+ AC_MSG_CHECKING([for native Win32])
+-case "$target_or_host" in
++case "${target_or_host}" in
+   *-*-mingw*)
+     os_win32=yes
+     PATHSEP=';'
+-    MATH_LIB=
++    MATH_LIB=""
+     ;;
+   *)
+     os_win32=no
+     PATHSEP=':'
+     ;;
+ esac
+-AC_MSG_RESULT([$os_win32])
+-AC_SUBST(PATH_SEP)
+-AC_SUBST(MATH_LIB)
+-
+-AM_CONDITIONAL(OS_WIN32, test "$os_win32" = "yes")
+-AM_CONDITIONAL(OS_UNIX, test "$os_win32" != "yes")
+-
+-dnl Checks for programs.
+-#AC_PROG_YACC
+-#AM_PROG_LEX
++AC_MSG_RESULT([${os_win32}])
++AC_SUBST([PATH_SEP])
++AC_SUBST([MATH_LIB])
++
++AM_CONDITIONAL([OS_WIN32],[test "x${os_win32}" = "xyes"])
++AM_CONDITIONAL([OS_UNIX],[test "x${os_win32}" != "xyes"])
++
++dnl# Checks for programs (again, but different ones this time).
++AC_PROG_YACC
++AM_PROG_LEX
+ 
+ 
+ ########################
+ # Check for MMX assembly
+ ########################
+ 
+-AC_ARG_ENABLE(mmx,
+-                [  --enable-mmx            enable MMX support (default=auto)],,
+-                  enable_mmx=$have_x86)
+-
+-AC_ARG_ENABLE(sse,
+-  [  --enable-sse            enable SSE support (default=auto)],,
+-  enable_sse=$enable_mmx)
+-
+-if test "x$enable_mmx" = "xyes"; then
+-  AS_COMPILER_FLAG([-mmmx], [MMX_EXTRA_CFLAGS="-mmmx"])
+-  SSE_EXTRA_CFLAGS=
+-
+-  AC_MSG_CHECKING(whether we can compile MMX code)
+-
+-  mmx_save_CFLAGS="$CFLAGS"
+-  CFLAGS="$mmx_save_CFLAGS $MMX_EXTRA_CFLAGS"
+-
+-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM(,[asm ("movq 0, %mm0");])],
+-
+-    AC_DEFINE(USE_MMX, 1, [Define to 1 if MMX assembly is available.])
+-    AC_MSG_RESULT(yes)
+-
+-    if test "x$enable_sse" = "xyes"; then
+-      AS_COMPILER_FLAG([-msse], [SSE_EXTRA_CFLAGS="-msse"])
+-      AS_COMPILER_FLAG([-ftree-vectorize], [SSE_EXTRA_CFLAGS="$SSE_EXTRA_CFLAGS -ftree-vectorize"])
+-      AS_COMPILER_FLAG([-ffast-math], [SSE_EXTRA_CFLAGS="$SSE_EXTRA_CFLAGS -ffast-math"])
+-
+-      AC_MSG_CHECKING(whether we can compile SSE code)
+-
+-      sse_save_CFLAGS="$CFLAGS"
+-      CFLAGS="$sse_save_CFLAGS $SSE_EXTRA_CFLAGS"
+-
+-      AC_COMPILE_IFELSE([AC_LANG_PROGRAM(,[asm ("movntps %xmm0, 0");])],
+-        AC_DEFINE(USE_SSE, 1, [Define to 1 if SSE assembly is available.])
+-        AC_MSG_RESULT(yes)
+-      ,
++AC_ARG_ENABLE([mmx],
++              [AS_HELP_STRING([--enable-mmx],
++                              [enable MMX support (default=auto)])],
++              [],[enable_mmx=${have_x86}])dnl
++
++AC_ARG_ENABLE([sse],
++              [AS_HELP_STRING([--enable-sse],
++                              [enable SSE support (default=auto)])],
++              [],[enable_sse=${enable_mmx}])dnl
++
++if test "x${enable_mmx}" = "xyes"; then
++  AM_PROG_AS
++
++  AS_COMPILER_FLAG([-mmmx],[MMX_EXTRA_CFLAGS="-mmmx"])
++  SSE_EXTRA_CFLAGS=""
++
++  AC_MSG_CHECKING([whether we can compile MMX code])
++
++  mmx_save_CFLAGS="${CFLAGS}"
++  CFLAGS="${mmx_save_CFLAGS} ${MMX_EXTRA_CFLAGS}"
++
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]],[[asm ("movq 0, %mm0");]])],[
++
++    AC_DEFINE([USE_MMX],[1],[Define to 1 if MMX assembly is available.])
++    AC_MSG_RESULT([yes])
++
++    if test "x${enable_sse}" = "xyes"; then
++      AS_COMPILER_FLAG([-msse],[SSE_EXTRA_CFLAGS="-msse"])
++      AS_COMPILER_FLAG([-ftree-vectorize],
++               [SSE_EXTRA_CFLAGS="${SSE_EXTRA_CFLAGS} -ftree-vectorize"])
++      AS_COMPILER_FLAG([-ffast-math],
++                   [SSE_EXTRA_CFLAGS="${SSE_EXTRA_CFLAGS} -ffast-math"])dnl
++
++      AC_MSG_CHECKING([whether we can compile SSE code])
++
++      sse_save_CFLAGS="${CFLAGS}"
++      CFLAGS="${sse_save_CFLAGS} ${SSE_EXTRA_CFLAGS}"
++
++      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]],
++                                         [[asm ("movntps %xmm0, 0");]])],[
++        AC_DEFINE([USE_SSE],[1],
++                  [Define to 1 if SSE assembly is available.])
++        AC_MSG_RESULT([yes])
++      ],[
+         enable_sse=no
+-        AC_MSG_RESULT(no)
++        AC_MSG_RESULT([no])
+         AC_MSG_WARN([The assembler does not support the SSE command set.])
+-      )
++      ])
+ 
+-      CFLAGS="$sse_save_CFLAGS"
++      CFLAGS="${sse_save_CFLAGS}"
+     fi
+-  ,
++  ],[
+     enable_mmx=no
+-    AC_MSG_RESULT(no)
++    AC_MSG_RESULT([no])
+     AC_MSG_WARN([The assembler does not support the MMX command set.])
+-  )
++  ])
+ 
+-  CFLAGS="$mmx_save_CFLAGS"
++  CFLAGS="${mmx_save_CFLAGS}"
+ 
+-  AC_SUBST(MMX_EXTRA_CFLAGS)
+-  AC_SUBST(SSE_EXTRA_CFLAGS)
++  AC_SUBST([MMX_EXTRA_CFLAGS])dnl
++  AC_SUBST([SSE_EXTRA_CFLAGS])dnl
++  # done with mmx/sse
+ fi
+ 
+-CFLAGS="$CFLAGS $MMX_EXTRA_CFLAGS $SSE_EXTRA_CFLAGS"
++CFLAGS="${CFLAGS} ${MMX_EXTRA_CFLAGS} ${SSE_EXTRA_CFLAGS}"
+ 
+ ################
+ # Check for perl
+ ################
+ 
+-AC_PATH_PROGS(PERL,perl5 perl perl5.005 perl5.004,perl)
++AC_PATH_PROGS([PERL],[perl5 perl perl5.005 perl5.004],[perl])dnl
+ 
+ ########################
+ # Check GObject Introspection
+ ########################
+-GOBJECT_INTROSPECTION_CHECK([0.10.0])
++GOBJECT_INTROSPECTION_CHECK([0.10.0])dnl
+ 
+ ########################
+ # Check PyGObject
+ ########################
+ have_pygobject="no"
+-PKG_CHECK_EXISTS(pygobject-2.0 >= 2.26, have_pygobject="yes")
+-AM_CONDITIONAL(HAVE_PYGOBJECT, test "$have_pygobject" = "yes")
++PKG_CHECK_EXISTS([pygobject-2.0 >= 2.26],[have_pygobject="yes"])
++AM_CONDITIONAL([HAVE_PYGOBJECT],[test "x${have_pygobject}" = "xyes"])
+ 
+ ########################
+ # Check Vala
+ ########################
+ 
+-AC_ARG_WITH(vala, [  --without-vala          build without Vala support])
++AC_ARG_WITH([vala],
++            [AS_HELP_STRING([--without-vala],
++                            [build without Vala support])])dnl
+ 
+ have_vapigen="no"
+-if test "x$with_vala" != "xno"; then
++if test "x${with_vala}" != "xno"; then
+ 
+-  AC_PATH_PROG(VAPIGEN, vapigen, no)
+-  if test "$VAPIGEN" = "no"; then
++  AC_PATH_PROG([VAPIGEN],[vapigen],[no])
++  if test "x${VAPIGEN}" = "xno"; then
+     have_vapigen="no  (vapigen executable not found)"
+     AC_MSG_RESULT([*** Check for vapigen failed.])
+   else
+     have_vapigen="yes"
+   fi
++  AC_PATH_PROG([VALABIND],[valabind])
++  AC_PATH_PROG([VALABINDCC],[valabind-cc])
+ fi
+ 
+-have_vala=$have_vapigen
+-AM_CONDITIONAL(HAVE_VALA, test "$have_vala" = "yes")
++have_vala="${have_vapigen}"
++AM_CONDITIONAL([HAVE_VALA],[test "x${have_vala}" = "xyes"])dnl
+ 
+ ########################
+ # Check for fsync
+ ########################
+-AC_CHECK_FUNCS(fsync)
++AC_CHECK_FUNCS([fsync])dnl
+ 
+ ###############################
+ # Checks for required libraries
+ ###############################
+ 
+-PKG_CHECK_MODULES(BABL, babl >= babl_required_version)
++LT_LIB_M
++AC_CHECK_LIB([swscale],[swscale_version],[],[
++  AC_CHECK_LIB([swscale],[main])dnl
++])dnl
++
++PKG_CHECK_MODULES([BABL],[babl >= babl_required_version])dnl
++
++AC_SUBST([BABL_CFLAGS])dnl
++AC_SUBST([BABL_LIBS])dnl
+ 
+ GLIB_PACKAGES="gobject-2.0 gmodule-2.0 gio-2.0"
+-AC_SUBST(GLIB_PACKAGES)
++AC_SUBST([GLIB_PACKAGES])dnl
+ 
+-dnl This PATH_GLIB is somewhat redundant, but does a sanity compile and 
+-dnl importantly defines the GLIB_GENMARSHAL variable for subst into the
+-dnl Makefile
+-AM_PATH_GLIB_2_0($GLIB_REQUIRED_VERSION, :,
++dnl# This PATH_GLIB is somewhat redundant, but does a sanity compile and 
++dnl# importantly defines the GLIB_GENMARSHAL variable for subst into the
++dnl# Makefile
++AM_PATH_GLIB_2_0([${GLIB_REQUIRED_VERSION}],[:],[
+   AC_MSG_ERROR([
+-*** GLIB $GLIB_REQUIRED_VERSION or better is required. The latest version of 
+-*** GLIB is always available from ftp://ftp.gtk.org/.]),
+-  gobject gmodule)
+-
+-PKG_CHECK_MODULES(DEP,
+-	          glib-2.0 >= $GLIB_REQUIRED_VERSION $GLIB_PACKAGES, ,
+-                  AC_MSG_ERROR([
++*** GLIB ${GLIB_REQUIRED_VERSION} or better is required.
++*** The latest version of GLIB is always available from:
++*** ftp://ftp.gtk.org/])
++  ],[gobject gmodule])dnl
++
++PKG_CHECK_MODULES([DEP],
++	          [glib-2.0 >= ${GLIB_REQUIRED_VERSION} ${GLIB_PACKAGES}],
++                  [],[AC_MSG_ERROR([
+         *** GLib not found. You can find it on ftp://ftp.gtk.org
+         *** Errors follow:
+-            $DEP_PKG_ERRORS]))
++            ${DEP_PKG_ERRORS}])dnl
++                  ])dnl
++
++# Rerun PKG_CONFIG to add gthread-2.0 cflags and libs:
++DEP_CFLAGS=`${PKG_CONFIG} --cflags ${GLIB_PACKAGES} gthread-2.0`
++DEP_LIBS=`${PKG_CONFIG} --libs ${GLIB_PACKAGES} gthread-2.0`
+ 
+-# Rerun PKG_CONFIG to add gthread-2.0 cflags and libs
+-DEP_CFLAGS=`$PKG_CONFIG --cflags $GLIB_PACKAGES gthread-2.0`
+-DEP_LIBS=`$PKG_CONFIG --libs $GLIB_PACKAGES gthread-2.0`
++AC_SUBST([DEP_CFLAGS])dnl
++AC_SUBST([DEP_LIBS])dnl
+ 
+ ######################
+ # gettext i18n support
+ ######################
+ 
+-GETTEXT_PACKAGE=gegl-$GEGL_API_VERSION
+-AC_SUBST(GETTEXT_PACKAGE)
+-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE",
+-                   [Our gettext translation domain.])
+-
+-# GNU format message catalogs go into $datadir/locale,
+-# standard location is $libdir/locale. DATADIRNAME set accordingly.
+-
+-GEGL_LOCALEDIR="$datadir/locale"
+-if test "$DATADIRNAME" = "lib"; then
+-   GEGL_LOCALEDIR="$libdir/locale"
++GETTEXT_PACKAGE="gegl-${GEGL_API_VERSION}"
++AC_SUBST([GETTEXT_PACKAGE])dnl
++AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["${GETTEXT_PACKAGE}"],
++                   [Our gettext translation domain.])dnl
++
++# GNU format message catalogs go into ${datadir}/locale,
++# standard location is ${libdir}/locale. DATADIRNAME set accordingly.
++
++GEGL_LOCALEDIR="${datadir}/locale"
++if test "x${DATADIRNAME}" = "xlib"; then
++   GEGL_LOCALEDIR="${libdir}/locale"
+ fi
+-AC_SUBST(GEGL_LOCALEDIR)
++AC_SUBST([GEGL_LOCALEDIR])dnl
+ 
+ # Check for bind_textdomain_codeset, including -lintl if GLib brings it in.
+-gegl_save_LIBS=$LIBS
+-LIBS="$LIBS $GLIB_LIBS"
+-AC_CHECK_FUNCS(bind_textdomain_codeset,,
++gegl_save_LIBS="${LIBS}"
++LIBS="${LIBS} ${GLIB_LIBS}"
++AC_CHECK_FUNCS([bind_textdomain_codeset],[],[
+   AC_MSG_ERROR([
+-*** Check for bind_textdomain_codeset() failed!  This is required.
+-]))
+-LIBS=$gegl_save_LIBS
++*** Check for bind_textdomain_codeset() failed! This is required.
++])])
++LIBS="${gegl_save_LIBS}"
+ 
+-m4_ifdef([IT_PROG_INTLTOOL],[IT_PROG_INTLTOOL(0.40.1),],
+-  AC_MSG_ERROR([*** intltool version 0.40.1 or later required]))
++m4_ifdef([IT_PROG_INTLTOOL],[IT_PROG_INTLTOOL([0.40.1],[])],
++  [AC_MSG_ERROR([*** intltool version 0.40.1 or later required])])dnl
+ 
+ AM_GLIB_GNU_GETTEXT
+ 
+@@ -495,192 +554,228 @@
+ #########################
+ 
+ AC_MSG_CHECKING([if GLib is version 2.21.0 or newer])
+-if $PKG_CONFIG --atleast-version=2.21.0 glib-2.0; then
++if ${PKG_CONFIG} --atleast-version=2.21.0 glib-2.0; then
+   have_glib_2_21=yes
+ else
+   have_glib_2_21=no
+ fi
+-AC_MSG_RESULT($have_glib_2_21)
++AC_MSG_RESULT([${have_glib_2_21}])dnl
+ 
+ 
+ ######################################
+ # Checks for gtk-doc and docbook-tools
+ ######################################
+ 
+-GTK_DOC_CHECK([1.0])
++GTK_DOC_CHECK([1.0])dnl
+ 
+-dnl NOTE: We need to use a separate automake conditional for this
+-dnl   	  to make this work with the tarballs.
+-AM_CONDITIONAL(ENABLE_GTK_DOC, test "x$enable_gtk_doc" = "xyes")
++dnl# NOTE: We need to use a separate automake conditional for this
++dnl#   	   to make this work with the tarballs.
++AM_CONDITIONAL([ENABLE_GTK_DOC],[test "x${enable_gtk_doc}" = "xyes"])dnl
+ 
+-AC_CHECK_PROGS(PERL, perl5 perl)
++AC_CHECK_PROGS([PERL],[perl5 perl])dnl
+ 
+ 
+ #######################################
+ # Checks for Ruby used to make API docs
+ #######################################
+ 
+-AC_CHECK_PROG(RUBY, ruby, yes, no)
+-if test "$RUBY" = "no"; then
++AC_CHECK_PROG([RUBY],[ruby],[yes],[no])
++if test "x${RUBY}" = "xno"; then
+   AC_MSG_WARN([
+ *** Could not find Ruby interpreter. The HTML API reference
+ will not be updated.
+ ])
+   have_ruby="no"
+ else
+-  RUBY_BIN="$RUBY"
++  RUBY_BIN="${RUBY}"
+   have_ruby="yes"
+ fi
+-AM_CONDITIONAL(HAVE_RUBY, test "x$have_ruby" = "xyes")
++AM_CONDITIONAL([HAVE_RUBY],[test "x${have_ruby}" = "xyes"])
+ 
+-AC_SUBST(RUBY_BIN)
++AC_SUBST([RUBY_BIN])dnl
+ 
+ 
+ ####################
+ # Check for enscript
+ ####################
+  
+-AC_PATH_PROG(ENSCRIPT, enscript, no)
+-if test "$ENSCRIPT" = "no"; then
++AC_PATH_PROG([ENSCRIPT],[enscript],[no])
++if test "x${ENSCRIPT}" = "xno"; then
+   have_enscript="no  (enscript not found)"
+ else
+   have_enscript="yes"
+ fi
+-AM_CONDITIONAL(HAVE_ENSCRIPT, test "x$have_enscript" = "xyes")
++
++AM_CONDITIONAL([HAVE_ENSCRIPT],[test "x${have_enscript}" = "xyes"])dnl
+ 
+ 
+ ####################
+ # Check for asciidoc
+ ####################
+  
+-AC_PATH_PROG(ASCIIDOC, asciidoc, no)
+-if test "$ASCIIDOC" = "no"; then
++AC_PATH_PROG([ASCIIDOC],[asciidoc],[no])
++if test "x${ASCIIDOC}" = "xno"; then
+   have_asciidoc="no  (asciidoc not found)"
+   AC_MSG_RESULT([*** Check for asciidoc failed.])
+ else
+   have_asciidoc="yes"
+ fi
+-AM_CONDITIONAL(HAVE_ASCIIDOC, test "x$have_asciidoc" = "xyes")
++
++AM_CONDITIONAL([HAVE_ASCIIDOC],[test "x${have_asciidoc}" = "xyes"])dnl
+ 
+ 
+ ###############
+ # Check for dot
+ ###############
+  
+-AC_PATH_PROG(DOT, dot, no)
+-if test "$DOT" = "no"; then
++AC_PATH_PROG([DOT],[dot],[no])
++if test "x${DOT}" = "xno"; then
+   have_dot="no  (dot not found)"
+   AC_MSG_RESULT([*** Check for dot command failed.])
+ else
+   have_dot="yes"
+ fi
+-AM_CONDITIONAL(HAVE_DOT, test "x$have_dot" = "xyes")
++
++AM_CONDITIONAL([HAVE_DOT],[test "x${have_dot}" = "xyes"])dnl
++
+ 
+ #################
+ # Check for Python (optional, used for introspection unittests)
+ #################
+-AM_PATH_PYTHON([2.5.0],, [:])
+-AM_CONDITIONAL([HAVE_PYTHON], [test "$PYTHON" != :])
++AM_PATH_PYTHON([2.5.0],[],[:])dnl
++AM_CONDITIONAL([HAVE_PYTHON],[test "x${PYTHON}" != "x:"])dnl
++
++dnl# Override standard python locations with MacPorts version-specific
++dnl# ones:
++
++AC_SUBST([PYTHON_PREFIX],
++         [`${PYTHON} -c 'import sys; print(sys.prefix);'`])dnl
++AC_SUBST([PYTHON_EXEC_PREFIX],
++         [`${PYTHON} -c 'import sys; print(sys.exec_prefix)'`])dnl
++
++am_cv_python_pythondir="${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages"
++am_cv_python_pyexecdir="${PYTHON_EXEC_PREFIX}/lib/python${PYTHON_VERSION}/site-packages"
++
++AC_SUBST([pythondir],[${am_cv_python_pythondir}])dnl
++AC_SUBST([pyexecdir],[${am_cv_python_pyexecdir}])dnl
+ 
  #################
  # Check for Cairo
  #################
+ 
+-AC_ARG_WITH(cairo, [  --without-cairo         build without Cairo support])
++AC_ARG_WITH([cairo],
++            [AS_HELP_STRING([--without-cairo],
++                            [build without Cairo support])])dnl
+ 
+ have_cairo="no"
+-if test "x$with_cairo" != "xno"; then
+-  PKG_CHECK_MODULES(CAIRO, cairo,
+-    have_cairo="yes",
+-    have_cairo="no  (Cairo not found)")
++if test "x${with_cairo}" != "xno"; then
++  PKG_CHECK_MODULES([CAIRO],[cairo],
++    [have_cairo="yes"],
++    [have_cairo="no  (Cairo not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_CAIRO, test "$have_cairo" = "yes")
++AM_CONDITIONAL([HAVE_CAIRO],[test "x${have_cairo}" = "xyes"])dnl
+ 
+-AC_SUBST(CAIRO_CFLAGS) 
+-AC_SUBST(CAIRO_LIBS) 
++AC_SUBST([CAIRO_CFLAGS])dnl 
++AC_SUBST([CAIRO_LIBS])dnl
+ 
+ 
+ ########################
+ # Checks for Pango stuff
+ ########################
+ 
+-AC_ARG_WITH(pango, [  --without-pango         build without Pango support])
+-AC_ARG_WITH(pangocairo, [  --without-pangocairo    build without pangocairo support])
++AC_ARG_WITH([pango],
++            [AS_HELP_STRING([--without-pango],
++                            [build without Pango support])])dnl
++AC_ARG_WITH([pangocairo],
++            [AS_HELP_STRING([--without-pangocairo],
++                            [build without pangocairo support])])dnl
+ 
+ have_pango="no"
+-if test "x$with_pango" != "xno"; then
+-  PKG_CHECK_MODULES(PANGO, pango,
+-    have_pango="yes",
+-    have_pango="no  (Pango not found)")
++if test "x${with_pango}" != "xno"; then
++  PKG_CHECK_MODULES([PANGO],[pango],
++    [have_pango="yes"],
++    [have_pango="no  (Pango not found)"])
+ fi
+ 
+ have_pangocairo="no"
+-if test "x$with_pangocairo" != "xno"; then
+-  PKG_CHECK_MODULES(PANGOCAIRO, pangocairo,
+-    have_pangocairo="yes",
+-    have_pangocairo="no  (pangocairo not found)")
++if test "x${with_pangocairo}" != "xno"; then
++  PKG_CHECK_MODULES([PANGOCAIRO],[pangocairo],
++    [have_pangocairo="yes"],
++    [have_pangocairo="no  (pangocairo not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_PANGO, test "x$have_pango" = "xyes")
+-AM_CONDITIONAL(HAVE_PANGOCAIRO, test "x$have_pangocairo" = "xyes")
+-
+-AC_SUBST(PANGO_CFLAGS) 
+-AC_SUBST(PANGO_LIBS) 
+-AC_SUBST(PANGOCAIRO_CFLAGS) 
+-AC_SUBST(PANGOCAIRO_LIBS) 
++AM_CONDITIONAL([HAVE_PANGO],[test "x${have_pango}" = "xyes"])
++AM_CONDITIONAL([HAVE_PANGOCAIRO],[test "x${have_pangocairo}" = "xyes"])
++
++AC_SUBST([PANGO_CFLAGS])dnl
++AC_SUBST([PANGO_LIBS])dnl
++AC_SUBST([PANGOCAIRO_CFLAGS])dnl
++AC_SUBST([PANGOCAIRO_LIBS])dnl
+ 
+ 
+ ######################
+ # Check for gdk-pixbuf
+ ######################
+ 
+-AC_ARG_WITH(gdk_pixbuf, [  --without-gdk-pixbuf    build without gdk-pixbuf support])
++AC_ARG_WITH([gdk_pixbuf],
++            [AS_HELP_STRING([--without-gdk-pixbuf],
++                            [build without gdk-pixbuf support])])dnl
+ 
+ have_gdk_pixbuf="no"
+-if test "x$with_gdk_pixbuf" != "xno"; then
+-  PKG_CHECK_MODULES(GDK_PIXBUF, gdk-pixbuf-2.0 >= gdk_pixbuf_required_version,
+-    have_gdk_pixbuf="yes",
+-    have_gdk_pixbuf="no  (gdk-pixbuf not found)")
++if test "x${with_gdk_pixbuf}" != "xno"; then
++  PKG_CHECK_MODULES([GDK_PIXBUF],
++    [gdk-pixbuf-2.0 >= gdk_pixbuf_required_version],
++    [have_gdk_pixbuf="yes"],
++    [have_gdk_pixbuf="no  (gdk-pixbuf not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_GDK_PIXBUF, test "$have_gdk_pixbuf" = "yes")
++AM_CONDITIONAL([HAVE_GDK_PIXBUF],[test "x${have_gdk_pixbuf}" = "xyes"])dnl
++
++AC_SUBST([GDK_PIXBUF_CFLAGS])dnl
++AC_SUBST([GDK_PIXBUF_LIBS])dnl
+ 
+ 
+ ###################
+ # Check for lensfun
+ ###################
+ 
+-AC_ARG_WITH(lensfun, [  --without-lensfun       build without lensfun support])
++AC_ARG_WITH([lensfun],
++            [AS_HELP_STRING([--without-lensfun],
++                            [build without lensfun support])])dnl
+ 
+ have_lensfun="no"
+-if test "x$with_lensfun" != "xno"; then
+-  PKG_CHECK_MODULES(LENSFUN, lensfun,
+-    have_lensfun="yes",
+-    have_lensfun="no  (lensfun not found)")
++if test "x${with_lensfun}" != "xno"; then
++  PKG_CHECK_MODULES([LENSFUN],[lensfun],
++    [have_lensfun="yes"],
++    [have_lensfun="no  (lensfun not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_LENSFUN, test "$have_lensfun" = "yes")
++AM_CONDITIONAL([HAVE_LENSFUN],[test "x${have_lensfun}" = "xyes"])dnl
+ 
+-AC_SUBST(LENSFUN_CFLAGS)
+-AC_SUBST(LENSFUN_LIBS)
++AC_SUBST([LENSFUN_CFLAGS])dnl
++AC_SUBST([LENSFUN_LIBS])dnl
+ 
+ 
+ ###################
+ # Check for libjpeg
+ ###################
+ 
+-AC_ARG_WITH(libjpeg, [  --without-libjpeg       build without JPEG support])
++AC_ARG_WITH([libjpeg],
++            [AS_HELP_STRING([--without-libjpeg],
++                            [build without JPEG support])])dnl
+ 
+ jpeg_ok="no"
+-if test "x$with_libjpeg" != "xno" && test -z "$LIBJPEG"; then
+-  AC_CHECK_LIB(jpeg, jpeg_destroy_decompress,
+-    jpeg_ok="yes",
+-    jpeg_ok="no  (usable JPEG library not found)")
+-  if test "$jpeg_ok" = "yes"; then
++if test "x${with_libjpeg}" != "xno" && test -z "${LIBJPEG}"; then
++  AC_CHECK_LIB([jpeg],[jpeg_destroy_decompress],
++    [jpeg_ok="yes"],
++    [AC_CHECK_LIB([jpeg],[main],
++       [jpeg_ok="no  (usable JPEG library not found)"],
++       [jpeg_ok="no  (no JPEG library found whatsoever)"])
++  ])
++  if test "x${jpeg_ok}" = "xyes"; then
+     AC_MSG_CHECKING([for jpeglib.h])
+-    AC_PREPROC_IFELSE(
+-      [AC_LANG_SOURCE([[
++    AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+ #include <stdio.h>
+ #undef HAVE_STDDEF_H
+ #undef HAVE_STDLIB_H
+@@ -688,166 +783,184 @@
+ #undef VERSION
+ #include <jpeglib.h>]])],
+       [jpeg_ok="yes"],
+-      [jpeg_ok="no  (Can't include jpeglib.h)"])
+-    AC_MSG_RESULT($jpeg_ok)
+-    if test "$jpeg_ok" = "yes"; then
+-      AC_CHECK_LIB(jpeg, jpeg_save_markers,
+-        LIBJPEG='-ljpeg',
+-        [jpeg_ok="no  (JPEG library is too old)"])
++      [jpeg_ok="no  (Cannot include jpeglib.h)"])
++    AC_MSG_RESULT([${jpeg_ok}])
++    if test "x${jpeg_ok}" = "xyes"; then
++      AC_CHECK_LIB([jpeg],[jpeg_save_markers],
++        [LIBJPEG='-ljpeg'],
++        [AC_CHECK_LIB([jpeg],[main],
++           [jpeg_ok="no  (JPEG library is too old)"],
++           [jpeg_ok="no  (JPEG library is inconsistent and unusable)"])
++      ])
+     else
+       jpeg_ok="no  (JPEG header file not found)"
+     fi
+   fi
+ fi
+ 
+-AM_CONDITIONAL(HAVE_JPEG, test "$jpeg_ok" = "yes")
++AM_CONDITIONAL([HAVE_JPEG],[test "x${jpeg_ok}" = "xyes"])dnl
+ 
+-AC_SUBST(LIBJPEG)
++AC_SUBST([LIBJPEG])dnl
+ 
+ 
+ ##################
+ # Check for libpng
+ ##################
+ 
+-AC_ARG_WITH(libpng, [  --without-libpng        build without PNG support])
++AC_ARG_WITH([libpng],
++            [AS_HELP_STRING([--without-libpng],
++                            [build without PNG support])])dnl
+ 
+ have_libpng="no"
+-if test "x$with_libpng" != "xno"; then
+-  PKG_CHECK_MODULES(PNG, libpng,
+-    have_libpng="yes",
+-    have_libpng="no  (libpng not found)")
++if test "x${with_libpng}" != "xno"; then
++  PKG_CHECK_MODULES([PNG],[libpng],
++    [have_libpng="yes"],
++    [have_libpng="no  (libpng not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_PNG, test "$have_libpng" = "yes")
++AM_CONDITIONAL([HAVE_PNG],[test "x${have_libpng}" = "xyes"])dnl
+ 
+-AC_SUBST(PNG_CFLAGS) 
+-AC_SUBST(PNG_LIBS) 
++AC_SUBST([PNG_CFLAGS])dnl
++AC_SUBST([PNG_LIBS])dnl
+ 
+ 
+ ###################
+ # Check for librsvg
+ ###################
+ 
+-AC_ARG_WITH(librsvg, [  --without-librsvg       build without SVG support])
++AC_ARG_WITH([librsvg],
++            [AS_HELP_STRING([--without-librsvg],
++                            [build without SVG support])])dnl
+ 
+ have_librsvg="no"
+-if test "x$with_librsvg" != "xno"; then
+-  PKG_CHECK_MODULES(RSVG, librsvg-2.0 >= librsvg_required_version,
+-    have_librsvg="yes",
+-    have_librsvg="no  (usable librsvg not found)")
++if test "x${with_librsvg}" != "xno"; then
++  PKG_CHECK_MODULES([RSVG],[librsvg-2.0 >= librsvg_required_version],
++    [have_librsvg="yes"],
++    [have_librsvg="no  (usable librsvg not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_RSVG, test "$have_librsvg" = "yes")
++AM_CONDITIONAL([HAVE_RSVG],[test "x${have_librsvg}" = "xyes"])dnl
+ 
+-AC_SUBST(RSVG_CFLAGS) 
+-AC_SUBST(RSVG_LIBS) 
++AC_SUBST([RSVG_CFLAGS])dnl
++AC_SUBST([RSVG_LIBS])dnl
+ 
+ 
+ ###################
+ # Check for OpenEXR
+ ###################
+ 
+-AC_ARG_WITH(openexr, [  --without-openexr       build without OpenEXR support])
++AC_ARG_WITH([openexr],
++            [AS_HELP_STRING([--without-openexr],
++                            [build without OpenEXR support])])dnl
+ 
+ have_openexr="no"
+-if test "x$with_openexr" != "xno"; then
+-  PKG_CHECK_MODULES(OPENEXR, OpenEXR,
+-    have_openexr="yes",
+-    have_openexr="no  (OpenEXR library not found)")
++if test "x${with_openexr}" != "xno"; then
++  PKG_CHECK_MODULES([OPENEXR],[OpenEXR],
++    [have_openexr="yes"],
++    [have_openexr="no  (OpenEXR library not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_OPENEXR, test "$have_openexr" = "yes")
++AM_CONDITIONAL([HAVE_OPENEXR],[test "x${have_openexr}" = "xyes"])dnl
+ 
+-AC_SUBST(OPENEXR_CFLAGS) 
+-AC_SUBST(OPENEXR_LIBS) 
++AC_SUBST([OPENEXR_CFLAGS])dnl
++AC_SUBST([OPENEXR_LIBS])dnl
+ 
+ 
+ ###############
+ # Check for SDL
+ ###############
+ 
+-AC_ARG_WITH(sdl, [  --without-sdl           build without SDL support])
++AC_ARG_WITH([sdl],
++            [AS_HELP_STRING([--without-sdl],
++                            [build without SDL support])])dnl
+ 
+ have_sdl="no"
+-if test "x$with_sdl" != "xno"; then
+-  AC_PATH_PROG(SDL_CONFIG, sdl-config, no)
+-  if test "$SDL_CONFIG" = "no"; then
++if test "x${with_sdl}" != "xno"; then
++  AC_PATH_PROG([SDL_CONFIG],[sdl-config],[no])
++  if test "x${SDL_CONFIG}" = "xno"; then
+     have_sdl="no  (SDL library not found)"
+     AC_MSG_RESULT([*** Check for SDL library failed.])
+   else
+     have_sdl="yes"
+-    SDL_CFLAGS=`$SDL_CONFIG --cflags`
+-    SDL_LIBS=`$SDL_CONFIG --libs`
++    SDL_CFLAGS=`${SDL_CONFIG} --cflags`
++    SDL_LIBS=`${SDL_CONFIG} --libs`
+   fi
+ fi
+ 
+-AM_CONDITIONAL(HAVE_SDL, test "$have_sdl" = "yes")
++AM_CONDITIONAL([HAVE_SDL],[test "x${have_sdl}" = "xyes"])dnl
+  
+-AC_SUBST(SDL_CFLAGS)
+-AC_SUBST(SDL_LIBS)
++AC_SUBST([SDL_CFLAGS])dnl
++AC_SUBST([SDL_LIBS])dnl
+ 
+ 
+ ######################
+ # Check for libopenraw
+ ######################
+ 
+-AC_ARG_WITH(libopenraw, [  --without-libopenraw    build without openraw support])
++AC_ARG_WITH([libopenraw],
++            [AS_HELP_STRING([--without-libopenraw],
++                            [build without openraw support])])dnl
+ 
+ have_libopenraw="no"
+-if test "x$with_libopenraw" != "xno"; then
+-  PKG_CHECK_MODULES(OPENRAW, libopenraw-1.0 >= openraw_required_version,
+-    have_libopenraw="yes",
+-    have_libopenraw="no  (openraw library not found)")
++if test "x${with_libopenraw}" != "xno"; then
++  PKG_CHECK_MODULES([OPENRAW],[libopenraw-1.0 >= openraw_required_version],
++    [have_libopenraw="yes"],
++    [have_libopenraw="no  (openraw library not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_OPENRAW, test "$have_libopenraw" = "yes")
++AM_CONDITIONAL([HAVE_OPENRAW],[test "x${have_libopenraw}" = "xyes"])dnl
+ 
+-AC_SUBST(OPENRAW_CFLAGS) 
+-AC_SUBST(OPENRAW_LIBS) 
++AC_SUBST([OPENRAW_CFLAGS])dnl
++AC_SUBST([OPENRAW_LIBS])dnl
+ 
+ 
+ ##################
+ # Check for Jasper
+ ##################
+ 
+-AC_ARG_WITH(jasper, [  --without-jasper        build without Jasper support])
++AC_ARG_WITH([jasper],
++            [AS_HELP_STRING([--without-jasper],
++                            [build without Jasper support])])dnl
+ 
+ have_jasper="no"
+-if test "x$with_jasper" != "xno"; then
+-  ## Some systems have pkg-config patches in their packages (Eg, Fedora but
+-  ## not Gentoo). Try this first though.
+-  PKG_CHECK_MODULES(JASPER, jasper >= jasper_required_version,
+-    have_jasper="yes", [
++if test "x${with_jasper}" != "xno"; then
++  ## Some systems have pkg-config patches in their packages (E.g., Fedora,
++  ## but NOT Gentoo). Try this first though:
++  PKG_CHECK_MODULES([JASPER],[jasper >= jasper_required_version],
++    [have_jasper="yes"],[
+       ## For systems without pkg-config data, check for the existence of a
+       ## function introduced into the latest version (1.900.1).
+-      AC_CHECK_LIB([jasper], [jas_stream_freopen], [
++      AC_CHECK_LIB([jasper],[jas_stream_freopen],[
+           have_jasper="yes"
+           JASPER_LIBS="-ljasper"
+           JASPER_CFLAGS=""
+-      ], [
+-        have_jasper="no  (jasper library not found)"
++      ],[
++        AC_CHECK_LIB([jasper],[main],
++          [have_jasper="no  (usable jasper library not found)"],
++          [have_jasper="no  (jasper library not found)"])
+       ])
+-    ]
+-  )
++    ])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_JASPER, test "$have_jasper" = "yes")
++AM_CONDITIONAL([HAVE_JASPER],[test "x${have_jasper}" = "xyes"])dnl
+ 
+-AC_SUBST(JASPER_CFLAGS)
+-AC_SUBST(JASPER_LIBS)
++AC_SUBST([JASPER_CFLAGS])dnl
++AC_SUBST([JASPER_LIBS])dnl
+ 
+ 
+ ####################
+ # Check for graphviz
+ ####################
+  
+-AC_ARG_WITH(graphviz, [  --without-graphviz      build without graphviz support])
++AC_ARG_WITH([graphviz],
++            [AS_HELP_STRING([--without-graphviz],
++                            [build without graphviz support])])dnl
+ 
+ have_graphviz="no"
+-if test "x$with_graphviz" != "xno"; then
+-  AC_PATH_PROG(GRAPHVIZ, dot, no)
++if test "x${with_graphviz}" != "xno"; then
++  AC_PATH_PROG([GRAPHVIZ],[dot],[no])
+ 
+-  if test "$GRAPHVIZ" = "no"; then
++  if test "x${GRAPHVIZ}" = "xno"; then
+     have_graphviz="no  (graphviz not found)"
+     AC_MSG_RESULT([*** Check for dot command from graphviz failed.])
+   else
+@@ -855,199 +968,284 @@
+   fi
+ fi
+ 
+-AM_CONDITIONAL(HAVE_GRAPHVIZ, test "$have_graphviz" = "yes")
++AM_CONDITIONAL([HAVE_GRAPHVIZ],[test "x${have_graphviz}" = "xyes"])dnl
+ 
+ 
+ ###############
+ # Check for Lua
+ ###############
+ 
+-AC_ARG_WITH(lua, [  --without-lua           build without Lua support])
++AC_ARG_WITH([lua],
++            [AS_HELP_STRING([--without-lua],
++                            [build without Lua support])])dnl
+ 
+ have_lua="no"
+-if test "x$with_lua" != "xno"; then
+-PKG_CHECK_MODULES(LUA, lua >= $LUA_REQUIRED_VERSION,
+-  have_lua="yes",
+-  [PKG_CHECK_MODULES(LUA, lua5.1 >= $LUA_REQUIRED_VERSION,
+-     have_lua="yes",
+-     have_lua="no  (usable lua not found)")])
++if test "x${with_lua}" != "xno"; then
++PKG_CHECK_MODULES([LUA],[lua >= ${LUA_REQUIRED_VERSION}],
++  [have_lua="yes"],
++  [PKG_CHECK_MODULES([LUA],[lua5.1 >= ${LUA_REQUIRED_VERSION}],
++     [have_lua="yes"],
++     [have_lua="no  (usable lua not found)"])])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_LUA, test "$have_lua" = "yes")
++AM_CONDITIONAL([HAVE_LUA],[test "x${have_lua}" = "xyes"])dnl
+ 
+-AC_SUBST(LUA_CFLAGS) 
+-AC_SUBST(LUA_LIBS) 
++AC_SUBST([LUA_CFLAGS])dnl
++AC_SUBST([LUA_LIBS])dnl
+ 
+ 
+ ####################################
+ # Check for libavformat / libavcodec
+ ####################################
+ 
+-AC_ARG_WITH(libavformat,  [  --without-libavformat   build without libavformat support])
+-
+-if test "x$with_libavformat" != xno; then
+-  PKG_CHECK_MODULES(AVFORMAT, libavformat libavcodec,
+-    have_libavformat="yes",
+-    have_libavformat="no  (libavformat not found)")
+-  # verify the presence of the avformat.h header
+-  if test "x$have_libavformat" = "xyes"; then
+-    gegl_save_CPPFLAGS=$CPPFLAGS
+-    CPPFLAGS="$AVFORMAT_CFLAGS $CPPFLAGS"
++AC_ARG_WITH([libavformat],
++            [AS_HELP_STRING([--without-libavformat],
++                            [build without libavformat support])])dnl
++
++if test "x${with_libavformat}" != xno; then
++  PKG_CHECK_MODULES([AVFORMAT],[libavformat libavcodec],
++    [have_libavformat="yes"],
++    [have_libavformat="no  (libavformat not found)"])
++  # verify the presence of the avformat.h header:
++  if test "x${have_libavformat}" = "xyes"; then
++    gegl_save_CPPFLAGS="${CPPFLAGS}"
++    CPPFLAGS="${AVFORMAT_CFLAGS} ${CPPFLAGS}"
+     AC_CHECK_HEADER([libavformat/avformat.h],
+-      AC_DEFINE(HAVE_LIBAVFORMAT_AVFORMAT_H, 1,
+-                [define to 1 if avformat.h is found in libavformat]),
++      [AC_DEFINE([HAVE_LIBAVFORMAT_AVFORMAT_H],[1],
++                 [define to 1 if avformat.h is found in libavformat])],
+       [have_libavformat="no  (avformat.h not found where expected)"])
+     # on some systems the header needs to be included differently
+-    if test "x$have_libavformat" != "xyes"; then
+-      AC_CHECK_HEADER([avformat.h], [have_libavformat="yes"])
++    if test "x${have_libavformat}" != "xyes"; then
++      AC_CHECK_HEADER([avformat.h],[have_libavformat="yes"])
+     fi
+-    CPPFLAGS=$gegl_save_CPPFLAGS
++    CPPFLAGS="${gegl_save_CPPFLAGS}"
+   fi
+ else
+   have_libavformat="no  (disabled)"
+ fi
+-AM_CONDITIONAL(HAVE_AVFORMAT, test "x$have_libavformat" = "xyes")
++AM_CONDITIONAL([HAVE_AVFORMAT],[test "x${have_libavformat}" = "xyes"])dnl
+ 
++AC_SUBST([AVFORMAT_CFLAGS])dnl
++AC_SUBST([AVFORMAT_LIBS])dnl
+ 
+ ###############
+ # Check for V4L
+ ###############
+  
+-AC_ARG_WITH(libv4l, [  --without-libv4l        build without V4L support])
++AC_ARG_WITH([libv4l],
++            [AS_HELP_STRING([--without-libv4l],
++                            [build without V4L support])])dnl
+ 
+ have_v4l="no"
+-if test "x$with_libv4l" != "xno"; then
+-  AC_CHECK_HEADER(linux/videodev.h, have_v4l="yes")
++if test "x${with_libv4l}" != "xno"; then
++  AC_CHECK_HEADER([linux/videodev.h],[have_v4l="yes"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_V4L, test "$have_v4l" = "yes")
+-
++AM_CONDITIONAL([HAVE_V4L],[test "x${have_v4l}" = "xyes"])dnl
+ 
+ 
+ ################
+ # Check for lcms
+ ################
+  
+-#AC_ARG_WITH(liblcms, [  --without-lcms          build without CMS support])
+-#
+-#have_lcms="no"
+-#if test x$with_liblcms != xno; then
+-#  AC_CHECK_LIB(lcms, cmsCreateProofingTransform, [
+-#    AC_CHECK_HEADER(lcms.h,
+-#      have_lcms=yes
+-#      LCMS_LIBS="-llcms", [
+-#      AC_CHECK_HEADER(lcms/lcms.h,
+-#      have_lcms=yes
+-#        AC_DEFINE(HAVE_LCMS_LCMS_H, 1,
+-#          [Define to 1 if the lcms header must be included as lcms/lcms.h])
+-#        LCMS_LIBS="-llcms")])
+-#  ])
+-#fi
+-# 
+-#AM_CONDITIONAL(HAVE_LCMS, test "x$have_lcms" = "xyes")
+-#AC_SUBST(LCMS_LIBS)
++AC_ARG_WITH([liblcms],
++            [AS_HELP_STRING([--without-lcms],
++                            [build without CMS support])])dnl
++
++have_lcms="no"
++if test "x${with_liblcms}" != "xno"; then
++  AC_CHECK_LIB([lcms],[cmsCreateProofingTransform],[
++    AC_CHECK_HEADER([lcms.h],[
++      have_lcms=yes
++      LCMS_LIBS="-llcms"
++    ],[
++      AC_CHECK_HEADER([lcms/lcms.h],[
++        have_lcms=yes
++        AC_DEFINE([HAVE_LCMS_LCMS_H],[1],
++          [Define to 1 if the lcms header must be included as lcms/lcms.h])
++        LCMS_LIBS="-llcms"
++      ],[
++        AC_CHECK_HEADERS([lcms2.h lcms2_plugin.h lcms/lcms2.h \
++                          lcms2/lcms.h lcms2/lcms2.h])
++      ])
++    ])
++  ],[
++    AC_SEARCH_LIBS([cmsCreateProofingTransform],[lcms2 lcms])
++    AC_CHECK_LIB([lcms],[main])
++  ])
++fi
++ 
++AM_CONDITIONAL([HAVE_LCMS],[test "x${have_lcms}" = "xyes"])dnl
++AC_SUBST([LCMS_LIBS])dnl
+ 
+ 
+ ####################
+ # Check for libspiro
+ ####################
+ 
+-AC_ARG_WITH(libspiro, [  --without-libspiro      build without SPIRO support])
++AC_ARG_WITH([libspiro],
++            [AS_HELP_STRING([--without-libspiro],
++                            [build without SPIRO support])])dnl
+ 
+ spiro_ok="no"
+-if test "x$with_libspiro" != "xno" && test -z "$LIBSPIRO"; then
+-  AC_CHECK_LIB(spiro, run_spiro,
+-    spiro_ok="yes",
+-    spiro_ok="no  (usable SPIRO library not found)")
+-  if test "$spiro_ok" = "yes"; then
++if test "x${with_libspiro}" != "xno" && test -z "${LIBSPIRO}"; then
++  AC_CHECK_LIB([spiro],[run_spiro],
++    [spiro_ok="yes"],
++    [AC_CHECK_LIB([spiro],[main],
++       [spiro_ok="no  (usable SPIRO library not found)"],
++       [spiro_ok="no  (no SPIRO library found whatsoever)"])
++  ])
++  if test "x${spiro_ok}" = "xyes"; then
+     AC_MSG_CHECKING([for spirolib.h])
+-    AC_CHECK_HEADER([spiro.h],
++    AC_MSG_RESULT([ ])
++    AC_CHECK_HEADERS([bezctx_intf.h spirolib.h])dnl
++    AC_CHECK_HEADER([spiro.h],[
+       spiro_ok="yes"
+-      AC_DEFINE(HAVE_SPIRO, 1,
++      AC_DEFINE([HAVE_SPIRO],[1],
+                 [Define to 1 if the spiro library is available])
+-      LIBSPIRO='-lspiro',
+-      spiro_ok="no  (Can't include spiro.h)",
+-      [#include <bezctx_intf.h>])
+-      AC_MSG_RESULT($spiro_ok)
++      LIBSPIRO='-lspiro'
++    ],[
++      spiro_ok="no  (Cannot include spiro.h)"
++    ],[[
++#include <bezctx_intf.h>
++    ]])
++    AC_MSG_CHECKING([if we actually found header for spiro library])
++    AC_MSG_RESULT([${spiro_ok}])
+   fi
+ fi
+ 
+-AM_CONDITIONAL(HAVE_SPIRO, test "$spiro_ok" = "yes")
++AM_CONDITIONAL([HAVE_SPIRO],[test "x${spiro_ok}" = "xyes"])dnl
+ 
+-AC_SUBST(LIBSPIRO)
++AC_SUBST([LIBSPIRO])dnl
+ 
+ ###################
+ # Check for exiv2
+ ###################
+ 
+-AC_ARG_WITH(exiv2, [  --without-exiv2         build without libexiv2 support])
++AC_ARG_WITH([exiv2],
++            [AS_HELP_STRING([--without-exiv2],
++                            [build without libexiv2 support])])dnl
+ 
+ have_libexiv2="no"
+-if test "x$with_libexiv2" != "xno"; then
+-  PKG_CHECK_MODULES(EXIV2, exiv2,
+-    have_exiv2="yes",
+-    have_exiv2="no  (exiv2 library not found)")
++if test "x${with_libexiv2}" != "xno"; then
++  PKG_CHECK_MODULES([EXIV2],[exiv2],
++    [have_exiv2="yes"],
++    [have_exiv2="no  (exiv2 library not found)"])
+ fi
+ 
+-AM_CONDITIONAL(HAVE_EXIV2, test "$have_exiv2" = "yes")
++AM_CONDITIONAL([HAVE_EXIV2],[test "x${have_exiv2}" = "xyes"])dnl
+ 
+-AC_SUBST(EXIV2_CFLAGS)
+-AC_SUBST(EXIV2_CXXFLAGS)
+-AC_SUBST(EXIV2_LIBS)
++AC_SUBST([EXIV2_CFLAGS])dnl
++AC_SUBST([EXIV2_CXXFLAGS])dnl
++AC_SUBST([EXIV2_LIBS])dnl
+ 
+ ###################
+ # Check for UMFPACK
+ ###################
+ 
+-AC_ARG_WITH(umfpack, [  --without-umfpack       build without UMFPACK support])
+-
+-# AC_CHECK_HEADERS checks the expected locations for the umfpack header. We
+-# would really like to set UMFPACK_CFLAGS appropriately, however there's no
+-# readily apparent way of reliably obtaining the appropriate header directory
+-# to add to the include list. So we rely on the automatic HAVE_<PATH> defines
+-# and do it within the code.
++AC_ARG_WITH([umfpack],
++            [AS_HELP_STRING([--without-umfpack],
++                            [build without UMFPACK support])])dnl
++
++# AC_CHECK_HEADERS checks the expected locations for the umfpack header.
++# We would really like to set UMFPACK_CFLAGS appropriately, however,
++# there is no readily apparent way of reliably obtaining the appropriate
++# header directory to add to the include list. So we rely on the automatic
++# HAVE_<PATH> defines and do it within the code.
+ have_umfpack="no"
+-if test "x$with_umfpack" != "xno"; then
+-  AC_CHECK_LIB(umfpack, umfpack_dl_solve, [
+-    AC_CHECK_HEADERS([umfpack.h suitesparse/umfpack.h] , [
++if test "x${with_umfpack}" != "xno"; then
++  AC_CHECK_LIB([umfpack],[umfpack_dl_solve],[
++    AC_CHECK_HEADERS([umfpack.h suitesparse/umfpack.h],[
+       have_umfpack="yes"
+       UMFPACK_LIBS="-lumfpack"
+       break
+-    ])
+-  ])
++    ])dnl
++  ],[
++    AC_CHECK_LIB([umfpack],[main],[
++      AC_CHECK_HEADERS([umfpack.h suitesparse/umfpack.h],[
++        have_umfpack="kinda"
++        UMFPACK_LIBS="-lumfpack"
++        break
++      ])dnl
++    ],[
++      have_umfpack="no  (no umfpack library found whatsoever)"
++    ])dnl
++  ])dnl
+ 
+-  if test "x$have_umfpack" != "xyes"; then
++  if test "x${have_umfpack}" != "xyes"; then
++    test -z "${have_umfpack}"
+     have_umfpack="no  (usable umfpack library not found)"
+   fi
+ fi
+ 
+-AM_CONDITIONAL(HAVE_UMFPACK, test "x$have_umfpack" = "xyes")
+-AC_SUBST(UMFPACK_CFLAGS)
+-AC_SUBST(UMFPACK_LIBS)
++AM_CONDITIONAL([HAVE_UMFPACK],[test "x${have_umfpack}" = "xyes"])dnl
++AC_SUBST([UMFPACK_CFLAGS])dnl
++AC_SUBST([UMFPACK_LIBS])dnl
+ 
+ #######################
+ # Check for other items
+ #######################
+ 
+-# For backtrace()
+-AC_CHECK_HEADERS([execinfo.h])
++# For backtrace() function:
++AC_CHECK_HEADERS([execinfo.h])dnl
+ 
+-# w3m is used to autogenerate README
+-AC_PATH_PROG(W3M, w3m, no)
+-AM_CONDITIONAL(HAVE_W3M, test "x$W3M" != "xno")
++# w3m is used to autogenerate README:
++AC_PATH_PROG([W3M],[w3m],[no])
++AM_CONDITIONAL([HAVE_W3M],[test "x${W3M}" != "xno"])dnl
+ 
+-dnl disable build of workshop operations.
++dnl# disable build of workshop operations.
+ AC_ARG_ENABLE([workshop],
+-              [  --enable-workshop       enable build of workshop operations (default=no)],,
+-              enable_workshop="no")
+-
+-AM_CONDITIONAL(ENABLE_WORKSHOP, test "x$enable_workshop" = "xyes")
+-
+-# check for rint
+-AC_CHECK_FUNC(rint, AC_DEFINE(HAVE_RINT, 1,
+-                              [Define to 1 if you have the rint function.]), [ 
+-                  AC_CHECK_LIB(m, rint, [AC_DEFINE(HAVE_RINT)])])
+-
++              [AS_HELP_STRING([--enable-workshop],
++                              [enable build of workshop operations
++                               (default=no)])],
++              [],[enable_workshop="no"])dnl
++
++AM_CONDITIONAL([ENABLE_WORKSHOP],[test "x${enable_workshop}" = "xyes"])dnl
++
++# check for rint:
++AC_CHECK_FUNC([rint],
++              [AC_DEFINE([HAVE_RINT],[1],
++                         [Define to 1 if you have the rint function.])],
++              [AC_CHECK_LIB([m],[rint],[AC_DEFINE([HAVE_RINT])])])dnl
++
++dnl# Other things that autoscan wants:
++# Checks for header files.
++AC_HEADER_STAT
++AC_HEADER_STDBOOL dnl# also "_CHECK"s it
++AC_DEFUN([AC_REQUIRE_HEADER_STDC],[
++  AC_REQUIRE([AC_HEADER_STDC])dnl
++])dnl
++AC_REQUIRE_HEADER_STDC
++AC_HEADER_TIME
++AC_CHECK_HEADERS([fcntl.h limits.h stddef.h stdio.h \
++                  sys/ioctl.h sys/time.h])dnl
++
++# Checks for typedefs, structures, and compiler characteristics.
++AC_C_BIGENDIAN
++AC_C_CONST
++AC_C_INLINE
++AC_C_PROTOTYPES
++AC_C_VOLATILE
++AC_TYPE_INT8_T
++AC_TYPE_INT16_T
++AC_TYPE_INT32_T
++AC_TYPE_INT64_T
++AC_TYPE_OFF_T
++AC_TYPE_SIZE_T
++AC_TYPE_SSIZE_T
++AC_TYPE_UINT8_T
++AC_TYPE_UINT16_T
++AC_TYPE_UINT32_T
++AC_TYPE_UINT64_T
++
++# Checks for library functions.
++AC_FUNC_ERROR_AT_LINE
++AC_FUNC_MALLOC
++AC_FUNC_MMAP
++AC_FUNC_STRTOD
++AC_CHECK_FUNCS([atexit floor ftruncate gettimeofday memset munmap pow \
++                realpath setlocale sqrt strchr strdup strerror strrchr \
++                strstr strtol])dnl
+ 
+ #######################
+ # Enable extra warnings
+@@ -1057,25 +1255,56 @@
+ DESIRED_CFLAGS="-Wall -Wdeclaration-after-statement -Wmissing-prototypes -Wmissing-declarations -Winit-self -Wpointer-arith -Wold-style-definition"
+ 
+ # muks would like:
+-#   DESIRED_CFLAGS+="-fdiagnostics-show-option -Wextra -Wno-unused-parameter -Wstrict-prototypes -Wundef -Wformat=2 -Wlogical-op -Wmissing-include-dirs -Wformat-nonliteral -Wnested-externs -Wpacked -Wno-long-long -Wno-overlength-strings -Wmissing-noreturn -Wshadow -Wendif-labels -Wcast-align -Wwrite-strings -Wp,-D_FORTIFY_SOURCE=2 -fno-common"
++DESIRED_CFLAGS+=" -fdiagnostics-show-option -Wextra -Wno-unused-parameter -Wstrict-prototypes -Wundef -Wformat=2 -Wlogical-op -Wmissing-include-dirs -Wformat-nonliteral -Wnested-externs -Wpacked -Wno-deprecated-declarations -Wno-attributes -Wno-long-long -Wno-overlength-strings -Wno-sign-compare -Wmissing-noreturn -Wendif-labels -Wp,-D_FORTIFY_SOURCE=2 -fno-common"
++
++if test "x${USING_CLANG}" = "xyes"; then
++   DESIRED_CFLAGS+=" -Wno-ignored-attributes"
++fi
+ 
+ # Also desirable:
+-#   DESIRED_CFLAGS+="-Wfloat-equal -Waggregate-return -Wredundant-decls $DESIRED_CFLAGS"
++EXTRA_DESIRED_CFLAGS="-Wfloat-equal -Waggregate-return -Wredundant-decls ${DESIRED_CFLAGS} -Wshadow -Wcast-align -Wwrite-strings"
++
++if test -z "${MAINTAINER_MODE_TRUE}"; then
++   EXTRA_DESIRED_CFLAGS="-Werror ${EXTRA_DESIRED_CFLAGS}"
++fi
++AC_SUBST([EXTRA_DESIRED_CFLAGS])dnl
+ 
+-#if test -z "${MAINTAINER_MODE_TRUE}"; then
+-#   DESIRED_CFLAGS="-Werror $DESIRED_CFLAGS"
+-#fi
++# even if we are not actually using this for compilation, still need to
++# use it in conftests to make sure ignored unrecognized flags do not get
++# added:
++WERROR_CFLAGS="-Werror"
++old_saved_CFLAGS="${CFLAGS}"
++CFLAGS="${WERROR_CFLAGS} ${CFLAGS}"
+ 
+-for flag in $DESIRED_CFLAGS; do
+-   AS_COMPILER_FLAG([$flag], [CFLAGS="$CFLAGS $flag"])
++for flag in ${DESIRED_CFLAGS}; do
++   AS_COMPILER_FLAG([${flag}],[NEW_CFLAGS="${NEW_CFLAGS} ${flag}"])
+ done
+ 
+-# We should support this at some point if possible
+-#LDFLAGS="-Wl,-z,defs"
++WERROR_CXXFLAGS="${WERROR_CFLAGS}"
++DESIRED_CXXFLAGS="${DESIRED_CFLAGS}"
++old_saved_CXXFLAGS="${CXXFLAGS}"
++CXXFLAGS="${WERROR_CXXFLAGS} ${CXXFLAGS}"
++
++for flagxx in ${DESIRED_CXXFLAGS}; do
++  AS_CXX_COMPILER_FLAG([${flagxx}],
++                       [NEW_CXXFLAGS="${NEW_CXXFLAGS} ${flagxx}"])
++done
++
++# get rid of -Werror and add new ones:
++CFLAGS="${old_saved_CFLAGS} ${NEW_CFLAGS}"
++CXXFLAGS="${old_saved_CXXFLAGS} ${NEW_CXXFLAGS}"
++AC_SUBST([WERROR_CFLAGS])dnl
++AC_SUBST([WERROR_CXXFLAGS])dnl
++AC_SUBST([NEW_CFLAGS])dnl
++AC_SUBST([NEW_CXXFLAGS])dnl
++
++# We should support this at some point if possible:
++FUTURE_LDFLAGS="-Wl,-z,defs"
++AC_SUBST([FUTURE_LDFLAGS])dnl
+ 
+-CFLAGS="$CFLAGS -DG_LOG_DOMAIN=\\\"GEGL-\\\"__FILE__"
++CFLAGS="${CFLAGS} -DG_LOG_DOMAIN=\\\"GEGL-\\\"__FILE__"
+ 
+-dnl bin/node-editors/Makefile
++dnl# bin/node-editors/Makefile
+ AC_CONFIG_FILES([
+ Makefile
+ bin/Makefile
+@@ -1117,48 +1346,50 @@
+ tests/xml/data/Makefile
+ po/Makefile.in
+ gegl-uninstalled.pc
+-])
++])dnl
+ 
+-# Files with versions in their names
++# Files with versions in their names, do NOT m4-quote these:
+ AC_CONFIG_FILES(
+ gegl-gegl_api_version.pc:gegl.pc.in
+ gegl/gegl-gegl_api_version.deps:gegl/gegl.deps.in
+ gegl/Gegl-gegl_api_version.metadata:gegl/Gegl.metadata.in
+-)
++)dnl
+ 
+ AC_OUTPUT
+ 
+-dnl Print a summary of features enabled/disabled:
++dnl# Print a summary of features enabled/disabled:
+ AC_MSG_RESULT([
+-Building GEGL with prefix=$prefix
++Building GEGL with prefix=${prefix}
+ 
+ Optional features:
+-  GEGL docs:       $enable_docs
+-  Build workshop:  $enable_workshop
+-  Build website:   $have_asciidoc
+-  SIMD:            sse:$enable_sse mmx:$enable_mmx
+-  Vala support:    $have_vala
++  GEGL docs:       ${enable_docs}
++  Build workshop:  ${enable_workshop}
++  Build website:   ${have_asciidoc}
++  SIMD:            sse:${enable_sse} mmx:${enable_mmx}
++  Vala support:    ${have_vala}
+ 
+ Optional dependencies:
+-  asciidoc:        $have_asciidoc
+-  enscript:        $have_enscript
+-  Ruby:            $have_ruby
+-  Lua:             $have_lua
+-  Cairo:           $have_cairo
+-  Pango:           $have_pango
+-  pangocairo:      $have_pangocairo
+-  GDKPixbuf:       $have_gdk_pixbuf
+-  JPEG:            $jpeg_ok
+-  PNG:             $have_libpng
+-  OpenEXR:         $have_openexr
+-  rsvg:            $have_librsvg
+-  SDL:             $have_sdl
+-  openraw:         $have_libopenraw
+-  Jasper:          $have_jasper
+-  graphviz:        $have_graphviz
+-  avformat:        $have_libavformat
+-  V4L:             $have_v4l
+-  spiro:           $spiro_ok
+-  EXIV:            $have_exiv2
+-  umfpack:         $have_umfpack
++  asciidoc:        ${have_asciidoc}
++  enscript:        ${have_enscript}
++  Ruby:            ${have_ruby}
++  Lua:             ${have_lua}
++  Cairo:           ${have_cairo}
++  Pango:           ${have_pango}
++  pangocairo:      ${have_pangocairo}
++  GDKPixbuf:       ${have_gdk_pixbuf}
++  lensfun:         ${have_lensfun}
++  JPEG:            ${jpeg_ok}
++  PNG:             ${have_libpng}
++  OpenEXR:         ${have_openexr}
++  rsvg:            ${have_librsvg}
++  SDL:             ${have_sdl}
++  openraw:         ${have_libopenraw}
++  Jasper:          ${have_jasper}
++  graphviz:        ${have_graphviz}
++  avformat:        ${have_libavformat}
++  V4L:             ${have_v4l}
++  lcms:            ${have_lcms}
++  spiro:           ${spiro_ok}
++  EXIV:            ${have_exiv2}
++  umfpack:         ${have_umfpack}
+ ]);

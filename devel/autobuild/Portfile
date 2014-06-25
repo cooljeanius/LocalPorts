@@ -1,0 +1,48 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 42572 2008-11-24 21:30:01Z mcalhoun@macports.org $
+
+PortSystem          1.0
+
+name                autobuild
+version             5.3
+categories          devel
+platforms           darwin
+maintainers         nomaintainer
+license             GPL-3
+installs_libs       no
+description         ${name} processes output from building software
+long_description    Autobuild is a package that process output from \
+                    building software, primarily focused on packages \
+                    using autoconf and automake, and then generate a \
+                    HTML summary file, containing links to each build \
+                    log. The output include project name, version, build \
+                    host types (cross compile aware), compiler host name, \
+                    date of build, and indication of success or failure. \
+                    The output is indexed in many ways to simplify \
+                    browsing.
+
+homepage            http://josefsson.org/autobuild/
+#TODO: consider just using the "gnu" fetchgroup:
+master_sites        http://download.savannah.gnu.org/releases/${name}/
+checksums           md5     6855d28fa1096bf80aa9c3ac56ce8246 \
+                    sha1    d28f2ecaab86cfe3a902413ebbf673792a420620 \
+                    rmd160  bf9de5ebba2c1e84cbccafb8ccb54934ff39a0c4
+
+# just scripts, no compiling:
+supported_archs     noarch
+
+depends_build-append port:help2man
+depends_lib-append  path:bin/perl:perl5
+configure.perl      ${prefix}/bin/perl
+
+configure.env-append HELP2MAN=${prefix}/bin/help2man
+
+post-configure {
+    reinplace "s|#!/usr/bin/perl|#!${configure.perl}|" \
+        ${worksrcpath}/autobuild
+}
+
+test.run yes
+test.target check
+
+#FIXME: the default livecheck failed to detect the update from 4.0 to 5.3

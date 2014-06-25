@@ -5,10 +5,10 @@ PortSystem      1.0
 PortGroup       github 1.0
 PortGroup       compiler_blacklist_versions 1.0
 
-github.setup    cooljeanius epeg 0.9.0.2 v
-revision        4
+github.setup    cooljeanius epeg 0.9.0.3 v
+revision        5
 description     An IMMENSELY FAST JPEG thumbnailer library API.
-license         permissive
+license         Permissive
 long_description \
                 ${name} is a convenience library API to using libjpeg \
                 to load JPEG images destined to be turned into \
@@ -21,6 +21,7 @@ maintainers     gwmail.gwu.edu:egall openmaintainer
 categories      graphics x11
 platforms       darwin
 
+#FIXME: just fetch a distfile instead, as that is the point of tags:
 fetch.type      git
 git.url         git://github.com/cooljeanius/epeg.git
 
@@ -28,6 +29,7 @@ depends_lib-append \
                 lib:libjpeg:jpeg
 
 configure.args-append --mandir=${prefix}/share/man
+# Really? Linker flags here?
 configure.cppflags-append "-L${prefix}/lib"
 configure.cflags-append -L${prefix}/lib
 
@@ -36,32 +38,94 @@ variant autoreconf description {Regenerates configure script before building.} {
                          port:grep \
                          port:autoconf-archive
     depends_lib-append   lib:libgd:gd2
+    patch.args-append    --backup
     use_autoreconf       yes
-    autoreconf.args      -fvi
+    autoreconf.args      -fvi -Wall
     configure.args-append --disable-silent-rules
+    configure.optflags   -g
+    test.run             yes
+    test.target          check
 }
 
 variant docs description {Build and install documentation} {
     depends_build-append port:doxygen \
                          bin:latex:texlive-latex \
-                         bin:dvips:texlive-basic
+                         bin:dvips:texlive-basic \
+                         bin:dia:dia \
+                         bin:mscgen:mscgen \
+                         bin:texi2dvi:texinfo \
+                         bin:perl:perl5
+    build.target-append  dvi html info pdf ps
+    destroot.target-append install-dvi install-html install-info install-pdf install-ps
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${name}/man/man3
         xinstall -d ${destroot}${prefix}/share/doc/${name}/html
         xinstall -d ${destroot}${prefix}/share/doc/${name}/latex
         xinstall -d ${destroot}${prefix}/share/doc/${name}/img
-        eval xinstall [glob ${worksrcpath}/doc/man/man3/*.3] ${destroot}${prefix}/share/doc/${name}/man/man3
-        eval xinstall [glob ${worksrcpath}/doc/man/man3/epeg*.3] ${destroot}${prefix}/share/man/man3
-        eval xinstall [glob ${worksrcpath}/doc/img/*.png] ${destroot}${prefix}/share/doc/${name}/img
-        eval xinstall [glob ${worksrcpath}/doc/latex/*.tex] ${destroot}${prefix}/share/doc/${name}/latex
-        eval xinstall [glob ${worksrcpath}/doc/latex/*.sty] ${destroot}${prefix}/share/doc/${name}/latex
-        eval xinstall [glob ${worksrcpath}/doc/html/*.html] ${destroot}${prefix}/share/doc/${name}/html
-        eval xinstall [glob ${worksrcpath}/doc/html/*.js] ${destroot}${prefix}/share/doc/${name}/html
-        eval xinstall [glob ${worksrcpath}/doc/html/*.png] ${destroot}${prefix}/share/doc/${name}/html
-        eval xinstall [glob ${worksrcpath}/doc/html/*.css] ${destroot}${prefix}/share/doc/${name}/html
-        eval xinstall [glob ${worksrcpath}/doc/*.html] ${destroot}${prefix}/share/doc/${name}
-        eval xinstall [glob ${worksrcpath}/doc/*.css] ${destroot}${prefix}/share/doc/${name}
-        system -W ${worksrcpath} "${prefix}/bin/doxygen -u"
-        system -W ${worksrcpath} "${prefix}/bin/doxygen"
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/def
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/docbook
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/perlmod
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/xml
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/texinfo
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/doxylatex
+        xinstall -d ${destroot}${prefix}/share/doc/${name}/rtf
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/man/man3/*.3] ${destroot}${prefix}/share/doc/${name}/man/man3
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/man/man3/epeg*.3] ${destroot}${prefix}/share/man/man3
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/img/*.png] ${destroot}${prefix}/share/doc/${name}/img
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/latex/*.tex] ${destroot}${prefix}/share/doc/${name}/latex
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/latex/*.sty] ${destroot}${prefix}/share/doc/${name}/latex
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/latex/*.pdf] ${destroot}${prefix}/share/doc/${name}/latex
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/latex/*.ps] ${destroot}${prefix}/share/doc/${name}/latex
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/latex/*.dvi] ${destroot}${prefix}/share/doc/${name}/latex
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/html/*.html] ${destroot}${prefix}/share/doc/${name}/html
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/html/*.js] ${destroot}${prefix}/share/doc/${name}/html
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/html/*.png] ${destroot}${prefix}/share/doc/${name}/html
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/html/*.css] ${destroot}${prefix}/share/doc/${name}/html
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/*.html] ${destroot}${prefix}/share/doc/${name}
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/*.css] ${destroot}${prefix}/share/doc/${name}
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/def/*.def] ${destroot}${prefix}/share/doc/${name}/def
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/docbook/*.xml] ${destroot}${prefix}/share/doc/${name}/docbook
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/perlmod/*.pm] ${destroot}${prefix}/share/doc/${name}/perlmod
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/perlmod/*.pl] ${destroot}${prefix}/share/doc/${name}/perlmod
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/perlmod/*.tex] ${destroot}${prefix}/share/doc/${name}/perlmod
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/xml/*.xml] ${destroot}${prefix}/share/doc/${name}/xml
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/xml/*.xsd] ${destroot}${prefix}/share/doc/${name}/xml
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/xml/*.xslt] ${destroot}${prefix}/share/doc/${name}/xml
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/texinfo/*.texi] ${destroot}${prefix}/share/doc/${name}/texinfo
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/texinfo/*.info] ${destroot}${prefix}/share/doc/${name}/texinfo
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/texinfo/*.pdf] ${destroot}${prefix}/share/doc/${name}/texinfo
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/texinfo/*.ps] ${destroot}${prefix}/share/doc/${name}/texinfo
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/texinfo/*.dvi] ${destroot}${prefix}/share/doc/${name}/texinfo
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/doxylatex/*.tex] ${destroot}${prefix}/share/doc/${name}/doxylatex
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/doxylatex/*.sty] ${destroot}${prefix}/share/doc/${name}/doxylatex
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/doxylatex/*.pdf] ${destroot}${prefix}/share/doc/${name}/doxylatex
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/rtf/*.png] ${destroot}${prefix}/share/doc/${name}/rtf
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/rtf/*.rtf] ${destroot}${prefix}/share/doc/${name}/rtf
+        if {[variant_isset autoreconf]} {
+            system -W ${worksrcpath} "${prefix}/bin/doxygen -u"
+            system -W ${worksrcpath} "${prefix}/bin/doxygen"
+        }
     }
+}
+
+if {[variant_isset autoreconf] || [variant_isset docs]} {
+    configure.ccache no
+    configure.pipe no
+    pre-build {
+        if {![file isdirectory ${worksrcpath}/doc/docbook]} {
+            xinstall -d ${worksrcpath}/doc/docbook
+        }
+    }
+    use_parallel_build no
+}
+
+if {![variant_isset docs]} {
+    configure.env-append \
+        DOT_BIN="/usr/bin/true" \
+        DIA_BIN="/usr/bin/true" \
+        MSCGEN_BIN="/usr/bin/true" \
+        PERL_BIN="/usr/bin/true" \
+        HAVE_DOT="NO"
+    build.env-append \
+        GENDOC_SHOULD_EXIT_EARLY="1"
 }

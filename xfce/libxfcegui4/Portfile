@@ -5,7 +5,7 @@ PortSystem 1.0
 
 name            libxfcegui4
 version         4.6.4
-revision        6
+revision        7
 categories      xfce
 platforms       darwin linux
 license         LGPL-2+
@@ -20,37 +20,26 @@ checksums       md5     88de59b222cb9977f93a4c61011c1e1f \
                 rmd160  4d790c3990372aa82581450e1b2a2dfd36df293b \
                 sha256  c37e407dc00fb87dc16758d53e69edeac7b32aa76c5fcad2b784cf22f58af421
 
-configure.args-append \
-                --enable-startup-notification \
-                --x-include=${prefix}/include \
-                --x-lib=${prefix}/lib
-
 depends_build-append \
                 port:intltool \
-                port:pkgconfig
+                port:pkgconfig \
+                path:bin/xmkmf:imake
 
 depends_lib-append \
                 port:libxfce4util \
                 port:xfconf \
                 path:lib/pkgconfig/gladeui-1.0.pc:glade3 \
                 port:libglade2 \
-                port:gtk-xfce-engine \
                 port:libxml2 \
                 port:startup-notification \
                 port:atk \
-                port:bzip2 \
                 port:dbus-glib \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
-                port:graphite2 \
                 port:gtk2 \
-                port:harfbuzz \
-                port:libffi \
                 port:libiconv \
-                port:libpng \
                 port:xorg-libX11 \
                 port:xorg-libXau \
                 port:xorg-libXcomposite \
@@ -65,17 +54,45 @@ depends_lib-append \
                 port:xorg-libice \
                 port:xorg-libsm \
                 port:xorg-libxcb \
-                port:xorg-xcb-util \
                 port:xrender \
-                port:xz \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
                 path:lib/pkgconfig/dbus-1.pc:dbus
 
+depends_run-append port:gtk-xfce-engine
+
+configure.args-append \
+                --enable-startup-notification \
+                --x-include=${prefix}/include \
+                --x-lib=${prefix}/lib \
+                --enable-gladeui \
+                --disable-gtk-doc
+
+configure.env-append \
+                XMKMF=${prefix}/bin/xmkmf \
+                libintl_extra_libs=-liconv
+
+variant docs description {build documentation} {
+    depends_build-append   port:gtk-doc
+    configure.args-replace --disable-gtk-doc --enable-gtk-doc
+    configure.args-append  --enable-gtk-doc-html \
+                           --enable-gtk-doc-pdf
+    use_parallel_build     no
+}
+
+variant debug description {enable debugging} {
+    configure.args-append --enable-debug=full
+    configure.optflags    -g
+    configure.pipe        no
+    post-configure {
+        reinplace "s|-Werror||g" ${worksrcpath}/${name}/Makefile
+        reinplace "s|-Werror||g" ${worksrcpath}/libxfce4kbd-private/Makefile
+    }
+}
+
 post-activate {
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
 }
 

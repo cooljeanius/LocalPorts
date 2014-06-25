@@ -5,7 +5,7 @@ PortSystem 1.0
 
 name            Thunar
 version         1.0.2
-revision        7
+revision        8
 categories      xfce x11
 platforms       darwin linux
 license         GPL-2+ LGPL-2+
@@ -20,15 +20,10 @@ checksums       md5     c91073202d373a1f9951a1240083c36d \
                 rmd160  c5b98203353cef7312b736053e5a7678d0644272 \
                 sha256  75829b34a68346b33f66882bedc9794d580c200d11af22541885750459b55c03
 
-configure.args-append \
-                --enable-dbus \
-                --enable-startup-notification \
-                --enable-pcre \
-                --enable-exif
-
 depends_build-append \
                 port:intltool \
-                port:pkgconfig
+                port:pkgconfig \
+                bin:xfconf-query:xfconf
 
 depends_lib-append \
                 port:exo \
@@ -40,7 +35,6 @@ depends_lib-append \
                 port:atk \
                 port:bzip2 \
                 port:dbus-glib \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gconf \
@@ -48,13 +42,10 @@ depends_lib-append \
                 port:gettext \
                 port:gtk2 \
                 port:jpeg \
-                port:libffi \
                 port:libiconv \
                 port:libpng \
                 port:libxfce4util \
                 port:libxfcegui4 \
-                port:ncurses \
-                port:orbit2 \
                 port:xfce4-panel \
                 port:xorg-libX11 \
                 port:xorg-libXau \
@@ -70,38 +61,93 @@ depends_lib-append \
                 port:xorg-libice \
                 port:xorg-libsm \
                 port:xorg-libxcb \
-                port:xorg-xcb-util \
                 port:xrender \
                 port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
                 path:lib/pkgconfig/dbus-1.pc:dbus
+# desktop-file-utils is not actually "linked-against" but it still should
+# be a library dependency due to precedent set by devans with the Gnome
+# ports that need it
+# Same with shared-mime-info
+# xfce4-panel will be for once the Trash Panel Applet properly allows
+# itself to be built
+
+depends_run-append \
+                port:hicolor-icon-theme \
+                bin:xfconf-query:xfconf
 
 patchfiles-append \
                 patch-thunar-metafile.c.diff \
                 patch-thunar-vfs-exec.c.diff
 
-# there is no "x11" variant here, as that is the default
+patch.args-append --backup
+
+configure.args-append \
+                --enable-dbus \
+                --enable-startup-notification \
+                --enable-pcre \
+                --enable-exif \
+                --disable-gtk-doc \
+                --enable-tpa-plugin
+
+configure.env-append libintl_extra_libs=-liconv
+
+# there is no "x11" variant here, as that is the default,
 # so therefore the quartz variant does NOT need to declare a conflict
-# against it
+# against it:
 variant quartz {
-    categories-delete     x11
-    configure.args-delete --enable-startup-notification
-    configure.args-append --disable-startup-notification
-    depends_lib-delete    port:startup-notification
-    configure.args-append --disable-wallpaper-plugin
+    categories-delete      x11
+    depends_lib-delete     port:startup-notification
+    configure.args-replace --enable-startup-notification \
+                           --disable-startup-notification
+    configure.args-append  --disable-wallpaper-plugin
+}
+
+if {![variant_isset quartz]} {
+    depends_build-append   path:bin/xmkmf:imake
+    configure.args-append  --with-x \
+                           --x-includes=${prefix}/include \
+                           --x-libraries=${prefix}/lib \
+                           --enable-gnome-thumbnailers
+    configure.env-append   XMKMF=${prefix}/bin/xmkmf
+}
+
+variant docs description {build documentation} {
+    depends_build-append   port:gtk-doc \
+                           bin:xsltproc:libxslt \
+                           bin:xml2po:gnome-doc-utils
+    configure.args-replace --disable-gtk-doc --enable-gtk-doc
+    configure.args-append  --enable-gtk-doc-html \
+                           --enable-gtk-doc-pdf \
+                           --enable-xsltproc \
+                           --enable-xml2po
+}
+
+variant debug description {enable debugging} {
+    configure.args-append  --enable-debug=full
+    configure.optflags     -g
+    configure.pipe         no
+    post-configure {
+        reinplace "s|-Werror||g" ${worksrcpath}/thunar-vfs/Makefile
+        reinplace "s|-Werror||g" ${worksrcpath}/thunar/Makefile
+    }
 }
 
 platform darwin {
-        configure.args-append --disable-visibility
-        if {${os.major} >= 10} {
-            patchfiles-append patch-configure-snow.diff
-        }
+    configure.args-append --disable-visibility
+    if {${os.major} >= 10} {
+        patchfiles-append patch-configure-snow.diff
+        # might be related to what the comment in the patch mentions:
+        configure.args-append --enable-largefile
+    }
 }
 
 post-activate {
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
 }
 

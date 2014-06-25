@@ -1,6 +1,6 @@
---- configure.ac.bak	2013-08-09 12:22:32.000000000 -0400
-+++ configure.ac	2013-08-09 12:27:03.000000000 -0400
-@@ -1,19 +1,83 @@
+--- configure.ac.orig	2013-08-06 13:12:10.000000000 -0400
++++ configure.ac	2014-04-30 21:45:15.000000000 -0400
+@@ -1,19 +1,109 @@
 -# To compile this into a configure script, you need:
 -# * Autoconf 2.50 or newer
 -# * Gtk (for $prefix/share/aclocal/gtk.m4)
@@ -14,14 +14,14 @@
 +dnl#                                               -*- Autoconf -*-
 +dnl# To compile this into a configure script, you need:
 +dnl# * Autoconf 2.50 or newer
-+dnl# * Gtk (for $prefix/share/aclocal/gtk.m4)
++dnl# * Gtk (for ${prefix}/share/aclocal/gtk.m4)
 +dnl# * Automake (for aclocal)
-+dnl# If you've got them, running "autoreconf" should work.
++dnl# If you have got them, running "autoreconf" should work.
 +
 +dnl# Version number is substituted by Buildscr for releases, snapshots
 +dnl# and custom builds out of svn; X.XX shows up in ad-hoc developer
-+dnl# builds, which shouldn't matter
-+AC_INIT([putty],[0.63])
++dnl# builds, which should NOT matter
++AC_INIT([putty],[0.63],[putty@projects.tartarus.org])
  AC_CONFIG_FILES([Makefile])
  AC_CONFIG_HEADERS([uxconfig.h:uxconfig.in])
 -AM_INIT_AUTOMAKE([-Wall -Werror foreign])
@@ -34,54 +34,72 @@
 +
 +# Checks for programs.
 +AM_PROG_AR
-+if test "x$CC" = "x"; then
-+	test -z "$CC"
-+	AC_PROG_CC
++if test "x${CC}" = "x"; then
++  test -z "${CC}"
++  AC_PROG_CC
 +else
-+	test ! -z "$CC"
-+	AC_SUBST([CC])
++  test ! -z "${CC}"
++  AC_SUBST([CC])
++  AC_PROG_GCC_TRADITIONAL
 +fi
-+if test "x$CPP" = "x"; then
-+	test -z "$CPP"
-+	AC_PROG_CPP
++if test "x${CPP}" = "x"; then
++  test -z "${CPP}"
++  AC_PROG_CPP
 +else
-+	test ! -z "$CPP"
-+	AC_SUBST([CPP])
++  test ! -z "${CPP}"
++  AC_SUBST([CPP])
 +fi
-+if test "x$INSTALL" = "x"; then
-+	test -z "$INSTALL"
-+	AC_PROG_INSTALL
++if test "x${INSTALL}" = "x"; then
++  test -z "${INSTALL}"
++  AC_PROG_INSTALL
 +else
-+	test ! -z "$INSTALL"
-+	AC_SUBST([INSTALL])
++  test ! -z "${INSTALL}"
++  AC_SUBST([INSTALL])
++  AM_PROG_INSTALL_SH
++  AM_PROG_INSTALL_STRIP
 +fi
-+if test "x$LN_S" = "x"; then
-+	test -z "$LN_S"
-+	AC_PROG_LN_S
++if test "x${LN_S}" = "x"; then
++  test -z "${LN_S}"
++  AC_PROG_LN_S
 +else
-+	test ! -z "$LN_S"
-+	AC_SUBST([LN_S])
++  test ! -z "${LN_S}"
++  AC_SUBST([LN_S])
 +fi
-+if test "x$RANLIB" = "x"; then
-+	test -z "$RANLIB"
-+	AC_PROG_RANLIB
++if test "x${RANLIB}" = "x"; then
++  test -z "${RANLIB}"
++  AC_PROG_RANLIB
 +else
-+	test ! -z "$RANLIB"
-+	AC_SUBST([RANLIB])
++  test ! -z "${RANLIB}"
++  AC_SUBST([RANLIB])
 +fi
  
 -AC_PROG_INSTALL
 -AC_PROG_RANLIB
++# gettext:
++AM_GNU_GETTEXT([external])
++AM_GNU_GETTEXT_VERSION([0.18.3])
++export LIBS="${LIBS} ${LIBICONV}"
++
 +# Checks for libraries.
 +# FIXME: Replace `main' with a function in `-lgtk':
-+AC_CHECK_LIB([gtk], [main])
++AC_CHECK_LIB([gtk],[main])
 +
 +# Checks for header files.
 +AC_PATH_X
 +AC_PATH_XTRA
-+AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h locale.h netdb.h netinet/in.h stdio.h sys/ioctl.h sys/socket.h sys/time.h termios.h utime.h utmp.h wchar.h])
++if test -n "${x_libraries}"; then
++  export LDFLAGS="${LDFLAGS} -L${x_libraries}"
++  export LIBS="${X_PRE_LIBS} ${LIBS}"
++fi
++AC_HEADER_TIME
++AC_CHECK_HEADERS([arpa/inet.h fcntl.h gtk/gtk.h limits.h locale.h \
++                  netdb.h netinet/in.h stdio.h sys/ioctl.h \
++                  sys/socket.h sys/time.h termios.h time.h \
++                  utime.h utmp.h wchar.h])
 +
 +# Checks for typedefs, structures, and compiler characteristics.
++AC_C_BIGENDIAN
++AC_C_PROTOTYPES
 +AC_TYPE_UID_T
 +AC_TYPE_MODE_T
 +AC_TYPE_OFF_T
@@ -93,33 +111,81 @@
 +AC_FUNC_CHOWN
 +AC_FUNC_FORK
 +AC_FUNC_MBRTOWC
-+AC_CHECK_FUNCS([atexit clock_gettime dup2 endpwent getcwd getwd gethostbyname gethostname gettimeofday inet_ntoa memchr memmove memset mkdir putenv select setlocale socket strcasecmp strchr strcspn strerror strrchr strspn strstr utime])
++if test "x${ac_cv_func_gethostbyname}" = "x"; then
++  test -z "${ac_cv_func_gethostbyname}"
++  AC_CHECK_FUNCS([gethostbyname])
++fi
++AC_CHECK_FUNCS([atexit clock_gettime dup2 endpwent getcwd getwd \
++                gethostname gettimeofday inet_ntoa \
++                memchr memmove memset mkdir putenv select setlocale \
++                socket strcasecmp strchr strcspn strerror strrchr \
++                strspn strstr utime])
  
  # Mild abuse of the '--enable' option format to allow manual
  # specification of setuid or setgid setup in pterm.
-@@ -32,13 +96,13 @@
+@@ -21,24 +111,24 @@
+ AC_ARG_ENABLE([setuid],
+             [AS_HELP_STRING([--enable-setuid=USER],
+                             [make pterm setuid to a given user])],
+-            [case "$enableval" in
++            [case "${enableval}" in
                 no) setidtype=none;;
-                *) setidtype=setgid; setidval="$enableval";;
+-               *) setidtype=setuid; setidval="$enableval";;
++               *) setidtype=setuid; setidval="${enableval}";;
+              esac])
+ AC_ARG_ENABLE([setgid],
+             [AS_HELP_STRING([--enable-setgid=GROUP],
+                             [make pterm setgid to a given group])],
+-            [case "$enableval" in
++            [case "${enableval}" in
+                no) setidtype=none;;
+-               *) setidtype=setgid; setidval="$enableval";;
++               *) setidtype=setgid; setidval="${enableval}";;
               esac])
 -AM_CONDITIONAL(HAVE_SETID_CMD, [test "$setidtype" != "none"])
-+AM_CONDITIONAL([HAVE_SETID_CMD], [test "$setidtype" != "none"])
- AS_IF([test "x$setidtype" = "xsetuid"],
-       [SETID_CMD="chown $setidval"; SETID_MODE="4755"])
- AS_IF([test "x$setidtype" = "xsetgid"],
-       [SETID_CMD="chgrp $setidval"; SETID_MODE="2755"])
+-AS_IF([test "x$setidtype" = "xsetuid"],
+-      [SETID_CMD="chown $setidval"; SETID_MODE="4755"])
+-AS_IF([test "x$setidtype" = "xsetgid"],
+-      [SETID_CMD="chgrp $setidval"; SETID_MODE="2755"])
 -AC_SUBST(SETID_CMD)
 -AC_SUBST(SETID_MODE)
++AM_CONDITIONAL([HAVE_SETID_CMD],[test "x${setidtype}" != "xnone"])
++AS_IF([test "x${setidtype}" = "xsetuid"],
++      [SETID_CMD="chown ${setidval}"; SETID_MODE="4755"])
++AS_IF([test "x${setidtype}" = "xsetgid"],
++      [SETID_CMD="chgrp ${setidval}"; SETID_MODE="2755"])
 +AC_SUBST([SETID_CMD])
 +AC_SUBST([SETID_MODE])
  
  AC_ARG_WITH([gssapi],
    [AS_HELP_STRING([--without-gssapi],
-@@ -61,10 +125,10 @@
- case "$gtk_version_desired" in
+@@ -46,101 +136,119 @@
+   [],
+   [with_gssapi=yes])
+ 
+-WITH_GSSAPI=
+-AS_IF([test "x$with_gssapi" != xno],
+-  [AC_DEFINE([WITH_GSSAPI], [1], [Define if building with GSSAPI support.])])
++WITH_GSSAPI=""
++AS_IF([test "x${with_gssapi}" != "xno"],
++  [AC_DEFINE([WITH_GSSAPI],[1],[Define if building with GSSAPI support.])])
+ 
+ AC_ARG_WITH([gtk],
+   [AS_HELP_STRING([--with-gtk=VER],
+                   [specify GTK version to use (`1' or `2')])
+ AS_HELP_STRING([--without-gtk],
+                   [do not use GTK (build command-line tools only)])],
+-  [gtk_version_desired="$withval"],
++  [gtk_version_desired="${withval}"],
+   [gtk_version_desired="any"])
+ 
+-case "$gtk_version_desired" in
++case "${gtk_version_desired}" in
    1 | 2 | any | no) ;;
    yes) gtk_version_desired="any" ;;
 -  *) AC_ERROR([Invalid GTK version specified])
 +  *) AC_MSG_ERROR([Invalid GTK version specified])
++     ;;
  esac
  
 -AC_CHECK_HEADERS([utmpx.h sys/select.h],,,[
@@ -127,59 +193,214 @@
  #include <sys/types.h>
  #include <utmp.h>])
  
-@@ -87,7 +151,7 @@
-     AM_PATH_GTK([1.2.0], [gtk=1], [])
+ # Look for both GTK 2 and GTK 1, in descending order of preference. If
+-# we can't find either, have the makefile only build the CLI programs.
++# we cannot find either, have the makefile only build the CLI programs.
+ 
+ gtk=none
+ 
+-case "$gtk_version_desired:$gtk" in
++case "${gtk_version_desired}:${gtk}" in
+   2:none | any:none)
+     ifdef([AM_PATH_GTK_2_0],[
+-    AM_PATH_GTK_2_0([2.0.0], [gtk=2], [])
+-    ],[AC_WARNING([generating configure script without GTK 2 autodetection])])
++    AM_PATH_GTK_2_0([2.0.0],[gtk=2],[])
++    ],[
++    AC_WARNING([generating configure script without GTK 2 autodetection])
++    ])
+     ;;
+ esac
+ 
+-case "$gtk_version_desired:$gtk" in
++case "${gtk_version_desired}:${gtk}" in
+   1:none | any:none)
+     ifdef([AM_PATH_GTK],[
+-    AM_PATH_GTK([1.2.0], [gtk=1], [])
++    AM_PATH_GTK([1.2.0],[gtk=1],[])
      ],[
      # manual check for gtk1
 -    AC_PATH_PROG(GTK1_CONFIG, gtk-config, absent)
-+    AC_PATH_PROG([GTK1_CONFIG], [gtk-config], [absent])
-     if test "$GTK1_CONFIG" != "absent"; then
-       GTK_CFLAGS=`"$GTK1_CONFIG" --cflags`
-       GTK_LIBS=`"$GTK1_CONFIG" --libs`
-@@ -97,7 +161,9 @@
+-    if test "$GTK1_CONFIG" != "absent"; then
+-      GTK_CFLAGS=`"$GTK1_CONFIG" --cflags`
+-      GTK_LIBS=`"$GTK1_CONFIG" --libs`
++    AC_PATH_PROG([GTK1_CONFIG],[gtk-config],[absent])
++    if test "x${GTK1_CONFIG}" != "xabsent"; then
++      GTK_CFLAGS=`"${GTK1_CONFIG}" --cflags`
++      GTK_LIBS=`"${GTK1_CONFIG}" --libs`
+       gtk=1
+     fi
+     ])
      ;;
  esac
  
 -AM_CONDITIONAL(HAVE_GTK, [test "$gtk" != "none"])
 +GTK_DOC_CHECK
 +
-+AM_CONDITIONAL([HAVE_GTK], [test "$gtk" != "none"])
++AM_CONDITIONAL([HAVE_GTK],[test "x${gtk}" != "xnone"])
++
++if test "${gtk}" = "2"; then
++  ac_save_CFLAGS="${CFLAGS}"
++  ac_save_LIBS="${LIBS}"
++  CFLAGS="${CFLAGS} ${GTK_CFLAGS}"
++  LIBS="${GTK_LIBS} ${LIBS}"
++  AC_CHECK_FUNCS([pango_font_family_is_monospace \
++                  pango_font_map_list_families])
++  CFLAGS="${ac_save_CFLAGS}"
++  LIBS="${ac_save_LIBS}"
++fi
++
++AC_SEARCH_LIBS([socket],
++               [xnet socket nsl net network ws2_32 wsock32 c System gnu])
  
- if test "$gtk" = "2"; then
-   ac_save_CFLAGS="$CFLAGS"
-@@ -112,17 +178,17 @@
- AC_SEARCH_LIBS([socket], [xnet])
- 
- AS_IF([test "x$with_gssapi" != xno],
+-if test "$gtk" = "2"; then
+-  ac_save_CFLAGS="$CFLAGS"
+-  ac_save_LIBS="$LIBS"
+-  CFLAGS="$CFLAGS $GTK_CFLAGS"
+-  LIBS="$GTK_LIBS $LIBS"
+-  AC_CHECK_FUNCS([pango_font_family_is_monospace pango_font_map_list_families])
+-  CFLAGS="$ac_save_CFLAGS"
+-  LIBS="$ac_save_LIBS"
+-fi
+-
+-AC_SEARCH_LIBS([socket], [xnet])
+-
+-AS_IF([test "x$with_gssapi" != xno],
 -  [AC_SEARCH_LIBS(
 -    [dlopen],[dl],
++AS_IF([test "x${with_gssapi}" != xno],
 +  [AC_SEARCH_LIBS([dlopen],
-+    [dl],
++    [dl dlcompat dlopen c System gnu iberty kxld],
      [],
-     [AC_DEFINE([NO_LIBDL], [1], [Define if we could not find libdl.])
+-    [AC_DEFINE([NO_LIBDL], [1], [Define if we could not find libdl.])
++    [AC_DEFINE([NO_LIBDL],[1],[Define if we could not find libdl.])
       AC_CHECK_HEADERS([gssapi/gssapi.h])
 -     AC_SEARCH_LIBS(
 -       [gss_init_sec_context],[gssapi gssapi_krb5 gss],
 +     AC_SEARCH_LIBS([gss_init_sec_context],
 +       [gssapi gssapi_krb5 gss],
         [],
-        [AC_DEFINE([NO_GSSAPI_LIB], [1], [Define if we could not find a gssapi library])])])])
+-       [AC_DEFINE([NO_GSSAPI_LIB], [1], [Define if we could not find a gssapi library])])])])
++       [AC_DEFINE([NO_GSSAPI_LIB],[1],
++                  [Define to 1 if we failed to find a gssapi library])
++    ])
++  ])
++])
  
 -AC_CHECK_LIB(X11, XOpenDisplay,
-+AC_CHECK_LIB([X11], [XOpenDisplay],
-              [GTK_LIBS="-lX11 $GTK_LIBS"
-               AC_DEFINE([HAVE_LIBX11],[],[Define if libX11.a is available])])
+-             [GTK_LIBS="-lX11 $GTK_LIBS"
+-              AC_DEFINE([HAVE_LIBX11],[],[Define if libX11.a is available])])
++AC_CHECK_LIB([X11],[XOpenDisplay],
++             [GTK_LIBS="-lX11 ${GTK_LIBS}"
++              AC_DEFINE([HAVE_LIBX11],[1],
++                        [Define to 1 if libX11.a is available])
++])
  
-@@ -132,10 +198,10 @@
+-AC_CHECK_FUNCS([getaddrinfo posix_openpt ptsname setresuid strsignal updwtmpx])
+-AC_CHECK_DECLS([CLOCK_MONOTONIC], [], [], [[#include <time.h>]])
+-AC_SEARCH_LIBS([clock_gettime], [rt], [AC_DEFINE([HAVE_CLOCK_GETTIME],[],[Define if clock_gettime() is available])])
++AC_CHECK_FUNCS([getaddrinfo posix_openpt ptsname setresuid strsignal \
++                updwtmpx])
++AC_CHECK_DECLS([CLOCK_MONOTONIC],[],[],[[#include <time.h>]])
++AC_SEARCH_LIBS([clock_gettime],[rt],
++               [AC_DEFINE([HAVE_CLOCK_GETTIME],[1],
++                          [Define to 1 if clock_gettime() is available])
++])
  
- if test "x$GCC" = "xyes"; then
+-if test "x$GCC" = "xyes"; then
++if test "x${GCC}" = "xyes"; then
    :
 -  AC_SUBST(WARNINGOPTS, ['-Wall -Werror'])
-+  AC_SUBST([WARNINGOPTS], ['-Wall'])
++  AC_SUBST([WARNINGOPTS],['-Wall'])
  else
    :
 -  AC_SUBST(WARNINGOPTS, [])
-+  AC_SUBST([WARNINGOPTS], [])
++  AC_SUBST([WARNINGOPTS],[])
  fi
  
++# config files are already defined above, so just do output here:
  AC_OUTPUT
+ 
+-if test "$gtk_version_desired" = "no"; then cat <<EOF
++if test "x${gtk_version_desired}" = "xno"; then cat <<EOF
+ 
+ 'configure' was instructed not to build using GTK. Therefore, PuTTY
+ itself and the other GUI utilities will not be built by the generated
+@@ -148,7 +256,7 @@
+ psftp will be built.
+ 
+ EOF
+-elif test "$gtk" = "none"; then cat <<EOF
++elif test "x${gtk}" = "xnone"; then cat <<EOF
+ 
+ 'configure' was unable to find either the GTK 1 or GTK 2 libraries on
+ your system. Therefore, PuTTY itself and the other GUI utilities will
+@@ -158,39 +266,47 @@
+ EOF
+ fi
+ 
++echo ""
++echo "C compiler (CC):                                  '${CC}'"
++echo "flags to use with C compiler (CFLAGS):            '${CFLAGS}'"
++echo "flags to use with C preprocessor (CPPFLAGS):      '${CPPFLAGS}'"
++echo "definitions for C preprocessor to define (DEFS):  '${DEFS}'"
++echo "flags to use with linker (LDFLAGS):               '${LDFLAGS}'"
++echo "libraries linked against (LIBS):                  '${LIBS}'"
++
+ AH_BOTTOM([
+ /* Convert autoconf definitions to ones that PuTTY wants. */
+ 
+ #ifndef HAVE_GETADDRINFO
+-# define NO_IPV6
+-#endif
++# define NO_IPV6 1
++#endif /* !HAVE_GETADDRINFO */
+ #ifndef HAVE_SETRESUID
+-# define HAVE_NO_SETRESUID
+-#endif
++# define HAVE_NO_SETRESUID 1
++#endif /* !HAVE_SETRESUID */
+ #ifndef HAVE_STRSIGNAL
+-# define HAVE_NO_STRSIGNAL
+-#endif
++# define HAVE_NO_STRSIGNAL 1
++#endif /* !HAVE_STRSIGNAL */
+ #if !defined(HAVE_UTMPX_H) || !defined(HAVE_UPDWTMPX)
+-# define OMIT_UTMP
+-#endif
++# define OMIT_UTMP 1
++#endif /* !HAVE_UTMPX_H || !HAVE_UPDWTMPX */
+ #ifndef HAVE_PTSNAME
+-# define BSD_PTYS
+-#endif
++# define BSD_PTYS 1
++#endif /* !HAVE_PTSNAME */
+ #ifndef HAVE_SYS_SELECT_H
+-# define HAVE_NO_SYS_SELECT_H
+-#endif
++# define HAVE_NO_SYS_SELECT_H 1
++#endif /* !HAVE_SYS_SELECT_H */
+ #ifndef HAVE_PANGO_FONT_FAMILY_IS_MONOSPACE
+-# define PANGO_PRE_1POINT4
+-#endif
++# define PANGO_PRE_1POINT4 1
++#endif /* !HAVE_PANGO_FONT_FAMILY_IS_MONOSPACE */
+ #ifndef HAVE_PANGO_FONT_MAP_LIST_FAMILIES
+-# define PANGO_PRE_1POINT6
+-#endif
++# define PANGO_PRE_1POINT6 1
++#endif /* !HAVE_PANGO_FONT_MAP_LIST_FAMILIES */
+ #if !defined(WITH_GSSAPI)
+-# define NO_GSSAPI
+-#endif
++# define NO_GSSAPI 1
++#endif /* !WITH_GSSAPI */
+ #if !defined(NO_GSSAPI) && defined(NO_LIBDL)
+ # if !defined(HAVE_GSSAPI_GSSAPI_H) || defined(NO_GSSAPI_LIB)
+-#  define NO_GSSAPI
+-# endif
+-#endif
++#  define NO_GSSAPI 1
++# endif /* !HAVE_GSSAPI_GSSAPI_H || NO_GSSAPI_LIB */
++#endif /* !NO_GSSAPI && NO_LIBDL */
+ ])

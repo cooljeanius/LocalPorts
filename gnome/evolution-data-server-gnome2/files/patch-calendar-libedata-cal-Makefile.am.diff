@@ -1,5 +1,23 @@
---- calendar/libedata-cal/Makefile.am.orig	2013-05-09 16:06:35.000000000 -0700
-+++ calendar/libedata-cal/Makefile.am	2013-05-09 16:07:56.000000000 -0700
+--- calendar/libedata-cal/Makefile.am.orig	2011-04-21 15:35:36.000000000 -0400
++++ calendar/libedata-cal/Makefile.am	2014-05-15 16:40:36.000000000 -0400
+@@ -5,7 +5,7 @@
+ 
+ ENUM_GENERATED = e-data-cal-enumtypes.h e-data-cal-enumtypes.c
+ 
+-# The libraray
++# The library:
+ lib_LTLIBRARIES = libedata-cal-1.2.la
+ noinst_PROGRAMS = test-e-sexp test-intervaltree test-intervaltree-coverage
+ 
+@@ -43,7 +43,7 @@
+ 	$(LIBICAL_LIBS)						\
+ 	$(EVOLUTION_CALENDAR_LIBS)
+ 
+-libedata_cal_1_2_la_LDFLAGS =								\
++libedata_cal_1_2_la_LDFLAGS =					\
+ 	-version-info $(LIBEDATACAL_CURRENT):$(LIBEDATACAL_REVISION):$(LIBEDATACAL_AGE) $(NO_UNDEFINED)
+ 
+ libedata_calincludedir = $(privincludedir)/libedata-cal
 @@ -161,8 +161,7 @@
  	$(top_builddir)/calendar/libecal/libecal-1.2.la				\
  	libedata-cal-1.2.la		\

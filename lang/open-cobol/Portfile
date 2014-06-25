@@ -1,0 +1,94 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                open-cobol
+version             2.0
+categories          lang
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             GPL-2+
+description         OpenCOBOL
+long_description    OpenCOBOL is an open-source COBOL compiler.
+
+homepage            http://www.opencobol.org/
+platforms           darwin
+
+master_sites        sourceforge:project/${name}/${name}/${version}/ \
+                    sourceforge
+
+distname            ${name}-${version}-feb2012
+worksrcdir          ${name}-${version}
+
+checksums           md5     58287e902f3b64dbac110d570c4aba4a \
+                    sha1    5088e2ebc2549b4ca9f7daba4e309682d8067cde \
+                    rmd160  39a1341a48b7e4addfaa545064849fe3dd29c881
+
+# Mostly taken from the Fink package for open-cobol:
+depends_lib-append  port:gmp \
+                    port:libtool \
+                    port:db44 \
+                    port:ncurses \
+                    port:libgnugetopt \
+                    port:libiconv \
+                    port:gettext \
+                    port:mpfr
+
+# also mostly originally taken from Fink, but with some additions:
+configure.args-append     --infodir=${prefix}/share/info \
+                          --with-libiconv-prefix=${prefix} \
+                          --with-libintl-prefix=${prefix}
+configure.cppflags-append -I${prefix}/include/gnugetopt -Wno-pointer-sign \
+                          -I${prefix}/include/db44
+configure.ldflags-append  -lgnugetopt -L${prefix}/lib/db44
+
+# try to override COBC_LIBS to get rid of '-R':
+configure.env-append      COBC_LIBS='${configure.ldflags}'
+
+# temporarily disable ccache as I test as non-root:
+configure.ccache    no
+
+# the configure script adds the '-pipe' flag anyway, so get rid of the
+# duplicate unconditionally:
+configure.pipe      no
+
+# see https://sourceforge.net/p/open-cobol/discussion/help/thread/e1b4af35/#427c
+test.run            yes
+test.target         check
+# (tests 111, 112, 217 and 269 fail for me if I set
+# "configure.compiler=clang" from the command line, otherwise all tests
+# pass with gcc)
+
+post-test {
+    if {[file exists ${prefix}/share/${name}/config/default.conf]} {
+        ui_debug "${worksrcpath}/cobc/cobc -x ${filespath}/hello.cob"
+        system -W ${worksrcpath} "./cobc/cobc -x ${filespath}/hello.cob 2>&1 || echo \"cobc failed\""
+    } else {
+        ui_warn "cannot run cobc without an installed default.conf"
+    }
+    if {[file exists ${worksrcpath}/cobc/hello]} {
+        ui_debug "${worksrcpath}/cobc/hello"
+        system -W ${worksrcpath} "./hello"
+    } else {
+        ui_warn "cobc failed to produce any output"
+    }
+    ui_debug "${worksrcpath}/bin/cob-config --libs"
+    system -W ${worksrcpath} "./bin/cob-config --libs"
+}
+
+# https://lists.macosforge.org/pipermail/macports-users/2014-May/035518.html
+if {[string match *clang* ${configure.compiler}]} {
+    configure.args-append --disable-rpath
+    configure.cppflags-append -std=gnu89
+    pre-configure {
+        ui_warn "${name} has issues with clang"
+    }
+}
+
+variant debug description {enable debugging} {
+    configure.args-append --enable-debug \
+                          --enable-param-check
+    # '--enable-debug' will add a '-g' of its own, but we need to override
+    # the '-Os' that MacPorts would otherwise want to add as well:
+    configure.optflags    -g
+}

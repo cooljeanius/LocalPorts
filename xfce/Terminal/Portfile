@@ -5,7 +5,8 @@ PortSystem      1.0
 
 name            Terminal
 version         0.4.5
-revision        4
+revision        5
+set branch      [join [lrange [split ${version} .] 0 1] .]
 categories      xfce
 platforms       darwin linux
 license         GPL-2+
@@ -16,7 +17,7 @@ description     ${name} is a modern terminal emulator for the Unix/Linux \
                 desktop.
 long_description ${description}
 homepage        http://goodies.xfce.org/projects/applications/terminal
-master_sites    http://www.xfce.org/archive/src/apps/terminal/0.4/
+master_sites    http://www.xfce.org/archive/src/apps/terminal/${branch}/
 use_bzip2       yes
 checksums       md5     3c707628e2e97c6d9566cd74d400036a \
                 sha1    8c23799922700b1f74dc7b7e029eec192d8ff62c \
@@ -27,33 +28,31 @@ depends_build-append \
                 port:desktop-file-utils \
                 port:icon-naming-utils \
                 port:intltool \
+                port:gtk-doc \
                 port:pkgconfig \
                 port:xdg-utils \
                 port:xfce-utils \
                 path:bin/xmkmf:imake \
+                path:bin/gmake:gmake \
                 path:lib/pkgconfig/gnome-desktop-2.0.pc:gnome-desktop \
                 bin:gawk:gawk \
                 bin:grep:grep \
                 bin:gsed:gsed
 
+# The dependency on vte-gnome2 used to be just "vte", but that got updated
+# to a version that broke API...
 depends_lib-append \
                 port:exo \
-                port:vte \
+                port:vte-gnome2 \
                 port:gtk2 \
                 port:atk \
-                port:bzip2 \
                 port:dbus-glib \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
-                port:harfbuzz \
-                port:libffi \
                 port:libiconv \
-                port:libpng \
                 port:libxfce4util \
-                port:ncurses \
                 port:xorg-libX11 \
                 port:xorg-libXau \
                 port:xorg-libXcomposite \
@@ -69,11 +68,9 @@ depends_lib-append \
                 port:xorg-libsm \
                 port:xorg-libxcb \
                 port:xrender \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
                 path:lib/pkgconfig/dbus-1.pc:dbus
 
 depends_run-append \
@@ -82,29 +79,94 @@ depends_run-append \
                 port:gsettings-desktop-schemas \
                 port:hicolor-icon-theme \
                 port:openbrowser \
-                port:nimbus \
                 port:font-alias \
-                port:shared-desktop-ontologies \
                 port:xdg-utils \
                 port:xfdesktop \
+                port:libpng \
                 path:share/themes/HighContrast/index.theme:gnome-themes-standard
 
-depends_skip_archcheck-append nimbus xfce-utils
+depends_skip_archcheck-append xfce-utils
+
+patchfiles-append \
+                patch-terminal_Makefile.in.diff \
+                patch-terminal_Makefile.am.diff \
+                patch-configure.ac.diff \
+                patch-Makefile.am.diff
+
+patch.args-append --backup
+
+post-patch {
+    xinstall -d ${worksrcpath}/m4
+    eval xinstall -m 644 [glob ${filespath}/*.m4] ${worksrcpath}/m4
+    foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
+        xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
+    }
+    xinstall -m 644 ${worksrcpath}/aclocal.m4 ${worksrcpath}/m4
+    # have to run aclocal separately for autoupdate to work:
+    ui_debug "running \"${prefix}/bin/aclocal --force -I m4 --install\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal --force -I m4 --install"
+    # this m4 macro file is separate from the above:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-gettext.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-gettext.m4"
+}
+
+# Do NOT do intltool's INTLTOOL_PERL dance
+use_autoreconf  yes
+autoreconf.args -fvi -Wall
+autoreconf.env-append \
+                XDT_PROG_INTLTOOLIZE=${prefix}/bin/intltoolize \
+                XDT_PROG_GTKDOCIZE=${prefix}/bin/gtkdocize \
+                XDT_PROG_ACLOCAL=${prefix}/bin/aclocal \
+                XDT_PROG_AUTOHEADER=${prefix}/bin/autoheader \
+                XDT_PROG_AUTOMAKE=${prefix}/bin/automake \
+                XDT_PROG_AUTOCONF=${prefix}/bin/autoconf
+
+pre-configure {
+    ui_debug "running \"${prefix}/bin/intltoolize --automake --copy --force\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
+}
 
 configure.args-append \
                 --enable-dbus \
                 --with-x \
                 --x-includes=${prefix}/include \
                 --x-libraries=${prefix}/lib \
-                --disable-silent-rules
+                --disable-silent-rules \
+                --with-libiconv-prefix=${prefix}
 
 configure.env-append \
-                XMKMF=${prefix}/bin/xmkmf
+                XMKMF=${prefix}/bin/xmkmf \
+                acl_cv_rpath=done \
+                libintl_extra_libs=-liconv \
+                INTLLIBS='-lintl -liconv '
 
-patchfiles-append \
-                patch-terminal-Makefile.in.diff
+# needs to be explicitly set:
+configure.pkg_config ${prefix}/bin/pkg-config
+
+build.type      gnu
+build.cmd       ${prefix}/bin/gmake
+
+test.run        yes
+test.target     check
+
+variant debug description {enable debugging} {
+    # "--disable-linker-opts" flag got autoreconfed away...
+    configure.args-append --enable-debug=full
+    configure.optflags    -g
+    configure.pipe        no
+}
+
+variant docs description {build documentation} {
+    # gtk-doc is already a dependency anyways (for autoreconfing), so no
+    # need to add it again here...
+    depends_build-append  bin:xsltproc:libxslt \
+                          bin:xml2po:gnome-doc-utils \
+                          bin:xmllint:libxml2
+    configure.args-append --enable-gen-doc
+}
 
 post-activate {
+     ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
 }
 

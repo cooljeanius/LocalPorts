@@ -1,0 +1,10 @@
+--- docs/Makefile.am.orig	2010-05-21 12:57:20.000000000 -0400
++++ docs/Makefile.am	2014-05-10 20:18:44.000000000 -0400
+@@ -1,5 +1,5 @@
+ SUBDIRS = API manual
+ 
+-html:
+-	make -C manual html
++html-local:
++	make -C manual html-local
+ 

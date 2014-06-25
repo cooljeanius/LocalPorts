@@ -6,7 +6,7 @@ PortGroup           muniversal 1.0
 
 name                openldap
 version             2.4.34
-revision            0
+revision            1
 categories          databases
 maintainers         landonf openmaintainer
 license             openldap

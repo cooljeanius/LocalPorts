@@ -1,0 +1,144 @@
+@c enfuse.cc:105
+@set src::default-edge-scale 0.0
+
+@c enfuse.cc:111
+@set src::default-entropy-lower-cutoff 0%
+
+@c enfuse.cc:112
+@set src::default-entropy-upper-cutoff 100%
+
+@c enfuse.cc:110
+@set src::default-entropy-window-size 3
+
+@c enfuse.cc:99
+@set src::default-exposure-mu 0.5
+
+@c enfuse.cc:100
+@set src::default-exposure-sigma 0.2
+
+@c enfuse.cc:116
+@set src::default-hard-mask-template hardmask-%n.tif
+
+@c enfuse.cc:107
+@set src::default-lce-factor 0.0
+
+@c enfuse.cc:106
+@set src::default-lce-scale 0.0
+
+@c enfuse.cc:109
+@set src::default-minimum-curvature 0
+
+@c global.h:60
+@set src::default-output-filename a.tif
+
+@c enfuse.cc:115
+@set src::default-soft-mask-template softmask-%n.tif
+
+@c global.h:96
+@set src::default-tiff-resolution 300@dmn{dpi}
+
+@c enfuse.cc:82
+@set src::default-verbosity-level 1
+
+@c enfuse.cc:96
+@set src::default-weight-contrast 0.0
+
+@c enfuse.cc:98
+@set src::default-weight-entropy 0.0
+
+@c enfuse.cc:95
+@set src::default-weight-exposure 1.0
+
+@c enfuse.cc:97
+@set src::default-weight-saturation 0.2
+
+@c common.h:121
+@set src::mark-frozen-point cross
+
+@c common.h:117
+@set src::mark-movable-point diamond
+
+@c enfuse.cc:1089
+@set src::maximum-exposure-mu 1
+
+@c common.h:55
+@set src::maximum-pyramid-levels 29
+
+@c enfuse.cc:1050
+@set src::maximum-weight-contrast 1
+
+@c enfuse.cc:1124
+@set src::maximum-weight-entropy 1
+
+@c enfuse.cc:1031
+@set src::maximum-weight-exposure 1
+
+@c enfuse.cc:1069
+@set src::maximum-weight-saturation 1
+
+@c enfuse.cc:1197
+@set src::minimum-cache-block-size 1@dmn{KB}
+
+@c enfuse.cc:1267
+@set src::minimum-cache-size 1@dmn{MB}
+
+@c enfuse.cc:1154
+@set src::minimum-contrast-window-size 3
+
+@c enfuse.cc:1177
+@set src::minimum-entropy-window-size 3
+
+@c enfuse.cc:1086
+@set src::minimum-exposure-mu 0
+
+@c enfuse.cc:1105
+@set src::minimum-exposure-sigma 0
+
+@c bounds.h:105
+@set src::minimum-pyramid-levels 1
+
+@c enfuse.cc:1138
+@set src::minimum-verbosity-level 0
+
+@c enfuse.cc:1047
+@set src::minimum-weight-contrast 0
+
+@c enfuse.cc:1121
+@set src::minimum-weight-entropy 0
+
+@c enfuse.cc:1028
+@set src::minimum-weight-exposure 0
+
+@c enfuse.cc:1066
+@set src::minimum-weight-saturation 0
+
+@c common.h:127
+@set src::visualize-first-vertex-value-color medium green
+
+@c common.h:119
+@set src::visualize-frozen-point bright white
+
+@c common.h:123
+@set src::visualize-initial-path-color dark yellow
+
+@c common.h:115
+@set src::visualize-movable-point light orange
+
+@c common.h:129
+@set src::visualize-next-vertex-value-color light green
+
+@c common.h:131
+@set src::visualize-no-overlap-value-color dark red
+
+@c common.h:125
+@set src::visualize-short-path-value-color bright yellow
+
+@c common.h:133
+@set src::visualize-state-space-color dark blue
+
+@c common.h:135
+@set src::visualize-state-space-inside-color bright cyan
+
+@c common.h:137
+@set src::visualize-state-space-unconverged-color bright magenta
+

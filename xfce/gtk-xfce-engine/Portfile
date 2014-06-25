@@ -5,7 +5,7 @@ PortSystem      1.0
 
 name            gtk-xfce-engine
 version         2.6.0
-revision        3
+revision        4
 categories      xfce gnome x11
 platforms       darwin linux
 license         GPL-2+
@@ -26,13 +26,10 @@ depends_build-append \
 depends_lib-append \
                 port:gtk2  \
                 port:atk \
-                port:bzip2 \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
-                port:libpng \
                 port:xorg-libX11 \
                 port:xorg-libXau \
                 port:xorg-libXcomposite \
@@ -46,11 +43,9 @@ depends_lib-append \
                 port:xorg-libXrandr \
                 port:xorg-libxcb \
                 port:xrender \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
-                path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman
+                path:lib/pkgconfig/pango.pc:pango
 
 depends_run-append \
                 port:gtk-engines \

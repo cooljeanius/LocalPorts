@@ -1,0 +1,120 @@
+@c enblend.cc:84
+@set src::coarse-mask-vectorize-distance 4
+
+@c enblend.cc:121
+@set src::default-anneal-deltae-max 7000.0
+
+@c enblend.cc:122
+@set src::default-anneal-deltae-min 5.0
+
+@c enblend.cc:119
+@set src::default-anneal-kmax 32
+
+@c enblend.cc:120
+@set src::default-anneal-tau 0.75
+
+@c enblend.cc:107
+@set src::default-coarseness-factor 8
+
+@c enblend.cc:124
+@set src::default-dijkstra-radius 25
+
+@c enblend.cc:110
+@set src::default-mask-template mask-%n.tif
+
+@c enblend.cc:116
+@set src::default-optimizer-weight-distance 8.0
+
+@c enblend.cc:117
+@set src::default-optimizer-weight-mismatch 1.0
+
+@c global.h:60
+@set src::default-output-filename a.tif
+
+@c global.h:96
+@set src::default-tiff-resolution 300@dmn{dpi}
+
+@c enblend.cc:92
+@set src::default-verbosity-level 1
+
+@c enblend.cc:113
+@set src::default-visualize-template vis-%n.tif
+
+@c enblend.cc:85
+@set src::fine-mask-vectorize-distance 20
+
+@c common.h:121
+@set src::mark-frozen-point cross
+
+@c common.h:117
+@set src::mark-movable-point diamond
+
+@c enblend.cc:867
+@set src::maximum-anneal-tau 1
+
+@c common.h:55
+@set src::maximum-pyramid-levels 29
+
+@c enblend.cc:894
+@set src::minimum-anneal-deltae-max 0
+
+@c enblend.cc:921
+@set src::minimum-anneal-deltae-min 0
+
+@c enblend.cc:954
+@set src::minimum-anneal-kmax 3
+
+@c enblend.cc:860
+@set src::minimum-anneal-tau 0
+
+@c enblend.cc:1103
+@set src::minimum-cache-block-size 1@dmn{KB}
+
+@c enblend.cc:1173
+@set src::minimum-cache-size 1@dmn{MB}
+
+@c enblend.cc:1088
+@set src::minimum-dijkstra-radius 1
+
+@c bounds.h:105
+@set src::minimum-pyramid-levels 1
+
+@c enblend.cc:1018
+@set src::minimum-smooth-difference 0.0
+
+@c enblend.cc:83
+@set src::minimum-vectorize-distance 4
+
+@c enblend.cc:1064
+@set src::minimum-verbosity-level 0
+
+@c common.h:127
+@set src::visualize-first-vertex-value-color medium green
+
+@c common.h:119
+@set src::visualize-frozen-point bright white
+
+@c common.h:123
+@set src::visualize-initial-path-color dark yellow
+
+@c common.h:115
+@set src::visualize-movable-point light orange
+
+@c common.h:129
+@set src::visualize-next-vertex-value-color light green
+
+@c common.h:131
+@set src::visualize-no-overlap-value-color dark red
+
+@c common.h:125
+@set src::visualize-short-path-value-color bright yellow
+
+@c common.h:133
+@set src::visualize-state-space-color dark blue
+
+@c common.h:135
+@set src::visualize-state-space-inside-color bright cyan
+
+@c common.h:137
+@set src::visualize-state-space-unconverged-color bright magenta
+

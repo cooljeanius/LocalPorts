@@ -1,0 +1,142 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           compiler_blacklist_versions 1.0
+
+name                libbabeltrace
+set myname          babeltrace
+version             1.2.1
+categories          devel
+platforms           darwin
+maintainers         gwmail.gwu.edu:egall openmaintainer
+# the "LICENSE" file lists 3 licenses; not sure if it is "and" or "or"...
+license             MIT GPL-2 LGPL-2.1+
+
+description         BabelTrace - Trace Format Babel Tower
+
+long_description    This project provides trace read and write libraries, \
+                    as well as a trace converter.
+
+homepage            http://www.efficios.com/${myname}
+master_sites        http://www.efficios.com/files/${myname}
+
+distname            ${myname}-${version}
+use_bzip2           yes
+
+# md5 and sha1 may be old, but they are what the developers post on their
+# download page:
+checksums           md5     5d2dbf37117537b484f731ecbe72c29c \
+                    sha1    e97de5fe8a3c9cbb9ea9f72bc73a75088da83507 \
+                    rmd160  e38d7528efaa1433aa8308603ee96805a8f594f3 \
+                    sha256  813dffdb8279257e29b5c391ca7aa52caabe8c3b7299653d478cf8788a078fdf
+
+depends_build-append port:pkgconfig
+
+depends_lib-append  port:ossp-uuid \
+                    port:popt \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2
+
+# patches:
+# - compat_Makefile.am: fix "ar: no archive members specified" error
+# - configure.ac: silence some warnings when autoreconfing, and other
+#   misc. tweaks that I usually like to make, and have autoheader declare
+#   some things in config.h that prevent errors
+# - converter_babeltrace[-log].c: work around OS X missing openat
+#   and getline
+patchfiles-append   patch-compat_Makefile.am.diff \
+                    patch-configure.ac.diff \
+                    patch-converter_babeltrace.c.diff \
+                    patch-converter_babeltrace-log.c.diff \
+                    patch-tests_lib_Makefile.am.diff
+patch.args-append   --backup
+post-patch {
+    # remove "-Wl,--no-as-needed" flag which darwin linker fails
+    # to understand:
+    eval reinplace "s|-Wl,--no-as-needed||g" [glob ${worksrcpath}/*/Makefile.am]
+    eval reinplace "s|-Wl,--no-as-needed||g" [glob ${worksrcpath}/formats/*/Makefile.am]
+    eval reinplace "s|-Wl,--no-as-needed||g" [glob ${worksrcpath}/tests/*/Makefile.am]
+    xinstall -m 644 ${filespath}/compat.c ${worksrcpath}/compat/compat.c
+    # need to run aclocal separately from autoreconfing, so that autoupdate
+    # will work properly:
+    ui_debug "running '${prefix}/bin/aclocal -I m4 --install' in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal -I m4 --install"
+    # these files that we autoupdate exist anyways:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/aclocal.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate aclocal.m4"
+    # these files that we autoupdate get installed by the '--install' flag
+    # to 'aclocal' used above:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-2.0.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-2.0.m4"
+}
+
+use_autoreconf      yes
+autoreconf.args     -fvi -Wall
+
+configure.args-append \
+                    --disable-glibtest \
+                    --disable-silent-rules
+
+# old versions of clang (from before Xcode 4.2.1) need to be blacklisted
+# for not supporting thread-local storage as well, but unlike gcc (below),
+# I do not think that that needs to be conditionalized to be just
+# for darwin...
+compiler.blacklist-append {clang < 318.0.61}
+# blacklist the equivalent clangs from MacPorts, too:
+compiler.blacklist-append macports-clang-2.9 macports-clang-3.0
+
+platform darwin {
+    # hack to get include/babeltrace/endian.h to use the right header on
+    # darwin (freebsd should already define this by default):
+    configure.cppflags-append -D__FreeBSD__=5
+    # uses thread-local storage, which gcc does not support on darwin:
+    compiler.blacklist-append gcc-3.3 *gcc-4.0 *gcc-4.2 *gcc-4.3 *gcc-4.4
+    compiler.blacklist-append *gcc-4.5 *gcc-4.6 *gcc-4.7
+    # ...although for some reason gcc-4.8 seems to work:
+    compiler.fallback-prepend macports-gcc-4.8
+}
+
+# try to make working on developing this portfile easier:
+configure.ccache    no
+configure.pipe      no
+configure.optflags  -g
+use_parallel_build  no
+
+# tests fail, because I moved some of the build failures into the
+# test phase:
+test.run            yes
+test.target         check
+
+# python has to be python3:
+set pythons_suffixes {31 32 33 34}
+
+set pythons_ports {}
+foreach s ${pythons_suffixes} {
+    lappend pythons_ports python${s}
+}
+
+foreach s ${pythons_suffixes} {
+    set p python${s}
+    set v [string index ${s} 0].[string index ${s} 1]
+    set i [lsearch -exact ${pythons_ports} ${p}]
+    set c [lreplace ${pythons_ports} ${i} ${i}]
+    set python_bin ${prefix}/bin/python${v}
+    set python_framework_dir ${prefix}/Library/Frameworks/Python.framework/Versions/${v}
+    eval [subst {
+        variant ${p} description "Build ${name} with Python ${v} support" \
+        conflicts ${c} {
+            depends_build-append    port:${p} \
+                                    port:swig \
+                                    port:swig-python
+            configure.args-append   --enable-python-bindings
+            configure.env-append    PYTHON_CONFIG="${python_bin}-config"
+            configure.python        ${python_bin}
+        }
+    }]
+}
+
+# cannot set a python variant by default yet because the "pretend to be
+# FreeBSD" hack we use above breaks python, so comment out:
+#if {![variant_isset python31] && ![variant_isset python32] && ![variant_isset python34]} {
+#    default_variants-append +python33
+#}

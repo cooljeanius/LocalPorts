@@ -96,9 +96,10 @@ variant x11 {
     configure.env-append    XMKMF=${prefix}/bin/xmkmf
 
     post-destroot {
+        set destfontdir ${destroot}${prefix}/share/fonts/${name}
         # we use a "bin:"-style dependency for these tools, so just call
         # them un-prefixed-ly:
-        system -W ${prefix} "mkfontscale ${destroot}${prefix}/share/fonts/${name} && mkfontdir ${destroot}${prefix}/share/fonts/${name}"
+        system -W ${prefix} "mkfontscale ${destfontdir} && mkfontdir ${destfontdir}"
     }
 }
 

@@ -1,0 +1,95 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: Portfile 83808 2011-09-11 11:10:53Z afb@macports.org $
+
+PortSystem      1.0
+
+name            libxfce4menu
+version         4.6.2
+revision        2
+categories      xfce
+platforms       darwin linux
+license         LGPL-2+ GFDL-1.1+
+maintainers     afb openmaintainer
+description     a freedesktop.org compliant menu implementation for Xfce
+long_description ${description}
+homepage        http://www.xfce.org/
+master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
+use_bzip2       yes
+checksums       md5     ff10cacb76803ee37159e3a43345f0d1 \
+                sha1    32a85c1ad31360347d5a2f240c4ddc08b444d124 \
+                rmd160  34f69c9993ecc9ad60be086d856017cbb84c42d5 \
+                sha256  62352be57318d6f241c4f6e4b6f9303d0b80246ea8f6e4753a962360a9965162
+
+depends_build-append \
+                path:bin/pkg-config:pkgconfig \
+                path:bin/xmkmf:imake \
+                port:intltool \
+                port:gettext
+
+depends_lib-append \
+                port:libxfce4util \
+                port:gtk2 \
+                port:libiconv \
+                port:gettext \
+                path:lib/pkgconfig/glib-2.0.pc:glib2
+
+patchfiles-append \
+                patch-xfce-menu-item-cache.c.diff \
+                patch-configure.ac.diff \
+                patch-Makefile.am.diff
+
+patch.args-append --backup
+
+pre-patch {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
+
+post-patch {
+    xinstall -d ${worksrcpath}/m4
+    eval xinstall -m 644 [glob ${filespath}/*.m4] ${worksrcpath}/m4
+    foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
+        xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
+    }
+    # have to run aclocal separately for autoupdate to work:
+    ui_debug "running \"${prefix}/bin/aclocal --force -I m4 --install\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal --force -I m4 --install"
+    # this m4 macro file is separate from the above:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-gettext.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-gettext.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-2.0.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-2.0.m4"
+    # fix Makefiles:
+    fs-traverse am_makefile ${worksrcpath} {
+        if {[file tail ${am_makefile}] eq "Makefile.am"} {
+            reinplace "s|INCLUDES|AM_CPPFLAGS|g" ${am_makefile}
+        }
+    }
+}
+
+use_autoreconf  yes
+autoreconf.args -fvi -Wall
+
+configure.args-append \
+                --mandir=${prefix}/share/man \
+                --with-libiconv-prefix=${prefix}
+
+configure.env-append \
+                XMKMF=${prefix}/bin/xmkmf \
+                acl_cv_rpath=done \
+                libintl_extra_libs=-liconv
+
+variant docs description {build documentation} {
+    depends_build-append  port:gtk-doc
+    configure.args-append --enable-gtk-doc \
+                          --enable-gtk-doc-html \
+                          --enable-gtk-doc-pdf
+}
+
+variant debug description {enable debugging} {
+    # so the patched configure script will use the '-ggdb3' flag:
+    depends_build-append  bin:gdb:gdb
+    depends_run-append    bin:gdb:gdb
+    configure.args-append --enable-debug=full
+    configure.optflags    -g
+    configure.pipe        no
+}

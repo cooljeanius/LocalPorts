@@ -1,0 +1,25 @@
+--- Samples/FalagardDemo1/Makefile.am.orig	2013-01-12 12:07:24.000000000 -0500
++++ Samples/FalagardDemo1/Makefile.am	2014-06-19 13:35:01.000000000 -0400
+@@ -1,7 +1,13 @@
+-INCLUDES = -I$(top_srcdir)/cegui/include -I$(top_srcdir)/Samples/common/include
++## automake Makefile for cegui FalagardDemo
+ 
+-noinst_PROGRAMS = FalagardDemo1@cegui_bsfx@
+-noinst_HEADERS =  Sample_FalagardDemo1.h
++AM_CPPFLAGS = -I$(top_srcdir)/cegui/include -I$(top_srcdir)/Samples/common/include
++
++examplesdir = ${datarootdir}/examples/${PACKAGE_TARNAME}
++examples_bindir = ${examplesdir}/bin
++examples_includedir = ${examplesdir}/include
++
++examples_bin_PROGRAMS = FalagardDemo1@cegui_bsfx@
++examples_include_HEADERS =  Sample_FalagardDemo1.h
+ 
+ if CEGUI_BUILD_STATIC
+ FalagardDemo1@cegui_bsfx@_CPPFLAGS = -DCEGUI_STATIC
+@@ -13,4 +19,4 @@
+ 					  $(SAMPLE_STATIC_LDFLAGS)
+ 
+ install-exec-local:
+-	$(LN_S) -f `pwd`/.libs/FalagardDemo1@cegui_bsfx@$(EXEEXT) $(top_builddir)/bin/FalagardDemo1@cegui_bsfx@$(EXEEXT)
++	$(LN_S) -fv `pwd`/.libs/FalagardDemo1@cegui_bsfx@$(EXEEXT) $(top_builddir)/bin/FalagardDemo1@cegui_bsfx@$(EXEEXT)

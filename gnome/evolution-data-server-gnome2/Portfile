@@ -5,8 +5,9 @@ PortSystem      1.0
 
 name            evolution-data-server-gnome2
 set myname      evolution-data-server
+replaced_by     ${myname}
 version         2.32.3
-revision        3
+revision        4
 
 set branch      [join [lrange [split ${version} .] 0 1] .]
 description     Addressbook and calender libs for GNOME.
@@ -26,11 +27,15 @@ use_bzip2       yes
 checksums       rmd160  adc8b07aef41a89d16fc426541c12190a3688b8f \
                 sha256  744026a745b711b3e393b61fed21c4926d1b10a3aa7da64f4b33a3e3bf5b085c
 
+# the rx port only provides a static library, so it is only a build-time
+# dependency:
 depends_build-append \
                 port:pkgconfig \
                 port:intltool \
                 port:gtk-doc \
+                lib:rx:rx \
                 bin:gperf:gperf \
+                bin:jw:docbook-utils \
                 path:share/aclocal/gnome-common.m4:gnome-common
 
 depends_skip_archcheck-append gtk-doc
@@ -41,31 +46,24 @@ depends_lib-append \
                 port:libcomerr \
                 port:libgnome-keyring \
                 port:libgdata \
-                port:libgweather \
+                port:libgweather2 \
                 port:libical \
                 port:nss \
                 port:gnuregex \
                 port:db46 \
                 port:atk \
-                port:bzip2 \
-                port:dbus-glib \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
                 port:gtk2 \
-                port:harfbuzz \
+                port:json-glib \
                 port:libffi \
-                port:libgcrypt \
-                port:libgpg-error \
                 port:libiconv \
-                port:libpng \
                 port:libsoup \
                 port:libxml2 \
                 port:nspr \
                 port:openldap \
-                port:orbit2 \
                 port:sqlite3 \
                 port:xorg-libX11 \
                 port:xorg-libXau \
@@ -84,34 +82,49 @@ depends_lib-append \
                 port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
-                path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
+                path:lib/pkgconfig/pango.pc:pango
+
+depends_run-append \
+                port:libpng \
                 path:lib/pkgconfig/dbus-1.pc:dbus
 
 patchfiles-append \
                 patch-configure.ac.diff \
+                patch-Makefile.am.diff \
                 patch-m4-evo_krb5_support.m4.diff \
                 patch-libgdata07-compat.diff \
                 patch-calendar-libedata-cal-Makefile.am.diff \
                 patch-calendar-libedata-cal-e-cal-backend-intervaltree.c.diff \
+                patch-camel_tests_message_Makefile.am.diff \
                 patch-calendar-backends-caldav-e-cal-backend-caldav.c.diff
 
-pre-patch {
-    file copy ${worksrcpath}/configure.ac ${worksrcpath}/configure.ac.orig
-}
+patch.args-append --backup
 
 post-patch {
     # Run glibtoolize before autoreconf runs it, to silence some
-    # warnings from aclocal
+    # warnings from aclocal:
+    ui_debug "running \"${prefix}/bin/glibtoolize --copy --automake --force\" in ${worksrcpath}"
     system -W ${worksrcpath} "${prefix}/bin/glibtoolize --copy --automake --force"
     xinstall -m 644 ${prefix}/share/aclocal/gnome-common.m4 ${worksrcpath}/m4
     xinstall -m 644 ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    # have to run aclocal separately for autoupdate to work:
+    ui_debug "running \"${prefix}/bin/aclocal --force -I m4 --install\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal --force -I m4 --install"
+    # these m4 macro files are separate from the above:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-gettext.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-gettext.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-2.0.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-2.0.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/gconf-2.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/gconf-2.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/as-compiler-flag.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/as-compiler-flag.m4"
     reinplace "s|CPPFLAGS|AM_CPPFLAGS|g" ${worksrcpath}/libedataserverui/Makefile.am
     reinplace "s|google||g" ${worksrcpath}/addressbook/backends/Makefile.am
 }
 
 use_autoreconf    yes
-autoreconf.args  -fvi
+autoreconf.args  -fvi -Wall
 
 configure.pkg_config ${prefix}/bin/pkg-config
 
@@ -122,6 +135,7 @@ configure.args-append  \
         --enable-smime \
         --enable-gnome-keyring \
         --enable-ipv6 \
+        --enable-evolargefile \
         --enable-largefile \
         --enable-nntp \
         --enable-calendar \
@@ -136,7 +150,8 @@ configure.args-append  \
         --disable-gtk3 \
         --disable-silent-rules \
         --disable-schemas-install \
-        --disable-gtk-doc
+        --disable-gtk-doc \
+        --with-gconf-schema-file-dir=${prefix}/etc/gconf/schemas
 
 configure.env-append \
         ac_cv_have_gdata_07=no \
@@ -144,14 +159,24 @@ configure.env-append \
         GDATA_CFLAGS="-D_REENTRANT -I${prefix}/include/libxml2 -I/usr/include/libxml2 -I${prefix}/include/libgdata -I${prefix}/include/libgdata/gdata -I${prefix}/include -I${prefix}/include/libsoup-gnome-2.4 -I${prefix}/include/gcr-3 -I${prefix}/include/gck-1 -I${prefix}/include/p11-kit-1 -I${prefix}/include/goa-1.0 -I${prefix}/lib/goa-1.0/include -I${prefix}/include/libsoup-2.4 -I${prefix}/include/glib-2.0 -I${prefix}/lib/glib-2.0/include -I${prefix}/include" \
         DB_CFLAGS="-I${prefix}/include/db46" \
         DB_LIBS="-L${prefix}/lib/db46 -ldb" \
-        libdb_prefix=${prefix}
-# The above is kind of a hack
+        libdb_prefix=${prefix} \
+        REGEX_LIBS="-lgnuregex -lrx" \
+        libintl_extra_libs=-liconv \
+        ICONV_LIBS="-liconv" \
+        INTLLIBS='-lintl -liconv ' \
+        mozilla_nss=nss \
+        mozilla_nspr=nspr \
+        POW_LIB=-lm \
+        LIBICAL_EXTRA_LIBS='-L${prefix}/lib -lical -licalss -licalvcal -lpthread '
+# (The above is all kind of hack-ish)
 
-build.type gnu
+build.type  gnu
 
-#
-# port nss is not universal
-#
+# tests all fail, but that is the fault of glib/dbus, and NOT this port:
+test.run    yes
+test.target check
+
+# port nss is not universal:
 universal_variant no
 
 platform darwin 8 {
@@ -163,10 +188,12 @@ platform darwin 8 {
     configure.args-append --without-krb5
 }
 
-post-activate    {
-    system -W ${prefix} "export GCONF_CONFIG_SOURCE=`${prefix}/bin/gconftool-2 --get-default-source` && \
+post-activate {
+    ui_debug "export GCONF_CONFIG_SOURCE=`${prefix}/bin/gconftool-2 --get-default-source` && \
         ${prefix}/bin/gconftool-2 --makefile-install-rule ${prefix}/etc/gconf/schemas/*.schemas"
+    system -W ${prefix} "export GCONF_CONFIG_SOURCE=`${prefix}/bin/gconftool-2 --get-default-source 2>&1` && \
+        ${prefix}/bin/gconftool-2 --makefile-install-rule ${prefix}/etc/gconf/schemas/*.schemas 2>&1"
 }
 
-# This is an old version
+# This is an old version, so disable livecheck:
 livecheck.type  none

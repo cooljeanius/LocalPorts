@@ -1,0 +1,16 @@
+--- acl.c.orig	2008-06-28 10:05:54.000000000 -0400
++++ acl.c	2014-06-05 17:58:34.000000000 -0400
+@@ -32,6 +32,13 @@
+ #define get_perm acl_get_perm_np
+ #endif
+ 
++#ifndef ACL_WRITE
++# define ACL_WRITE 0x0002
++#endif /* !ACL_WRITE */
++#ifndef ACL_READ
++# define ACL_READ 0x0004
++#endif /* !ACL_READ */
++
+ staticforward PyTypeObject ACL_Type;
+ static PyObject* ACL_applyto(PyObject* obj, PyObject* args);
+ static PyObject* ACL_valid(PyObject* obj, PyObject* args);

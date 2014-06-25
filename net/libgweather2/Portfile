@@ -3,9 +3,10 @@
 
 PortSystem      1.0
 
-name            libgweather
+name            libgweather2
+set oldname     libgweather
 version         2.30.3
-revision        9
+revision        10
 set branch      [join [lrange [split ${version} .] 0 1] .]
 maintainers     devans openmaintainer
 categories      net gnome x11
@@ -14,12 +15,15 @@ platforms       darwin
 description     Library to accessing online weather informations.
 
 long_description \
-    ${name} is a library to access weather \
+    ${oldname} is a library to access weather \
     information from online services for numerous \
-    locations.
+    locations. This version is old and installs in parallel \
+    alongside the current libgweather.
 
 homepage        http://www.gnome.org/
-master_sites    gnome:sources/${name}/${branch}/
+master_sites    gnome:sources/${oldname}/${branch}/
+
+distname        ${oldname}-${version}
 use_bzip2       yes
 
 checksums       md5     bf6a0a05051341ecb250f332e3edfb88 \
@@ -36,7 +40,9 @@ depends_build-append \
                 bin:perl:perl5 \
                 bin:xmllint:libxml2 \
                 bin:gconftool-2:gconf \
-                bin:python:python_select
+                bin:python:python_select \
+                bin:gzip:gzip \
+                bin:remake:remake
 
 depends_skip_archcheck-append gtk-doc
 
@@ -67,6 +73,9 @@ depends_lib-append \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango
 
+depends_run-append \
+                path:share/icons/gnome/index.theme:gnome-icon-theme
+
 patchfiles-append patch-python-prefix.diff
 
 configure.args-append \
@@ -75,8 +84,13 @@ configure.args-append \
                 --disable-glibtest \
                 --disable-python \
                 --enable-gtk-doc \
+                --enable-gtk-doc-html \
+                --enable-gtk-doc-pdf \
                 --enable-locations-compression \
-                --enable-more-warnings
+                --enable-more-warnings \
+                --program-suffix=2 \
+                --datarootdir=${prefix}/share/${name} \
+                --localedir=${prefix}/share/${name}/locale
 
 variant python25 conflicts python26 python27 description {Use python 2.5} {
     configure.python          ${prefix}/bin/python2.5
@@ -88,7 +102,7 @@ variant python25 conflicts python26 python27 description {Use python 2.5} {
     configure.args-replace --disable-python --enable-python
 
     # ensure build path contains path to python executables (#26201)
-    build.env       PATH=${python_framework}/bin:$env(PATH)
+    build.env-append    PATH=${python_framework}/bin:$env(PATH)
 }
 
 variant python26 conflicts python25 python27 description {Use python 2.6} {
@@ -101,7 +115,7 @@ variant python26 conflicts python25 python27 description {Use python 2.6} {
     configure.args-replace --disable-python --enable-python
 
     # ensure build path contains path to python executables (#26201)
-    build.env       PATH=${python_framework}/bin:$env(PATH)
+    build.env-append    PATH=${python_framework}/bin:$env(PATH)
 }
 
 variant python27 conflicts python25 python26 description {Use python 2.7} {
@@ -114,7 +128,7 @@ variant python27 conflicts python25 python26 description {Use python 2.7} {
     configure.args-replace --disable-python --enable-python
 
     # ensure build path contains path to python executables (#26201)
-    build.env       PATH=${python_framework}/bin:$env(PATH)
+    build.env-append    PATH=${python_framework}/bin:$env(PATH)
 }
 
 if {![variant_isset python25] && ![variant_isset python26]} {
@@ -122,11 +136,19 @@ if {![variant_isset python25] && ![variant_isset python26]} {
 }
 
 post-activate {
+    ui_debug "${prefix}/bin/gconftool-2 --makefile-install-rule ${prefix}/etc/gconf/schemas/gweather.schemas"
     system -W ${prefix} "\
         GCONF_CONFIG_SOURCE= \
         ${prefix}/bin/gconftool-2 --makefile-install-rule \
             ${prefix}/etc/gconf/schemas/gweather.schemas"
+     ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/${name}/icons/gnome"
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/${name}/icons/gnome"
 }
 
-# "gnome" livecheck wants to update to the gnome3 version, so disable
+post-deactivate {
+     ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/${name}/icons/gnome"
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/${name}/icons/gnome"
+}
+
+# "gnome" livecheck wants to update to the gnome3 version, so disable:
 livecheck.type  none

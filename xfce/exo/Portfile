@@ -5,13 +5,14 @@ PortSystem      1.0
 
 name            exo
 version         0.3.107
-revision        3
+set branch      [join [lrange [split ${version} .] 0 1] .]
+revision        4
 categories      xfce
 platforms       darwin linux
 license         GPL-2+ LGPL-2+
 maintainers     afb openmaintainer
 description     libexo is targeted at application development for Xfce
-long_description ${description}
+long_description ${description}.
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.2/src/
 use_bzip2       yes
@@ -28,26 +29,31 @@ configure.args-append  \
                 --disable-hal \
                 --disable-fast-install
 
+configure.env-append \
+                libintl_extra_libs=-liconv
+
+#TODO: allow different perl versions to be used:
+configure.perl  ${prefix}/bin/perl5.16
+
 depends_build-append \
-                port:pkgconfig\
-                port:intltool
+                port:pkgconfig \
+                port:gettext \
+                port:intltool \
+                port:perl5.16 \
+                bin:gawk:gawk
+# The perl module is pure-perl, so it will not actually show up as
+# "linked-against" in the traditional sense, but it still counts as a
+# library dependency:
 depends_lib-append \
                 port:p5.16-uri \
                 port:libxfce4util \
                 port:gtk2 \
                 port:atk \
-                port:bzip2 \
-                port:dbus-glib \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
-                port:libffi \
                 port:libiconv \
-                port:libnotify \
-                port:libpng \
-                port:ncurses \
                 port:xorg-libX11 \
                 port:xorg-libXau \
                 port:xorg-libXcomposite \
@@ -61,15 +67,23 @@ depends_lib-append \
                 port:xorg-libXrandr \
                 port:xorg-libxcb \
                 port:xrender \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
-                path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
-                path:lib/pkgconfig/dbus-1.pc:dbus
+                path:lib/pkgconfig/pango.pc:pango
+# some of these started off as library dependencies, but were moved to
+# runtime ones after determining that they were not actually
+# "linked-against" even though they were still needed at runtime:
+depends_run-append \
+                port:libpng \
+                path:lib/pkgconfig/dbus-1.pc:dbus \
+                path:share/icons/hicolor/index.theme:hicolor-icon-theme \
+                path:bin/gtk-update-icon-cache:gtk2 \
+                path:bin/update-desktop-database:desktop-file-utils
 
 patchfiles-append \
                 patch-exo-mmintrin.diff
+
+patch.args-append --backup
 
 post-configure {
     reinplace "s|-Werror||g" ${worksrcpath}/exo/Makefile
@@ -77,8 +91,86 @@ post-configure {
     reinplace "s|-Werror||g" ${worksrcpath}/exo-mount-notify/Makefile
 }
 
+test.run        yes
+test.target     check
+                
 platform darwin {
-        configure.args-append --disable-visibility
+    configure.args-append --disable-visibility
+}
+
+variant docs description {build documentation} {
+    depends_build-append \
+                bin:xsltproc:libxslt \
+                bin:xml2po:gnome-doc-utils \
+                port:gtk-doc \
+                port:docbook-xsl \
+                port:docbook-xsl-ns \
+                port:p5.16-xml-libxslt
+    configure.args-append \
+                --enable-gtk-doc \
+                --enable-xsltproc \
+                --enable-xml2po
+    #FIXME: xsltproc fails in tracemode (works normally though)
+}
+
+#TODO: variants for other different versions of python:
+variant python27 description {build python27 bindings} {
+    depends_build-append \
+                port:python27 \
+                bin:pygtk-codegen-2.0:py27-pygtk \
+                bin:pygobject-codegen-2.0:py27-gobject
+    depends_lib-append \
+                port:python27 \
+                port:py27-pygtk \
+                port:py27-gobject \
+                port:libtool
+    depends_run-append port:python27
+    configure.args-replace --disable-python --enable-python
+    configure.python ${prefix}/bin/python2.7
+    # The python portgroup normally sets this, but we are not using that
+    # here, so set it manually:
+    set python.prefix ${frameworks_dir}/Python.framework/Versions/2.7
+    # make sure pygtk can be found:
+    configure.pkg_config_path ${prefix}/lib/pkgconfig:${prefix}/share/pkgconfig:${python.prefix}/lib/pkgconfig
+    configure.env-append PATH=${python.prefix}/bin:$env(PATH)
+    build.env-append PATH=${python.prefix}/bin:$env(PATH)
+    # avoid duplicate symbol linking errors:
+    configure.cppflags-append -DNO_IMPORT
+    # do the removal of -Werror for the python subdir, too, now that we are
+    # actually going into it for this variant:
+    post-configure {
+        reinplace "s|-Werror||g" ${worksrcpath}/python/Makefile
+        # this next one is probably a bad idea, but it is necessary to
+        # build successfully:
+        reinplace "s|-no-undefined|-undefined dynamic_lookup|g" ${worksrcpath}/python/Makefile
+    }
+    # pygtk libraries will fail to get picked up automatically, so force
+    # them to be linked against:
+    configure.ldflags-append -L${python.prefix}/lib -lpython2.7 -lpyglib-2.0-python2.7
+    if {[variant_isset docs]} {
+        depends_build-append port:py27-libxslt
+    }
+}
+
+variant notify description {enable notifications support} {
+    # need a patch to deal with a libnotify 0.7 API change:
+    patchfiles-append patch-exo-mount-notify_main.c.diff
+    depends_lib-append port:libnotify
+    configure.args-replace --disable-notifications --enable-notifications
+    if {[variant_isset python27]} {
+        depends_lib-append port:py27-notify-python
+    }
+}
+
+post-activate {
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    if {[variant_isset python27]} {
+        ui_debug "${prefix}/bin/glibtool --finish ${prefix}/lib/python2.7/site-packages/${name}-${branch}"
+        system -W ${prefix} "${prefix}/bin/glibtool --finish ${prefix}/lib/python2.7/site-packages/${name}-${branch}"
+    }
 }
 
 livecheck.type  none

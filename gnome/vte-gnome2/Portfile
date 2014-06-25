@@ -1,0 +1,151 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem      1.0
+
+name            vte-gnome2
+set myname      vte
+replaced_by     ${myname}
+version         0.28.2
+revision        4
+set branch      [join [lrange [split ${version} .] 0 1] .]
+maintainers     nomaintainer
+categories      gnome
+license         LGPL-2+
+platforms       darwin
+description     Terminal widget with improved accessibility and I18N \
+                support.
+
+long_description \
+    Terminal widget with improved font, internationalisation and \
+    accessibility support for the GNOME 2 desktop. Designed to \
+    replace libzvt. This is an old version.
+
+homepage        http://www.gnome.org/
+master_sites    gnome:sources/${myname}/${branch}/
+
+distname        ${myname}-${version}
+use_xz          yes
+
+checksums       rmd160  8f3396d4e98023b74898e938331917b181964158 \
+                sha256  86cf0b81aa023fa93ed415653d51c96767f20b2d7334c893caba71e42654b0ae
+
+depends_build-append \
+                port:intltool \
+                port:pkgconfig
+depends_lib-append \
+                port:atk \
+                port:gdk-pixbuf2 \
+                port:gettext \
+                port:gtk2 \
+                port:ncurses \
+                port:xorg-libX11 \
+                path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                path:lib/pkgconfig/cairo.pc:cairo \
+                path:lib/pkgconfig/pango.pc:pango
+# other ports that are linked against, but that no symbols are actually
+# used from: fontconfig, freetype, xorg-libXau, xorg-libXcomposite,
+# xorg-libXcursor, xorg-libXdamage, xorg-libXdmcp, xorg-libXext,
+# xorg-libXfixes, xorg-libXi, xorg-libXinerama, xorg-libXrandr,
+# xorg-libxcb, and xrender
+
+patchfiles-append \
+                patch-configure.diff
+
+configure.args-append \
+                --disable-introspection \
+                --disable-Bsymbolic \
+                --disable-python \
+                --disable-silent-rules \
+                --disable-gnome-pty-helper \
+                --disable-glade
+
+configure.cflags-append -fstrict-aliasing
+
+test.run        yes
+test.target     check
+
+# default to python27 bindings:
+if {![variant_isset python27] && ![variant_isset python26]} {
+    default_variants-append +python27
+}
+
+variant python27 conflicts python26 \
+description {Build Bindings for Python 2.7} {
+    configure.args-delete --disable-python
+    set python_prefix ${frameworks_dir}/Python.framework/Versions/2.7
+    depends_lib-append          port:py27-pygtk \
+                                port:libtool
+    configure.python            ${prefix}/bin/python2.7
+    configure.pkg_config_path   ${python_prefix}/lib/pkgconfig
+    configure.env-append        PATH=${python_prefix}/bin:$env(PATH)
+}
+
+variant python26 conflicts python27 \
+description {Build Bindings for Python 2.6} {
+    configure.args-delete --disable-python
+    set python_prefix ${frameworks_dir}/Python.framework/Versions/2.6
+    depends_lib-append          port:py26-pygtk \
+                                port:libtool
+    configure.python            ${prefix}/bin/python2.6
+    configure.pkg_config_path   ${python_prefix}/lib/pkgconfig
+    configure.env-append        PATH=${python_prefix}/bin:$env(PATH)
+}
+
+variant docs description {build documentation} {
+    depends_build-append        port:gtk-doc
+    depends_run-append          port:devhelp \
+                                port:libpng
+    configure.args-append       --enable-gtk-doc \
+                                --enable-gtk-doc-html \
+                                --enable-gtk-doc-pdf
+}
+
+variant debug description {enable debugging} {
+    configure.args-append       --enable-debug
+    configure.optflags          -g
+    configure.pipe              no
+}
+
+variant ptyhelper description {build a setuid helper for opening ptys} {
+    configure.args-replace      --disable-gnome-pty-helper --enable-gnome-pty-helper
+    # this is to prevent a conflict with the newer vte port:
+    configure.args-append       --libexecdir=${prefix}/libexec/${name}
+}
+
+# used to be built by default even without the variant, so make the
+# variant a default to be consistent with previous behavior:
+default_variants-append +ptyhelper
+
+variant introspection description {build with gobject-introspection support} {
+    depends_lib-append          port:gobject-introspection
+    configure.args-replace --disable-introspection --enable-introspection
+}
+
+variant glade description {Enable building of glade catalog items} {
+    depends_lib-append          port:glade
+    configure.args-replace      --disable-glade --enable-glade=yes
+    configure.env-append        enable_glade_catalogue=yes
+}
+
+# glade expects catalog modules and libraries to have a .so suffix:
+post-destroot {
+    if {[variant_isset glade]} {
+        ui_debug "letting glade find libvte..."
+        set libdir ${prefix}/lib
+        ui_debug "ln -s ${libdir}/libvte.dylib ${destroot}${libdir}/libvte.so"
+        ln -s ${libdir}/libvte.dylib ${destroot}${libdir}/libvte.so
+    }
+}
+
+
+platform darwin 9 {
+    post-patch {
+        reinplace "s| -export-symbols-regex.*||g" \
+            ${worksrcpath}/python/Makefile.in
+        reinplace "s|-export-symbols-regex.*| \\\\|g" \
+            ${worksrcpath}/src/Makefile.in
+    }
+}
+
+livecheck.type  gnome

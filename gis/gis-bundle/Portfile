@@ -7,6 +7,7 @@ PortGroup           archcheck 1.0
 
 name                gis-bundle
 version             0.1.0
+revision            1
 categories          gis
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall
@@ -38,6 +39,7 @@ depends_lib-append  port:qt4-mac \
                     port:libproj4 \
                     port:mapnik \
                     port:mapserver \
+                    port:postgis \
                     port:postgis2 \
                     port:qgis \
                     port:qlandkartegt \
@@ -62,6 +64,7 @@ depends_lib-append  port:qt4-mac \
                     port:gpsbabel \
                     port:gpsd \
                     port:osm-gps-map \
+                    port:osm-gps-map-gtk2 \
                     port:p5.16-gps \
                     port:p5.16-term-gnuplot \
                     port:p5.16-gdgraph \
@@ -97,12 +100,13 @@ depends_lib-append  port:qt4-mac \
                     port:CocoaDialog \
                     port:cliclick \
                     port:libgweather \
+                    port:libgweather2 \
                     port:network-weathermap \
                     port:gtkdbfeditor \
                     port:pg2xbase \
                     port:catdoc \
                     port:libxl \
-                    port:libxls \
+                    bin:xls2csv:libxls \
                     port:xlsx2csv \
                     port:gnumeric \
                     port:sc \
@@ -111,16 +115,25 @@ depends_lib-append  port:qt4-mac \
                     port:proj \
                     port:proj47 \
                     port:sfcgal \
-                    port:relax3d
+                    port:relax3d \
+                    port:terra \
+                    port:geographiclib \
+                    port:spatialindex \
+                    port:geoclue \
+                    port:geoclue2 \
+                    port:geocode-glib \
+                    port:libgeoip \
+                    port:GeoLiteCity \
+                    port:gshhg-gmt
 
-depends_skip_archcheck lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45 gpsd
+depends_skip_archcheck-append lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45 gpsd
 require_active_variants qt4-mac {debug demos examples openvg universal}
 require_active_variants cgal {debug demos qt4 universal}
 require_active_variants tcl {corefoundation memdebug threads universal}
 require_active_variants postgresql84 {earthdistance krb5 tcl universal}
 require_active_variants gdal {huge universal}
 require_active_variants mapnik {cairo gdal geos osm sqlite}
-require_active_variants postgis2 {gui universal}
+require_active_variants postgis2 {gui raster sfcgal topology universal}
 require_active_variants qlandkartegt {debug universal}
 require_active_variants qlandkartegt-garmindev {debug universal}
 require_active_variants qt4-mac-sqlite3-plugin {debug universal}
@@ -128,22 +141,26 @@ require_active_variants vtk5 {debug universal}
 require_active_variants gmt4 {gdal triangle xgrid}
 require_active_variants gmt5 {gdal triangle}
 require_active_variants sfcgal {debug examples universal viewer}
+require_active_variants spatialite-tools {readline universal}
+require_active_variants liblas {debug universal}
+require_active_variants libpcl {debug universal}
+require_active_variants libproj4 {universal}
+require_active_variants qtiplot {debug qtexengine universal}
 
-variant python25 conflicts python26 python27 \
+variant python25 conflicts python26 python27 python32 python33 python34 \
     description {Enable Python 2.5 support} {
     depends_lib-append      port:python25 \
-                            port:py25-django \
                             port:py25-lightblue \
                             port:py25-openpyxl \
                             port:py25-xlutils \
-                            port:py25-xlwt
+                            port:py25-xlwt \
+                            port:py25-geopy
     require_active_variants gdal {python25}
-    require_active_variants py25-django {bash_completion}
-    require_active_variants qgis {python25}
     require_active_variants vtk5 {python25}
+    require_active_variants qtiplot {python25}
 }
 
-variant python26 conflicts python25 python27 \
+variant python26 conflicts python25 python27 python32 python33 python34 \
     description {Enable Python 2.6 support} {
     depends_lib-append      port:python26 \
                             port:py26-django \
@@ -153,17 +170,21 @@ variant python26 conflicts python25 python27 \
                             port:py26-lightblue \
                             port:py26-openpyxl \
                             port:py26-xlutils \
+                            port:py26-xlrd \
                             port:py26-xlwt \
-                            port:py26-pyshp
+                            port:py26-pyshp \
+                            port:py26-geojson \
+                            port:py26-pygeocoder
     require_active_variants gdal {python26}
     require_active_variants mapnik {python26}
     require_active_variants py26-mapnik {cairo gdal postgis sqlite}
     require_active_variants py26-django {bash_completion}
     require_active_variants qgis {python26}
     require_active_variants vtk5 {python26}
+    require_active_variants qtiplot {python26}
 }
 
-variant python27 conflicts python25 python26 \
+variant python27 conflicts python25 python26 python32 python33 python34 \
     description {Enable Python 2.7 support} {
     depends_lib-append      port:python27 \
                             port:py27-django \
@@ -172,20 +193,61 @@ variant python27 conflicts python25 python26 \
                             port:py27-lightblue \
                             port:py27-openpyxl \
                             port:py27-xlutils \
+                            port:py27-xlrd \
                             port:py27-xlwt \
                             port:py27-cartopy \
                             port:py27-fiona \
                             port:py27-pyshp \
-                            port:py27-rasterio
+                            port:py27-rasterio \
+                            port:py27-geojson \
+                            port:py27-pygeocoder
+    depends_skip_archcheck-append py27-cartopy py27-scipy
     require_active_variants gdal {python27}
     require_active_variants postgresql84 {python python27}
     require_active_variants mapnik {python27}
     require_active_variants py27-django {bash_completion}
     require_active_variants qgis {python27}
     require_active_variants vtk5 {python27}
+    require_active_variants qtiplot {python27}
 }
 
-#TODO: add python3.x variants
+variant python32 conflicts python25 python26 python27 python33 python34 \
+    description {Enable Python 3.2 support} {
+    depends_lib-append      port:python32 \
+                            port:py32-pyshp \
+                            port:py32-django \
+                            port:py32-xlrd
+    require_active_variants py32-django {bash_completion}
+}
+variant python33 conflicts python25 python26 python27 python32 python34 \
+    description {Enable Python 3.3 support} {
+    depends_lib-append      port:python33 \
+                            port:py33-pyshp \
+                            port:py33-django \
+                            port:py33-geojson \
+                            port:py33-fiona \
+                            port:py33-rasterio \
+                            port:py33-xlrd
+    require_active_variants py33-django {bash_completion}
+}
+variant python34 conflicts python25 python26 python27 python32 python33 \
+    description {Enable Python 3.4 support} {
+    depends_lib-append      port:python34 \
+                            port:py34-pyshp \
+                            port:py34-geojson \
+                            port:py34-fiona \
+                            port:py34-rasterio \
+                            port:py34-xlrd
+}
+
+if {![variant_isset python25] && ![variant_isset python26] && ![variant_isset python32] && ![variant_isset python33] && ![variant_isset python34]} {
+    default_variants-append +python27
+}
+
+# Other possible variants:
+# - php variants (php*geoip)
+# - mysql variants (*lib_mysqludf_fPROJ4)
+# - postgresql variants (require_active_variants for the postgis ports)
 
 variant broken description {broken dependencies are thrown here until they work} {
     depends_lib-append      port:gdal-grass \
@@ -196,13 +258,15 @@ variant broken description {broken dependencies are thrown here until they work}
                             port:qlandkarte \
                             port:mapm3 \
                             port:orfeotoolbox \
-                            port:saga
-    depends_skip_archcheck OpenSceneGraph osgswig-devel
+                            port:saga \
+                            port:kgeography
+    depends_skip_archcheck-append OpenSceneGraph osgswig-devel
     require_active_variants grass {ffmpeg sqlite3 universal}
     require_active_variants libpcl {debug universal}
     require_active_variants qgis {debug grass universal}
-    require_active_variants pgRouting {debug universal}
+    require_active_variants pgRouting {debug doc universal}
     require_active_variants orfeotoolbox {debug qt4 universal}
+    require_active_variants osgswig-devel {debug universal}
     if {[variant_isset python27]} {
         require_active_variants orfeotoolbox {python27}
         require_active_variants saga {python27}

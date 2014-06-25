@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                megatools
 version             1.9.91
-revision            2
+revision            3
 categories          net fuse
 license             GPL-2+
 platforms           darwin
@@ -37,7 +37,7 @@ depends_lib-append  path:lib/pkgconfig/glib-2.0.pc:glib2 \
                     port:gettext \
                     port:libiconv \
                     port:openssl \
-                    port:fuse4x
+                    path:lib/pkgconfig/fuse.pc:osxfuse
 
 depends_run-append  port:glib-networking \
                     port:gjs

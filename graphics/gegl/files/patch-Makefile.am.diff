@@ -1,0 +1,68 @@
+--- Makefile.am.orig	2012-04-01 19:34:04.000000000 -0400
++++ Makefile.am	2014-06-24 13:17:29.000000000 -0400
+@@ -1,8 +1,10 @@
++## top-level automake Makefile for gegl
++
+ ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
+ 
+ # The libs directory needs to be before anything which can depend on its
+-# libraries, otherwise any potentially rebuilt libs won't be picked up until
+-# the next run of make.
++# libraries, otherwise any potentially rebuilt libs will NOT be picked up
++# until the next run of make.
+ SUBDIRS=\
+ 	libs \
+ 	gegl \
+@@ -29,13 +31,13 @@
+ 	m4/introspection.m4	\
+ 	gegl.pc.in
+ 
+-# DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
++AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
+ 
+ DISTCLEANFILES = \
+ 	$(built_dist_files)
+ 
+ if HAVE_W3M
+-dist-check-w3m:
++dist-check-w3m: README
+ 
+ README: all docs/index.html
+ 	$(W3M) -cols 72 -dump docs/index.html > $@
+@@ -45,13 +47,15 @@
+ 	@false
+ endif
+ 
++.PHONY: dist-check-w3m
++
+ dist-hook: dist-check-w3m
+ 
+ website: all
+ 	$(MAKE) -C docs website
++.PHONY: website
+ 
+-
+-### ChangeLog generation
++### ChangeLog generation:
+ 
+ CHANGELOG_START = 5e2cc2146486ce0c1ebc0cbf68770dafafcb123f
+ 
+@@ -61,13 +65,13 @@
+ 	@if test -d "$(srcdir)/.git"; then \
+ 	  (GIT_DIR=$(top_srcdir)/.git ./missing --run \
+ 	   git log $(CHANGELOG_START)^.. --stat) | fmt --split-only > $@.tmp \
+-	  && mv -f $@.tmp $@ \
++	  && mv -fv $@.tmp $@ \
+ 	  || ($(RM) $@.tmp; \
+-	      echo Failed to generate ChangeLog, your ChangeLog may be outdated >&2; \
+-	      (test -f $@ || echo git-log is required to generate this file >> $@)); \
++	      echo "Failed to generate ChangeLog, your ChangeLog may be outdated" >&2; \
++	      (test -f $@ || echo "git-log is required to generate this file" >> $@)); \
+ 	else \
+ 	  test -f $@ || \
+-	  (echo A git checkout and git-log is required to generate ChangeLog >&2 && \
+-	  echo A git checkout and git-log is required to generate this file >> $@); \
++	  (echo "A git checkout and git-log is required to generate ChangeLog" >&2 && \
++	  echo "A git checkout and git-log is required to generate this file" >> $@); \
+ 	fi
+ .PHONY: $(srcdir)/ChangeLog

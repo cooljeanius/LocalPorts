@@ -1,0 +1,12 @@
+--- camel/tests/message/Makefile.am.orig	2011-04-21 15:35:37.000000000 -0400
++++ camel/tests/message/Makefile.am	2014-05-15 19:10:42.000000000 -0400
+@@ -11,7 +11,8 @@
+ 	$(top_builddir)/libedataserver/libedataserver-${API_VERSION}.la \
+ 	$(top_builddir)/camel/tests/lib/libcameltest.a			\
+ 	$(top_builddir)/camel/libcamel-${API_VERSION}.la 		\
+-	$(INTLLIBS)
++	$(INTLLIBS) 							\
++	$(ICONV_LIBS)
+ 
+ check_PROGRAMS = \
+ 	test1		\

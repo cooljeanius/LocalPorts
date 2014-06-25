@@ -1,0 +1,11 @@
+--- docs/manual/C/Makefile.am.orig	2010-05-21 12:57:20.000000000 -0400
++++ docs/manual/C/Makefile.am	2014-05-10 20:20:58.000000000 -0400
+@@ -11,6 +11,6 @@
+ 
+ EXTRA_DIST = $(noinst_DATA) $(doc_DATA)
+ 
+-html: $(srcdir)/xfce4-panel.xml
+-	xsltproc $(srcdir)/../xfce-nochunk.xsl $(srcdir)/xfce4-panel.xml
++html-local: $(srcdir)/xfce4-panel.xml
++	${prefix}/bin/xsltproc $(srcdir)/../xfce-nochunk.xsl $(srcdir)/xfce4-panel.xml
+ 

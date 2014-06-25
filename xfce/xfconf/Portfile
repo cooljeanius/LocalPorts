@@ -5,13 +5,14 @@ PortSystem      1.0
 
 name            xfconf
 version         4.6.2
-revision        1
+revision        3
 categories      xfce
 platforms       darwin linux
 license         GPL-2
 maintainers     afb openmaintainer
 description     easy-to-use configuration system for xfce
-long_description ${description}
+long_description ${name}: dbus-based configuration daemon and library \
+                for xfce
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
 use_bzip2       yes
@@ -20,11 +21,13 @@ checksums       md5     5ff93c15077c6dbbcd38c437bc1ab2ef \
                 rmd160  beaa96507c97fd1cbf0884ce1332c7c0da5684ac \
                 sha256  7b2635abc33ae6a76145238ed27557bc1ff91b1a5ee0757962f798a66d56f478
 
-
+# adding libtool as a dependency manually until autoreconfing works:
 depends_build-append \
+                port:libtool \
                 port:intltool \
                 port:pkgconfig \
                 port:gtk-doc \
+                port:xfce4-dev-tools \
                 port:p5.16-extutils-depends \
                 port:p5.16-extutils-pkgconfig \
                 port:p5.16-glib \
@@ -40,9 +43,7 @@ depends_lib-append \
                 port:xorg-libX11 \
                 port:gtk2 \
                 port:gettext \
-                port:libffi \
                 port:libiconv \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2
 
 depends_run-append \
@@ -50,15 +51,65 @@ depends_run-append \
                 port:p5.16-extutils-pkgconfig \
                 port:p5.16-glib
 
+patchfiles-append \
+                patch-configure.ac.diff \
+                patch-Makefile.am.diff \
+                patch-xfconfd_xfconf-backend-perchannel-xml.c.diff
+patch.args-append --backup
+
+post-patch {
+    xinstall -d ${worksrcpath}/m4
+    eval xinstall -m 644 [glob ${filespath}/*.m4] ${worksrcpath}/m4
+    foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
+        xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
+    }
+}
+
+#FIXME: get autoreconfing to work
+
+configure.perl  ${prefix}/bin/perl5.16
+
 configure.args-append \
                 --with-x \
                 --x-includes=${prefix}/include \
                 --x-libraries=${prefix}/lib \
                 --enable-gtk-doc \
-                --enable-checks
+                --disable-checks \
+                --disable-debug \
+                --disable-option-checking
 
 platform darwin {
-        configure.args-append --disable-visibility
+    configure.args-append --disable-visibility
+}
+
+use_parallel_build no
+
+post-destroot {
+    if {[file exists ${destroot}${prefix}/lib/perl5/5.16.3/darwin-thread-multi-2level/perllocal.pod]} {
+        ui_debug "renaming perllocal.pod installed by ${name}"
+        file rename -force ${destroot}${prefix}/lib/perl5/5.16.3/darwin-thread-multi-2level/perllocal.pod ${destroot}${prefix}/lib/perl5/5.16.3/darwin-thread-multi-2level/perllocal.${name}.pod
+        if {[file exists ${destroot}${prefix}/lib/perl5/5.16.3/darwin-thread-multi-2level/perllocal.pod]} {
+            # renaming should delete the original copy, but just in case:
+            file delete -force ${destroot}${prefix}/lib/perl5/5.16.3/darwin-thread-multi-2level/perllocal.pod
+        }
+    } else {
+        ui_debug "${name} did not end up installing its perllocal.pod in the place where it has been known to install it."
+        ui_debug "On the one hand, this could be good if that means that ${name} has now stopped installing perllocal.pod completely."
+        ui_debug "On the other hand, this could just mean that the perl version has changed and ${name} now installed its perllocal.pod with a different path."
+        ui_debug "Be sure to look through the destroot to verify which of these was the case."
+    }
+}
+
+variant debug description {enable debugging} {
+    configure.optflags -g
+    configure.args-replace --disable-checks --enable-checks
+    configure.args-replace --disable-debug --enable-debug=full
+    post-configure {
+        reinplace "s|-Werror||g" ${worksrcpath}/common/Makefile
+        reinplace "s|-Werror||g" ${worksrcpath}/xfconf/Makefile
+        reinplace "s|-Werror||g" ${worksrcpath}/xfconfd/Makefile
+        reinplace "s|-Werror||g" ${worksrcpath}/xfconf-query/Makefile
+    }
 }
 
 # broken, so disable:

@@ -1,0 +1,8 @@
+--- Makefile.am.orig	2011-04-21 15:35:35.000000000 -0400
++++ Makefile.am	2014-05-14 16:08:35.000000000 -0400
+@@ -1,4 +1,4 @@
+-ACLOCAL_AMFLAGS=-I m4
++ACLOCAL_AMFLAGS=-I m4 --install
+ 
+ DISTCHECK_CONFIGURE_FLAGS = --disable-gtk3 --enable-gtk-doc --with-krb5=/usr --without-weather
+ 

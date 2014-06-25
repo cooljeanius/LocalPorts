@@ -7,11 +7,13 @@ PortGroup           active_variants 1.1
 
 name                putty
 version             0.63
-revision            1
+revision            3
 categories          security net comms
 platforms           darwin
 maintainers         nomaintainer
 license             MIT
+
+conflicts           pssh
 
 description         a free implementation of Telnet and SSH, along with \
                     an xterm terminal emulator
@@ -27,6 +29,7 @@ checksums           rmd160  cf28d88a5f0e1db6c21bb0308bd59ed4d6399e5f \
 
 depends_build-append  \
                     port:pkgconfig \
+                    port:gettext \
                     path:bin/xmkmf:imake \
                     path:share/aclocal/gtk.m4:gtk1 \
                     path:share/aclocal/gtk-2.0.m4:gtk2 \
@@ -43,7 +46,6 @@ depends_lib-append  port:gtk1 \
                     port:glib-networking \
                     path:lib/pkgconfig/pixman-1.pc:libpixman \
                     path:lib/pkgconfig/cairo.pc:cairo \
-                    port:harfbuzz \
                     path:lib/pkgconfig/pango.pc:pango \
                     port:freetype \
                     port:fontconfig \
@@ -59,13 +61,16 @@ depends_lib-append  port:gtk1 \
                     port:xorg-libXi \
                     port:xorg-libXinerama \
                     port:xorg-libXrandr \
+                    port:xorg-libsm \
                     port:xrender
 
 depends_run-append  bin:xterm:xterm
 
-depends_skip_archcheck gdk-pixbuf
+depends_skip_archcheck-append gdk-pixbuf
 
 if {![variant_isset native]} {
+    depends_build-append path:lib/gtk/themes/engines:gtk-engines
+    depends_skip_archcheck-append gtk-engines
     require_active_variants gtk2 x11
     require_active_variants gdk-pixbuf2 x11
     require_active_variants cairo x11
@@ -76,23 +81,39 @@ if {![variant_isset native]} {
                         patch-configure.diff \
                         patch-configure.ac.diff
 
+    patch.args-append   --backup
+
     post-patch {
-        system -W ${worksrcdir} "mkdir m4"
+        # this only works because we overrode worksrcdir above:
+        ui_debug "file mkdir ${worksrcdir}/m4"
+        file mkdir ${worksrcdir}/m4
         if {[file exists ${worksrcdir}/aclocal.m4]} {
+            ui_debug "file copy ${worksrcdir}/aclocal.m4 ${worksrcdir}/m4"
             file copy ${worksrcdir}/aclocal.m4 ${worksrcdir}/m4
         }
+        ui_msg "file copy ${prefix}/share/aclocal/gtk.m4 ${worksrcdir}/m4"
         file copy ${prefix}/share/aclocal/gtk.m4 ${worksrcdir}/m4
+        ui_debug "${prefix}/bin/autoupdate ${worksrcdir}/m4/gtk.m4"
+        system -W ${worksrcdir} "${prefix}/bin/autoupdate m4/gtk.m4"
+        ui_debug "file copy ${prefix}/share/aclocal/gtk-2.0.m4 ${worksrcdir}/m4"
         file copy ${prefix}/share/aclocal/gtk-2.0.m4 ${worksrcdir}/m4
+        ui_debug "${prefix}/bin/autoupdate ${worksrcdir}/m4/gtk-2.0.m4"
+        system -W ${worksrcdir} "${prefix}/bin/autoupdate m4/gtk-2.0.m4"
+        ui_debug "file copy ${prefix}/share/aclocal/gtk-doc.m4 ${worksrcdir}/m4"
         file copy ${prefix}/share/aclocal/gtk-doc.m4 ${worksrcdir}/m4
         if {![file exists ${worksrcdir}/Makefile.am]} {
+            ui_debug "file copy ${worksrcdir}/Makefile.in ${worksrcdir}/Makefile.am"
             file copy ${worksrcdir}/Makefile.in ${worksrcdir}/Makefile.am
         }
-        system -W ${worksrcdir} "echo \"ACLOCAL_AMFLAGS = -I m4 \" >> Makefile.am"
-        system -W ${worksrcdir} "echo \"AM_LDFLAGS = -lgtk \" >> Makefile.am"
+        ui_debug "adding some things to ${worksrcdir}/Makefile.am"
+        system -W ${worksrcdir} "echo \"ACLOCAL_AMFLAGS = -I m4 --install\" | tee -a Makefile.am"
+        system -W ${worksrcdir} "echo \"AM_LDFLAGS = -lgtk\" | tee -a Makefile.am"
+        system -W ${worksrcdir} "echo \"SUBDIRS = .\" | tee -a Makefile.am"
+        ui_debug "running ${prefix}/bin/autoscan in ${worksrcdir}"
         system -W ${worksrcdir} "${prefix}/bin/autoscan"
     }
     use_autoreconf      yes
-    autoreconf.args     -fvi
+    autoreconf.args     -fvi -Wall
 
     configure.args-append \
                         --with-x \
@@ -101,7 +122,16 @@ if {![variant_isset native]} {
                         --with-gtk-prefix=${prefix} \
                         --enable-gtk-doc \
                         --with-gtk=2 \
-                        --disable-gtktest
+                        --disable-gtktest \
+                        --with-libiconv-prefix=${prefix} \
+                        --with-libintl-prefix=${prefix}
+
+    # dependency tracking is normally disabled for universal builds, but we
+    # need it to always be disabled:
+    if {![variant_isset universal]} {
+        configure.args-append \
+                        --disable-dependency-tracking
+    }
 
     configure.env-append \
                         XMKMF=${prefix}/bin/xmkmf
@@ -120,6 +150,9 @@ if {![variant_isset native]} {
                         -L${prefix}/lib/gio/modules \
                         -L${prefix}/lib/gdk-pixbuf/loaders \
                         -L${prefix}/lib/gdk-pixbuf-2.0/2.10.0/loaders
+
+    test.run            yes
+    test.target         check
 }
 
 configure.cflags-delete -Werror
@@ -128,12 +161,16 @@ post-configure {
     reinplace "s|\-Werror||" Makefile
 }
 
+#TODO: allow building of cygtermd in contrib
+# (requires a workaround for the worksrcdir hacks)
+
 platform macosx {
-    variant native description {Build a native Mac app version} {
+    # (broken)
+    variant native description {Try to build a native Mac app version instead} {
         require_active_variants cairo quartz
-        require_active_variants pango quartz 
+        require_active_variants pango quartz
         worksrcdir ${worksrcdir}/macosx
-        patchfiles ""
+        patchfiles
         post-configure {
             reinplace "s|\-Werror||" Makefile
         }

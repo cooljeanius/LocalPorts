@@ -3,10 +3,12 @@
 
 PortSystem      1.0
 
+PortGroup       archcheck 1.0
+
 name            gnutls2
 set my_name     gnutls
 version         2.12.19
-revision        2
+revision        5
 categories      devel security net
 # yes, some of the libs are GPL only
 license         LGPL-2.1+ GPL-3+
@@ -37,26 +39,32 @@ depends_build-append \
                 port:gaa \
                 bin:ar:cctools
 
+# libcfgplus is loaded at runtime, see tests variant below for more on that
 depends_lib-append \
+                port:libcfgplus \
                 port:libgcrypt \
-                port:libtasn1 \
                 port:lzo2 \
                 port:readline \
                 port:nettle \
                 port:pth \
                 port:zlib \
                 port:gettext \
+                port:gmp \
                 port:libiconv \
                 port:libgpg-error \
                 port:p11-kit
 
-configure.args  --with-lzo \
+# have to use included libtasn1 now that the port for libtasn1 is too new:
+configure.args-append \
+                --with-lzo \
                 --with-libgcrypt \
                 --with-libgcrypt-prefix=${prefix} \
                 --disable-guile \
                 --with-p11-kit \
                 --disable-silent-rules \
-                --with-included-libcfg \
+                --with-libiconv-prefix=${prefix} \
+                --with-libintl-prefix=${prefix} \
+                --with-included-libtasn1 \
                 --with-libtasn1-prefix=${prefix} \
                 --with-libnettle-prefix=${prefix} \
                 --with-libpth-prefix=${prefix} \
@@ -64,13 +72,39 @@ configure.args  --with-lzo \
                 --disable-valgrind-tests \
                 --disable-gtk-doc \
                 --program-suffix=2
+#TODO: use a transform name instead of a suffix for programs
 
-# Keep from conflicting with regular gnutls
+# Keep from conflicting with regular gnutls:
 configure.pre_args \
                 --prefix=${prefix}/lib/${name}
 
 configure.env-append \
-                GAA=${prefix}/bin/gaa
+                GAA=${prefix}/bin/gaa \
+                POW_LIB='-lm' \
+                LIBM='-lm' \
+                NETTLE_LIBS='-lnettle -lgmp -lhogweed ' \
+                LTLIBNETTLE='-L${prefix}/lib -lnettle -lhogweed ' \
+                LTLIBPTH='-L${prefix}/lib -lpth ' \
+                LTLIBTASN1='-L${prefix}/lib -ltasn1 ' \
+                LTLIBTHREAD='-lpth' \
+                LIBNETTLE='-lnettle -lhogweed ' \
+                LIBNETTLE_PREFIX='${prefix}' \
+                LIBPTH='-lpth' \
+                LIBPTH_PREFIX='${prefix}' \
+                LIBTASN1='-ltasn1' \
+                LIBTASN1_PREFIX='${prefix}' \
+                LIBTHREAD='-lpth' \
+                LZO_LIBS='-llzo2' \
+                LTLIBICONV='-L${prefix}/lib -liconv ' \
+                LTLIBINTL='-L${prefix}/lib -lintl -liconv ' \
+                LTLIBGCRYPT='-L${prefix}/lib -lgcrypt -lgpg-error ' \
+                LIBZ='-lz' \
+                LIBZ_PREFIX='${prefix}' \
+                LIBICONV='-L${prefix}/lib -liconv ' \
+                LIBINTL='-L${prefix}/lib -lintl -liconv ' \
+                LIBGCRYPT='-L${prefix}/lib -lgcrypt -lgpg-error ' \
+                LIBGCRYPT_PREFIX='${prefix}' \
+                INTLLIBS='-L${prefix}/lib -lintl -liconv '
 
 variant tests description {Run tests} {
     depends_build-append  path:bin/valgrind:valgrind \
@@ -79,16 +113,38 @@ variant tests description {Run tests} {
     configure.ccache      no
     test.run              yes
     test.target           check
+    platform darwin {
+        # one of the tests needs this to be able to find libcfg+ properly:
+        test.env-append   DYLD_FALLBACK_LIBRARY_PATH=/usr/lib:${prefix}/lib:~/lib:/usr/local/lib:/lib
+    }
 }
 
-variant guile description {Adds guile support - currently broken} {
+variant guile description {Adds guile support - was broken} {
+    # Needed because of how guile-snarf does preprocessing:
+    PortGroup          muniversal 1.0
+    # swig-guile and slib-guile are not actually linked against but I feel
+    # like keeping them as library dependencies anyways:
     depends_lib-append port:guile \
                        port:swig-guile \
-                       port:slib-guile
+                       port:slib-guile \
+                       port:libtool
+    depends_skip_archcheck-append slib-guile
     configure.args-replace --disable-guile --enable-guile
+    configure.args-append  --with-guile-site-dir=no
+    configure.env-append \
+               GUILE='${prefix}/bin/guile' \
+               GUILE_CFLAGS='-I${prefix}/include -D_THREAD_SAFE ' \
+               GUILE_CONFIG='${prefix}/bin/guile-config' \
+               GUILE_LDFLAGS='-L${prefix}/lib -lguile -lgmp -lm -lltdl' \
+               GUILE_SITE='${prefix}/share/guile/site' \
+               GUILE_TOOLS='${prefix}/bin/guile-tools'
     pre-build {
-        ui_warn "Warning: This build will most likely fail."
+        ui_warn "Warning: This build might fail."
     }
+    # needs to be set for dynamically loading guile extensions during the
+    # build process:
+    build.env-append \
+DYLD_FALLBACK_LIBRARY_PATH=/usr/lib:${prefix}/lib:~/lib:/usr/local/lib:/lib
     use_parallel_build no
 }
 
@@ -105,29 +161,37 @@ variant autoreconf description {Runs autoreconf before configuring} {
     patch.args-append       --backup
     use_autoreconf          yes
     autoreconf.args         -fvi -Wall -Wno-obsolete
-    depends_build-append    port:gawk \
-                            port:grep \
-                            port:gsed \
-                            port:gettext \
-                            port:autobuild \
+    depends_build-append    port:autobuild \
+                            bin:gawk:gawk \
+                            bin:grep:grep \
+                            bin:gsed:gsed \
+                            bin:autopoint:gettext \
                             bin:perl:perl5
     configure.args-append   --enable-gcc-warnings
+    platform darwin > 8 {
+        configure.args-append \
+                            --enable-largefile
+    }
+    configure.optflags      -g
+    configure.pipe          no
     use_parallel_build      no
 }
 
 # conflict with universal was only removed because I patched the poppler
-# portfile in my local portfile repo, but that is no longer relevant
+# portfile in my local portfile repo, but that is no longer relevant...
 variant docs description {Build gtk-doc documentation} {
-    PortGroup              archcheck 1.0
-    depends_build-append   port:gtk-doc
+    depends_build-append   port:gtk-doc \
+                           bin:xsltproc:libxslt
     # texinfo is already added unconditionally on Darwin 8, so I am only
-    # adding it on higher platforms here in this variant
+    # adding it on higher platforms here in this variant:
     platform darwin > 8 {
         depends_build-append \
                            port:texinfo
     }
-    depends_skip_archcheck gtk-doc
+    depends_skip_archcheck-append gtk-doc
     configure.args-replace --disable-gtk-doc --enable-gtk-doc
+    configure.args-append  --enable-gtk-doc-html \
+                           --enable-gtk-doc-pdf
 }
 
 platform darwin 8 {
@@ -135,7 +199,7 @@ platform darwin 8 {
                             port:gmake
 }
 
-# This is an old version, so turn off livecheck
+# This is an old version, so turn off livecheck:
 livecheck.type  none
 livecheck.url   http://ftp.gnu.org/gnu/${my_name}/
 livecheck.regex ${my_name}-(\\d+\\.\\d*\[02468\]+(?:\\.\\d+)*)

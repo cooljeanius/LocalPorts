@@ -7,7 +7,7 @@ PortGroup       compiler_blacklist_versions 1.0
 
 name            gegl
 version         0.2.0
-revision        11
+revision        13
 license         {GPL-3+ LGPL-3+}
 set branch      [join [lrange [split ${version} .] 0 1] .]
 categories      graphics
@@ -18,10 +18,10 @@ master_sites    gimp:${name}/${branch}/
 
 use_bzip2       yes
 
-description     GEGL is a graph based image processing framework.
+description     GEGL is a graph-based image processing framework.
 
 long_description \
-    GEGL is a graph based image processing framework offering image \
+    GEGL is a graph-based image processing framework offering image \
     processing and compositing on large images. GEGL is suitable for \
     projects ranging from small one-off projects to interactive \
     applications.
@@ -57,16 +57,11 @@ depends_lib-append \
                 port:gettext \
                 port:ilmbase \
                 port:jasper \
-                port:libffi \
                 port:libiconv \
                 port:libpng \
                 port:zlib \
-                port:bzip2 \
-                port:expat \
                 port:harfbuzz \
-                port:libcroco \
                 port:libtool \
-                port:libxml2 \
                 port:xorg-libX11 \
                 port:xorg-libXau \
                 port:xorg-libXdmcp \
@@ -74,48 +69,104 @@ depends_lib-append \
                 port:xorg-libXrandr \
                 port:xorg-libxcb \
                 port:xrender \
-                port:xz \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
                 path:lib/pkgconfig/pixman-1.pc:libpixman
 
-patchfiles-append \
-               patch-configure.diff \
-               patch-configure.ac.diff \
-               patch-rename-for-altivec.diff \
-               patch-ffmpeg.diff \
-               patch-fix-introspection.diff \
-               patch-examples-Makefile.am.diff
+pre-fetch {
+    ui_debug "'branch' evaluates to '${branch}'"
+}
 
-use_autoreconf yes
+#FIXME: make some of these patches easier to re-generate.
+# Right now, the order in which the patches are applied matters!
+# patch-fix-introspection has to be applied first, as it creates a bunch
+# of the files originally. Thus, if you want to patch something that it
+# also patches, give the backup file a different suffix, and apply the
+# patch after patch-fix-introspection has been applied.
+patchfiles-append \
+                patch-fix-introspection.diff \
+                patch-configure.diff \
+                patch-configure.ac.diff \
+                patch-rename-for-altivec.diff \
+                patch-ffmpeg.diff \
+                patch-examples-Makefile.am.diff \
+                patch-Makefile.am.diff
+
+# appending '--backup' to 'patch.args' makes muniversal fail, apparently,
+# so only do it when building non-universal (below)...
+post-patch {
+    # http://trac.macports.org/ticket/35148
+    if {${os.major} < 10} {
+        reinplace "s|OpenGL/CGLDevice.h|OpenGL/CGLTypes.h|" ${worksrcpath}/gegl/opencl/cl_gl.h
+    }
+    reinplace "s|--quiet|--verbose|g" ${worksrcpath}/operations/Makefile-operations.am
+    # need to run aclocal separately from autoreconfing, so that autoupdate
+    # will work properly:
+    ui_debug "running '${prefix}/bin/aclocal -I m4 --install' in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal -I m4 --install"
+    # these files that we autoupdate exist anyways:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/gegl-variadic-macros.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/gegl-variadic-macros.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/as-compiler-flag.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/as-compiler-flag.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/aclocal.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate aclocal.m4"
+    # these files that we autoupdate get installed by the '--install' flag
+    # to 'aclocal' used above:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-2.0.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-2.0.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-gettext.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-gettext.m4"
+}
+
+use_autoreconf  yes
 autoreconf.args -fvi
 
 configure.args-append \
                 --disable-docs \
                 --disable-silent-rules \
+                --disable-maintainer-mode \
                 --enable-introspection=yes \
                 --without-graphviz \
                 --without-vala \
                 --without-umfpack \
                 --disable-workshop \
                 --disable-glibtest \
-                --disable-gtk-doc
+                --disable-gtk-doc \
+                --enable-static \
+                --enable-shared \
+                --enable-largefile
 
-configure.cflags-append \
-                -Wno-ignored-attributes \
+configure.env-append \
+                EXIV2_CXXFLAGS='-I${prefix}/include' \
+                INTLLIBS='-lintl -liconv ' \
+                JASPER_CFLAGS='-I${prefix}/include' \
+                LIBM='-lm'
+
+if {![variant_isset debug]} {
+    configure.cflags-append \
                 -Wno-deprecated-declarations \
                 -Wno-implicit-function-declaration
+    # different names for the same thing:
+    if {[string match *clang* ${configure.compiler}]} {
+        configure.cflags-append \
+                -Wno-ignored-attributes
+    } elseif {[string match *gcc* ${configure.compiler}]} {
+        configure.cflags-append \
+                -Wno-attributes
+    }
+}
 
 # gobject-introspection uses g-ir-scanner, which uses $CC from env
 # btw I hate gobject-introspection
 
 if {[variant_isset universal]} {
     depends_lib-delete      port:gobject-introspection
-    configure.args-delete   --enable-introspection=yes
-    configure.args-append   --disable-introspection
+    configure.args-replace  --enable-introspection=yes --disable-introspection
 } else {
     build.args-append       CC="${configure.cc} ${configure.cc_archflags}"
+    build.env-append        CC="${configure.cc} ${configure.cc_archflags}"
 }
 
 # disable parallel build, see #31498
@@ -123,23 +174,17 @@ use_parallel_build no
 
 compiler.blacklist-append macports-clang-2.9 macports-clang-3.0 gcc-3.3 *gcc-4.0
 
-post-patch {
-    # http://trac.macports.org/ticket/35148
-    if {${os.major} < 10} {
-        reinplace "s|OpenGL/CGLDevice.h|OpenGL/CGLTypes.h|" ${worksrcpath}/gegl/opencl/cl_gl.h
-    }
-}
-
 platform darwin {
     if {${os.major} == 10} {
         compiler.blacklist-append *gcc-4.2 {clang < 421}
         configure.ccache no
-        autoreconf.env-append CC=${configure.cc}
-        build.env-append CC=${configure.cc}
+        autoreconf.env-append CC="${configure.cc}"
+        build.env-append CC="${configure.cc}"
     }
 
     if {[variant_isset universal]} {
-        # In order to build universal on Leopard, you need MacPorts 2.1
+        # In order to build universal on Leopard, you need at least
+        # MacPorts 2.1:
         set merger_configure_args(x86_64) --build=${build_arch}-apple-${os.platform}${os.version}
         set merger_configure_cflags(ppc) -fno-altivec
         set merger_configure_cxxflags(ppc) -fno-altivec
@@ -151,41 +196,63 @@ platform darwin {
     }
 }
 
+post-activate {
+    ui_debug "libtool --finish ${prefix}/lib/${name}-${branch}"
+    system -W ${prefix} "${prefix}/bin/glibtool --finish ${prefix}/lib/${name}-${branch}"
+}
+
 # This variant runs into an error that needs to be fixed:
 variant html_doc description {Build html docs with enscript and asciidoc} {
     depends_build-append  port:asciidoc \
                           port:gtk-doc \
                           port:enscript
     depends_skip_archcheck-append asciidoc gtk-doc enscript
-    configure.args-delete --disable-docs \
-                          --disable-gtk-doc
-    configure.args-append --enable-docs \
-                          --enable-gtk-doc \
-                          --enable-gtk-doc-html
+    configure.args-replace --disable-docs --enable-docs
+    configure.args-replace --disable-gtk-doc --enable-gtk-doc
+    configure.args-append --enable-gtk-doc-html \
+                          --enable-gtk-doc-pdf
+    configure.env-append  ENSCRIPT="${prefix}/bin/enscript" \
+                          ASCIIDOC="${prefix}/bin/asciidoc" \
+                          have_enscript="yes" \
+                          have_asciidoc="yes" \
+                          enable_gtk_doc="yes"
+    pre-build {
+        ui_warn "Warning: building documentation could fail."
+    }
+}
+
+if {![variant_isset html_doc]} {
+    configure.env-append  ENSCRIPT="no" \
+                          ASCIIDOC="no" \
+                          RUBY="no" \
+                          W3M="no" \
+                          have_enscript="no" \
+                          have_asciidoc="no"
 }
 
 variant umfpack description {Build with umfpack support via SuiteSparse} {
     depends_lib-append    port:SuiteSparse
-    configure.args-delete --without-umfpack
-    configure.args-append --with-umfpack
+    configure.args-replace --without-umfpack --with-umfpack
+    configure.env-append  UMFPACK_CFLAGS="-I${prefix}/include" \
+            UMFPACK_LIBS="-L${prefix}/lib -lumfpack -lsuitesparseconfig" \
+            with_umfpack="yes" \
+            have_umfpack="yes"
 }
 
 variant workshop description {Enable build of workshop operations} {
-    configure.args-delete --disable-workshop
-    configure.args-append --enable-workshop
+    configure.args-replace --disable-workshop --enable-workshop
+    configure.env-append   enable_workshop="yes"
 }
 
 variant graphviz description {Build with graphviz support} {
     depends_lib-append    path:bin/dot:graphviz
-    configure.args-delete --without-graphviz
-    configure.args-append --with-graphviz
+    configure.args-replace --without-graphviz --with-graphviz
 }
 
 variant vala description {Enable Vala bindings} {
     depends_build-append  port:valabind
     depends_lib-append    port:vala
-    configure.args-delete --without-vala
-    configure.args-append --with-vala
+    configure.args-replace --without-vala --with-vala
 }
 
 variant python25 conflicts python26 python27 description {Build using Python 2.5} {
@@ -205,6 +272,50 @@ variant python27 conflicts python25 python26 description {Build using Python 2.7
 
 if {![variant_isset python25] && ![variant_isset python26]} {
     default_variants +python27
+}
+
+variant debug description {enable debugging} {
+    autoreconf.args-append    -Wall
+    configure.args-append     --enable-debug
+    if {![string match *clang* ${configure.compiler}]} {
+        # clang warns about '-pg' being unused during compilation, so only
+        # configure with this flag for non-clang compilers:
+        configure.args-append --enable-profile
+    }
+    configure.args-delete     --disable-glibtest
+    #FIXME: this seems to not work with muniversal:
+    configure.optflags        -ggdb3
+    #...so have to manually hack all the configure flags instead:
+    configure.cflags-replace  -Os -g3
+    configure.cxxflags-replace -Os -g3
+    configure.objcflags-replace -Os -g3
+    configure.pipe            no
+    depends_build-append      port:remake
+    build.cmd                 ${prefix}/bin/remake
+    #FIXME: tests fail:
+    test.run                  yes
+    test.target               check
+    # until there is a 'depends_test' as per ticket #38208:
+    depends_build-append      path:bin/gdb:gdb
+    depends_run-append        bin:gdb:gdb
+    # see patch part above:
+    if {![variant_isset universal]} {
+        patch.args-append     --backup
+        # need some extra backups for files that are patched by multiple
+        # patches:
+        pre-patch {
+            ui_debug "making some extra patch backups"
+            # general schema:
+            # - diff between foo.bak and foo.orig: changes made by
+            #   patch-fix-introspection
+            # - diff between foo.orig and foo: changes made by patch-foo
+            # - diff between foo.bak and foo: changes from both
+            #   patch-fix-introspection and patch-foo combined
+            file copy ${worksrcpath}/configure.ac ${worksrcpath}/configure.ac.bak
+            file copy ${worksrcpath}/doc/Makefile.am ${worksrcpath}/doc/Makefile.am.bak
+            file copy ${worksrcpath}/gegl/Makefile.am ${worksrcpath}/gegl/Makefile.am.bak
+        }
+    }
 }
 
 livecheck.type  regex

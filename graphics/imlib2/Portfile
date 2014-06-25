@@ -5,8 +5,8 @@ PortSystem          1.0
 PortGroup           archcheck 1.0
 
 name                imlib2
-version             1.4.5
-revision	    5
+version             1.4.6
+revision            1
 categories          graphics devel
 license             Permissive
 platforms           darwin
@@ -22,54 +22,45 @@ long_description \
 homepage            http://docs.enlightenment.org/api/imlib2/html/
 master_sites        sourceforge:enlightenment
 
-checksums           md5     8406786d3852b1b1322c2e4bee3c9e5c \
-                    sha1    a4c0329d152fff9cb87463709f0e4b54cf1f6121 \
-                    rmd160  efc669592971c9b5dd3cd8959bdcafa41c9f1ece \
-                    sha256  6e809413a571f82b9e67aeaf5577a1245a034c866ae5fa83c191a227f60cc7a0
+checksums           md5     fbc1160285275e88128a84e6d7f08f8b \
+                    sha1    238943914df6caacda910ec9cfc81f4269a025aa \
+                    rmd160  60737d851c0a2352717378c5fb8a129e15acb85b \
+                    sha256  17cc128c0e61974d59c423b59d0fb5cb85c97169adf5b05184cc58f7c87b4f4e
 
 archcheck.files     ${prefix}/lib/libXext.dylib
 
 depends_build-append \
-    bin:rpmbuild:rpm \
     port:pkgconfig \
     path:bin/xmkmf:imake \
-    bin:mv:coreutils \
-    bin:nm:cctools \
-    bin:ld:ld64 \
+    bin:mkfontdir:mkfontdir \
+    bin:mkfontscale:mkfontscale \
+    bin:gmv:coreutils \
     bin:grep:grep \
-    bin:awk:gawk \
-    bin:m4:m4 \
-    port:xorg-util-macros \
-    port:gmake \
-    port:autoconf-archive
+    bin:gawk:gawk \
+    port:gmake
 
 depends_lib-append \
     port:bzip2 \
     port:giflib \
     port:libid3tag \
     port:libpng \
+    port:libtool \
     port:jpeg \
     port:freetype \
     port:tiff \
-    port:xorg-libsm \
     port:xorg-libX11 \
-    port:xorg-libXau \
-    port:xorg-libXdmcp \
     port:xorg-libXext \
-    port:xorg-libice \
-    port:xorg-libxcb \
-    port:xz \
     port:zlib
 
 patchfiles-append \
     patch-configure.ac.diff \
     patch-Makefile.am.diff
 
+patch.args-append --backup
+
 post-patch {
     file mkdir ${worksrcpath}/m4
     file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
-    file copy ${prefix}/share/aclocal/xorg-macros.m4 ${worksrcpath}/m4
-    file copy ${prefix}/share/aclocal/ax_c___attribute__.m4 ${worksrcpath}/m4
     eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/src/*/Makefile.am]
     eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/src/modules/*/Makefile.am]
 }
@@ -95,9 +86,7 @@ configure.args-append \
     --with-bzip2 \
     --with-id3 \
     --x-includes=${prefix}/include \
-    --x-libraries=${prefix}/lib \
-    --with-freetype-config=${prefix}/bin/freetype-config \
-    --without-doxygen
+    --x-libraries=${prefix}/lib
 
 configure.env-append \
     XMKMF=${prefix}/bin/xmkmf \
@@ -111,11 +100,18 @@ build.type             gnu
 build.cmd              ${prefix}/bin/gmake
 use_parallel_build     no
 
+test.run               yes
+test.target            check
+
 post-destroot {
+    set fontdir ${destroot}${prefix}/share/${name}/data/fonts
+    # we use a "bin:"-style dependency for these tools, so just call
+    # them un-prefixed-ly:
+    system -W ${prefix} "mkfontscale ${fontdir} && mkfontdir ${fontdir}"
     set docdir ${prefix}/share/doc/${name}
     xinstall -d ${destroot}${docdir}
-    xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING ChangeLog README \
-        TODO ${destroot}${docdir}
+    xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING COPYING-PLAIN \
+        ChangeLog README TODO ${destroot}${docdir}
 
     xinstall -d ${destroot}${docdir}/html
     eval xinstall -m 644 [glob -directory ${worksrcpath}/doc *.{html,gif}] \
@@ -130,10 +126,6 @@ variant docs description {Build documentation} {
         svn2cl
     configure.env-append \
         DOXYGEN=${prefix}/bin/doxygen
-    configure.args-delete \
-        --without-doxygen
-    configure.args-append \
-        --with-doxygen
     post-build {
         system -W ${worksrcpath} "./gendoc"
     }

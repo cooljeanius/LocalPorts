@@ -7,7 +7,7 @@ PortGroup       conflicts_build 1.0
 name            enblend
 version         4.0
 set longname    ${name}-enfuse
-revision        9
+revision        10
 categories      graphics
 maintainers     gmail.com:hvdwolf openmaintainer
 license         GPL-2+
@@ -22,10 +22,18 @@ platforms       darwin
 master_sites    sourceforge:project/${name}/${longname}/${longname}-${version}
 distname        ${longname}-${version}
 worksrcdir      ${distname}-753b534c819d
-checksums       md5     2e7c950061e0085fd75d94576130250f \
-                sha1    34c3a5ce11c6ef0ef520d8a15a3cb6a94a567033 \
-                rmd160  9e531b5bf6f7258ef8778c01b456979e0bc04338 \
-                sha256  a12a44c2a07894f27e1d5a1675728175a943c89b91c1ac9abacce62f08c253c4
+# for 4.0:
+checksums \
+    md5    2e7c950061e0085fd75d94576130250f \
+    sha1   34c3a5ce11c6ef0ef520d8a15a3cb6a94a567033 \
+    rmd160 9e531b5bf6f7258ef8778c01b456979e0bc04338 \
+    sha256 a12a44c2a07894f27e1d5a1675728175a943c89b91c1ac9abacce62f08c253c4
+# once we update to 4.1.2 they will be:
+#checksums \
+#   md5    5b609ddfc9fae5fadf65d29c08e0340e \
+#   sha1   3259e91bee9dee17d7fb017e7e5fa0060b9edcf1 \
+#   rmd160 cd739a63cb937e447e673e9a19b43205a22d9448 \
+#   sha256 6dc2682d366776ff771fd6c9ae709bcfef0b7b00cac9e620b56d13bf81faaf6e
 
 conflicts_build-append \
                 vigra
@@ -36,6 +44,7 @@ depends_build-append \
                 port:p5.16-sys-hostname-long \
                 port:p5.16-timedate \
                 port:p5.16-file-basedir \
+                path:bin/xmkmf:imake \
                 bin:perl:perl5 \
                 bin:fig2dev:transfig \
                 bin:gsed:gsed \
@@ -62,9 +71,16 @@ pre-fetch {
 }
 
 pre-patch {
-    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+    # Should no longer be necessary (after updating to 4.1.2):
+    if {[file exists ${worksrcpath}/configure.in]} {
+        ui_debug "renaming configure.in to configure.ac"
+        file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+    } else {
+        ui_debug "no configure.in to rename"
+    }
 }
 
+# patches will need to be fixed to apply against 4.1.2 to update to it:
 patchfiles-append \
                 patch-libpng15.diff \
                 patch-Makefile.am.diff \
@@ -72,26 +88,56 @@ patchfiles-append \
                 patch-src__vigra_impex__Makefile.am.diff \
                 patch-configure.ac.diff \
                 patch-filenameparse.cc.diff
+patch.args-append --backup
 
-# need to regenerate a Makefile.in after patching Makefile.am above
+post-patch {
+    # have to run aclocal separately for autoupdate to work:
+    ui_debug "running \"${prefix}/bin/aclocal --force -I m4 --install\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal --force -I m4 --install"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/lrint.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/lrint.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/lrintf.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/lrintf.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/ax_openmp.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/ax_openmp.m4"
+    # copy pre-built copies of docs, to try to avoid texinfo5 errors:
+    eval xinstall -m 644 [glob ${filespath}/doc/*] ${worksrcpath}/doc
+}
+
+# need to regenerate a Makefile.in after patching Makefile.am above:
 use_autoreconf  yes
-autoreconf.args -fvi
+autoreconf.args -fvi -Wall
 
 configure.args-append \
                 --mandir=${prefix}/share/man \
                 --enable-image-cache=yes \
-                --enable-split-doc=no
+                --enable-split-doc=no \
+                --with-x \
+                --x-includes=${prefix}/include \
+                --x-libraries=${prefix}/lib
+
+# Will still try to rebuild docs anyway, despite copying pre-built ones,
+# so force use of system makeinfo:
+configure.env-append \
+                MAKEINFO=/usr/bin/makeinfo \
+                XMKMF=${prefix}/bin/xmkmf
 
 # TODO: Project has buggy C++ code
-# https://trac.macports.org/ticket/31762
+# (see https://trac.macports.org/ticket/31762 for more), so blacklist:
 compiler.blacklist-append *clang* apple-gcc-4.2 gcc-4.2 *gcc-4.0 gcc-3.3
+
+# Try to keep Makefile from rebuilding these:
+pre-build {
+    ui_debug "updating timestamp for info files"
+    system -W ${worksrcpath}/doc "touch -c *.info"
+}
 
 platform darwin {
     if {${os.major} >= 13} {
         depends_lib
         depends_run
         pre-fetch {
-            ui_error "$name does not build on Mavericks or later."
+            ui_error "${name} does not build on Mavericks or later."
             error "unsupported platform"
         }
     }
@@ -110,8 +156,8 @@ post-destroot {
 platform macosx {
     depends_lib-delete port:mesa
     depends_lib-append port:glew
-    configure.args-append --with-apple-opengl-framework --with-glew
+    configure.args-append --with-apple-opengl-framework
 }
 
-#TODO: update to 4.1.2
+#TODO: update to 4.1.2 (see above)
 livecheck.regex   /${longname}-(\[0-9.\]+)${extract.suffix}

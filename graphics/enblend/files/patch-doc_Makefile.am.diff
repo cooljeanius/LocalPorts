@@ -1,11 +1,45 @@
---- doc/Makefile.am.orig	2013-09-29 21:43:22.000000000 -0400
-+++ doc/Makefile.am	2013-09-29 21:44:34.000000000 -0400
-@@ -62,21 +62,8 @@
+--- doc/Makefile.am.orig	2009-12-21 02:22:30.000000000 -0500
++++ doc/Makefile.am	2014-06-22 20:48:42.000000000 -0400
+@@ -1,3 +1,5 @@
++## automake Makefile for enblend-enfuse documentation
++
+ info_TEXINFOS = enblend.texi \
+                 enfuse.texi
  
- MAINTAINERCLEANFILES = enblend.info enfuse.info
+@@ -39,10 +41,10 @@
+ EXTRA_DIST = docstrings \
+              tidy.cfg tidy-post.sed
  
+-# created by make(1), user probably wants to rebuild (often?)
++# created by make(1), user probably wants to rebuild (often?):
+ MOSTLYCLEANFILES = varsenblend.texi varsenfuse.texi
+ 
+-# created by make(1)
++# created by make(1):
+ CLEANFILES = entropy.{txt,png,eps,pdf} \
+              entropy-cutoff.{txt,png,eps,pdf} \
+              gaussian.{txt,png,eps,pdf} \
+@@ -53,46 +55,41 @@
+              sharp-edge.{txt,png,eps,pdf} \
+              smooth-edge.{txt,png,eps,pdf} \
+              *.fig.bak \
+-             *.msg
++             *.msg \
++             stamp-enfuse_dvi_dependencies \
++             stamp-enblend_dvi_dependencies
+ 
+-# created by configure(1) or LaTeX
++# created by configure(1) or LaTeX:
+ DISTCLEANFILES = texinfo.tex \
+                  enblend.sc enblend.scs \
+                  enfuse.sc enfuse.scs
+ 
+-MAINTAINERCLEANFILES = enblend.info enfuse.info
 -
- # Phony Targets
+-
+-# Phony Targets
++# created by maintainer:
++MAINTAINERCLEANFILES = @MAINT@ enblend.info enfuse.info
  
 -.PHONY: install-html
 -install-html:
@@ -18,15 +52,193 @@
 -	@echo '*** Target "html" has been deprecated.'
 -	@echo '*** Use target "xhtml" instead of "html".'
 -	false
--
++# Phony Targets:
++.PHONY: dvi-local
++dvi-local: stamp-enfuse_dvi_dependencies stamp-enblend_dvi_dependencies \
++           enfuse.dvi enblend.dvi
++	$(MAKE) stamp-enfuse_dvi_dependencies
++	$(MAKE) stamp-enblend_dvi_dependencies
+ 
  .PHONY: html-local
  html-local:
  	test -d enblend.html && \
-@@ -92,7 +79,6 @@
+             for i in $(enblend_TEXINFOS); do \
+-              test -f $${i%%.*}.png && cp $${i%%.*}.png enblend.html; \
+-            done; true
++              test -f $${i%%.*}.png && cp -v $${i%%.*}.png enblend.html; \
++            done; echo "done with enblend.html"
+ 	test -d enfuse.html && \
+             for i in $(enfuse_TEXINFOS); do \
+-              test -f $${i%%.*}.png && cp $${i%%.*}.png enfuse.html; \
+-            done; true
++              test -f $${i%%.*}.png && cp -v $${i%%.*}.png enfuse.html; \
++            done; echo "done with enfuse.html"
+ 
+ .PHONY: clean-local
  clean-local:
  	-rm -rf enblend.xhtml enfuse.xhtml
  
 -
++# Hardcode these flags right before using them:
  TIDY_FLAGS = -config $(srcdir)/tidy.cfg -file /dev/null
  SED_FLAGS_XHTML = -f $(srcdir)/tidy-post.sed
  
+@@ -100,17 +97,17 @@
+ xhtml: $(HTMLS) html-local
+ 	for x in $(HTMLS); do \
+           xhtml=$${x/%.html/.xhtml}; \
+-	  if test -d $$x; then \
+-            test -d $$xhtml || mkdir $$xhtml; \
+-            cp *.png $$xhtml; \
++	  if test -d $${x}; then \
++            test -d $${xhtml} || mkdir $${xhtml}; \
++            cp -v *.png $${xhtml}; \
+ 	    (cd $$x; ls -1 *.html | $(SED) -ne 's#\(.*\)\.html#s|\1\\.html|\1.xhtml|g#p' > fix-refs.sed); \
+-	    for y in $$x/*.html; do \
+-              if test "$$x/" = "$${y%Table_*}" -o "$$x/" = "$${y%Figure_*}"; then \
+-                  $(SED) -e 's|>| />|' < $$y > $${y//.html/.xhtml}; \
++	    for y in $${x}/*.html; do \
++              if test "$${x}/" = "$${y%Table_*}" -o "$${x}/" = "$${y%Figure_*}"; then \
++                  $(SED) -e 's|>| />|' < $${y} > $${y//.html/.xhtml}; \
+               else \
+-		  $(TIDY) $(TIDY_FLAGS) $$y | \
++		  $(TIDY) $(TIDY_FLAGS) $${y} | \
+ 		    $(SED) $(SED_FLAGS_XHTML) \
+-                           -f $$x/fix-refs.sed \
++                           -f $${x}/fix-refs.sed \
+ 			   -e 's|^<head>|<head>\n<meta content="$(VERSION)" name="enblend-version" />|' \
+ 			   -e 's|<a\([^>]*\)name="[^"]*"\([^>]*\)|<a\1\2|g' \
+ 			   -e 's|\("[^/"]*\)\.html\([#"]\)|\1.xhtml\2|' \
+@@ -118,10 +115,10 @@
+               fi \
+             done; \
+ 	  else \
+-	    $(TIDY) $(TIDY_FLAGS) $$x | \
++	    $(TIDY) $(TIDY_FLAGS) $${x} | \
+ 	      $(SED) $(SED_FLAGS_XHTML) \
+ 	    	 -e 's|^<head>|<head>\n<meta content="$(VERSION)" name="enblend-version" />|' \
+-	    	 -e 's|<a\([^>]*\)name=\([^>]*\)|<a\1id=\2|g' > $$xhtml; \
++	    	 -e 's|<a\([^>]*\)name=\([^>]*\)|<a\1id=\2|g' > $${xhtml}; \
+           fi; \
+ 	done
+ 
+@@ -131,8 +128,8 @@
+ 	test -z "$(htmldir)" || $(MKDIR_P) "$(DESTDIR)$(htmldir)"
+ 	for x in $(HTMLS); do \
+           xhtml=$${x/%.html/.xhtml}; \
+-	  if test -d $$x; then \
+-	    test -d "$(DESTDIR)$(htmldir)/$$xhtml" || mkdir "$(DESTDIR)$(htmldir)/$$xhtml"; \
++	  if test -d $${x}; then \
++	    test -d "$(DESTDIR)$(htmldir)/$${xhtml}" || mkdir "$(DESTDIR)$(htmldir)/$$xhtml"; \
+ 	    $(INSTALL_DATA) $$xhtml/* "$(DESTDIR)$(htmldir)/$$xhtml"; \
+ 	  else \
+ 	    $(INSTALL_DATA) *.xhtml *.png "$(DESTDIR)$(htmldir)"; \
+@@ -144,17 +141,17 @@
+ 	@$(NORMAL_UNINSTALL)
+ 	for x in $(HTMLS); do \
+           xhtml=$${x/%.html/.xhtml}; \
+-	  if test -d $$x; then \
+-	    test -d "$(DESTDIR)$(htmldir)/$$xhtml" || mkdir "$(DESTDIR)$(htmldir)/$$xhtml"; \
+-	    echo rm -rf "$(DESTDIR)$(htmldir)/$$xhtml"; \
++	  if test -d $${x}; then \
++	    test -d "$(DESTDIR)$(htmldir)/$$xhtml" || mkdir "$(DESTDIR)$(htmldir)/$${xhtml}"; \
++	    echo rm -rfv "$(DESTDIR)$(htmldir)/$${xhtml}"; \
+ 	  else \
+-	    echo rm -rf "$(DESTDIR)$(htmldir)/*.xhtml" "$(DESTDIR)$(htmldir)/*.png"; \
++	    echo rm -rfv "$(DESTDIR)$(htmldir)/*.xhtml" "$(DESTDIR)$(htmldir)/*.png"; \
+ 	  fi; \
+ 	done
+ 
++.PHONY: all all-am
+ 
+-# Implicit Rules
+-
++# Implicit Rules:
+ .gp.txt:
+ 	GDFONTPATH=$${GDFONTPATH:-@GDFONTPATH@} $(GNUPLOT) $<
+ 
+@@ -183,32 +180,27 @@
+ 	$(FIG2DEV) -L pdf $< $@
+ 
+ 
+-# Explicit Rules
+-
++# Explicit Rules:
+ varsenblend.texi: $(srcdir)/../src/enblend.cc \
+                   $(srcdir)/../src/bounds.h \
+                   $(srcdir)/../src/common.h \
+                   $(srcdir)/../src/global.h
+-	$(PERL) $(srcdir)/docstrings $^ > $@
++	$(PERL) $(srcdir)/docstrings $^ | tee $@
++	echo "$@" @MAINT@ && touch $@
+ 
+-enblend.info: photographic-workflow.txt
+-
+-enblend.dvi: enblend.texi \
+-             $(srcdir)/versenblend.texi $(top_builddir)/config-h.texi \
+-             $(enblend_TEXINFOS) \
+-             photographic-workflow.eps
++enblend.info: @MAINT@ photographic-workflow.txt
+ 
+ enblend.html \
+ enblend.pdf: photographic-workflow.png
+ 
+-
+ varsenfuse.texi: $(srcdir)/../src/enfuse.cc \
+                  $(srcdir)/../src/bounds.h \
+                  $(srcdir)/../src/common.h \
+                  $(srcdir)/../src/global.h
+-	$(PERL) $(srcdir)/docstrings $^ > $@
++	$(PERL) $(srcdir)/docstrings $^ | tee $@
++	echo "$@" @MAINT@ && touch $@
+ 
+-enfuse.info: photographic-workflow.txt \
++enfuse.info: @MAINT@ photographic-workflow.txt \
+              focus-stack-decision-tree.txt \
+              entropy.txt \
+              entropy-cutoff.txt \
+@@ -218,19 +210,6 @@
+              sharp-edge.txt \
+              smooth-edge.txt
+ 
+-enfuse.dvi: enfuse.texi \
+-            photographic-workflow.eps \
+-            focus-stack-decision-tree.eps \
+-            entropy.eps \
+-            entropy-cutoff.eps \
+-            gaussian.eps \
+-            laplacian-of-gaussian.eps \
+-            local-analysis-window.eps \
+-            sharp-edge.eps \
+-            smooth-edge.eps \
+-            $(srcdir)/versenfuse.texi $(top_builddir)/config-h.texi \
+-            $(enfuse_TEXINFOS)
+-
+ enfuse.html \
+ enfuse.pdf: photographic-workflow.png \
+             focus-stack-decision-tree.png \
+@@ -241,3 +220,24 @@
+             local-analysis-window.png \
+             sharp-edge.png \
+             smooth-edge.png
++
++stamp-enfuse_dvi_dependencies: enfuse.texi photographic-workflow.eps \
++            focus-stack-decision-tree.eps entropy.eps entropy-cutoff.eps \
++            gaussian.eps laplacian-of-gaussian.eps \
++            local-analysis-window.eps sharp-edge.eps \
++            smooth-edge.eps \
++            $(srcdir)/versenfuse.texi $(top_builddir)/config-h.texi \
++            $(enfuse_TEXINFOS)
++	echo "timestamp: `date`" > $@
++	echo "texinfo dependencies for enfuse:" >>$@
++	echo "$(enfuse_TEXINFOS)" >> $@
++	echo "$@" @MAINT@ && touch $@
++
++stamp-enblend_dvi_dependencies: enblend.texi \
++             $(srcdir)/versenblend.texi $(top_builddir)/config-h.texi \
++             $(enblend_TEXINFOS) \
++             photographic-workflow.eps
++	echo "timestamp: `date`" > $@
++	echo "texinfo dependencies for enblend:" >>$@
++	echo "$(enblend_TEXINFOS)" >> $@
++	echo "$@" @MAINT@ && touch $@

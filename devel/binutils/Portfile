@@ -5,6 +5,7 @@ PortSystem             1.0
 
 name                   binutils
 version                2.24
+revision               2
 description            FSF Binutils for native development.
 long_description       Free Software Foundation development toolchain \
                        ("binutils") for native development. Tools are \
@@ -20,11 +21,12 @@ master_sites           gnu:${name}
 
 use_bzip2              yes
 
-checksums              sha1    7ac75404ddb3c4910c7594b51ddfc76d4693debb \
-                       rmd160  b4aa3ea5ba9d0d9f817b2cf136e7f911f692af8d \
-                       sha256  e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137
+checksums \
+    sha1   7ac75404ddb3c4910c7594b51ddfc76d4693debb \
+    rmd160 b4aa3ea5ba9d0d9f817b2cf136e7f911f692af8d \
+    sha256 e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137
 
-#TODO: get patch for configure.ac to apply again
+#TODO: get patch for configure.ac to apply again...
 
 depends_build-append   port:intltool \
                        bin:makeinfo:texinfo \
@@ -52,10 +54,14 @@ depends_lib-append     port:zlib \
                        port:cloog \
                        port:ppl \
                        port:gmp \
+                       path:lib/libgcc/libgcc_s.1.dylib:libgcc \
                        path:lib/pkgconfig/bdw-gc.pc:boehmgc \
                        port:libmpc \
                        port:mpfr \
                        port:isl
+
+# for post-activate step:
+depends_run-append     path:bin/glibtool:libtool
 
 configure.args-append  --infodir='${prefix}/share/info' \
                        --mandir='${prefix}/share/man' \
@@ -93,6 +99,10 @@ configure.args-append  --infodir='${prefix}/share/info' \
                        --enable-libquadmath-support \
                        --disable-64-bit-bfd
 
+# set before using it in our own environment variables:
+configure.optflags     -ggdb3
+
+# try to force certain things to be used:
 configure.env-append   SED=${prefix}/bin/gsed \
                        MSGFMT=${prefix}/bin/msgfmt \
                        GMSGFMT=${prefix}/bin/msgfmt \
@@ -106,45 +116,42 @@ configure.env-append   SED=${prefix}/bin/gsed \
                        SEPARATE_STRIP=YES \
                        UNAME_RELEASE="${os.version}" \
                        HOST_ARCHITECTURE="${configure.build_arch}" \
-                       AUTOCONF=${prefix}/bin/autoconf264
+                       AUTOCONF="${prefix}/bin/autoconf264" \
+                       PICFLAG="-fno-common -DPIC" \
+                       PICFLAG_FOR_TARGET="-fno-common -DPIC" \
+                       COREFILE="trad-core.lo" \
+                       LIBM="-lm"
 
 # A lot of these variables are taken from work with apple-gdb, which
-# is a similar source tree
+# is a similar source tree:
 platform darwin {
     configure.env-append \
-                       RC_PRIVATE=/private \
-                       UNAME_SYSNAME=Darwin \
-                       NEXT_ROOT=""
+        RC_PRIVATE=/private \
+        UNAME_SYSNAME=Darwin \
+        NEXT_ROOT=""
 }
 platform macosx {
     configure.env-append \
-                       RC_OS=macos \
-                       RC_TARGET_CONFIG=MacOSX
+        RC_OS=macos \
+        RC_TARGET_CONFIG=MacOSX
 }
 if {[variant_isset universal]} {
-    configure.env-append \
-                       RC_ARCHS="${configure.universal_archs}"
+    configure.env-append RC_ARCHS="${configure.universal_archs}"
 } else {
-    configure.env-append \
-                       RC_ARCHS="${configure.build_arch}"
+    configure.env-append RC_ARCHS="${configure.build_arch}"
 }
 
 # Defining BFD64 to 0 and BFD_ARCH_SIZE to 32 are hacks to try to fix
 # compilation of binutils/readelf.c
 configure.cppflags-append \
-                       "-I${prefix}/include -DBFD64=0 -DBFD_ARCH_SIZE=32"
+    "-I${prefix}/include -DBFD64=0 -DBFD_ARCH_SIZE=32"
 
-configure.ldflags-append \
-    -lgc \
-    -lcloog-isl \
-    -lgmp \
-    -lisl \
-    -lmpc \
-    -lmpfr \
-    -lppl
+# these used to be appended to configure.ldflags:
+configure.env-append \
+    LIBS="-lgc -lcloog-isl -lgmp -lisl -lmpc -lmpfr -lppl"
 
 post-extract {
-    ui_debug "This step has been moved to pre-patch instead."
+    ui_debug "This post-extract step has been moved to pre-patch instead."
 }
 
 # ...
@@ -154,17 +161,23 @@ pre-patch {
     if {![file exists ${worksrcpath}/missing]} {
         xinstall -W ${prefix}/share/automake-1.14 missing ${worksrcpath}
     }
+    ui_debug "these autoscan results should be empty once the patch works:"
     system -W ${worksrcpath} "${prefix}/bin/autoscan264 >/dev/null"
+    # '--install' flag does not work with the old version of aclocal:
+    ui_debug "running '${prefix}/bin/aclocal-17 -I config' in ${worksrcpath}"
     system -W ${worksrcpath} "${prefix}/bin/aclocal-17 -I config"
 }
 
 #TODO: get autoreconf-ing to work again
 
 pre-configure {
+    ui_debug "checking ppl installation..."
     system -W ${prefix} "echo \"ppl `ppl-config -V` is installed with: `${prefix}/bin/ppl-config -O`\""
 }
 
 post-configure {
+    # these messages might not be true any more now that the location
+    # to which libc-headers installs has been changed:
     if {![catch "registry_active libc-headers"]} {
         ui_msg "Having libc-headers active can cause a lot of warnings \
                when building ${name}."
@@ -178,37 +191,48 @@ post-configure {
     eval reinplace "s|READELF_PROG\\\ \=\\\ readelf|READELF_PROG\\\ \=|g" [glob ${worksrcpath}/${name}/Makefile.*]
     eval reinplace "s|\\$\(READELF_PROG\)||g" [glob ${worksrcpath}/${name}/Makefile.*]
     # Another attempt at that:
+    ui_debug "unifdef-ing readelf.c"
     system -W ${worksrcpath}/${name} "unifdef -UBFD64 readelf.c > readelf_fixed.c 2>&1 || \[ $? -ne 2 \]"
+    ui_debug "moving aside old readelf.c"
     file rename ${worksrcpath}/${name}/readelf.c ${worksrcpath}/${name}/readelf64.c
+    ui_debug "using fixed readelf.c as new readelf.c"
     file rename ${worksrcpath}/${name}/readelf_fixed.c ${worksrcpath}/${name}/readelf.c
 }
 
 build.type             gnu
 use_parallel_build     no
 configure.ccache       no
+configure.pipe         no
 
 # The Makefile runs configure again in subdirectories.
 # It correcty passes along most configure variables (CFLAGS, LDFLAGS, ...),
 #    but seems to neglect CPPFLAGS.
-build.env-append       CPPFLAGS='-I${prefix}/include' \
-                       CFLAGS='-I${prefix}/include' \
-                       SED=${prefix}/bin/gsed \
-                       MSGFMT=${prefix}/bin/msgfmt \
-                       GMSGFMT=${prefix}/bin/msgfmt \
-                       XGETTEXT=${prefix}/bin/xgettext \
-                       MSGMERGE=${prefix}/bin/msgmerge \
-                       INSTALLED_PRODUCT_ASIDES=YES \
-                       RC_JASPER=YES \
-                       RC_XBS=YES \
-                       SEPARATE_STRIP=YES \
-                       UNAME_RELEASE="${os.version}" \
-                       HOST_ARCHITECTURE="${build_arch}" \
-                       AUTOCONF=${prefix}/bin/autoconf264 \
-                       AUTOHEADER=${prefix}/bin/autoheader264 \
-                       ACLOCAL=${prefix}/bin/aclocal-17 \
-                       READELF_PROG=""
+build.env-append   CPPFLAGS='-I${prefix}/include' \
+                   CFLAGS='-I${prefix}/include' \
+                   SED=${prefix}/bin/gsed \
+                   MSGFMT=${prefix}/bin/msgfmt \
+                   GMSGFMT=${prefix}/bin/msgfmt \
+                   XGETTEXT=${prefix}/bin/xgettext \
+                   MSGMERGE=${prefix}/bin/msgmerge \
+                   INSTALLED_PRODUCT_ASIDES=YES \
+                   RC_JASPER=YES \
+                   RC_XBS=YES \
+                   SEPARATE_STRIP=YES \
+                   UNAME_RELEASE="${os.version}" \
+                   HOST_ARCHITECTURE="${build_arch}" \
+                   AUTOCONF="${prefix}/bin/autoconf264" \
+                   AUTOHEADER="${prefix}/bin/autoheader264" \
+                   ACLOCAL="${prefix}/bin/aclocal-17" \
+                   READELF_PROG="" \
+                   PICFLAG="-fno-common -DPIC" \
+                   PICFLAG_FOR_TARGET="-fno-common -DPIC" \
+                   COREFILE="trad-core.lo" \
+                   LIBM="-lm" \
+                   LIBS="-lgc -lcloog-isl -lgmp -lisl -lmpc -lmpfr -lppl"
 
-build.args-append      READELF_PROG=""
+# try forcing things that fail to be simply picked up from the environment:
+build.args-append      READELF_PROG="" \
+                       COREFILE="trad-core.lo"
 
 platform darwin {
     build.env-append   RC_PRIVATE=/private \
@@ -272,6 +296,8 @@ post-build {
         system -W ${worksrcpath}/gas/doc "${build.cmd} ${build.pre_args}"
         ui_debug "entering ${worksrcpath}/gas/po and running ${build.cmd} ${build.pre_args}"
         system -W ${worksrcpath}/gas/po "${build.cmd} ${build.pre_args}"
+    } else {
+        ui_debug "skipping building things for gas"
     }
     ui_debug "entering ${worksrcpath}/ld and running ${configure.cmd} ${configure.args}"
     system -W ${worksrcpath}/ld "${configure.cmd} ${configure.args}"
@@ -291,6 +317,8 @@ post-destroot {
         system -W ${worksrcpath}/gas/doc "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         ui_debug "entering ${worksrcpath}/gas/po and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/gas/po "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+    } else {
+        ui_debug "skipping installing things for gas"
     }
     platform x86_64 {
         ui_msg "Trying to generate ld scripts in ${worksrcpath}/ld..."
@@ -331,8 +359,10 @@ post-destroot {
         ui_debug "entering ${worksrcpath}/ld and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         if {[file exists ${destroot}${prefix}/bin/ld]} {
+            ui_debug "moving aside ld built for ${name}"
             move ${destroot}${prefix}/bin/ld ${destroot}${prefix}/x86_64-apple-darwin${os.version}/bin
         } elseif {[file exists ${destroot}${prefix}/bin/ld-new]} {
+            ui_debug "moving aside ld-new built for ${name}"
             move ${destroot}${prefix}/bin/ld-new ${destroot}${prefix}/x86_64-apple-darwin${os.version}/bin
         }
     }
@@ -340,8 +370,10 @@ post-destroot {
         ui_debug "entering ${worksrcpath}/ld and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         if {[file exists ${destroot}${prefix}/bin/ld]} {
+            ui_debug "deleting ld built for ${name}"
             delete ${destroot}${prefix}/bin/ld
         } elseif {[file exists ${destroot}${prefix}/bin/ld-new]} {
+            ui_debug "deleting ld-new built for ${name}"
             delete ${destroot}${prefix}/bin/ld-new
         }
     }
@@ -349,38 +381,46 @@ post-destroot {
         ui_debug "entering ${worksrcpath}/ld and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/ld "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         if {[file exists ${destroot}${prefix}/bin/ld]} {
+            ui_debug "deleting ld built for ${name}"
             delete ${destroot}${prefix}/bin/ld
         } elseif {[file exists ${destroot}${prefix}/bin/ld-new]} {
+            ui_debug "deleting ld-new built for ${name}"
             delete ${destroot}${prefix}/bin/ld-new
         }
     }
     foreach infofile {standards configure bfd as gprof ld} {
         if [file exists ${destroot}${prefix}/share/info/${infofile}.info] {
+            ui_debug "renaming '${infofile}' info file"
             file rename ${destroot}${prefix}/share/info/${infofile}.info ${destroot}${prefix}/share/info/${name}-${infofile}.info
         }
     }
     xinstall -d ${destroot}${prefix}/include/${name}
     foreach header [glob ${destroot}${prefix}/include/*] {
         if [file isfile ${header}] {
+            ui_debug "moving aside ${header}"
             move ${header} ${destroot}${prefix}/include/${name}
         }
     }
     xinstall -d ${destroot}${prefix}/lib/${name}-staticlibs
     foreach library [glob ${destroot}${prefix}/lib/*.*a] {
         if [file isfile ${library}] {
+            ui_debug "moving aside ${library}"
             move ${library} ${destroot}${prefix}/lib/${name}-staticlibs
         }
     }
     eval reinplace "s|${prefix}/lib|${prefix}/lib/${name}-staticlibs|g" [glob ${destroot}${prefix}/lib/${name}-staticlibs/*.la]
     platform x86_64 {
         xinstall -d ${destroot}${prefix}/lib/x86_64/${name}
+        ui_debug "moving aside libiberty for x86_64"
         move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/x86_64/${name}
     }
     platform i386 {
         xinstall -d ${destroot}${prefix}/lib/i386/${name}
         if [file exists ${destroot}${prefix}/lib/x86_64/libiberty.a] {
+            ui_debug "moving aside libiberty for x86_64"
             move ${destroot}${prefix}/lib/x86_64/libiberty.a ${destroot}${prefix}/lib/i386/${name}
         } elseif [file exists ${destroot}${prefix}/lib/i386/libiberty.a] {
+            ui_debug "moving aside libiberty for i386"
             move ${destroot}${prefix}/lib/i386/libiberty.a ${destroot}${prefix}/lib/i386/${name}
         }
     }
@@ -389,6 +429,7 @@ post-destroot {
     }
     foreach msgs [glob ${destroot}${prefix}/share/locale/*/LC_MESSAGES/*.mo] {
         if [file isfile ${msgs}] {
+            ui_debug "renaming ${msgs}"
             move ${msgs} [file dirname ${msgs}]/${name}-[file tail ${msgs}]
         }
     }
@@ -399,10 +440,12 @@ post-destroot {
     # coreutils and gmake and so on
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
     foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {
+        ui_debug "symlinking ${binary} into gnubin"
         ln -s ${prefix}/bin/${binary} ${destroot}${prefix}/libexec/gnubin/[string range $binary 1 end]
     }
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin/man/man1
     foreach manpage [glob -tails -directory ${destroot}${prefix}/share/man/man1 g*] {
+        ui_debug "symlinking ${manpage} into gnubin mandir"
         ln -s ${prefix}/share/man/man1/${manpage}.gz ${destroot}${prefix}/libexec/gnubin/man/man1/[string range $manpage 1 end].gz
     }
 }
@@ -421,3 +464,7 @@ platform powerpc {
     destroot.keepdirs ${destroot}${prefix}/lib/ppc/${name}
 }
 
+post-activate {
+    ui_debug "running '${prefix}/bin/glibtool --finish ${prefix}/lib'"
+    system -W ${prefix} "${prefix}/bin/glibtool --finish ${prefix}/lib"
+}

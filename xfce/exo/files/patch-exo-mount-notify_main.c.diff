@@ -1,0 +1,11 @@
+--- exo-mount-notify/main.c.orig	2010-05-21 12:51:10.000000000 -0400
++++ exo-mount-notify/main.c	2014-05-01 08:51:33.000000000 -0400
+@@ -243,7 +243,7 @@
+     }
+ 
+   /* setup the notification */
+-  notification = notify_notification_new (summary, message, opt_icon, NULL);
++  notification = notify_notification_new (summary, message, opt_icon);
+   g_signal_connect (G_OBJECT (notification), "closed", G_CALLBACK (gtk_main_quit), NULL);
+   g_object_add_weak_pointer (G_OBJECT (notification), (gpointer) &notification);
+   notify_notification_set_urgency (notification, NOTIFY_URGENCY_CRITICAL);

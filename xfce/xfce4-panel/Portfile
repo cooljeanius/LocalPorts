@@ -5,7 +5,7 @@ PortSystem      1.0
 
 name            xfce4-panel
 version         4.6.4
-revision        4
+revision        6
 categories      xfce
 platforms       darwin linux
 license         GPL-2+ LGPL-2+
@@ -22,15 +22,18 @@ checksums       md5     82f10a42aefca4cc26a6633e7478cc65 \
 
 depends_build-append \
                 port:intltool \
+                port:gettext \
                 port:pkgconfig \
                 port:gtk-doc \
                 port:gmake \
                 port:xfce4-dev-tools \
                 port:xorg-util-macros \
                 path:bin/glib-gettextize:glib2 \
-                path:bin/xmkmf:imake
+                path:bin/xmkmf:imake \
+                path:bin/xsltproc:libxslt \
+                bin:perl:perl5
 
-depends_skip_archcheck-append gtk-doc
+depends_skip_archcheck-append gtk-doc gmake
 
 depends_lib-append \
                 port:libxfcegui4 \
@@ -38,17 +41,12 @@ depends_lib-append \
                 port:exo \
                 port:libwnck \
                 port:atk \
-                port:bzip2 \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
                 port:gtk2 \
-                port:harfbuzz \
-                port:libffi \
                 port:libiconv \
-                port:libpng \
                 port:startup-notification \
                 port:xorg-libX11 \
                 port:xorg-libXau \
@@ -61,17 +59,13 @@ depends_lib-append \
                 port:xorg-libXi \
                 port:xorg-libXinerama \
                 port:xorg-libXrandr \
-                port:xorg-libXres \
                 port:xorg-libice \
                 port:xorg-libsm \
                 port:xorg-libxcb \
-                port:xorg-xcb-util \
                 port:xrender \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
-                path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman
+                path:lib/pkgconfig/pango.pc:pango
 
 depends_run-append \
                 port:hicolor-icon-theme \
@@ -80,7 +74,13 @@ depends_run-append \
 patchfiles-append \
                 patch-config-launcher-icons.diff \
                 patch-configure.ac.diff \
-                patch-Makefile.am.diff
+                patch-Makefile.am.diff \
+                patch-libxfce4panel_libxfce4panel-1.0.pc.in.diff \
+                patch-docs_Makefile.am.diff \
+                patch-docs_manual_Makefile.am.diff \
+                patch-docs_manual_C_Makefile.am.diff
+
+patch.args-append --backup
 
 pre-patch {
     file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
@@ -92,29 +92,66 @@ post-patch {
     foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
         xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
     }
+    # have to run aclocal separately for autoupdate to work:
+    ui_debug "running \"${prefix}/bin/aclocal --force -I m4 --install\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal --force -I m4 --install"
+    # this m4 macro file is separate from the above:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-gettext.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-gettext.m4"
+    # fix Makefiles:
+    fs-traverse am_makefile ${worksrcpath} {
+        if {[file tail ${am_makefile}] eq "Makefile.am"} {
+            reinplace "s|INCLUDES|AM_CPPFLAGS|g" ${am_makefile}
+        }
+    }
 }
 
 # Do NOT do intltool's INTLTOOL_PERL dance
 use_autoreconf  yes
-autoreconf.args -fvi
+autoreconf.args -fvi -Wall
 
 configure.args-append \
                 --enable-startup-notification \
                 --with-x \
                 --x-includes=${prefix}/include \
                 --x-libraries=${prefix}/lib \
-                --enable-gtk-doc
+                --enable-gtk-doc \
+                --enable-gtk-doc-html \
+                --enable-gtk-doc-pdf \
+                --with-libiconv-prefix=${prefix}
 
 configure.env-append \
-                XMKMF=${prefix}/bin/xmkmf
+                XMKMF=${prefix}/bin/xmkmf \
+                acl_cv_rpath=done \
+                libintl_extra_libs=-liconv \
+                INTLLIBS='-lintl -liconv '
 
-configure.ccache no
-configure.pipe   no
+test.run        yes
+test.target     check
 
-use_parallel_build no
+post-test {
+    ui_debug "${prefix}/bin/pkg-config --print-variables --print-errors --errors-to-stdout ${worksrcpath}/libxfce4panel/libxfce4panel-1.0.pc"
+    system -W ${worksrcpath}/libxfce4panel "${prefix}/bin/pkg-config --print-variables --print-errors --errors-to-stdout libxfce4panel-1.0.pc 2>&1"
+    ui_debug "${prefix}/bin/pkg-config --print-provides --print-errors --errors-to-stdout ${worksrcpath}/libxfce4panel/libxfce4panel-1.0.pc"
+    system -W ${worksrcpath}/libxfce4panel "${prefix}/bin/pkg-config --print-provides --print-errors --errors-to-stdout libxfce4panel-1.0.pc 2>&1"
+}
 
 platform darwin {
-        configure.args-append --disable-visibility
+    configure.args-append --disable-visibility
+}
+
+variant debug description {enable debugging} {
+    # so the patched configure script will use the '-ggdb3' flag:
+    depends_build-append  bin:gdb:gdb
+    depends_run-append    bin:gdb:gdb
+    configure.args-append --enable-debug=full
+    configure.optflags    -g
+    configure.pipe        no
+}
+
+post-activate {
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
 }
 
 # broken, so disable:

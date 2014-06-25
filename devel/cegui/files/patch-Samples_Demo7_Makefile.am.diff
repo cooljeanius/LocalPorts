@@ -1,0 +1,26 @@
+--- Samples/Demo7/Makefile.am.orig	2013-01-12 12:07:24.000000000 -0500
++++ Samples/Demo7/Makefile.am	2014-06-19 13:36:37.000000000 -0400
+@@ -1,8 +1,14 @@
+-INCLUDES = -I$(top_srcdir)/cegui/include -I$(top_srcdir)/Samples/common/include
++## automake Makefile for cegui Demo7
+ 
+-noinst_PROGRAMS = Demo7@cegui_bsfx@
++AM_CPPFLAGS = -I$(top_srcdir)/cegui/include -I$(top_srcdir)/Samples/common/include
+ 
+-noinst_HEADERS =  Sample_Demo7.h
++examplesdir = ${datarootdir}/examples/${PACKAGE_TARNAME}
++examples_bindir = ${examplesdir}/bin
++examples_includedir = ${examplesdir}/include
++
++examples_bin_PROGRAMS = Demo7@cegui_bsfx@
++
++examples_include_HEADERS =  Sample_Demo7.h
+ 
+ if CEGUI_BUILD_STATIC
+ Demo7@cegui_bsfx@_CPPFLAGS = -DCEGUI_STATIC
+@@ -15,4 +21,4 @@
+ 
+ 
+ install-exec-local:
+-	$(LN_S) -f `pwd`/.libs/Demo7@cegui_bsfx@$(EXEEXT) $(top_builddir)/bin/Demo7@cegui_bsfx@$(EXEEXT)
++	$(LN_S) -fv `pwd`/.libs/Demo7@cegui_bsfx@$(EXEEXT) $(top_builddir)/bin/Demo7@cegui_bsfx@$(EXEEXT)

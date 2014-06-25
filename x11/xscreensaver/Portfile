@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                xscreensaver
 version             5.26
-revision            0
+revision            1
 categories          x11
 platforms           darwin
 maintainers         mww openmaintainer
@@ -42,7 +42,6 @@ depends_lib-append  port:gtk2 \
                     port:gtkglext \
                     port:glew \
                     port:jpeg \
-                    port:libgnome \
                     port:libxml2 \
                     port:mesa \
                     port:xorg-libX11 \
@@ -63,6 +62,8 @@ depends_lib-append  port:gtk2 \
                     path:lib/pkgconfig/glib-2.0.pc:glib2 \
                     path:lib/pkgconfig/cairo.pc:cairo \
                     path:lib/pkgconfig/pango.pc:pango
+
+depends_run-append  path:bin/update-desktop-database:desktop-file-utils
 
 configure.args-append \
                     --with-gtk \
@@ -116,6 +117,11 @@ post-destroot {
     if {[file isdirectory ${destroot}/usr]} {
         file delete -force ${destroot}/usr
     }
+}
+
+post-activate {
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
 }
 
 livecheck.type      regex

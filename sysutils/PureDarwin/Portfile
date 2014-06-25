@@ -7,6 +7,7 @@ PortGroup         active_variants 1.1
 
 name              PureDarwin
 version           0.1
+revision          1
 categories        sysutils
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall openmaintainer
@@ -17,7 +18,8 @@ universal_variant no
 homepage          http://www.${name}.org
 master_sites      ""
 
-description       An attempt at building a self-hosting Darwin using MacPorts
+description       An attempt at building a self-hosting Darwin using \
+                  MacPorts
 
 long_description  ${description}.
 
@@ -60,7 +62,7 @@ depends_lib-append port:darwinbuild \
                    port:libnotify \
                    port:unfs3 \
                    port:openal \
-                   port:fuse4x-framework \
+                   path:lib/pkgconfig/fuse.pc:osxfuse \
                    port:tuntaposx \
                    port:openldap \
                    port:pamtester \

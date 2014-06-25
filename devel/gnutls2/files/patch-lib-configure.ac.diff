@@ -1,5 +1,5 @@
 --- lib/configure.ac.orig	2012-04-22 12:05:34.000000000 -0400
-+++ lib/configure.ac	2014-03-06 20:35:47.000000000 -0500
++++ lib/configure.ac	2014-05-13 11:50:38.000000000 -0400
 @@ -1,4 +1,5 @@
 -dnl Process this file with autoconf to produce a configure script.
 +dnl#                                               -*- Autoconf -*-
@@ -7,7 +7,7 @@
  # Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
  # 2009, 2010 Free Software Foundation, Inc.
  #
-@@ -21,124 +22,201 @@
+@@ -21,125 +22,235 @@
  # Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  # MA 02110-1301, USA
  
@@ -68,16 +68,36 @@
  AM_GNU_GETTEXT([external])
 -AM_GNU_GETTEXT_VERSION([0.17])
 +AM_GNU_GETTEXT_VERSION([0.18.3])
- 
++
 +# Checks for header files.
 +AC_MSG_CHECKING([headers])
 +AC_MSG_RESULT([ ])
++AC_HEADER_STAT
 +AC_HEADER_STDBOOL dnl# also "_CHECK"s it
 +AC_CHECK_HEADERS([OS.h fcntl.h float.h langinfo.h libintl.h \
-+                  limits.h locale.h malloc.h malloc/malloc.h netdb.h \
-+                  stddef.h sys/ioctl.h sys/param.h sys/socket.h \
-+                  sys/time.h wchar.h])
-+
++                  limits.h locale.h malloc.h malloc/malloc.h \
++                  stddef.h sys/ioctl.h zlib.h])
++if test "x${ac_cv_header_netdb_h}" = "x"; then
++  test -z "${ac_cv_header_netdb_h}"
++  AC_CHECK_HEADERS([netdb.h])
++fi
++if test "x${ac_cv_header_sys_param_h}" = "x"; then
++  test -z "${ac_cv_header_sys_param_h}"
++  AC_CHECK_HEADERS([sys/param.h])
++fi
++if test "x${ac_cv_header_sys_socket_h}" = "x"; then
++  test -z "${ac_cv_header_sys_socket_h}"
++  AC_CHECK_HEADERS([sys/socket.h])
++fi
++if test "x${ac_cv_header_sys_time_h}" = "x"; then
++  test -z "${ac_cv_header_sys_time_h}"
++  AC_CHECK_HEADERS([sys/time.h])
++fi
++if test "x${ac_cv_header_wchar_h}" = "x"; then
++  test -z "${ac_cv_header_wchar_h}"
++  AC_CHECK_HEADERS([wchar.h])
++fi
+ 
 +# Checks for typedefs, structures, and compiler characteristics.
 +AC_MSG_CHECKING([C characteristics])
 +AC_MSG_RESULT([ ])
@@ -107,10 +127,14 @@
 +AC_FUNC_MALLOC
 +AC_FUNC_OBSTACK
 +AC_FUNC_REALLOC
-+AC_CHECK_FUNCS([gettimeofday isascii localeconv localtime_r \
-+                mblen mbrlen memchr memmove memset nl_langinfo setlocale \
++AC_CHECK_FUNCS([compress gettimeofday isascii localeconv mblen mbrlen \
++                memchr memmove memset nl_langinfo setlocale \
 +                socket strchr strdup strerror \
 +                strrchr strstr strtol strtoul])
++if test "x${ac_cv_func_localtime_r}" = "x"; then
++  test -z "${ac_cv_func_localtime_r}"
++  AC_CHECK_FUNCS([localtime_r])
++fi
  
  # For includes/gnutls/gnutls.h.in.
 -AC_SUBST(MAJOR_VERSION, `echo $PACKAGE_VERSION | sed 's/\(.*\)\..*\..*/\1/g'`)
@@ -119,10 +143,14 @@
 -AC_SUBST(NUMBER_VERSION, `printf "0x%02x%02x%02x" $MAJOR_VERSION $MINOR_VERSION $PATCH_VERSION`)
 -AC_CHECK_TYPE(ssize_t,
 -  [
-+AC_SUBST([MAJOR_VERSION],[`echo ${PACKAGE_VERSION} | sed 's/\(.*\)\..*\..*/\1/g'`])
-+AC_SUBST([MINOR_VERSION],[`echo ${PACKAGE_VERSION} | sed 's/.*\.\(.*\)\..*/\1/g'`])
-+AC_SUBST([PATCH_VERSION],[`echo ${PACKAGE_VERSION} | sed 's/.*\..*\.\(.*\)/\1/g'`])
-+AC_SUBST([NUMBER_VERSION],[`printf "0x%02x%02x%02x" ${MAJOR_VERSION} ${MINOR_VERSION} ${PATCH_VERSION}`])
++AC_SUBST([MAJOR_VERSION],
++         [`echo ${PACKAGE_VERSION} | sed 's/\(.*\)\..*\..*/\1/g'`])
++AC_SUBST([MINOR_VERSION],
++         [`echo ${PACKAGE_VERSION} | sed 's/.*\.\(.*\)\..*/\1/g'`])
++AC_SUBST([PATCH_VERSION],
++         [`echo ${PACKAGE_VERSION} | sed 's/.*\..*\.\(.*\)/\1/g'`])
++AC_SUBST([NUMBER_VERSION],
++         [`printf "0x%02x%02x%02x" ${MAJOR_VERSION} ${MINOR_VERSION} ${PATCH_VERSION}`])
 +unset ac_cv_type_ssize_t
 +AC_CHECK_TYPE([ssize_t],[
      DEFINE_SSIZE_T="#include <sys/types.h>"
@@ -151,10 +179,11 @@
 +AC_CHECK_SIZEOF([unsigned long int],[4])
 +AC_CHECK_ALIGNOF([unsigned long int])
 +AC_CHECK_SIZEOF([unsigned int],[4])
-+AC_CHECK_ALIGNOF([unsigned int],[4])
++AC_CHECK_ALIGNOF([unsigned int])
 +
-+AC_ARG_WITH([zlib],[AS_HELP_STRING([--without-zlib],
-+                                 [disable zlib compression support])],
++AC_ARG_WITH([zlib],
++            [AS_HELP_STRING([--without-zlib],
++                            [disable zlib compression support])],
 +            [ac_zlib=${withval}],[ac_zlib=yes])
  AC_MSG_CHECKING([whether to include zlib compression support])
 -if test x$ac_zlib != xno; then
@@ -164,7 +193,7 @@
 -   AC_MSG_WARN(
 +if test "x${ac_zlib}" != "xno"; then
 + AC_MSG_RESULT([yes])
-+ AC_LIB_HAVE_LINKFLAGS([z],[],[#include <zlib.h>],[compress (0, 0, 0, 0);])
++ AC_LIB_HAVE_LINKFLAGS([z],[],[#include <zlib.h>],[compress(0, 0, 0, 0);])
 + if test "x${ac_cv_libz}" != "xyes"; then
 +   AC_MSG_WARN([
  *** 
@@ -184,7 +213,7 @@
 -  if test "$ZLIB_HAS_PKGCONFIG" = "y" ; then
 -    if test "x$GNUTLS_REQUIRES_PRIVATE" = "x"; then
 +if test "x${ac_zlib}" != "xno"; then
-+  if test "x${ZLIB_HAS_PKGCONFIG}" = "xy" ; then
++  if test "x${ZLIB_HAS_PKGCONFIG}" = "xy"; then
 +    if test "x${GNUTLS_REQUIRES_PRIVATE}" = "x"; then
        GNUTLS_REQUIRES_PRIVATE="Requires.private: zlib"
      else
@@ -192,7 +221,8 @@
 +      GNUTLS_REQUIRES_PRIVATE="${GNUTLS_REQUIRES_PRIVATE} , zlib"
      fi
    else
-     GNUTLS_ZLIB_LIBS_PRIVATE="$LTLIBZ"
+-    GNUTLS_ZLIB_LIBS_PRIVATE="$LTLIBZ"
++    GNUTLS_ZLIB_LIBS_PRIVATE="${LTLIBZ}"
    fi
  fi
 -AC_SUBST(GNUTLS_REQUIRES_PRIVATE)
@@ -218,7 +248,7 @@
 -		fi
 -	else
 -	        AC_MSG_WARN([[
-+dnl# Check for p11-kit
++dnl# Check for p11-kit here:
 +AC_ARG_WITH([p11-kit],
 +	[AS_HELP_STRING([--without-p11-kit],
 +		[Build without p11-kit and PKCS#11 support])])
@@ -252,9 +282,11 @@
  
 -AC_CHECK_FUNCS(getrusage,,)
 -AC_LIB_HAVE_LINKFLAGS(pthread,, [#include <pthread.h>], [pthread_mutex_lock (0);])
++# some other things:
 +unset ac_cv_func_getrusage
 +AC_CHECK_FUNCS([getrusage],[],[])
-+AC_LIB_HAVE_LINKFLAGS([pthread],[],[#include <pthread.h>],[pthread_mutex_lock (0);])
++AC_LIB_HAVE_LINKFLAGS([pthread],[],[#include <pthread.h>],
++                                   [pthread_mutex_lock (0);])
  
 -LIBGNUTLS_LIBS="-L${libdir} -lgnutls $LIBS"
 +LIBGNUTLS_LIBS="-L${libdir} -lgnutls ${LIBS}"
@@ -273,7 +305,10 @@
 +AM_CONDITIONAL([ENABLE_CXX],[test "x${use_cxx}" != "xno"])
  
 -AC_DEFINE([GNUTLS_INTERNAL_BUILD], 1, [We allow temporarily usage of deprecated functions - until they are removed.])
-+AC_DEFINE([GNUTLS_INTERNAL_BUILD],[1],[We allow temporarily usage of deprecated functions - until they are removed.])
++AC_DEFINE([GNUTLS_INTERNAL_BUILD],[1],
++          [We allow temporarily usage of deprecated functions - until they are removed.])
  
++# output:
  AC_CONFIG_FILES([
    Makefile
+   gnutls.pc

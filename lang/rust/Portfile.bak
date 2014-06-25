@@ -10,8 +10,8 @@ maintainers         g5pw openmaintainer
 
 categories          lang devel
 description         Compiler for the Rust programming language
-long_description    This is a compiler for Rust, including standard libraries,\
-                    tools and documentation.
+long_description    This is a compiler for Rust, including standard \
+                    libraries, tools and documentation.
 
 platforms           darwin
 license             {MIT Apache-2}
@@ -30,8 +30,8 @@ pre-fetch {
     }
 }
 
-# There's a makefile that ignores the configure script CC options, this makes \
-# it behave.
+# There is a makefile that ignores the configure script CC options,
+# this makes it behave:
 build.args-append   CC=${configure.cc} \
                     CXX=${configure.cxx} \
                     CPP=${configure.cpp}
@@ -40,23 +40,24 @@ build.args-append   CC=${configure.cc} \
 supported_archs     i386 x86_64
 universal_variant   no
 
-# rust's configure script doesn't recognize the --disable-dependency-tracking flag,
-# so nuke configure.universal_args to fix it.
+# rust's configure script does NOT recognize the
+# --disable-dependency-tracking flag, so nuke configure.universal_args
+# to fix it.
 # (leaving this in just in case a universal variant ever gets added back)
-configure.universal_args
+configure.universal_args ""
 
-# Rust builds a copy of llvm, so import all of llvm's deps
+# Rust builds a copy of llvm, so import all of llvm's deps:
 depends_build-append port:llvm_select
 depends_lib-append   port:libffi
 depends_run-append   port:perl5
-# Add some other dependencies asked for while configuring
+# Add some other dependencies asked for while configuring:
 depends_build-append port:curl \
                      port:gawk \
                      port:diffutils \
                      port:coreutils \
                      port:findutils \
                      port:gsed \
-                     port:git-core \
+                     bin:git:git \
                      bin:ld:ld64 \
                      bin:valgrind:valgrind \
                      port:texlive-latex \
@@ -84,8 +85,8 @@ configure.args-append \
                      --enable-debug \
                      --enable-fast-make
 
-compiler.whitelist-append clang
-compiler.whitelist-append llvm
+compiler.whitelist-append *clang*
+compiler.whitelist-append *llvm*
 
 pre-configure {
     system -W ${worksrcpath} "git init"

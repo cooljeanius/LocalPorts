@@ -5,7 +5,7 @@ PortSystem      1.0
 
 name            gtk-sharp
 version         1.0.10
-revision        7
+revision        8
 categories      x11 devel
 # libs are LGPL, executables GPL
 license         {LGPL-2 GPL-2}
@@ -36,52 +36,40 @@ patchfiles-append \
                 patch-glib-2.32.diff
 
 depends_build-append \
-                port:pkgconfig
-
-depends_lib-append \
-                port:mono \
-                port:libgnomecanvas \
-                port:libgnomeui \
-                port:libgda \
+                port:pkgconfig \
+                port:libtool \
                 port:librsvg \
                 port:libgtkhtml3 \
                 port:vte \
-                port:libpng \
-                port:audiofile \
-                port:libffi \
+                bin:gawk:gawk
+# some of the above used to be library dependencies, but they did not show
+# up as linked-against, but the configure script still mentioned installing
+# "development" packages for them, so I am assuming that it is just
+# referring to the headers installed by them, which would just be needed at
+# build time...
+
+depends_lib-append \
+                port:mono \
+                port:libgnomeui \
                 port:atk \
-                port:bzip2 \
-                port:dbus-glib \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gconf \
                 port:gdk-pixbuf2 \
                 port:gettext \
                 port:gnome-vfs \
-                port:graphite2 \
                 port:gtk2 \
-                port:harfbuzz \
                 port:libart_lgpl \
                 port:libbonobo \
                 port:libbonoboui \
-                port:libcanberra \
                 port:libffi \
-                port:libgcrypt \
                 port:libglade2 \
                 port:libgnome \
-                port:libgnome-keyring \
                 port:libgnomecanvas \
                 port:libgnomeprint \
                 port:libgnomeprintui \
-                port:libgpg-error \
                 port:libiconv \
-                port:libogg \
-                port:libpng \
-                port:libtool \
-                port:libvorbis \
                 port:libxml2 \
-                port:openssl \
                 port:orbit2 \
                 port:popt \
                 port:xorg-libX11 \
@@ -99,33 +87,35 @@ depends_lib-append \
                 port:xorg-libsm \
                 port:xorg-libxcb \
                 port:xrender \
-                port:xz \
                 port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
-                path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
-                path:lib/pkgconfig/dbus-1.pc:dbus
+                path:lib/pkgconfig/pango.pc:pango
+# mono will not show up as "linked-against" because it is used differently
+# (i.e. it is a completely different runtime)
 
-# mono is not universal
+depends_run-append bin:perl:perl5
+
+# mono is not universal:
 universal_variant no
 
 post-configure {
-    # TODO This should not be needed, we need to fix Mono dllmap lib path.
+    # TODO: This should not be needed, we need to fix Mono dllmap lib path.
     fs-traverse {f} ${worksrcpath} {
         if {[string match *.dll.config ${f}]} {
             reinplace -E "s|(target=\")|\\1${prefix}/lib/|" ${f}
         }
     }
-    reinplace "s/libgtk-x11-2\\.0\\.0\\.dylib/[glob -tail -path $prefix/lib/ libgtk-*-2.0.0.dylib]/" \
-        $worksrcpath/gtk/gtk-sharp.dll.config
-    reinplace "s/libgdk-x11-2\\.0\\.0\\.dylib/[glob -tail -path $prefix/lib/ libgdk-*-2.0.0.dylib]/" \
-        $worksrcpath/gdk/gdk-sharp.dll.config
+    reinplace "s/libgtk-x11-2\\.0\\.0\\.dylib/[glob -tail -path ${prefix}/lib/ libgtk-*-2.0.0.dylib]/" \
+        ${worksrcpath}/gtk/gtk-sharp.dll.config
+    reinplace "s/libgdk-x11-2\\.0\\.0\\.dylib/[glob -tail -path ${prefix}/lib/ libgdk-*-2.0.0.dylib]/" \
+        ${worksrcpath}/gdk/gdk-sharp.dll.config
 }
 
 variant gnomedb description {Enable gnomedb support} {
     patchfiles-delete   patch-configure-disable-gnomedb.diff
-    depends_lib-append  port:libgnomedb
+    depends_lib-append  port:libgnomedb \
+                        port:libgda
 }
 
 # Broken, so disable:

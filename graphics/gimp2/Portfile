@@ -10,7 +10,7 @@ conflicts       gimp2-devel gimp3-devel
 # please remember to update the gimp metapackage to match
 # (it is currently at 2.8.10)
 version         2.8.6
-revision        4
+revision        5
 license         {GPL-2+ LGPL}
 categories      graphics gnome
 maintainers     devans
@@ -63,7 +63,7 @@ depends_run-append \
                 path:share/gimp/2.0/help:gimp-help-en
 
 # TODO: Check ${configure.cxx_stdlib} directly once MacPorts 2.3 is
-# released
+# released:
 platform darwin {
     set cxxstdlib {}
 
@@ -104,31 +104,30 @@ pre-configure {
             error "+quartz variant is not selected, but gtk2+quartz is installed. Install gtk2+x11."
         }
     } else {
-            error "Cannot find gdkconfig.h"
+        error "Cannot find gdkconfig.h"
     }
 }
 
 configure.args-append \
-                --build=${configure.build_arch}-apple-${os.platform}${os.version} \
-                --enable-mp \
-                --with-pdbgen \
-                --with-x \
-                --x-includes=${prefix}/include \
-                --x-libraries=${prefix}/lib \
-                --without-alsa \
-                --without-gvfs \
-                --without-gudev \
-                --without-webkit \
-                --without-mac-twain \
-                --disable-debug
+        --build=${configure.build_arch}-apple-${os.platform}${os.version} \
+        --enable-mp \
+        --with-pdbgen \
+        --with-x \
+        --x-includes=${prefix}/include \
+        --x-libraries=${prefix}/lib \
+        --without-alsa \
+        --without-gvfs \
+        --without-gudev \
+        --without-webkit \
+        --without-mac-twain \
+        --disable-debug
 
 # --without-mac-twain:
 #     Leopard's 64bit Carbon is missing QuitApplicationEventLoop
 #     It does NOT build any more anyways:
 #         https://trac.macports.org/ticket/35168
 
-# update m4macros/intltool.m4 and autoreconf
-
+# update m4macros/intltool.m4 and autoreconf:
 post-patch {
     copy -force ${prefix}/share/aclocal/intltool.m4 ${worksrcpath}/m4macros
 }
@@ -145,7 +144,7 @@ variant python26 conflicts python25 python27 description {Use python 2.6} {
     depends_lib-append        port:py26-pygtk
     set python_framework      ${frameworks_dir}/Python.framework/Versions/2.6
     configure.pkg_config_path ${python_framework}/lib/pkgconfig
-    configure.env             PATH=${python_framework}/bin:$env(PATH)
+    configure.env-append      PATH=${python_framework}/bin:$env(PATH)
 }
 
 variant python27 conflicts python25 python26 description {Use python 2.7} {
@@ -153,7 +152,7 @@ variant python27 conflicts python25 python26 description {Use python 2.7} {
     depends_lib-append        port:py27-pygtk
     set python_framework      ${frameworks_dir}/Python.framework/Versions/2.7
     configure.pkg_config_path ${python_framework}/lib/pkgconfig
-    configure.env             PATH=${python_framework}/bin:$env(PATH)
+    configure.env-append      PATH=${python_framework}/bin:$env(PATH)
 }
 
 if {![variant_isset python26] && ![variant_isset python26]} {
@@ -168,6 +167,7 @@ variant gvfs description {Enable gvfs support} {
 variant debug description {Enable debugging} {
     configure.args-replace --disable-debug --enable-debug
     configure.optflags     -g
+    configure.pipe         no
 }
 
 variant quartz {
@@ -178,21 +178,15 @@ variant quartz {
                           --x-includes=${prefix}/include \
                           --x-libraries=${prefix}/lib
     configure.args-append --without-x
-    configure.ldflags-append -framework Carbon
+    configure.ldflags-append "-framework Carbon"
     categories-append    aqua
 
-#
-# if variant is +quartz lcms plugin uses 32 bit only Carbon API
-#
-
-    if {$build_arch == "x86_64" || $build_arch == "ppc64"} {
+    # in this variant, lcms plugin uses 32-bit-only Carbon API, so disable
+    # when building for 64-bit:
+    if {${build_arch} == "x86_64" || ${build_arch} == "ppc64"} {
         configure.args-append --without-lcms
     }
 }
-
-#
-# set default variants
-#
 
 variant help_browser description {Enable Gimp help browser} {
     depends_lib-append  port:icu
@@ -204,6 +198,7 @@ variant help_browser description {Enable Gimp help browser} {
     }
 }
 
+# set default variants (besides the python one set above):
 default_variants-append +help_browser
 
 variant huge requires debug gvfs description {Pulls in many dependencies; unsupported} {
@@ -250,13 +245,15 @@ variant huge requires debug gvfs description {Pulls in many dependencies; unsupp
                  port:sgml-common \
                  port:xorg-sgml-doctools \
                  path:bin/nm:cctools \
-                 path:bin/git:git-core \
+                 path:bin/xmkmf:imake \
+                 bin:git:git \
                  bin:gdk-pixbuf-csource:gdk-pixbuf2 \
                  bin:perl:perl5 \
+                 bin:perl5.16:perl5.16 \
                  bin:xmllint:libxml2 \
                  bin:xsltproc:libxslt
-    # intltool needs to be run with the correct version of perl
-    configure.env-append INTLTOOL_PERL=${prefix}/bin/perl5.12
+    # intltool needs to be run with the correct version of perl:
+    configure.env-append INTLTOOL_PERL=${prefix}/bin/perl5.16
     depends_lib-append \
                  port:p5.16-libintl-perl \
                  port:p5.16-www-curl \
@@ -410,11 +407,17 @@ variant huge requires debug gvfs description {Pulls in many dependencies; unsupp
                               -Werror=missing-prototypes
     configure.cppflags-append -Wno-unknown-warning-option \
                               -Wformat-nonliteral
-    use_parallel_build no
+    configure.env-append INTLLIBS='-lintl -liconv ' \
+                         XMKMF=${prefix}/bin/xmkmf
+    if {[variant_isset debug]} {
+        use_parallel_build no
+    }
 }
 
 post-activate {
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
     system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
 }
 

@@ -1,0 +1,22 @@
+--- Samples/FontDemo/Makefile.am.orig	2013-01-12 12:07:24.000000000 -0500
++++ Samples/FontDemo/Makefile.am	2014-06-19 13:34:25.000000000 -0400
+@@ -1,6 +1,11 @@
+-INCLUDES = -I$(top_srcdir)/cegui/include -I$(top_srcdir)/Samples/common/include
++## automake Makefile for cegui FontDemo
+ 
+-noinst_PROGRAMS = FontDemo@cegui_bsfx@
++AM_CPPFLAGS = -I$(top_srcdir)/cegui/include -I$(top_srcdir)/Samples/common/include
++
++examplesdir = ${datarootdir}/examples/${PACKAGE_TARNAME}
++examples_bindir = ${examplesdir}/bin
++
++examples_bin_PROGRAMS = FontDemo@cegui_bsfx@
+ 
+ if CEGUI_BUILD_STATIC
+ FontDemo@cegui_bsfx@_CPPFLAGS = -DCEGUI_STATIC
+@@ -12,4 +17,4 @@
+ 				 $(SAMPLE_STATIC_LDFLAGS)
+ 
+ install-exec-local:
+-	$(LN_S) -f `pwd`/.libs/FontDemo@cegui_bsfx@$(EXEEXT) $(top_builddir)/bin/FontDemo@cegui_bsfx@$(EXEEXT)
++	$(LN_S) -fv `pwd`/.libs/FontDemo@cegui_bsfx@$(EXEEXT) $(top_builddir)/bin/FontDemo@cegui_bsfx@$(EXEEXT)

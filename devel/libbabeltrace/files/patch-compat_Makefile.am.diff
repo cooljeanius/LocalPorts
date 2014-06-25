@@ -1,0 +1,14 @@
+--- compat/Makefile.am.orig	2014-02-28 13:11:47.000000000 -0500
++++ compat/Makefile.am	2014-06-09 10:55:48.000000000 -0400
+@@ -4,9 +4,8 @@
+ 
+ libcompat_la_SOURCES =
+ 
+-libcompat_la_LDFLAGS = \
+-	-Wl,--no-as-needed
+-
+ if BABELTRACE_BUILD_WITH_MINGW
+ libcompat_la_SOURCES += compat_uuid.c
++else
++libcompat_la_SOURCES += compat.c
+ endif

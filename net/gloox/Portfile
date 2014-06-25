@@ -5,10 +5,10 @@ PortSystem          1.0
 
 name                gloox
 version             1.0
-revision            3
+revision            4
 categories          net devel
 platforms           darwin
-license             {GPL-2 OpenSSLException} 
+license             {GPL-2 OpenSSLException}
 maintainers         nomaintainer
 description         C++ Jabber/XMPP library taking care of the low-level \
                     protocol
@@ -38,21 +38,26 @@ depends_lib-append  port:iksemel \
                     port:libidn \
                     port:zlib
 
+# need a compiler that understands '-isystem':
+compiler.blacklist-append *gcc-4.0 gcc-3.3
+
+compiler.cpath ${prefix}/lib/gnutls2/include:${prefix}/include
+compiler.library_path ${prefix}/lib/gnutls2/lib:${prefix}/lib
+
 configure.args-append \
                     --with-gnutls=${prefix}/lib/gnutls2 \
                     --with-zlib=${prefix} \
                     --with-libidn=${prefix} \
                     --without-openssl
-configure.cflags-append \
-                    "-I${prefix}/lib/gnutls2/include"
-configure.cppflags-append \
-                    "-I${prefix}/lib/gnutls2/include"
-configure.cxxflags-append \
-                    "-I${prefix}/lib/gnutls2/include"
-configure.ldflags-append \
-                    "-L${prefix}/lib/gnutls2/lib"
-configure.env-append \
-                    CXXCPPFLAGS=-I${prefix}/lib/gnutls2/include
+
+configure.cflags-append "-I${prefix}/lib/gnutls2/include"
+configure.cppflags-append "-I${prefix}/lib/gnutls2/include"
+configure.cppflags-replace "-I${prefix}/include" \
+                           "-isystem ${prefix}/include"
+configure.cxxflags-append "-I${prefix}/lib/gnutls2/include"
+configure.ldflags-append "-L${prefix}/lib/gnutls2/lib"
+configure.pkg_config_path ${prefix}/lib/gnutls2/lib/pkgconfig:${prefix}/lib/pkgconfig:${prefix}/share/pkgconfig
+configure.env-append CXXCPPFLAGS=-I${prefix}/lib/gnutls2/include
 
 build.env-append    CFLAGS=-I${prefix}/lib/gnutls2/include \
                     CPPFLAGS=-I${prefix}/lib/gnutls2/include \
@@ -61,32 +66,26 @@ build.env-append    CFLAGS=-I${prefix}/lib/gnutls2/include \
                     LDFLAGS=-L${prefix}/lib/gnutls2/lib
 
 variant openssl description {Use openssl instead of gnutls} {
-    depends_lib-delete \
-                    port:gnutls2
-    depends_lib-append \
-                    port:openssl
+    depends_lib-replace port:gnutls2 port:openssl
     configure.args-delete \
                     --with-gnutls=${prefix}/lib/gnutls2 \
                     --without-openssl
     configure.args-append \
                     --without-gnutls \
                     --with-openssl=${prefix}
-    configure.cflags-delete \
-                    "-I${prefix}/lib/gnutls2/include"
-    configure.cppflags-delete \
-                    "-I${prefix}/lib/gnutls2/include"
-    configure.cxxflags-delete \
-                    "-I${prefix}/lib/gnutls2/include"
-    configure.ldflags-delete \
-                    "-L${prefix}/lib/gnutls2/lib"
-    configure.env-delete \
-                    CXXCPPFLAGS=-I${prefix}/lib/gnutls2/include
-    build.env-delete \
-                    CFLAGS=-I${prefix}/lib/gnutls2/include \
-                    CPPFLAGS=-I${prefix}/lib/gnutls2/include \
-                    CXXFLAGS=-I${prefix}/lib/gnutls2/include \
-                    CXXCPPFLAGS=-I${prefix}/lib/gnutls2/include \
-                    LDFLAGS=-L${prefix}/lib/gnutls2/lib
+    configure.cflags-delete "-I${prefix}/lib/gnutls2/include"
+    configure.cppflags-delete "-I${prefix}/lib/gnutls2/include"
+    configure.cxxflags-delete "-I${prefix}/lib/gnutls2/include"
+    configure.ldflags-delete "-L${prefix}/lib/gnutls2/lib"
+    compiler.cpath ${prefix}/include:/usr/include
+    compiler.library_path ${prefix}/lib:/usr/lib
+    configure.pkg_config_path ${prefix}/lib/pkgconfig:${prefix}/share/pkgconfig:/usr/lib/pkgconfig
+    configure.env-delete CXXCPPFLAGS=-I${prefix}/lib/gnutls2/include
+    build.env-delete    CFLAGS=-I${prefix}/lib/gnutls2/include \
+                        CPPFLAGS=-I${prefix}/lib/gnutls2/include \
+                        CXXFLAGS=-I${prefix}/lib/gnutls2/include \
+                        CXXCPPFLAGS=-I${prefix}/lib/gnutls2/include \
+                        LDFLAGS=-L${prefix}/lib/gnutls2/lib
 }
 
 # broken, so disable:

@@ -6,9 +6,8 @@ PortGroup              muniversal 1.0
 PortGroup              archcheck 1.0
 
 name                   gdb
-version                7.6.1
-# TODO: update to 7.6.2
-revision               0
+version                7.7.1
+revision               1
 categories             devel
 license                GPL-3+
 maintainers            dweber openmaintainer
@@ -40,10 +39,12 @@ master_sites           gnu
 
 use_bzip2              yes
 
-checksums              sha1    0e38633b3902070d9c6755e4c54602148a094361 \
-                       rmd160  d65ee2ab9f18601ceaeac4d379bb7f344f237bdd \
-                       sha256  e3dfa38a14a5457f9b8b26f7b5080ba5491bd10ae4d69bfe357cea87b7d162e4
+checksums \
+    sha1   35228319f7c715074a80be42fff64c7645227a80 \
+    rmd160 523b0b2ac61e62d98c1df379571331604c4f62e1 \
+    sha256 0dbd5260406f1b0c70fcf027c6488527fadde0cd9bb574593491fe076eb03aa5
 
+# some of these would be "depends_test" if we had that...
 depends_build-append   port:gettext \
                        port:zlib \
                        port:gawk \
@@ -51,6 +52,8 @@ depends_build-append   port:gettext \
                        port:flex \
                        path:bin/makeinfo:texinfo \
                        port:expect \
+                       port:tcl \
+                       port:tk \
                        path:bin/nm:cctools \
                        path:bin/perl:perl5 \
                        port:intltool \
@@ -60,8 +63,13 @@ depends_build-append   port:gettext \
                        port:byacc \
                        port:vislcg3 \
                        bin:gm4:m4 \
-                       port:libunwind-headers
+                       port:libunwind-headers \
+                       path:bin/xmkmf:imake \
+                       port:xz
 
+# things that still need ports:
+# - libmcheck (part of glibc, would be hard to extract from it)
+# - libbabeltrace (seems slightly more reasonable to port)
 depends_lib-append     port:readline \
                        port:expat \
                        port:libiconv \
@@ -75,7 +83,8 @@ depends_lib-append     port:readline \
                        port:mpfr \
                        port:gmp \
                        port:cloog \
-                       port:isl
+                       port:isl \
+                       port:xz
 
 depends_run-append     port:gcc_select \
                        port:exec-wrapper
@@ -89,8 +98,14 @@ platform macosx {
 set docdir ${prefix}/share/doc/${name}
 set datadir ${prefix}/share/${name}
 
+# hack to try to fix build failure:
+post-patch {
+    reinplace "s|ATTRIBUTE_RETURNS_NONNULL||g" ${worksrcpath}/include/libiberty.h
+}
+
 pre-configure {
-        file mkdir "${workpath}/build"
+    file mkdir "${workpath}/build"
+    #FIXME: this is currently unused
 }
 
 configure.args-append \
@@ -101,15 +116,22 @@ configure.args-append \
     --localedir=${datadir}/locale \
     --program-prefix=g \
     --disable-werror \
+    --enable-build-warnings \
+    --enable-gdb-build-warnings \
     --enable-tui \
     --enable-multi-ice \
     --with-gnu-ld \
     --with-curses \
+    --with-zlib \
+    --with-libiconv-prefix=${prefix} \
+    --with-iconv-bin=${prefix}/bin/iconv \
     --with-expat \
+    --with-libexpat-prefix=${prefix} \
     --enable-gold=yes \
     --enable-ld=yes \
     --enable-libada \
     --enable-libssp \
+    --enable-static-libjava=yes \
     --enable-lto \
     --enable-objc-gc \
     --with-mpc=${prefix} \
@@ -119,51 +141,108 @@ configure.args-append \
     --with-isl=${prefix} \
     --disable-isl-version-check \
     --disable-cloog-version-check \
-    --without-python
+    --without-python \
+    --with-lzma \
+    --with-liblzma-prefix=${prefix} \
+    --with-tcl=${prefix}/lib \
+    --with-tk=${prefix}/lib \
+    --with-x \
+    --x-includes=${prefix}/include \
+    --x-libraries=${prefix}/lib \
+    --enable-sim \
+    --enable-plugins \
+    --enable-largefile
 
+# forcing the makeinfo from our prefix is now only done in build/destroot
 configure.env-append \
-    MAKEINFO=${prefix}/bin/makeinfo
+    MAKEINFO="${worksrcpath}/missing makeinfo" \
+    LIBS="-lgnuregex -lgc -lcloog-isl -lgmp -lisl -lmpc -lmpfr -lppl -lhistory -lreadline" \
+    PICFLAG="-fno-common -DPIC" \
+    PICFLAG_FOR_TARGET="-fno-common -DPIC" \
+    COREFILE="trad-core.lo" \
+    SIM_OBS="remote-sim.o" \
+    LIBM="-lm" \
+    ignore_sim="false" \
+    SIM_OBS="remote-sim.o"
+# (the LIBS env entry used to be appended to configure.ldflags instead)
 
-configure.ldflags-append \
-    -lgnuregex \
-    -lgc \
-    -lcloog-isl \
-    -lgmp \
-    -lisl \
-    -lmpc \
-    -lmpfr \
-    -lppl \
-    -lhistory \
-    -lreadline
+configure.optflags -ggdb3
 
+# I think this is backwards... the description for this flag says that it
+# is for hosts with NARROWER word sizes, i.e. 32-bit, i.e. i386, which is
+# counter-intuitive... leave the more intuitive one for now:
 platform x86_64 {
     configure.args-append \
             --enable-64-bit-bfd
+}
+
+if {[string match *clang* ${configure.compiler}]} {
+    configure.args-append --disable-rpath
 }
 
 build.type             gnu
 use_parallel_build     no
 configure.ccache       no
 
-# some tests currently fail
+# try to get the subdirs to build some additional things:
+build.env-append \
+    PICFLAG="-fno-common -DPIC" \
+    PICFLAG_FOR_TARGET="-fno-common -DPIC" \
+    COREFILE="trad-core.lo" \
+    LIBM="-lm" \
+    CPPFLAGS="${configure.cppflags}" \
+    XMKMF="${prefix}/bin/xmkmf" \
+    LIBLZMA="-L${prefix}/lib -llzma" \
+    LTLIBLZMA="-L${prefix}/lib -llzma" \
+    HAVE_LIBLZMA="yes" \
+    with_lzma="yes" \
+    ignore_sim="false" \
+    SIM_OBS="remote-sim.o" \
+    TCL_BIN_DIR="${prefix}/lib" \
+    TK_BIN_DIR="${prefix}/lib" \
+    LIBS="-lgnuregex -lgc -lcloog-isl -lgmp -lisl -lmpc -lmpfr -lppl -lhistory -lreadline" \
+    MAKEINFO="${prefix}/bin/makeinfo"
+
+# try forcing things that fail to be simply picked up from the environment:
+build.args-append \
+    PICFLAG="-fno-common -DPIC" \
+    PICFLAG_FOR_TARGET="-fno-common -DPIC" \
+    COREFILE="trad-core.lo" \
+    SIM_OBS="remote-sim.o" \
+    LIBM="-lm" \
+    ignore_sim="false" \
+    SIM_OBS="remote-sim.o" \
+    MAKEINFO="${prefix}/bin/makeinfo"
+
+# some tests currently fail, probably need to do the permission-changing
+# before testing instead of after...
 test.run               yes
 test.target            check
 
+destroot.env-append \
+    MAKEINFO="${prefix}/bin/makeinfo"
+
+destroot.args-append \
+    MAKEINFO="${prefix}/bin/makeinfo"
+
 post-destroot {
+    ui_debug "changing ggdb to be setgid procmod"
     system "chgrp procmod ${destroot}${prefix}/bin/ggdb*"
     system "chmod g+s ${destroot}${prefix}/bin/ggdb*"
 
     # the info-renaming stuff should no longer be necessary now that I
     # changed the location it installs to, so it has been removed
 
+    ui_debug "setting up gnubin in destroot"
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
     foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {
+        ui_debug "symlinking ${binary} into gnubin"
         ln -s ${prefix}/bin/${binary} ${destroot}${prefix}/libexec/gnubin/[string range $binary 1 end]
     }
 }
 
 # technically it supports python25, too, but MacPorts
-# does not build that as a framework...
+# does not build that as a framework, at least not really...
 set pythons_suffixes {26 27 31 32 33}
 
 set pythons_ports {}
@@ -190,6 +269,7 @@ foreach s ${pythons_suffixes} {
                                         -L${python_framework_dir}/lib
             configure.cppflags-append   -I${python_framework_dir}/include
             configure.python            ${python_bin}
+            configure.env-append        python_prog_path="${python_bin}"
             patchfiles-append           patch-python-config.py.diff
         }
     }]

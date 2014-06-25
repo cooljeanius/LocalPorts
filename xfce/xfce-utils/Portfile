@@ -81,10 +81,11 @@ autoreconf.env-append  \
                 XDT_PROG_AUTOCONF=${prefix}/bin/autoconf
 
 pre-configure {
+    ui_debug "running ${prefix}/bin/intltoolize --automake --copy --force in ${worksrcpath}"
     system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
 }
 
-configure.perl  ${prefix}/bin/perl5.12
+configure.perl  ${prefix}/bin/perl5.16
 configure.args-append \
                 --with-xsession-prefix=${prefix} \
                 --enable-maintainer-mode

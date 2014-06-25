@@ -1,11 +1,11 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
 # $Id: Portfile 104737 2013-04-01 22:13:49Z cal@macports.org $
 
-PortSystem 1.0
+PortSystem              1.0
 
 name                    libgtkhtml
 version                 2.11.1
-revision                3
+revision                4
 set branch              [join [lrange [split ${version} .] 0 1] .]
 description             Lightweight HTML rendering/printing/editing engine
 long_description        This is GtkHTML version 2, a lightweight HTML \
@@ -24,23 +24,19 @@ checksums               md5     a1d1a197dcff8c4571659deef5495e24 \
                         rmd160  4f3a65b616c0fbfaaa487d11c8749718708deb2a \
                         sha256  3ca77a0d0f15e94fb654097c2f78cf928194d4c4bf64ff7b2ba408d29c924a57
 
-depends_build-append    port:pkgconfig
+depends_build-append    port:pkgconfig \
+                        port:gettext
 
 depends_lib-append      port:gtk2 \
                         port:libxml2 \
                         port:gnome-vfs \
                         port:atk \
-                        port:bzip2 \
-                        port:expat \
                         port:fontconfig \
                         port:freetype \
                         port:gdk-pixbuf2 \
                         port:gettext \
                         port:gtk2 \
-                        port:harfbuzz \
-                        port:libffi \
                         port:libiconv \
-                        port:libpng \
                         port:xorg-libX11 \
                         port:xorg-libXau \
                         port:xorg-libXcomposite \
@@ -54,14 +50,38 @@ depends_lib-append      port:gtk2 \
                         port:xorg-libXrandr \
                         port:xorg-libxcb \
                         port:xrender \
-                        port:xz \
-                        port:zlib \
                         path:lib/pkgconfig/glib-2.0.pc:glib2 \
                         path:lib/pkgconfig/cairo.pc:cairo \
-                        path:lib/pkgconfig/pango.pc:pango \
-                        path:lib/pkgconfig/pixman-1.pc:libpixman
+                        path:lib/pkgconfig/pango.pc:pango
+# gnome-vfs would be a "depends_test" if we had those
+# libiconv has a flag saying to use it; not sure why it ends up unlinked...
 
+pre-patch {
+    file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
+patchfiles-append       patch-configure.ac.diff \
+                        patch-Makefile.am.diff
+patch.args-append       --backup
+post-patch {
+    ui_debug "file mkdir ${worksrcpath}/m4"
+    file mkdir ${worksrcpath}/m4
+    ui_debug "file mkdir ${worksrcpath}/po"
+    file mkdir ${worksrcpath}/po
+    fs-traverse am_makefile ${worksrcpath} {
+        if {[file tail ${am_makefile}] eq "Makefile.am"} {
+            reinplace "s|INCLUDES|AM_CPPFLAGS|g" ${am_makefile}
+        }
+    }
+}
+
+use_autoreconf          yes
+autoreconf.args         -fvi -Wall
 configure.args-append   --mandir=${prefix}/share/man \
-                        --enable-accessibility
+                        --enable-accessibility \
+                        --with-libiconv-prefix=${prefix} \
+                        --with-libintl-prefix=${prefix}
+
+test.run                yes
+test.target             check
 
 livecheck.type          gnome-with-unstable

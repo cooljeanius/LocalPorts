@@ -5,16 +5,16 @@ PortSystem          1.0
 PortGroup           muniversal 1.0
 
 # Had some trouble with arch flags, so I figured it would be better to
-# use muniversal than to remove the universal variant
+# use muniversal than to remove the universal variant...
 
 name                libvirt
 version             1.0.3
-# TODO: update to 1.2.0
-revision            3
+# TODO: update to 1.2.5 like the version of this Portfile in trunk...
+revision            5
 categories          sysutils
 license             LGPL-2.1+
 platforms           darwin
-maintainers         nomaintainer
+maintainers         ryandesign openmaintainer
 
 description         Libvirt - The Virtualization API
 
@@ -24,32 +24,102 @@ long_description    A toolkit to interact with the virtualization \
 homepage            http://www.${name}.org/
 master_sites        ${homepage}sources/
 
-checksums           rmd160  645705d59260733b0afe2de8054748d866c65dcf \
-                    sha256  f64f4acd7cdcfc6ab5e803195ed58b949f262b54e3659d8c37b33f0fec112757
+checksums \
+    rmd160 645705d59260733b0afe2de8054748d866c65dcf \
+    sha256 f64f4acd7cdcfc6ab5e803195ed58b949f262b54e3659d8c37b33f0fec112757
 
 depends_build-append \
-                    port:pkgconfig \
-                    port:xhtml1 \
-                    path:share/aclocal/autobuild.m4:autobuild \
-                    path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
-                    path:share/aclocal/glib-2.0.m4:glib2 \
-                    bin:xsltproc:libxslt \
-                    bin:rpcgen:developer_cmds \
-                    bin:augparse:augeas \
-                    bin:dnsmasq:dnsmasq
+                port:pkgconfig \
+                port:xhtml1 \
+                path:share/aclocal/autobuild.m4:autobuild \
+                path:share/aclocal/ax_check_gnu_make.m4:autoconf-archive \
+                path:share/aclocal/glib-2.0.m4:glib2 \
+                bin:xmllint:libxml2 \
+                bin:xsltproc:libxslt \
+                bin:rpcgen:developer_cmds \
+                bin:augparse:augeas \
+                bin:dnsmasq:dnsmasq \
+                bin:scrub:scrub \
+                bin:pkcheck:policykit
 # glib is just needed for some autoconf macros; libvirt does NOT actually
-# link against it.
+# link against it (yet).
+# some of the build dependencies (such as libxml2) are also library deps
 
 patchfiles-append   patch-configure.ac.diff
 
+patch.args-append   --backup
+
+# ('-Wall' only gets added to these args for +debug variant)
 use_autoreconf      yes
 autoreconf.args     -fvi
 
+#FIXME: change this block's location in this Portfile so it matches the
+# order that MacPorts goes in better (in a separate commit)
 post-patch {
+    ui_debug "copying autoconf macros"
+    # this part might be irrelevant now that we have aclocal install the
+    # same things afterwards:
     file copy ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
     file copy ${prefix}/share/aclocal/autobuild.m4 ${worksrcpath}/m4
     file copy ${prefix}/share/aclocal/glib-2.0.m4 ${worksrcpath}/m4
     file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
+    # have to run aclocal separately for autoupdate to work:
+    ui_debug "running \"${prefix}/bin/aclocal --force -I m4 --install\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal --force -I m4 --install"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/aclocal.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate aclocal.m4"
+    # globbing all m4 files is NOT an option because autoupdating some of
+    # them leads to issues, so just do most of them:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/codeset.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/codeset.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/gettext.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/gettext.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-2.0.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-2.0.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/iconv.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/iconv.m4"
+    # (skip intdiv0.m4; it gets installed by autopoint, and we already run
+    # aclocal twice, so I would prefer not to have to do likewise with
+    # autopoint)
+    # (likewise with intl.m4)
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/intlmacosx.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/intlmacosx.m4"
+    # (also skip intmax.m4)
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/inttypes_h.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/inttypes_h.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/inttypes-pri.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/inttypes-pri.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/lcmessage.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/lcmessage.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/lib-link.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/lib-link.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/lock.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/lock.m4"
+    # (and also skip printf-posix.m4)
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/size_max.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/size_max.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/stdint_h.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/stdint_h.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/virt-apparmor.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/virt-apparmor.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/virt-selinux.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/virt-selinux.m4"
+    # (also skip visibility.m4)
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/wchar_t.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/wchar_t.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/wint_t.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/wint_t.m4"
+    # there is also another m4 directory in gnulib that has some macros
+    # that need autoupdating:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/gnulib/m4/gethostname.m4"
+    system -W ${worksrcpath}/gnulib "${prefix}/bin/autoupdate m4/gethostname.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/gnulib/m4/gnulib-comp.m4"
+    system -W ${worksrcpath}/gnulib "${prefix}/bin/autoupdate m4/gnulib-comp.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/gnulib/m4/posix_spawn.m4"
+    system -W ${worksrcpath}/gnulib "${prefix}/bin/autoupdate m4/posix_spawn.m4"
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/gnulib/m4/threadlib.m4"
+    system -W ${worksrcpath}/gnulib "${prefix}/bin/autoupdate m4/threadlib.m4"
+    # silence some automake warnings:
     eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/Makefile.am]
     eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/*/Makefile.am]
     eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/*/*/Makefile.am]
@@ -64,18 +134,11 @@ depends_lib-append  port:curl \
                     port:readline \
                     port:yajl \
                     port:zlib \
-                    port:c-ares \
-                    port:dbus \
+                    path:lib/pkgconfig/dbus-1.pc:dbus \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
                     port:gettext \
-                    port:libgpg-error \
-                    port:nettle \
-                    port:openssl \
-                    port:xz \
                     port:pth \
-                    port:policykit \
-                    port:libtasn1 \
-                    port:gmp \
-                    port:libidn
+                    port:policykit
 
 depends_run-append  port:logrotate \
                     port:augeas
@@ -122,32 +185,49 @@ configure.args-append \
                     --with-xml-catalog-file=${prefix}/etc/xml/catalog \
                     --with-yajl \
                     --disable-silent-rules \
-                    --disable-werror \
                     --enable-debug=no \
+                    --disable-glibtest \
                     --with-libpth-prefix=${prefix} \
                     --with-libxml=${prefix} \
                     --with-libiconv-prefix=${prefix} \
                     --with-libintl-prefix=${prefix}
 
+# try to force some dependencies to be used, in case the args were not
+# enough:
+configure.env-append \
+        LIBPCAP_CONFIG="${prefix}/bin/pcap-config" \
+        LIBPCAP_CFLAGS="-I${prefix}/include" \
+        LIBPCAP_LIBS="-L${prefix}/lib -lpcap" \
+        LIBPCAP_FOUND="yes" \
+        with_libpcap="${prefix}" \
+        INCPTH="-I${prefix}/include" \
+        LIBPTH="-L${prefix}/lib -lpth" \
+        LIBPTH_PREFIX="${prefix}" \
+        LTLIBPTH="-L${prefix}/lib -lpth" \
+        with_libpth_prefix="${prefix}" \
+        gl_have_pth="yes" \
+        POLKIT_CFLAGS="-D_REENTRANT -I${prefix}/include/glib-2.0 -I${prefix}/lib/glib-2.0/include -I${prefix}/include/polkit-1" \
+        POLKIT_LIBS="-L${prefix}/lib -lpolkit-agent-1 -lpolkit-gobject-1 -lgio-2.0 -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0 -lglib-2.0 -lintl" \
+        PKCHECK_PATH="${prefix}/bin/pkcheck" \
+        with_polkit="yes" \
+        with_polkit1="yes"
+
 variant debug description {Enable debugging} {
+    autoreconf.args-append -Wall
     configure.optflags -g
-    configure.args-delete \
-                    --enable-debug=no
-    configure.args-append \
-                    --enable-debug=yes
+    configure.args-replace --enable-debug=no --enable-debug=yes
+    configure.pipe no
 }
 
 # Tests currently fail:
 # fatal-signal.c:29:10: fatal error: 'sig-handler.h' file not found
 variant test requires debug description {Enable tests} {
-    configure.args-delete \
-                    --without-test
+    configure.args-replace --without-test --with-test
+    configure.args-replace --disable-glibtest --enable-glibtest
     configure.args-append \
-                    --with-test-suite \
                     --enable-test-coverage \
                     --enable-test-oom \
-                    --enable-test-locking \
-                    --with-test
+                    --enable-test-locking
     test.run        yes
     test.target     check
 }
@@ -158,18 +238,15 @@ platform macosx {
                     port:dtrace
         depends_run-append \
                     port:dtrace
-        configure.args-delete \
-                    --without-dtrace
-        configure.args-append \
-                    --with-dtrace
+        configure.args-replace --without-dtrace --with-dtrace
+        configure.env-append \
+                    with_dtrace="yes" \
+                    DTRACE=/usr/sbin/dtrace
     }
-    variant fuse description {Enable fuse support} {
+    variant fuse conflicts universal description {Enable fuse support} {
         depends_lib-append \
-                    port:fuse4x
-        configure.args-delete \
-                    --without-fuse
-        configure.args-append \
-                    --with-fuse
+                    path:lib/pkgconfig/fuse.pc:osxfuse
+        configure.args-replace --without-fuse --with-fuse
         categories-append fuse
     }
 }
@@ -183,49 +260,63 @@ variant python24 conflicts python25 python26 python27 \
                  description {Compile Python 2.4 bindings} {
     depends_lib-append      port:python24
     configure.args-replace  --without-python --with-python
-    configure.env-append    PYTHON=${prefix}/bin/python2.4
+    configure.python        ${prefix}/bin/python2.4
     configure.cppflags-append -I${prefix}/include/python2.4
+    build.env-append        PYTHON=${prefix}/bin/python2.4
 }
 
 variant python25 conflicts python24 python26 python27 \
                  description {Compile Python 2.5 bindings} {
     depends_lib-append      port:python25
     configure.args-replace  --without-python --with-python
-    configure.env-append    PYTHON=${prefix}/bin/python2.5
+    configure.python        ${prefix}/bin/python2.5
     configure.cppflags-append -I${prefix}/include/python2.5
+    build.env-append        PYTHON=${prefix}/bin/python2.5
 }
 
 variant python26 conflicts python24 python25 python27 \
                  description {Compile Python 2.6 bindings} {
     depends_lib-append      port:python26
     configure.args-replace  --without-python --with-python
-    configure.env-append    PYTHON=${prefix}/bin/python2.6
+    configure.python        ${prefix}/bin/python2.6
     configure.cppflags-append -I${prefix}/Library/Frameworks/Python.framework/Versions/2.6/Headers
+    build.env-append        PYTHON=${prefix}/bin/python2.6
 }
 
 variant python27 conflicts python24 python25 python26 \
                  description {Compile Python 2.7 bindings} {
     depends_lib-append      port:python27
     configure.args-replace  --without-python --with-python
-    configure.env-append    PYTHON=${prefix}/bin/python2.7
+    configure.python        ${prefix}/bin/python2.7
     configure.cppflags-append -I${prefix}/Library/Frameworks/Python.framework/Versions/2.7/Headers
+    build.env-append        PYTHON=${prefix}/bin/python2.7
+}
+
+if {![variant_isset python24] && ![variant_isset python25] && ![variant_isset python26]} {
+    default_variants-append +python27
 }
 
 variant sasl description {Use Cyrus SASL for authentication} {
-    depends_lib-append      port:cyrus-sasl2 \
-                            port:openldap
+    depends_lib-append      port:cyrus-sasl2
     configure.args-replace  --without-sasl --with-sasl
 }
 
 variant ssh description {Enable ssh support} {
     PortGroup       active_variants 1.1
     require_active_variants curl sftp_scp
-    depends_lib-append \
-                    port:libssh2
-    configure.args-delete \
-                    --without-ssh2
-    configure.args-append \
-                    --with-ssh2
+    depends_lib-append port:libssh2
+    configure.args-replace --without-ssh2 --with-ssh2
+}
+
+#FIXME: do likewise for platform-specific variants:
+if {[variant_isset debug] || [variant_isset test] || [variant_isset ssh]} {
+    maintainers-prepend gwmail.gwu.edu:egall
+}
+
+# This normally gets disabled by universal, but we need it to be disabled
+# always:
+if {![variant_isset universal]} {
+    configure.args-append --disable-dependency-tracking
 }
 
 livecheck.type      regex

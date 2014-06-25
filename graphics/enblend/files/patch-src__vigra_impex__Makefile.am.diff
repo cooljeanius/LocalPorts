@@ -1,8 +1,31 @@
---- src/vigra_impex/Makefile.am.orig	2009-12-21 02:32:28.000000000 +1100
-+++ src/vigra_impex/Makefile.am	2012-05-23 02:40:17.000000000 +1000
-@@ -15,6 +15,6 @@
-                            viff.hxx void_vector.cxx void_vector.hxx exr.cxx \
-                            exr.hxx
+--- src/vigra_impex/Makefile.am.orig	2009-12-20 10:32:28.000000000 -0500
++++ src/vigra_impex/Makefile.am	2014-06-22 13:46:36.000000000 -0400
+@@ -1,20 +1,25 @@
++## automake Makefile for vigra_impex
++
+ AM_CPPFLAGS = $(EXTRACPPFLAGS)
+ AM_CFLAGS = $(EXTRACFLAGS)
+ AM_CXXFLAGS = $(EXTRACXXFLAGS)
+ AM_LDFLAGS = $(EXTRALDFLAGS)
+ 
+-noinst_LIBRARIES = libvigra_impex.a
++lib_enblend_enfuse_libdir = ${libdir}/enblend-enfuse
++
++lib_enblend_enfuse_lib_LIBRARIES = libvigra_impex.a
+ 
+ libvigra_impex_a_SOURCES = auto_file.hxx bmp.cxx bmp.hxx byteorder.cxx \
+-                           byteorder.hxx codecmanager.cxx codecmanager.hxx error.hxx \
++                           byteorder.hxx codecmanager.cxx \
++                           codecmanager.hxx error.hxx \
+                            gif.cxx gif.hxx hdr.cxx hdr.hxx \
+                            iccjpeg.c iccjpeg.h imageinfo.cxx jpeg.cxx \
+                            jpeg.hxx png.cxx png.hxx pnm.cxx \
+                            pnm.hxx rgbe.c rgbe.h sun.cxx \
+                            sun.hxx tiff.cxx tiff.hxx viff.cxx \
+-                           viff.hxx void_vector.cxx void_vector.hxx exr.cxx \
+-                           exr.hxx
++                           viff.hxx void_vector.cxx void_vector.hxx \
++                           exr.cxx exr.hxx
  
 -libvigra_impex_a_CXXFLAGS = $(AM_CXXFLAGS) \
 -                            -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 \

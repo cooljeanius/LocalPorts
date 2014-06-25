@@ -5,7 +5,7 @@ PortSystem      1.0
 
 name            xfdesktop
 version         4.6.2
-revision        4
+revision        5
 categories      xfce
 platforms       darwin linux
 license         GPL-2+
@@ -28,10 +28,14 @@ depends_build-append \
                 port:pkgconfig \
                 port:gmake \
                 port:gtk-doc \
+                port:perl5.16 \
                 path:bin/glib-gettextize:glib2 \
                 path:bin/xmkmf:imake \
                 bin:xsltproc:libxslt \
-                bin:xml2po:gnome-doc-utils
+                bin:xml2po:gnome-doc-utils \
+                bin:perl:perl5
+# We set configure.perl below to a specific version, so that is why there
+# is a dependency for both the specific version and the un-suffixed version
 
 depends_skip_archcheck-append gmake gtk-doc
 
@@ -40,27 +44,20 @@ depends_lib-append \
                 port:Thunar \
                 port:libxfcegui4 \
                 port:atk \
-                port:bzip2 \
                 port:dbus-glib \
                 port:exo \
-                port:expat \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
                 port:glib1 \
-                port:graphite2 \
                 port:gtk2 \
-                port:harfbuzz \
-                port:libffi \
                 port:libglade2 \
                 port:libiconv \
-                port:libpng \
                 port:libwnck \
                 port:libxfce4menu \
                 port:libxfce4util \
-                port:ncurses \
-                port:startup-notification \
+                port:xfce4-panel \
                 port:xfconf \
                 port:xorg-libX11 \
                 port:xorg-libXau \
@@ -73,23 +70,24 @@ depends_lib-append \
                 port:xorg-libXi \
                 port:xorg-libXinerama \
                 port:xorg-libXrandr \
-                port:xorg-libXres \
                 port:xorg-libice \
                 port:xorg-libsm \
                 port:xorg-libxcb \
-                port:xorg-xcb-util \
                 port:xrender \
-                port:xz \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
                 path:lib/pkgconfig/dbus-1.pc:dbus
+
+depends_run-append \
+                port:libpng \
+                port:hicolor-icon-theme
 
 patchfiles-append \
                 patch-configure.ac.diff \
                 patch-Makefile.am.diff
+
+patch.args-append --backup
 
 post-patch {
     xinstall -d ${worksrcpath}/m4
@@ -97,11 +95,17 @@ post-patch {
     foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
         xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
     }
+    # have to run aclocal separately for autoupdate to work:
+    ui_debug "running \"${prefix}/bin/aclocal --force -I m4 --install\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/aclocal --force -I m4 --install"
+    # this m4 macro file is separate from the above:
+    ui_debug "${prefix}/bin/autoupdate ${worksrcpath}/m4/glib-gettext.m4"
+    system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-gettext.m4"
 }
 
 # Do NOT do intltool's INTLTOOL_PERL dance
 use_autoreconf  yes
-autoreconf.args -fvi
+autoreconf.args -fvi -Wall
 autoreconf.env-append \
                 XDT_PROG_INTLTOOLIZE=${prefix}/bin/intltoolize \
                 XDT_PROG_GTKDOCIZE=${prefix}/bin/gtkdocize \
@@ -111,28 +115,48 @@ autoreconf.env-append \
                 XDT_PROG_AUTOCONF=${prefix}/bin/autoconf
 
 pre-configure {
+    ui_debug "running \"${prefix}/bin/intltoolize --automake --copy --force\" in ${worksrcpath}"
     system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
 }
 
-configure.perl  ${prefix}/bin/perl5.12
+configure.perl  ${prefix}/bin/perl5.16
 configure.args-append \
                 --with-x \
                 --x-includes=${prefix}/include \
                 --x-libraries=${prefix}/lib \
                 --enable-xsltproc \
                 --enable-xml2po \
+                --enable-thunarx \
                 --enable-exo \
-                --disable-panel-plugin
+                --with-libiconv-prefix=${prefix}
+# no longer need to use the "--disable-panel-plugin" flag; the configure
+# script is now patched to fail more gracefully if it fails to find
+# xfce4-panel (which should no longer happen, btw)
 
 configure.env-append \
-                XMKMF=${prefix}/bin/xmkmf
+                XMKMF=${prefix}/bin/xmkmf \
+                acl_cv_rpath=done \
+                libintl_extra_libs=-liconv \
+                INTLLIBS='-lintl -liconv '
 
 build.type      gnu
 build.cmd       ${prefix}/bin/gmake
 
 use_parallel_build no
 
+variant debug description {enable debugging} {
+    configure.args-append --enable-debug=full
+    configure.optflags    -g
+    configure.pipe        no
+    post-configure {
+        reinplace "s|-Werror||g" ${worksrcpath}/panel-plugin/Makefile
+        reinplace "s|-Werror||g" ${worksrcpath}/settings/Makefile
+        reinplace "s|-Werror||g" ${worksrcpath}/src/Makefile
+    }
+}
+
 post-activate {
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
 }
 

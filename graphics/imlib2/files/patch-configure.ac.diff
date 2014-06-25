@@ -1,34 +1,35 @@
---- configure.ac.bak	2011-08-15 14:48:26.000000000 -0400
-+++ configure.ac	2013-07-01 09:20:29.000000000 -0400
-@@ -1,53 +1,62 @@
+--- configure.ac.orig	2013-12-21 06:50:07.000000000 -0500
++++ configure.ac	2014-04-14 10:22:04.000000000 -0400
+@@ -1,408 +1,419 @@
 -# get rid of that stupid cache mechanism
 -rm -f config.cache
 +#                                               -*- Autoconf -*-
 +# Process this file with autoconf to produce a configure script.
  
--AC_INIT(imlib2, 1.4.5, enlightenment-devel@lists.sourceforge.net)
--AC_PREREQ(2.52)
--AC_CONFIG_SRCDIR(configure.ac)
--dnl#AC_CONFIG_MACRO_DIR([m4])
-+AC_INIT([imlib2], [1.4.5], [enlightenment-devel@lists.sourceforge.net])
-+AC_PREREQ([2.52])
-+AC_CONFIG_SRCDIR([configure.ac])
-+AC_CONFIG_MACRO_DIR([m4])
- AC_CANONICAL_BUILD
- AC_CANONICAL_HOST
- AC_ISC_POSIX
-+AC_EXEEXT
- 
+-AC_INIT([imlib2], [1.4.6], [enlightenment-devel@lists.sourceforge.net])
++# get rid of that stupid cache mechanism:
++test -e config.cache && rm -f config.cache
++
++AC_PREREQ([2.69])
++AC_INIT([imlib2],[1.4.6],[enlightenment-devel@lists.sourceforge.net])
+ AC_CONFIG_SRCDIR(configure.ac)
+ AC_CONFIG_MACRO_DIR([m4])
+-AC_CANONICAL_BUILD
+-AC_CANONICAL_HOST
+-
 -AM_INIT_AUTOMAKE(1.6 dist-bzip2)
--AM_CONFIG_HEADER(config.h)
+-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
++AC_CANONICAL_TARGET dnl# also calls the "_BUILD" and "_HOST" versions
++AC_USE_SYSTEM_EXTENSIONS
++AC_EXEEXT
++
 +AM_INIT_AUTOMAKE([1.6 dist-bzip2 foreign])
-+AM_MAINTAINER_MODE
-+AC_CONFIG_HEADERS([config.h])
- m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
++dnl# config header macro is now down near the bottom
++m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
  
  AC_C_BIGENDIAN
- AC_PROG_CC
-+AM_PROG_CC_C_O
+-AC_PROG_CC
++AC_PROG_CC_C99
  AM_PROG_AS
 +AM_PROG_AR
 +AC_PROG_CPP
@@ -37,52 +38,66 @@
 -dnl Set default visibility to hidden?
 +dnl# Set default visibility to hidden?
  AC_ARG_ENABLE([visibility-hiding],
-   [AC_HELP_STRING([--enable-visibility-hiding], [enable visibility hiding @<:@default=no@:>@])],
+-  [AS_HELP_STRING([--enable-visibility-hiding], [enable visibility hiding @<:@default=no@:>@])],
++  [AS_HELP_STRING([--enable-visibility-hiding], 
++                  [enable visibility hiding @<:@default=no@:>@])],
    [enable_visibility_hiding=yes],
 -  [enable_visibility_hiding=no]
 -)
 +  [enable_visibility_hiding=no])
  
--AM_PROG_CC_STDC
- AC_HEADER_STDC
+-AC_HEADER_STDC
++AC_C_PROTOTYPES
  AC_C_CONST
-+AX_C___ATTRIBUTE__
-+AC_LANG([C])
  
 -dnl Next two lines is a hack to prevent libtool checking for CXX/F77
-+dnl# Next two lines is a hack to prevent libtool checking for CXX/F77
- define([AC_LIBTOOL_LANG_CXX_CONFIG], [:])dnl
- define([AC_LIBTOOL_LANG_F77_CONFIG], [:])dnl
- AC_PROG_LIBTOOL
+-define([AC_LIBTOOL_LANG_CXX_CONFIG], [:])dnl
+-define([AC_LIBTOOL_LANG_F77_CONFIG], [:])dnl
+-AC_PROG_LIBTOOL
++dnl# Next two lines are a hack to prevent libtool checking for CXX/F77
++define([AC_LIBTOOL_LANG_CXX_CONFIG],[:])dnl
++define([AC_LIBTOOL_LANG_F77_CONFIG],[:])dnl
++LT_INIT([dlopen])
 +LT_LANG([C])
++LT_LIB_M
++AC_CHECK_LIB([m],[sqrt])
  
  VERSION_CUR=5
- VERSION_REV=5
+ VERSION_REV=6
  VERSION_AGE=4
  lt_version=${VERSION_CUR}:${VERSION_REV}:${VERSION_AGE}
 -AC_SUBST(lt_version)
 +AC_SUBST([lt_version])
  
--dnl See if the compiler supports -std=gnu99 since some math
--dnl functions need it (aka round())
--AC_MSG_CHECKING(whether $CC accepts -std=gnu99)
-+dnl# See if the compiler supports -std=gnu99 since some math
-+dnl# functions need it (aka round())
-+AC_MSG_CHECKING([whether $CC accepts -std=gnu99])
- cc_supports_gnu99="yes"
- save_CPPFLAGS="$CPPFLAGS"
- CPPFLAGS="$CPPFLAGS -std=gnu99"
--AC_TRY_COMPILE(,,,[cc_supports_gnu99="no";CPPFLAGS="$save_CPPFLAGS"])
--AC_MSG_RESULT($cc_supports_gnu99)
-+AC_TRY_COMPILE([],[],[],[cc_supports_gnu99="no";CPPFLAGS="$save_CPPFLAGS"])
-+AC_MSG_RESULT([$cc_supports_gnu99])
+ PKG_PROG_PKG_CONFIG
  
-+dnl# FIXME: Replace `main' with a function in `-lm':
-+AC_CHECK_LIB([m], [main])
  
  mmx=no
  amd64=no
-@@ -72,8 +81,7 @@
+-case $host_cpu in
++case ${host_cpu} in
+   i*86)   mmx="yes";;
+   x86_64) amd64="yes";;
+   amd64) amd64="yes";;
+ esac
+ 
+-case $host_os in
++case ${host_os} in
+   solaris*) mmx="no";;
+   darwin*) mmx="no";;
+ esac
+ 
+ AC_ARG_ENABLE([mmx],
+-  [AS_HELP_STRING([--enable-mmx], [attempt compiling using x86 mmx assembly @<:@default=auto@:>@])],
+-  [
+-   if test x$enableval = xyes; then
++  [AS_HELP_STRING([--enable-mmx], 
++                  [attempt compiling using x86 mmx assembly @<:@default=auto@:>@])],
++  [if test "x${enableval}" = "xyes"; then
+      mmx=yes
+-     # Cannot compile with both options enabled
++     # Cannot compile with both options enabled:
+      amd64=no
     else
       mmx=no
     fi
@@ -91,140 +106,126 @@
 +  ])
  
  AC_ARG_ENABLE([amd64],
-   [AC_HELP_STRING([--enable-amd64], [attempt compiling using amd64 assembly @<:@default=auto@:>@])],
-@@ -84,43 +92,43 @@
+-  [AS_HELP_STRING([--enable-amd64], [attempt compiling using amd64 assembly @<:@default=auto@:>@])],
+-  [
+-   if test x$enableval = xyes; then
++  [AS_HELP_STRING([--enable-amd64], 
++                  [attempt compiling using amd64 assembly @<:@default=auto@:>@])],
++  [if test "x${enableval}" = "xyes"; then
+      amd64=yes
+      mmx=no
     else
       amd64=no
     fi
 -  ]
 -)
-+  ])
- 
+-
 -AC_MSG_CHECKING(whether to enable x86 mmx support)
-+AC_MSG_CHECKING([whether to enable x86 mmx support])
- if test x$mmx = xyes; then
+-if test x$mmx = xyes; then
 -  AC_DEFINE(DO_MMX_ASM, 1, [enabling MMX Assembly])
-+  AC_DEFINE([DO_MMX_ASM], [1], [enabling MMX Assembly])
- fi
+-fi
 -AC_MSG_RESULT($mmx)
 -AM_CONDITIONAL(BUILD_MMX, test x$mmx = xyes)
-+AC_MSG_RESULT([$mmx])
-+AM_CONDITIONAL([BUILD_MMX], [test x$mmx = xyes])
++  ])
  
 -AC_MSG_CHECKING(whether to enable amd64 asm support)
-+AC_MSG_CHECKING([whether to enable amd64 asm support])
- if test x$amd64 = xyes; then
+-if test x$amd64 = xyes; then
 -  AC_DEFINE(DO_AMD64_ASM, 1, [enabling AMD64 Assembly])
-+  AC_DEFINE([DO_AMD64_ASM], [1], [enabling AMD64 Assembly])
++AC_MSG_CHECKING([whether to enable x86 mmx support])
++if test "x${mmx}" = "xyes"; then
++  AC_DEFINE([DO_MMX_ASM],[1],[enabling MMX Assembly])
++fi
++AC_MSG_RESULT([${mmx}])
++AM_CONDITIONAL([BUILD_MMX],[test "x${mmx}" = "xyes"])
++
++AC_MSG_CHECKING([whether to enable amd64 asm support])
++if test "x${amd64}" = "xyes"; then
++  AC_DEFINE([DO_AMD64_ASM],[1],[enabling AMD64 Assembly])
  fi
 -AC_MSG_RESULT($amd64)
 -AM_CONDITIONAL(BUILD_AMD64, test x$amd64 = xyes)
-+AC_MSG_RESULT([$amd64])
-+AM_CONDITIONAL([BUILD_AMD64], [test x$amd64 = xyes])
++AC_MSG_RESULT([${amd64}])
++AM_CONDITIONAL([BUILD_AMD64],[test "x${amd64}" = "xyes"])
  
 -# check for freetype
--AC_ARG_WITH(freetype-config,
-+dnl# check for freetype
-+AC_ARG_WITH([freetype-config],
-   [AC_HELP_STRING([--with-freetype-config], [use freetype-config specified])],
-   [ FREETYPE_CONFIG=$withval;
-     echo "using "$FREETYPE_CONFIG" for freetype-config"; ],
-   [ if test -z "$FREETYPE_CONFIG"; then
--      AC_PATH_PROG(FREETYPE_CONFIG, "freetype-config", "", $PATH)
-+      AC_PATH_PROG([FREETYPE_CONFIG], ["freetype-config"], [""], [$PATH])
-     fi
--  ]
--)
-+  ])
-+
- freetype_cflags=`$FREETYPE_CONFIG --cflags`
- freetype_libs=`$FREETYPE_CONFIG --libs`
+-PKG_CHECK_MODULES(FREETYPE, freetype2)
++# check for freetype:
++PKG_CHECK_MODULES([FREETYPE],[freetype2])
  
  AC_PATH_X
-+dnl# FIXME: Replace `main' with a function in `-lX11':
-+AC_CHECK_LIB([X11], [main])
+ AC_PATH_XTRA
++AC_CHECK_LIB([X11],[XFree])
++AC_CHECK_LIB([Xext],[XShmAttach])
  
- if test "x$have_x" = "xno"; then
+-if test "x$have_x" = "xno"; then
++if test "x${have_x}" = "xno"; then
     # If --without-x was passed, this will be "disabled" instead of "no" --
-    # so always treat "no" as an error
+-   # so always treat "no" as an error
 -   AC_MSG_ERROR(
 -[no X support found.  Use --x-includes and --x-libraries to specify the X
-+   AC_MSG_ERROR([no X support found.  Use --x-includes and --x-libraries to specify the X
- path on your system, or --without-x to disable X support.])
+-path on your system, or --without-x to disable X support.])
++   # so always treat "no" as an error:
++   AC_MSG_ERROR([no X support found. Use --x-includes and --x-libraries to
++specify the X path on your system, or --without-x to disable X support.])
  fi
  
-@@ -128,25 +136,24 @@
-   AC_PATH_XTRA
-   x_cflags=$X_CFLAGS
-   x_libs=$X_LIBS" -lX11 -lXext"
+-if test "x$have_x" = "xyes"; then
 -  AC_DEFINE(BUILD_X11, 1, [enabling X11 support])
-+  AC_DEFINE([BUILD_X11], [1], [enabling X11 support])
++if test "x${have_x}" = "xyes"; then
++  AC_DEFINE([BUILD_X11],[1],[enabling X11 support])
  else
-   x_cflags=""
-   x_libs=""
    have_x="no"
  fi
 -AM_CONDITIONAL(BUILD_X11, test "x$have_x" = "xyes")
-+AM_CONDITIONAL([BUILD_X11], [test "x$have_x" = "xyes"])
++AM_CONDITIONAL([BUILD_X11],[test "x${have_x}" = "xyes"])
  
- dlopen_libs=""
--AC_CHECK_LIB(dl, dlopen, dlopen_libs=-ldl)
-+AC_CHECK_LIB([dl], [dlopen], [dlopen_libs=-ldl])
- 
- my_includes=$freetype_cflags" "$x_cflags" "
- my_libs=$freetype_libs" "$x_libs" "$dlopen_libs" -lm"
--AC_SUBST(my_includes)
--AC_SUBST(my_libs)
-+AC_SUBST([my_includes])
-+AC_SUBST([my_libs])
+-AC_CHECK_LIB(dl, dlopen, DLOPEN_LIBS=-ldl)
+-AC_SUBST(DLOPEN_LIBS)
++dnl# passing "dlopen" as a parameter to LT_INIT should already check for
++dnl# "dlopen" in "libdl", so check for a different symbol here (keep the
++dnl# same variable name though):
++AC_CHECK_LIB([dl],[dlsym],[DLOPEN_LIBS=-ldl])
++AC_SUBST([DLOPEN_LIBS])
  
  
--
 -AC_MSG_CHECKING(whether to enable jpeg support)
 +AC_MSG_CHECKING([whether to enable jpeg support])
  AC_ARG_WITH([jpeg],
-   [AC_HELP_STRING([--without-jpeg], [Disable JPEG image loader])],
-   [
-@@ -156,15 +163,15 @@
+-  [AS_HELP_STRING([--without-jpeg], [Disable JPEG image loader])],
+-  [
+-   if test "$withval" = no ; then
++  [AS_HELP_STRING([--without-jpeg],[Disable JPEG image loader])],
++  [if test "x${withval}" = "xno"; then
+      jpeg_loader=no
+    else
       jpeg_loader=yes
     fi
-   ],
+-  ],
 -  [ jpeg_loader=auto ]
 -)
 -AC_MSG_RESULT($jpeg_loader)
-+  [ jpeg_loader=auto ])
+-
+-if test "$jpeg_loader" != no ; then
+-  AC_CHECK_LIB(jpeg, jpeg_destroy_decompress, jpeg_ok=yes, jpeg_ok=no)
+-  if test "$jpeg_ok" = yes; then
+-    AC_CHECK_HEADER([jpeglib.h], , jpeg_ok=no)
+-    if test "$jpeg_ok" = yes; then
++  ],[jpeg_loader=auto])
++AC_MSG_RESULT([${jpeg_loader}])
 +
-+AC_MSG_RESULT([$jpeg_loader])
- 
- if test "$jpeg_loader" != no ; then
--  AC_CHECK_LIB(jpeg, jpeg_destroy_decompress,
--    jpeg_ok=yes,
--    jpeg_ok=no,
--    )
-+  AC_CHECK_LIB([jpeg], [jpeg_destroy_decompress],
-+    [jpeg_ok=yes],
-+    [jpeg_ok=no],
-+    [])
-   if test "$jpeg_ok" = yes; then
-     AC_MSG_CHECKING([for jpeglib.h])
-     AC_TRY_CPP(
-@@ -172,29 +179,29 @@
-      #undef PACKAGE
-      #undef VERSION
-      #include <jpeglib.h>],
--    jpeg_ok=yes,
--    jpeg_ok=no)
--    AC_MSG_RESULT($jpeg_ok)
-+    [jpeg_ok=yes],
-+    [jpeg_ok=no])
-+    AC_MSG_RESULT([$jpeg_ok])
-     if test "$jpeg_ok" = yes; then
++if test "x${jpeg_loader}" != "xno"; then
++  AC_CHECK_LIB([jpeg],[jpeg_destroy_decompress],[jpeg_ok=yes],[jpeg_ok=no])
++  if test "x${jpeg_ok}" = "xyes"; then
++    AC_CHECK_HEADER([jpeglib.h],[],[jpeg_ok=no])
++    if test "x${jpeg_ok}" = "xyes"; then
        JPEGLIBS="-ljpeg"
      fi
    fi
-   if test "$jpeg_ok" = no ; then
-     if test "$jpeg_loader" = yes ; then
+-  if test "$jpeg_ok" = no ; then
+-    if test "$jpeg_loader" = yes ; then
 -      AC_MSG_ERROR(JPEG support was requested but system does not support it)
++  if test "x${jpeg_ok}" = "xno"; then
++    if test "x${jpeg_loader}" = "xyes"; then
 +      AC_MSG_ERROR([JPEG support was requested but system does not support it])
      else
 -      AC_MSG_WARN(*** Native JPEG support will not be built (JPEG not found) ***)
@@ -236,58 +237,64 @@
  fi
 -AM_CONDITIONAL(BUILD_JPEG_LOADER, test "$jpeg_ok" = yes)
 -AC_SUBST(JPEGLIBS)
--
-+AM_CONDITIONAL([BUILD_JPEG_LOADER], [test "$jpeg_ok" = yes])
++AM_CONDITIONAL([BUILD_JPEG_LOADER],[test "x${jpeg_ok}" = "xyes"])
 +AC_SUBST([JPEGLIBS])
  
-+PKG_PROG_PKG_CONFIG
  
--AC_MSG_CHECKING(whether to enable png support)
-+AC_MSG_CHECKING([whether to enable png support])
+ AC_MSG_CHECKING(whether to enable png support)
  AC_ARG_WITH([png],
-   [AC_HELP_STRING([--without-png], [Disable PNG image loader])],
-   [
-@@ -206,22 +213,21 @@
-   ],
-   [ png_loader=auto ]
- )
+-  [AS_HELP_STRING([--without-png], [Disable PNG image loader])],
+-  [
+-   if test "$withval" = no ; then
++  [AS_HELP_STRING([--without-png],[Disable PNG image loader])],
++  [if test "x${withval}" = "xno"; then
+      png_loader=no
+    else
+      png_loader=yes
+    fi
+-  ],
+-  [ png_loader=auto ]
+-)
 -AC_MSG_RESULT($png_loader)
-+AC_MSG_RESULT([$png_loader])
- 
- if test "$png_loader" != no ; then
+-
+-if test "$png_loader" != no ; then
 -  PKG_CHECK_MODULES(PNG, libpng, [ png_ok="yes" ], [
 -    PKG_CHECK_MODULES(PNG, libpng12, [ png_ok="yes" ], [
 -      PKG_CHECK_MODULES(PNG, libpng10, [ png_ok="yes" ], [ png_ok="no"])
-+  PKG_CHECK_MODULES([PNG], [libpng], [ png_ok="yes" ], [
-+    PKG_CHECK_MODULES([PNG], [libpng12], [ png_ok="yes" ], [
-+      PKG_CHECK_MODULES([PNG], [libpng10], [ png_ok="yes" ], [ png_ok="no"])
++  ],[png_loader=auto])
++AC_MSG_RESULT([${png_loader}])
++
++if test "x${png_loader}" != "xno"; then
++  PKG_CHECK_MODULES([PNG],[libpng],[png_ok="yes"],[
++    PKG_CHECK_MODULES([PNG],[libpng12],[png_ok="yes"],[
++      PKG_CHECK_MODULES([PNG],[libpng10],[png_ok="yes"],[png_ok="no"])
      ])
    ])
  else
    png_ok="no"
  fi
 -AM_CONDITIONAL(BUILD_PNG_LOADER, test "$png_ok" = yes)
-+AM_CONDITIONAL([BUILD_PNG_LOADER], [test "$png_ok" = yes])
++AM_CONDITIONAL([BUILD_PNG_LOADER],[test "x${png_ok}" = "xyes"])
  
  
--
 -AC_MSG_CHECKING(whether to enable tiff support)
 +AC_MSG_CHECKING([whether to enable tiff support])
  AC_ARG_WITH([tiff],
-   [AC_HELP_STRING([--without-tiff], [Disable TIFF image loader])],
-   [
-@@ -231,24 +237,24 @@
+-  [AS_HELP_STRING([--without-tiff], [Disable TIFF image loader])],
+-  [
+-   if test "$withval" = no ; then
++  [AS_HELP_STRING([--without-tiff],[Disable TIFF image loader])],
++  [if test "x${withval}" = "xno"; then
+      tiff_loader=no
+    else
       tiff_loader=yes
     fi
-   ],
+-  ],
 -  [ tiff_loader=auto ]
 -)
 -AC_MSG_RESULT($tiff_loader)
-+  [ tiff_loader=auto ])
-+
-+AC_MSG_RESULT([$tiff_loader])
- 
- if test "$tiff_loader" != no ; then
+-
+-if test "$tiff_loader" != no ; then
 -  AC_CHECK_LIB(tiff, TIFFReadScanline,
 -    tiff_libs="-ltiff"
 -    tiff_ok=yes,
@@ -301,39 +308,39 @@
 -    -ljpeg -lz -lm),
 -    -ljpeg -lz -lm),
 -    )
-+  AC_CHECK_LIB([tiff], [TIFFReadScanline],
-+    [tiff_libs="-ltiff"
-+    tiff_ok=yes],
-+  [AC_CHECK_LIB([tiff], [TIFFReadScanline],
-+    [tiff_libs="-ltiff -ljpeg -lz -lm"
-+    tiff_ok=yes],
-+  [AC_CHECK_LIB([tiff34], [TIFFReadScanline],
-+    [tiff_libs="-ltiff34 -ljpeg -lz -lm"
-+    tiff_ok=yes],
-+    [tiff_ok=no],
-+    [-ljpeg -lz -lm])],
-+    [-ljpeg -lz -lm])],
-+    [])
-   if test "$tiff_ok" = yes; then
-     AC_MSG_CHECKING([for tiffio.h])
-     AC_TRY_CPP(
-@@ -256,29 +262,28 @@
-      #undef PACKAGE
-      #undef VERSION
-      #include <tiffio.h>],
--    tiff_ok=yes,
--    tiff_ok=no)
--    AC_MSG_RESULT($tiff_ok)
-+    [tiff_ok=yes],
-+    [tiff_ok=no])
-+    AC_MSG_RESULT([$tiff_ok])
-     if test "$tiff_ok" = yes; then
-       TIFFLIBS=$tiff_libs
-     fi
-   fi
-   if test "$tiff_ok" = no ; then
-     if test "$tiff_loader" = yes ; then
+-  if test "$tiff_ok" = yes; then
+-    AC_CHECK_HEADER([tiffio.h], , tiff_ok=no)
+-    if test "$tiff_ok" = yes; then
+-      TIFFLIBS=$tiff_libs
+-    fi
+-  fi
+-  if test "$tiff_ok" = no ; then
+-    if test "$tiff_loader" = yes ; then
 -      AC_MSG_ERROR(TIFF support was requested but system does not support it)
++  ],[tiff_loader=auto])
++AC_MSG_RESULT([${tiff_loader}])
++
++if test "x${tiff_loader}" != "xno"; then
++  AC_CHECK_LIB([tiff],[TIFFReadScanline],
++    [tiff_libs="-ltiff"
++     tiff_ok=yes],[
++     unset ac_cv_lib_tiff_TIFFReadScanline
++     AC_CHECK_LIB([tiff],[TIFFReadScanline],
++       [tiff_libs="-ltiff -ljpeg -lz -lm"
++        tiff_ok=yes],[
++        AC_CHECK_LIB([tiff34],[TIFFReadScanline],
++          [tiff_libs="-ltiff34 -ljpeg -lz -lm"
++           tiff_ok=yes],[tiff_ok=no],[-ljpeg -lz -lm])
++        ],[-ljpeg -lz -lm])
++    ],[])
++  if test "x${tiff_ok}" = "xyes"; then
++    AC_CHECK_HEADER([tiffio.h],[],[tiff_ok=no])
++    if test "x${tiff_ok}" = "xyes"; then
++      TIFFLIBS=${tiff_libs}
++    fi
++  fi
++  if test "x${tiff_ok}" = "xno"; then
++    if test "x${tiff_loader}" = "xyes"; then
 +      AC_MSG_ERROR([TIFF support was requested but system does not support it])
      else
 -      AC_MSG_WARN(*** Native TIFF support will not be built (TIFF not found) ***)
@@ -345,95 +352,87 @@
  fi
 -AM_CONDITIONAL(BUILD_TIFF_LOADER, test "$tiff_ok" = yes)
 -AC_SUBST(TIFFLIBS)
-+AM_CONDITIONAL([BUILD_TIFF_LOADER], [test "$tiff_ok" = yes])
++AM_CONDITIONAL([BUILD_TIFF_LOADER],[test "x${tiff_ok}" = "xyes"])
 +AC_SUBST([TIFFLIBS])
  
  
--
 -AC_MSG_CHECKING(whether to enable gif support)
 +AC_MSG_CHECKING([whether to enable gif support])
  gif_lib=any
  AC_ARG_WITH([gif],
-   [AC_HELP_STRING([--without-gif], [Disable GIF image loader])],
-@@ -293,20 +298,20 @@
+-  [AS_HELP_STRING([--without-gif], [Disable GIF image loader])],
+-  [
+-   if test "$withval" = no ; then
++  [AS_HELP_STRING([--without-gif],[Disable GIF image loader])],
++  [if test "x${withval}" = "xno"; then
+      gif_loader=no
+    else
+      gif_loader=yes
+-     case "$withval" in
++     case "${withval}" in
+        giflib)   gif_lib=giflib;;
+        libungif) gif_lib=libungif;;
       esac
     fi
-   ],
+-  ],
 -  [ gif_loader=auto ]
 -)
 -AC_MSG_RESULT($gif_loader)
-+  [ gif_loader=auto ])
-+
-+AC_MSG_RESULT([$gif_loader])
- 
- if test "$gif_loader" != no ; then
+-
+-if test "$gif_loader" != no ; then
 -  AC_MSG_CHECKING(for preferred gif provider)
 -  AC_MSG_RESULT($gif_lib)
+-
+-  if test "$gif_lib" != libungif ; then
+-    AC_CHECK_LIB(gif, DGifOpenFileName, gif_libs="-lgif" gif_ok=yes, gif_ok=no)
+-    if test "$gif_ok" = yes; then
+-      AC_CHECK_HEADER([gif_lib.h], , gif_ok=no)
+-      if test "$gif_ok" = yes; then
+-        GIFLIBS=$gif_libs
++  ],[gif_loader=auto])
++AC_MSG_RESULT([${gif_loader}])
++
++if test "x${gif_loader}" != "xno"; then
 +  AC_MSG_CHECKING([for preferred gif provider])
-+  AC_MSG_RESULT([$gif_lib])
- 
-   if test "$gif_lib" != libungif ; then
--    AC_CHECK_LIB(gif, DGifOpenFileName,
--      gif_libs="-lgif"
--      gif_ok=yes,
--      gif_ok=no,
--      )
-+    AC_CHECK_LIB([gif], [DGifOpenFileName],
-+      [gif_libs="-lgif"
-+      gif_ok=yes],
-+      [gif_ok=no],
-+      [])
-     if test "$gif_ok" = yes; then
-       AC_MSG_CHECKING([for gif_lib.h])
-       AC_TRY_CPP(
-@@ -314,9 +319,9 @@
-        #undef PACKAGE
-        #undef VERSION
-        #include <gif_lib.h>],
--      gif_ok=yes,
--      gif_ok=no)
--      AC_MSG_RESULT($gif_ok)
-+      [gif_ok=yes],
-+      [gif_ok=no])
-+      AC_MSG_RESULT([$gif_ok])
-       if test "$gif_ok" = yes; then
-         GIFLIBS=$gif_libs
++  AC_MSG_RESULT([${gif_lib}])
++
++  if test "x${gif_lib}" != "xlibungif"; then
++    AC_CHECK_LIB([gif],[DGifOpenFileName],
++                 [gif_libs="-lgif"
++                  gif_ok=yes],[gif_ok=no])
++    if test "x${gif_ok}" = "xyes"; then
++      AC_CHECK_HEADER([gif_lib.h],[],[gif_ok=no])
++      if test "x${gif_ok}" = "xyes"; then
++        GIFLIBS=${gif_libs}
          gif_lib=giflib
-@@ -325,11 +330,11 @@
+       fi
+     fi
    fi
  
-   if test "$gif_lib" != giflib ; then
--    AC_CHECK_LIB(ungif, DGifOpenFileName,
--      gif_libs="-lungif"
--      gif_ok=yes,
--      gif_ok=no,
--      )
-+    AC_CHECK_LIB([ungif], [DGifOpenFileName],
-+      [gif_libs="-lungif"
-+      gif_ok=yes],
-+      [gif_ok=no],
-+      [])
-     if test "$gif_ok" = yes; then
-       AC_MSG_CHECKING([for gif_lib.h])
-       AC_TRY_CPP(
-@@ -337,9 +342,9 @@
-        #undef PACKAGE
-        #undef VERSION
-        #include <gif_lib.h>],
--      gif_ok=yes,
--      gif_ok=no)
--      AC_MSG_RESULT($gif_ok)
-+      [gif_ok=yes],
-+      [gif_ok=no])
-+      AC_MSG_RESULT([$gif_ok])
-       if test "$gif_ok" = yes; then
-         GIFLIBS=$gif_libs
+-  if test "$gif_lib" != giflib ; then
+-    AC_CHECK_LIB(ungif, DGifOpenFileName, gif_libs="-lungif" gif_ok=yes, gif_ok=no)
+-    if test "$gif_ok" = yes; then
+-      AC_CHECK_HEADER([gif_lib.h], , gif_ok=no)
+-      if test "$gif_ok" = yes; then
+-        GIFLIBS=$gif_libs
++  if test "x${gif_lib}" != "xgiflib"; then
++    AC_CHECK_LIB([ungif],[DGifOpenFileName],
++                 [gif_libs="-lungif"
++                  gif_ok=yes],[gif_ok=no])
++    if test "x${gif_ok}" = "xyes"; then
++      AC_CHECK_HEADER([gif_lib.h],[],[gif_ok=no])
++      if test "x${gif_ok}" = "xyes"; then
++        GIFLIBS=${gif_libs}
          gif_lib=libungif
-@@ -349,20 +354,18 @@
+       fi
+     fi
+   fi
  
-   if test "$gif_ok" = no ; then
-     if test "$gif_loader" = yes ; then
+-  if test "$gif_ok" = no ; then
+-    if test "$gif_loader" = yes ; then
 -      AC_MSG_ERROR(GIF support was requested but system does not support it)
++  if test "x${gif_ok}" = "xno"; then
++    if test "x${gif_loader}" = "xyes"; then
 +      AC_MSG_ERROR([GIF support was requested but system does not support it])
      else
 -      AC_MSG_WARN(*** Native GIF support will not be built (GIF not found) ***)
@@ -445,56 +444,47 @@
  fi
 -AM_CONDITIONAL(BUILD_GIF_LOADER, test "$gif_ok" = yes)
 -AC_SUBST(GIFLIBS)
--
-+AM_CONDITIONAL([BUILD_GIF_LOADER], [test "$gif_ok" = yes])
++AM_CONDITIONAL([BUILD_GIF_LOADER],[test "x${gif_ok}" = "xyes"])
 +AC_SUBST([GIFLIBS])
  
--
--AC_MSG_CHECKING(whether to enable zlib support)
-+AC_MSG_CHECKING([whether to enable zlib support])
+ 
+ AC_MSG_CHECKING(whether to enable zlib support)
  AC_ARG_WITH([zlib],
-   [AC_HELP_STRING([--without-zlib], [Disable ZLIB loader])],
-   [
-@@ -372,15 +375,15 @@
+-  [AS_HELP_STRING([--without-zlib], [Disable ZLIB loader])],
+-  [
+-   if test "$withval" = no ; then
++  [AS_HELP_STRING([--without-zlib],[Disable ZLIB loader])],
++  [if test "x${withval}" = "xno"; then
+      zlib_loader=no
+    else
       zlib_loader=yes
     fi
-   ],
+-  ],
 -  [ zlib_loader=auto ]
 -)
 -AC_MSG_RESULT($zlib_loader)
-+  [ zlib_loader=auto ])
+-
+-if test "$zlib_loader" != no ; then
+-  AC_CHECK_LIB(z, uncompress, zlib_ok=yes, zlib_ok=no)
+-  if test "$zlib_ok" = yes; then
+-    AC_CHECK_HEADER([zlib.h], , zlib_ok=no)
+-    if test "$zlib_ok" = yes; then
++  ],[zlib_loader=auto])
++AC_MSG_RESULT([${zlib_loader}])
 +
-+AC_MSG_RESULT([$zlib_loader])
- 
- if test "$zlib_loader" != no ; then
--  AC_CHECK_LIB(z, uncompress,
--    zlib_ok=yes,
--    zlib_ok=no,
--    )
-+  AC_CHECK_LIB([z], [uncompress],
-+    [zlib_ok=yes],
-+    [zlib_ok=no],
-+    [])
-   if test "$zlib_ok" = yes; then
-     AC_MSG_CHECKING([for zlib.h])
-     AC_TRY_CPP(
-@@ -388,29 +391,28 @@
-      #undef PACKAGE
-      #undef VERSION
-      #include <zlib.h>],
--    zlib_ok=yes,
--    zlib_ok=no)
--    AC_MSG_RESULT($zlib_ok)
-+    [zlib_ok=yes],
-+    [zlib_ok=no])
-+    AC_MSG_RESULT([$zlib_ok])
-     if test "$zlib_ok" = yes; then
++if test "x${zlib_loader}" != "xno"; then
++  AC_CHECK_LIB([z],[uncompress],[zlib_ok=yes],[zlib_ok=no])
++  if test "x${zlib_ok}" = "xyes"; then
++    AC_CHECK_HEADER([zlib.h],[],[zlib_ok=no])
++    if test "x${zlib_ok}" = "xyes"; then
        ZLIBLIBS="-lz"
      fi
    fi
-   if test "$zlib_ok" = no ; then
-     if test "$zlib_loader" = yes ; then
+-  if test "$zlib_ok" = no ; then
+-    if test "$zlib_loader" = yes ; then
 -      AC_MSG_ERROR(ZLIB support was requested but system does not support it)
++  if test "x${zlib_ok}" = "xno"; then
++    if test "x${zlib_loader}" = "xyes"; then
 +      AC_MSG_ERROR([ZLIB support was requested but system does not support it])
      else
 -      AC_MSG_WARN(*** Native zlib support will not be built (zlib not found) ***)
@@ -506,56 +496,48 @@
  fi
 -AM_CONDITIONAL(BUILD_ZLIB_LOADER, test "$zlib_ok" = yes)
 -AC_SUBST(ZLIBLIBS)
--
-+AM_CONDITIONAL([BUILD_ZLIB_LOADER], [test "$zlib_ok" = yes])
++AM_CONDITIONAL([BUILD_ZLIB_LOADER],[test "x${zlib_ok}" = "xyes"])
 +AC_SUBST([ZLIBLIBS])
  
  
 -AC_MSG_CHECKING(whether to enable bzip2 support)
 +AC_MSG_CHECKING([whether to enable bzip2 support])
  AC_ARG_WITH([bzip2],
-   [AC_HELP_STRING([--without-bzip2], [Disable BZIP2 loader])],
-   [
-@@ -420,15 +422,15 @@
+-  [AS_HELP_STRING([--without-bzip2], [Disable BZIP2 loader])],
+-  [
+-   if test "$withval" = no ; then
++  [AS_HELP_STRING([--without-bzip2],[Disable BZIP2 loader])],
++  [if test "x${withval}" = "xno"; then
+      bz2_loader=no
+    else
       bz2_loader=yes
     fi
-   ],
+-  ],
 -  [ bz2_loader=auto ]
 -)
 -AC_MSG_RESULT($bz2_loader)
-+  [ bz2_loader=auto ])
+-
+-if test "$bz2_loader" != no ; then
+-  AC_CHECK_LIB(bz2, BZ2_bzRead, bz2_ok=yes, bz2_ok=no)
+-  if test "$bz2_ok" = yes; then
+-    AC_CHECK_HEADER([bzlib.h], , bz2_ok=no)
+-    if test "$bz2_ok" = yes; then
++  ],[bz2_loader=auto])
++AC_MSG_RESULT([${bz2_loader}])
 +
-+AC_MSG_RESULT([$bz2_loader])
- 
- if test "$bz2_loader" != no ; then
--  AC_CHECK_LIB(bz2, BZ2_bzRead,
--    bz2_ok=yes,
--    bz2_ok=no,
--    )
-+  AC_CHECK_LIB([bz2], [BZ2_bzRead],
-+    [bz2_ok=yes],
-+    [bz2_ok=no],
-+    [])
-   if test "$bz2_ok" = yes; then
-     AC_MSG_CHECKING([for bzlib.h])
-     AC_TRY_CPP(
-@@ -436,29 +438,28 @@
-      #undef PACKAGE
-      #undef VERSION
-      #include <bzlib.h>],
--    bz2_ok=yes,
--    bz2_ok=no)
--    AC_MSG_RESULT($bz2_ok)
-+    [bz2_ok=yes],
-+    [bz2_ok=no])
-+    AC_MSG_RESULT([$bz2_ok])
-     if test "$bz2_ok" = yes; then
++if test "x${bz2_loader}" != "xno"; then
++  AC_CHECK_LIB([bz2],[BZ2_bzRead],[bz2_ok=yes],[bz2_ok=no])
++  if test "x${bz2_ok}" = "xyes"; then
++    AC_CHECK_HEADER([bzlib.h],[],[bz2_ok=no])
++    if test "x${bz2_ok}" = "xyes"; then
        BZ2LIBS="-lbz2"
      fi
    fi
-   if test "$bz2_ok" = no ; then
-     if test "$bz2_loader" = yes ; then
+-  if test "$bz2_ok" = no ; then
+-    if test "$bz2_loader" = yes ; then
 -      AC_MSG_ERROR(BZIP2 support was requested but system does not support it)
++  if test "x${bz2_ok}" = "xno"; then
++    if test "x${bz2_loader}" = "xyes"; then
 +      AC_MSG_ERROR([BZIP2 support was requested but system does not support it])
      else
 -      AC_MSG_WARN(*** Native bz2 support will not be built (bzip2 not found) ***)
@@ -567,58 +549,57 @@
  fi
 -AM_CONDITIONAL(BUILD_BZ2_LOADER, test "$bz2_ok" = yes)
 -AC_SUBST(BZ2LIBS)
-+AM_CONDITIONAL([BUILD_BZ2_LOADER], [test "$bz2_ok" = yes])
++AM_CONDITIONAL([BUILD_BZ2_LOADER],[test "x${bz2_ok}" = "xyes"])
 +AC_SUBST([BZ2LIBS])
  
  
--
 -AC_MSG_CHECKING(whether to enable id3 support)
 +AC_MSG_CHECKING([whether to enable id3 support])
  AC_ARG_WITH([id3],
-   [AC_HELP_STRING([--without-id3], [Disable ID3 loader])],
-   [
-@@ -468,16 +469,16 @@
+-  [AS_HELP_STRING([--without-id3], [Disable ID3 loader])],
+-  [
+-   if test "$withval" = no ; then
++  [AS_HELP_STRING([--without-id3],[Disable ID3 loader])],
++  [if test "x${withval}" = "xno"; then
+      id3_loader=no
+    else
       id3_loader=yes
     fi
-   ],
+-  ],
 -  [ id3_loader=auto ]
 -)
 -AC_MSG_RESULT($id3_loader)
-+  [ id3_loader=auto ])
-+
-+AC_MSG_RESULT([$id3_loader])
- 
- if test "$id3_loader" != no ; then
+-
+-if test "$id3_loader" != no ; then
 -  AC_CHECK_LIB(id3tag, id3_file_open,
 -    id3_libs="-lz -lid3tag"
 -    id3_ok=yes,
 -    id3_ok=no,
 -    -lz)
-+  AC_CHECK_LIB([id3tag], [id3_file_open],
-+    [id3_libs="-lz -lid3tag"
-+    id3_ok=yes],
-+    [id3_ok=no],
-+    [-lz])
-   if test "$id3_ok" = yes; then
-     AC_MSG_CHECKING([for id3tag.h])
-     AC_TRY_CPP(
-@@ -485,31 +486,46 @@
-      #undef PACKAGE
-      #undef VERSION
-      #include <id3tag.h>],
--    id3_ok=yes,
--    id3_ok=no)
--    AC_MSG_RESULT($id3_ok)
-+    [id3_ok=yes],
-+    [id3_ok=no])
-+    AC_MSG_RESULT([$id3_ok])
-     if test "$id3_ok" = yes; then
-       ID3LIBS=$id3_libs
-     fi
-   fi
-   if test "$id3_ok" = no ; then
-     if test "$id3_loader" = yes ; then
+-  if test "$id3_ok" = yes; then
+-    AC_CHECK_HEADER([id3tag.h], , id3_ok=no)
+-    if test "$id3_ok" = yes; then
+-      ID3LIBS=$id3_libs
+-    fi
+-  fi
+-  if test "$id3_ok" = no ; then
+-    if test "$id3_loader" = yes ; then
 -      AC_MSG_ERROR(ID3 support was requested but system does not support it)
++  ],[id3_loader=auto])
++AC_MSG_RESULT([${id3_loader}])
++
++if test "x${id3_loader}" != "xno"; then
++  AC_CHECK_LIB([id3tag],[id3_file_open],
++    [id3_libs="-lz -lid3tag"
++     id3_ok=yes],[id3_ok=no],[-lz])
++  if test "x${id3_ok}" = "xyes"; then
++    AC_CHECK_HEADER([id3tag.h],[],[id3_ok=no])
++    if test "x${id3_ok}" = "xyes"; then
++      ID3LIBS=${id3_libs}
++    fi
++  fi
++  if test "x${id3_ok}" = "xno"; then
++    if test "x${id3_loader}" = "xyes"; then
 +      AC_MSG_ERROR([ID3 support was requested but system does not support it])
      else
 -      AC_MSG_WARN(*** Native mp3 support will not be built (id3tag not found) ***)
@@ -630,55 +611,58 @@
  fi
 -AM_CONDITIONAL(BUILD_ID3_LOADER, test "$id3_ok" = yes)
 -AC_SUBST(ID3LIBS)
-+AM_CONDITIONAL([BUILD_ID3_LOADER], [test "$id3_ok" = yes])
++AM_CONDITIONAL([BUILD_ID3_LOADER],[test "x${id3_ok}" = "xyes"])
 +AC_SUBST([ID3LIBS])
  
- if test "x$enable_visibility_hiding" = xyes ; then
-   CPPFLAGS="$CPPFLAGS -fvisibility=hidden"
- fi
- 
--AC_OUTPUT([
-+dnl# Checks for header files.
++dnl# Checks for header files:
++AC_HEADER_TIME
 +AC_CHECK_HEADERS([fcntl.h image.h limits.h locale.h stdio.h sys/time.h])
 +
-+dnl# Checks for typedefs, structures, and compiler characteristics.
++dnl# Checks for typedefs, structures, and compiler characteristics:
 +AC_C_INLINE
 +AC_TYPE_SIZE_T
 +AC_TYPE_SSIZE_T
 +
-+dnl# Checks for library functions.
++# Checks for library functions.
 +AC_FUNC_MALLOC
 +AC_FUNC_MMAP
 +AC_FUNC_REALLOC
 +AC_FUNC_STRTOD
-+AC_CHECK_FUNCS([floor gettimeofday mblen memmove memset munmap pow select setlocale sqrt strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoul])
-+
-+AC_CONFIG_FILES([
++AC_CHECK_FUNCS([floor gettimeofday mblen memmove memset munmap pow select \
++                setlocale sqrt strcasecmp strchr strdup strerror \
++                strncasecmp strrchr strstr strtol strtoul])
+ 
+-AC_C_WARNFLAGS()
++AC_C_WARNFLAGS([])
+ 
+-if test "x$enable_visibility_hiding" = xyes ; then
+-  CPPFLAGS="$CPPFLAGS -fvisibility=hidden"
++if test "x${enable_visibility_hiding}" = "xyes"; then
++  CPPFLAGS="${CPPFLAGS} -fvisibility=hidden"
+ fi
+ 
+-AC_CONFIG_HEADERS(config.h)
++AC_CONFIG_HEADERS([config.h])
+ AC_CONFIG_FILES([
  Makefile
  imlib2.pc
- src/Makefile
-@@ -525,23 +541,22 @@
- imlib2-config
- README
- imlib2.spec
--],[
--chmod +x imlib2-config
- ])
-+AC_OUTPUT
- 
+@@ -428,35 +439,35 @@
  #####################################################################
  ## Info
  
 -echo
 -echo
 -echo
-+echo ""
-+echo ""
-+echo ""
- echo "------------------------------------------------------------------------"
- echo "$PACKAGE $VERSION"
- echo "------------------------------------------------------------------------"
+-echo "------------------------------------------------------------------------"
+-echo "$PACKAGE $VERSION"
+-echo "------------------------------------------------------------------------"
 -echo
++echo ""
++echo ""
++echo ""
++echo "--------------------------------------------------------------------"
++echo "${PACKAGE} ${VERSION}"
++echo "--------------------------------------------------------------------"
 +echo ""
  echo "Configuration Options Summary:"
 -echo
@@ -686,27 +670,41 @@
 +echo ""
 +echo ""
  echo "Image Loaders:"
- echo "  JPEG....................: $jpeg_ok"
- echo "  PNG.....................: $png_ok"
-@@ -551,16 +566,16 @@
- echo "  BZIP2...................: $bz2_ok"
- echo "  ID3.....................: $id3_ok"
- echo "  X.......................: $have_x"
+-echo "  JPEG....................: $jpeg_ok"
+-echo "  PNG.....................: $png_ok"
+-echo "  TIFF....................: $tiff_ok"
+-echo "  GIF.....................: $gif_ok"
+-echo "  ZLIB....................: $zlib_ok"
+-echo "  BZIP2...................: $bz2_ok"
+-echo "  ID3.....................: $id3_ok"
+-echo "  X.......................: $have_x"
 -echo
 -echo
+-echo "Use X86 MMX for speed.....: $mmx"
+-echo "Use AMD64 for speed.......: $amd64"
+-echo
+-echo "Use visibility hiding.....: $enable_visibility_hiding"
+-echo
+-echo
+-echo "Installation Path.........: $prefix"
+-echo
++echo "  JPEG....................: ${jpeg_ok}"
++echo "  PNG.....................: ${png_ok}"
++echo "  TIFF....................: ${tiff_ok}"
++echo "  GIF.....................: ${gif_ok}"
++echo "  ZLIB....................: ${zlib_ok}"
++echo "  BZIP2...................: ${bz2_ok}"
++echo "  ID3.....................: ${id3_ok}"
++echo "  X.......................: ${have_x}"
 +echo ""
 +echo ""
- echo "Use X86 MMX for speed.....: $mmx"
- echo "Use AMD64 for speed.......: $amd64"
--echo
++echo "Use X86 MMX for speed.....: ${mmx}"
++echo "Use AMD64 for speed.......: ${amd64}"
 +echo ""
- echo "Use visibility hiding.....: $enable_visibility_hiding"
--echo
--echo
++echo "Use visibility hiding.....: ${enable_visibility_hiding}"
 +echo ""
 +echo ""
- echo "Installation Path.........: $prefix"
--echo
++echo "Installation Path.........: ${prefix}"
 +echo ""
  echo "Compilation...............: make"
  echo "Installation..............: make install"

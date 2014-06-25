@@ -1,0 +1,67 @@
+--- xfconfd/xfconf-backend-perchannel-xml.c.orig	2010-05-21 14:13:29.000000000 -0400
++++ xfconfd/xfconf-backend-perchannel-xml.c	2014-05-02 10:09:45.000000000 -0400
+@@ -51,6 +51,10 @@
+ #include <fcntl.h>
+ #endif
+ 
++#if defined(HAVE_MMAP) && defined(HAVE_SYS_MMAN_H)
++#include <sys/mman.h>
++#endif
++
+ #include <libxfce4util/libxfce4util.h>
+ #include <dbus/dbus-glib.h>
+ 
+@@ -643,7 +647,7 @@
+             xbpx->prop_changed_func(backend, channel_name, property, xbpx->prop_changed_data);
+     } else {
+         GNode *top;
+-        
++
+         if(property[0] && property[1]) {
+             PropChangeData pdata;
+ 
+@@ -873,7 +877,7 @@
+                 g_node_unlink(node);
+                 xfconf_proptree_destroy(node);
+ 
+-                /* remove parents without values until we find the root node or 
++                /* remove parents without values until we find the root node or
+                  * a parent with a value or any children */
+                 while(parent) {
+                     prop = parent->data;
+@@ -1419,7 +1423,7 @@
+                 }
+                 return;
+             }
+-            
++
+             xfconf_xml_handle_channel(state, attribute_names,
+                                       attribute_values, error);
+             break;
+@@ -1669,7 +1673,7 @@
+     prop->name = g_strdup("/");
+     channel->properties = g_node_new(prop);
+ 
+-    /* read in system files, we do this in reversed order to properly 
++    /* read in system files, we do this in reversed order to properly
+      * follow the xdg spec, see bug #6079 for more information */
+     length = g_strv_length(filenames);
+     for(i = length - 1; i >= 0; --i) {
+@@ -1782,7 +1786,7 @@
+             } else if(XFCONF_TYPE_G_VALUE_ARRAY == G_VALUE_TYPE(value)) {
+                 GPtrArray *arr;
+                 guint i;
+-                
++
+                 if(is_array_value)
+                     return FALSE;
+ 
+@@ -1836,7 +1840,7 @@
+     GNode *child;
+     gchar *escaped_name;
+     gboolean is_array = FALSE;
+-    
++
+     if(depth * 2 > (gint) sizeof(spaces) + 1)
+         depth = sizeof(spaces) / 2 - 1;
+ 

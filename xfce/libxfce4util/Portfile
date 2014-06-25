@@ -5,7 +5,7 @@ PortSystem      1.0
 
 name            libxfce4util
 version         4.6.2
-revision        1
+revision        2
 categories      xfce
 platforms       darwin linux
 license         LGPL-2+
@@ -25,9 +25,7 @@ depends_build-append \
                 port:intltool
 depends_lib-append \
                 port:gettext \
-                path:lib/pkgconfig/glib-2.0.pc:glib2 \
-                port:libiconv \
-                port:libffi
+                path:lib/pkgconfig/glib-2.0.pc:glib2
 
 platform darwin {
     configure.args-append --disable-visibility

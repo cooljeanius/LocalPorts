@@ -1,0 +1,14 @@
+--- Samples/common/include/Makefile.am.orig	2013-01-12 12:07:24.000000000 -0500
++++ Samples/common/include/Makefile.am	2014-06-19 13:21:22.000000000 -0400
+@@ -1,4 +1,10 @@
+-noinst_HEADERS = CEGUISamplesConfig.h \
++## automake Makefile for cegui includes that are common to Samples
++
++examplesdir = ${datarootdir}/examples/${PACKAGE_TARNAME}
++examples_includedir = ${examplesdir}/include
++
++examples_include_HEADERS = \
++                 CEGUISamplesConfig.h \
+                  CEGuiBaseApplication.h \
+                  CEGuiD3D10BaseApplication.h \
+                  CEGuiD3D9BaseApplication.h \
