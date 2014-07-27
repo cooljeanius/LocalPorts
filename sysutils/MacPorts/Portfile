@@ -5,7 +5,8 @@ PortSystem          1.0
 
 name                MacPorts
 version             2.2.1
-revision            1
+revision            2
+#TODO: update to 2.3.1 (removes some flags that my variants use though)
 
 categories          sysutils macports
 platforms           darwin freebsd linux
@@ -29,7 +30,7 @@ your ${name} installation, the ${name} team recommends using\
 
 homepage            http://www.macports.org/
 master_sites        sourceforge:project/macports/${name}/${version}
-# testing subdir is for non-final releases only
+# testing subdir is for non-final releases only, so only un-comment then:
 #dist_subdir         ${name}/testing
 use_bzip2           yes
 
@@ -160,10 +161,10 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
                          port:libtar
 
     # blacklist all compilers that come with the system; we want a
-    # MacPorts-provided compiler
+    # MacPorts-provided compiler:
     compiler.blacklist-append cc gcc gcc-3.3 gcc-4.0 gcc-4.2 llvm-gcc-4.2 \
                               clang
-    # Also blacklist gccs that do not depend on the MacPorts cctools
+    # Also blacklist gccs that do not depend on the MacPorts cctools:
     compiler.blacklist-append apple-gcc-4.0 macports-gcc-4.2
 
     depends_skip_archcheck-append \
@@ -177,24 +178,33 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
     post-extract {
         reinplace "s|\[\$PATH\]\:/usr/sbin|\[\]|" ${worksrcpath}/configure.ac
         reinplace "s|\[\$PATH\]\:/usr/local/bin|\[\]|" ${worksrcpath}/configure.ac
+        ui_debug "${prefix}/bin/gzip -d ${worksrcpath}/src/thread2.6.tar.gz"
         system -W ${worksrcpath}/src "${prefix}/bin/gzip -d thread2.6.tar.gz"
+        ui_debug "${prefix}/libexec/gnubin/tar -xvf ${worksrcpath}/src/thread2.6.tar"
         system -W ${worksrcpath}/src "${prefix}/libexec/gnubin/tar -xvf thread2.6.tar"
         if {![file isdirectory ${filespath}]} {
+            ui_debug "creating ${filespath}"
             file mkdir ${filespath}
         }
         if {![file exists ${filespath}/patch-src_thread2.6.diff]} {
+            ui_debug "copying thread2.6.diff from ${worksrcpath}/src to ${filespath}"
+            ui_debug "also renaming it to patch-src_thread2.6.diff"
             file copy ${worksrcpath}/src/thread2.6.diff ${filespath}/patch-src_thread2.6.diff
         }
         patchfiles-append patch-src_thread2.6.diff
+        ui_debug "in '${worksrcpath}/src/thread2.6', renaming configure.in to configure.ac"
         move ${worksrcpath}/src/thread2.6/configure.in ${worksrcpath}/src/thread2.6/configure.ac
         # TODO: do this with `file attributes` in Tcl instead:
-        system "chmod -x ${worksrcpath}/src/thread2.6/configure.ac"
+        ui_debug "chmod -x ${worksrcpath}/src/thread2.6/configure.ac"
+        system -W ${worksrcpath}/src/thread2.6 "chmod -x configure.ac"
+        ui_debug "creating ${worksrcpath}/src/thread2.6/m4"
         file mkdir ${worksrcpath}/src/thread2.6/m4
+        ui_debug "copying macros from ${worksrcpath}/src/thread2.6 to ${worksrcpath}/src/thread2.6/m4"
         eval file copy [glob ${worksrcpath}/src/thread2.6/*.m4] ${worksrcpath}/src/thread2.6/m4
     }
 
     use_autoreconf       yes
-    autoreconf.args      -fvi
+    autoreconf.args      -fvi -Wall -Wno-obsolete
 
     pre-configure {
         system -W ${worksrcpath} "export PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin:${prefix}/libexec/texbin"
@@ -205,6 +215,8 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
         system -W ${worksrcpath} "ln -sv `which gmake` ."
         system -W ${worksrcpath} "ln -sv `which as` ."
         system -W ${worksrcpath} "ln -sv `which lipo` ."
+        system -W ${worksrcpath} "ln -sv `which sh` ."
+        system -W ${worksrcpath} "ln -sv `which bash` ."
         system -W ${worksrcpath} "export PATH=${prefix}/bin:${prefix}/sbin:${prefix}/libexec/gnubin:${prefix}/libexec/texbin"
     }
 
@@ -230,6 +242,8 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
     configure.pipe       no
     configure.distcc     no
 
+   #FIXME: need to disable sandboxing...
+
     pre-build {
         reinplace "s|gzip|${prefix}/bin/gzip|" ${worksrcpath}/Makefile
         reinplace "s|gzip|${prefix}/bin/gzip|" ${worksrcpath}/doc/Makefile
@@ -248,26 +262,29 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
 
 variant docs requires mp_deps description "Builds documentation" {
     depends_build-append port:tcl-dox \
+                         port:tcl2doxy \
                          port:tcldoc \
                          path:bin/doxygen:doxygen \
                          path:bin/dot:graphviz
 
     pre-build {
+        ui_debug "running 'doxygen -u' in ${worksrcpath}"
         system -W ${worksrcpath} "doxygen -u"
     }
 
     use_parallel_build   no
 
     build.target-append tcldox
-    # tcldoc make target is commented out because it is broken.
+    # tcldoc make target is commented out because it is broken
+    # (and newer versions have removed it entirely).
     #build.target-append tcldoc
 
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${name}
-        xinstall ${worksrcpath}/doc/INTERNALS ${destroot}${prefix}/share/doc/${name}
+        xinstall -m 644 ${worksrcpath}/doc/INTERNALS ${destroot}${prefix}/share/doc/${name}
         xinstall -d ${destroot}${prefix}/share/doc/${name}/tcl-dox
         foreach doc [glob ${worksrcpath}/tcldox/*] {
-            xinstall ${doc} ${destroot}${prefix}/share/doc/${name}/tcl-dox
+            xinstall -m 644 ${doc} ${destroot}${prefix}/share/doc/${name}/tcl-dox
         }
     }
 }
@@ -287,7 +304,14 @@ variant mp_bundle requires mp_deps description "Adds other ports related to ${na
                      port:ghsum \
                      port:useful-ports \
                      port:port-whatsnew
+    # should probably do something else besides just add dependencies...
 }
+
+# mostly just exists to enforce +debug variant of dependencies:
+variant debug description "enable debugging" {
+    configure.optflags -g
+    configure.pipe no
+    }
 
 variant egallager requires mp_shadow_deps description "Uses my personal fork of MacPorts" {
     PortGroup                github 1.0
@@ -297,6 +321,9 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
     set version              2.1.3
     github.setup             cooljeanius ${name}-fork ${version}ebg_2 v
     set name                 ${oldname}
+
+    # might want to do this for some other variants as well:
+    maintainers-prepend      gwmail.gwu.edu:egall
 
     fetch.type               git
     git.url                  git://github.com/cooljeanius/${name}-fork.git
@@ -318,10 +345,18 @@ variant egallager requires mp_shadow_deps description "Uses my personal fork of 
 
     depends_skip_archcheck-append kaffe eclipse-ecj32 google-guava
 
-    # Use just autoconf instead of autoreconf because automake fails
+    # Use just autoconf instead of autoreconf because automake fails:
     use_autoconf         yes
     autoconf.args        --force
 
+    pre-configure {
+        configure.classpath-append [join [glob ${prefix}/share/java/*.jar] ":"]
+        configure.classpath-append [join [glob ${prefix}/share/gcc-4.*/java/*.jar] ":"]
+        if {[file isdirectory ${prefix}/GNUstep/lib/GNUstep/Libraries/Java]} {
+            configure.classpath-append ${prefix}/GNUstep/lib/GNUstep/Libraries/Java
+        }
+        ui_debug "configure.classpath will be displayed when displaying configuration environment."
+    }
     configure.args-append \
                          --enable-readline
 
@@ -381,6 +416,9 @@ pre-pkg {
     file attributes ${package.scripts}/postflight -permissions 0755
     file attributes ${package.scripts}/upgrade_sources_conf_default.tcl -permissions 0755
     file attributes ${package.scripts}/images_to_archives.tcl -permissions 0755
+    if {[file exists ${package.scripts}/dedup_portfiles.tcl]} {
+        file attributes ${package.scripts}/dedup_portfiles.tcl -permissions 0755
+    }
     file attributes ${resources_lang}/ReadMe.rtf -permissions 0644
     file attributes ${resources_lang}/License.html -permissions 0644
 
@@ -393,7 +431,7 @@ pre-pkg {
         file copy -force -- ${worksrcpath}/portmgr/dmg/Distribution ${workpath}
         file attributes ${workpath}/Distribution -permissions 0644
         reinplace "s|__PREFIX__|${prefix}|g" ${workpath}/Distribution
-        switch $macosx_deployment_target {
+        switch ${macosx_deployment_target} {
             10.4    {set xcode_cli "Command Line Support"}
             10.5    -
             10.6    {set xcode_cli "UNIX Development"}
@@ -401,7 +439,7 @@ pre-pkg {
         }
         reinplace "s|__XCODECLITOOLS__|${xcode_cli}|g" ${workpath}/Distribution
         reinplace "s|__XVERS__|${macosx_deployment_target}|" ${workpath}/Distribution
-        set next_major [lindex [split $macosx_deployment_target .] 0].[expr [lindex [split $macosx_deployment_target .] 1] + 1]
+        set next_major [lindex [split ${macosx_deployment_target} .] 0].[expr [lindex [split ${macosx_deployment_target} .] 1] + 1]
         reinplace "s|__NEXT_XVERS__|$next_major|" ${workpath}/Distribution
         reinplace "s|__VERSION__|${version}|" ${workpath}/Distribution
         move ${package.scripts}/postflight ${package.scripts}/postinstall
@@ -417,7 +455,7 @@ pre-pkg {
             ${resources_lang}/InstallationCheck.strings
     }
     # This will not be there before the pkg is built with older base
-    # versions
+    # versions:
     if {[file isfile ${resources_lang}/Welcome.html]} {
         reinplace "s|or newer ||" ${resources_lang}/Welcome.html
         if {${os.major} > 8} {
@@ -434,6 +472,14 @@ post-pkg {
         if {${os.major} > 8} {
             reinplace "s|10\\.4|${macosx_deployment_target}|" ${lproj}/Welcome.html
         }
+    }
+}
+
+platform darwin 8 {
+    if {![variant_isset mp_deps]} {
+        # has ${prefix}/include ahead of /usr/include in default search path
+        # see ticket #44141 for more info
+        compiler.blacklist-append apple-gcc-4.2
     }
 }
 
@@ -468,7 +514,11 @@ platform darwin 9 {
 }
 
 platform darwin {
-    if {${os.major} >= 10} {
+    if {${os.major} >= 11} {
+        # Lion and above only run on x86_64.
+        configure.cflags-append -arch x86_64
+        configure.args-append SHLIB_LDFLAGS='-arch x86_64'
+    } elseif {${os.major} >= 10} {
         # Supply architecture flags to build MacPorts universal.
         # "-std=gnu99" is to silence pedantic warnings about
         # usage of "long long"
@@ -600,3 +650,20 @@ destroot.keepdirs    ${destroot}${prefix}/include \
 
 # livecheck is not applicable here, so disable:
 livecheck.type       none
+
+# trunk has this, but I only intend to keep it until I get the versions
+# synced up:
+pre-activate {
+    ui_error ""
+    ui_error "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    ui_error "!! DO NOT INSTALL THE MACPORTS PORT !!"
+    ui_error "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    ui_error "The MacPorts port is only used to build the installers"
+    ui_error "that you can download from macports.org"
+    ui_error "It is not intended for installation by a user,"
+    ui_error "and doing so would overwrite your MacPorts installation"
+    ui_error "and render it unusable when removed."
+    ui_error ""
+    error "Installation aborted"
+    return -code error "user mis-use"
+}

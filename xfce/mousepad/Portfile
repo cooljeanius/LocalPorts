@@ -11,7 +11,7 @@ platforms       darwin linux
 license         GPL-2+
 maintainers     afb openmaintainer
 description     A text editor for Xfce based on Leafpad
-long_description ${description}
+long_description ${description}.
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.0/src/
 use_bzip2       yes
@@ -52,8 +52,9 @@ depends_lib-append \
                 path:lib/pkgconfig/pango.pc:pango
 
 post-activate {
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
     system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
 }
 
-# Broken, so disable:
+# livecheck is broken, so disable:
 livecheck.type  none

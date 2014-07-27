@@ -19,11 +19,11 @@ platform darwin > 10 {
     supported_archs-append x86_64
 }
 
-# does NOT accept multiple -arch flags
+# does NOT accept multiple -arch flags:
 universal_variant   no
 
 # it bootstraps itself, so it is necessary to have it built before
-# other steps can continue
+# other steps can continue:
 use_parallel_build  no
 
 description         ${name} is the Tiny C Compiler.
@@ -40,7 +40,7 @@ checksums           md5     5fb28e4abc830c46a7f54c1f637fb25d \
                     sha1    7110354d3637d0e05f43a006364c897248aed5d0 \
                     sha256  521e701ae436c302545c3f973a9c9b7e2694769c71d9be10f70a2460705b6d71
 
-depends_build-append port:perl5 \
+depends_build-append bin:perl:perl5 \
                      port:texinfo
 
 # It was designed to be built with gcc
@@ -62,5 +62,5 @@ variant tests description {Run the test suite} {
     }
 }
 
-# regex is broken
+# regex is broken, FIXME:
 livecheck.type       none

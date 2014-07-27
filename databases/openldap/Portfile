@@ -5,7 +5,7 @@ PortSystem          1.0
 PortGroup           muniversal 1.0
 
 name                openldap
-version             2.4.34
+version             2.4.39
 revision            1
 categories          databases
 maintainers         landonf openmaintainer
@@ -16,13 +16,15 @@ long_description    ${description} is an open source implementation \
 
 platforms           darwin
 homepage            http://www.${name}.org/
-master_sites        ftp://ftp.OpenLDAP.org/pub/OpenLDAP/${name}-release/ \
-                    http://www.${name}.org/software/download/OpenLDAP/${name}-release/ \
-                    ftp://ftp.nl.uu.net/pub/unix/db/${name}/${name}-release/
+master_sites \
+    ftp://ftp.OpenLDAP.org/pub/OpenLDAP/${name}-release/ \
+    http://www.${name}.org/software/download/OpenLDAP/${name}-release/ \
+    ftp://ftp.nl.uu.net/pub/unix/db/${name}/${name}-release/
+
 extract.suffix      .tgz
 
-checksums           rmd160  87e8d3a41b5e708e31eb29bb8b936d519a0374d3 \
-                    sha256  eaab4c4a6b09cc9e60f97e6ef9974f8327d977d1d7af7bc00c2bc5f90dfe0606
+checksums           rmd160  da68043bd38e9d58811599d43bfdbc8f6c9b6f58 \
+                    sha256  8267c87347103fef56b783b24877c0feda1063d3cb85d070e503d076584bf8a7
 
 depends_build-append \
                     path:bin/gccmakedep:gccmakedep \
@@ -30,20 +32,29 @@ depends_build-append \
 
 depends_lib-append  path:bin/perl:perl5 \
                     port:tcp_wrappers \
-                    port:cyrus-sasl2 \
                     port:openssl \
                     port:db46 \
                     port:icu \
                     port:libfetch \
-                    port:libcomerr
+                    port:libcomerr \
+                    port:libtool
 
 patchfiles-append   patch-ltmain.diff
 
 configure.env-append \
                     LANG=C \
                     LC_ALL=C \
-                    GCCMAKEDEP=${prefix}/bin/gccmakedep \
-                    MAKEDEPEND=${prefix}/bin/makedepend
+                    GCCMAKEDEP="${prefix}/bin/gccmakedep" \
+                    MAKEDEPEND="${prefix}/bin/makedepend" \
+                    LTHREAD_LIBS="-lpthread" \
+                    LUTIL_LIBS="-lutil" \
+                    MODULES_LIBS="-lltdl" \
+                    MOD_PERL_LDFLAGS="${configure.ldflags} -fstack-protector -lperl -ldl -lm -lutil" \
+                    PERLBIN="${prefix}/bin/perl" \
+                    PERL_CPPFLAGS="${configure.optflags} ${configure.cppflags} -fno-common -DPERL_DARWIN -fno-strict-aliasing -fstack-protector" \
+                    SLAPD_PERL_LDFLAGS="${configure.ldflags} -fstack-protector -lperl -ldl -lm -lutil" \
+                    SLAPD_SLAPI_DEPEND=libslapi.a \
+                    SLAPI_LIBS="-lltdl"
 
 configure.cppflags-append -I${prefix}/include/db46 -I${prefix}/include/openssl -DBIND_8_COMPAT
 
@@ -58,7 +69,7 @@ configure.ldflags-append -L${prefix}/lib/db46
 configure.args-append \
                     --mandir=${prefix}/share/man \
                     --localstatedir=${prefix}/var \
-                    --with-cyrus-sasl \
+                    --without-cyrus-sasl \
                     --with-tls \
                     --enable-crypt \
                     --enable-wrappers \
@@ -74,16 +85,31 @@ startupitem.start   "${prefix}/libexec/slapd -u ldap -f ${prefix}/etc/openldap/s
 startupitem.stop    "\[ -r \${PID} \] && kill \$(cat \${PID})"
 
 variant aci description {Enable per-object ACIs (experimental)} {
-        configure.args-replace --disable-aci --enable-aci
+    configure.args-replace --disable-aci --enable-aci
+    configure.env-append WITH_ACI_ENABLED="yes"
 }
 
 variant overlays description {Enable all available overlays} {
-        configure.args-replace --disable-overlays --enable-overlays
+    configure.args-replace --disable-overlays --enable-overlays
+    destroot.delete_la_files no
 }
+
+
+# in case cyrus-sasl2 is broken, as in ticket #41872
+variant sasl description {Enable authentication via SASL} {
+    depends_lib-append port:cyrus-sasl2
+    configure.args-replace --without-cyrus-sasl --with-cyrus-sasl
+    configure.env-append SASL_LIBS="-lsasl2"
+    }
+
+# This used to be enabled by default without a variant, and it will
+# warn you if you disable it, so make the variant a default:
+default_variants-append +sasl
 
 pre-build {
     set dirs {}
     if {[variant_isset universal]} {
+        # muniversal PortGroup sould set universal_archs_to_use for us:
         foreach arch ${universal_archs_to_use} {
             lappend dirs ${worksrcpath}-${arch}
         }
@@ -112,5 +138,10 @@ post-destroot {
     file delete -force ${destroot}${prefix}/etc/${name}/ldap.conf
 }
 
+# WARNING: tests take a really long time, you may need to interrupt them:
 test.run        yes
 test.target     check
+
+livecheck.type  regex
+livecheck.url   http://www.${name}.org/software/download/OpenLDAP/${name}-release/
+livecheck.regex "${name}-(\\d+(?:\\.\\d+)*)${extract.suffix}"

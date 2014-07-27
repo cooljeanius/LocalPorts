@@ -5,7 +5,7 @@ PortSystem      1.0
 
 name            xfce4-session
 version         4.6.2
-revision        4
+revision        6
 categories      xfce
 platforms       darwin linux
 license         GPL-2+
@@ -26,7 +26,11 @@ depends_build-append \
                 port:pkgconfig \
                 port:gmake \
                 path:bin/xmkmf:imake \
+                path:bin/perl5.16:perl5.16 \
+                bin:perl:perl5 \
                 bin:iceauth:iceauth
+# We set configure.perl below to a specific version, so that is why there
+# is a dependency for both the specific version and the un-suffixed version
 
 depends_skip_archcheck-append gmake
 
@@ -35,25 +39,17 @@ depends_lib-append \
                 port:libxfcegui4 \
                 port:libwnck \
                 port:atk \
-                port:bzip2 \
                 port:dbus-glib \
-                port:expat \
+                port:desktop-file-utils \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
-                port:graphite2 \
                 port:gtk2 \
-                port:harfbuzz \
-                port:libffi \
-                port:libgcrypt \
                 port:libglade2 \
                 port:libgnome-keyring \
-                port:libgpg-error \
                 port:libiconv \
-                port:libpng \
                 port:libxml2 \
-                port:startup-notification \
                 port:xfconf \
                 port:xorg-libX11 \
                 port:xorg-libXau \
@@ -66,24 +62,20 @@ depends_lib-append \
                 port:xorg-libXi \
                 port:xorg-libXinerama \
                 port:xorg-libXrandr \
-                port:xorg-libXres \
                 port:xorg-libice \
                 port:xorg-libsm \
                 port:xorg-libxcb \
-                port:xorg-xcb-util \
                 port:xrender \
-                port:xz \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
                 path:lib/pkgconfig/dbus-1.pc:dbus
 
 depends_run-append \
+                port:libpng \
                 bin:iceauth:iceauth
 
-# Do NOT do intltool's INTLTOOL_PERL dance
+# Do NOT do intltool's INTLTOOL_PERL dance:
 use_autoreconf  yes
 autoreconf.cmd  ${prefix}/bin/xdt-autogen
 autoreconf.env-append  \
@@ -98,10 +90,14 @@ autoreconf.env-append  \
                 XDT_PROG_AUTOCONF=${prefix}/bin/autoconf
 
 pre-configure {
+    ui_debug "running '${prefix}/bin/intltoolize --automake --copy --force' in ${worksrcpath}"
     system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
 }
 
-configure.perl  ${prefix}/bin/perl5.12
+configure.perl  ${prefix}/bin/perl5.16
+
+# temporarily disable ccache, to ease un-privileged development:
+configure.ccache no
 
 configure.args-append \
                 --enable-session-screenshots \
@@ -112,12 +108,37 @@ configure.args-append \
                 --x-libraries=${prefix}/lib
 
 configure.env-append \
-                XMKMF=${prefix}/bin/xmkmf
+                XMKMF=${prefix}/bin/xmkmf \
+                libintl_extra_libs='-liconv' \
+                INTLLIBS='-lintl -liconv ' \
+                LIBS=' -lgmodule-2.0'
 
 build.type      gnu
 build.cmd       ${prefix}/bin/gmake
 
 use_parallel_build no
 
-# broken, so disable:
+post-activate {
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+}
+
+variant debug description {enable debugging} {
+    configure.args-append --enable-debug=full
+    configure.optflags    -g
+    configure.pipe        no
+    post-configure {
+        reinplace "s|-Werror||g" ${worksrcpath}/settings/Makefile
+        reinplace "s|-Werror||g" ${worksrcpath}/${name}/Makefile
+    }
+}
+
+variant gnome description {enable assistive tech support via gconf} {
+    depends_lib-append port:gconf
+    configure.args-replace --disable-gnome --enable-gnome
+}
+
+# livecheck is broken, so disable:
 livecheck.type  none

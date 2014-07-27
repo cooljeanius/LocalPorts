@@ -56,7 +56,8 @@ post-patch {
     # that somehow messed up...
     reinplace "s|\$\(top_srcdir\)|${worksrcpath}|" ${worksrcpath}/Makefile.am
     # Run glibtoolize before autoreconf runs it, to silence some
-    # warnings from aclocal
+    # warnings from aclocal:
+    ui_debug "running '${prefix}/bin/glibtoolize --copy --automake --force' in ${worksrcpath}"
     system -W ${worksrcpath} "${prefix}/bin/glibtoolize --copy --automake --force"
     xinstall ${prefix}/share/aclocal/autobuild.m4 ${worksrcpath}/m4
     xinstall ${prefix}/share/aclocal/ax_check_gnu_make.m4 ${worksrcpath}/m4
@@ -73,16 +74,16 @@ post-patch {
 }
 
 use_autoreconf        yes
-autoreconf.args       -fvi
+autoreconf.args       -fvi -Wall
 
-# Too many things that Scilab depends on are not universal
+# Too many things that Scilab depends on are not universal:
 universal_variant     no
 # The prerequirements dmg only says x86_64, so assume that that is the only
-# supported arch
+# supported arch:
 supported_archs       x86_64
 
 # Some of these build deps will only be needed once I add a test phase,
-# and then only until http://trac.macports.org/ticket/38208 is resolved
+# and then only until http://trac.macports.org/ticket/38208 is resolved.
 depends_build-append  port:pkgconfig \
                       port:intltool \
                       port:docbook-xsl \
@@ -135,7 +136,7 @@ depends_lib-append    port:readline \
                       port:zlib \
                       port:matio
 
-# Needed for some of the data files
+# Needed for some of the data files:
 depends_run-append    bin:dia:dia
 
 pre-configure {
@@ -314,7 +315,7 @@ if {[variant_isset g95]} {
     configure.f90 ${prefix}/bin/g95
 }
 
-# warning: this variant is untested
+# warning: this variant is untested:
 variant ocaml description {Build OCaml module (modelica)} {
     depends_lib-append  port:ocaml \
                         port:swig-ocaml

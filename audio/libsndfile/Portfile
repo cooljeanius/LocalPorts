@@ -79,7 +79,7 @@ variant sqlite description {Enable support for SQLite} {
 variant egallager requires sqlite experimental description {Use my personal fork} {
     PortGroup            github 1.0
     github.setup         cooljeanius libsndfile 0.1.1 v
-    maintainers-append   gwmail.gwu.edu:egall
+    maintainers-prepend  gwmail.gwu.edu:egall
     fetch.type           git
     git.url              git://github.com/cooljeanius/libsndfile.git
 

@@ -5,13 +5,13 @@ PortSystem      1.0
 
 name            xfprint
 version         4.6.1
-revision        3
+revision        4
 categories      xfce
 platforms       darwin linux
 license         GPL-2+
 maintainers     afb openmaintainer
 description     Print dialog and printer manager for Xfce 4
-long_description ${description}
+long_description ${description}.
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
 use_bzip2       yes
@@ -32,17 +32,14 @@ depends_build-append \
 depends_lib-append \
                 port:libxfcegui4 \
                 port:atk \
-                port:bzip2 \
                 port:dbus-glib \
-                port:expat \
+                port:desktop-file-utils \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
                 port:gtk2 \
-                port:libffi \
                 port:libiconv \
-                port:libpng \
                 port:libxfce4util \
                 port:xfconf \
                 port:Xft2 \
@@ -66,19 +63,30 @@ depends_lib-append \
                 path:lib/pkgconfig/dbus-1.pc:dbus
 
 depends_run-append \
-                port:a2ps
+                port:a2ps \
+                port:libpng
 
-# Do NOT do intltool's INTLTOOL_PERL dance
+# Do NOT do intltool's INTLTOOL_PERL dance:
 configure.cmd   ${prefix}/bin/xdt-autogen
-configure.env-append XDT_PROG_LIBTOOLIZE=glibtoolize
+configure.env-append \
+                XDT_PROG_LIBTOOLIZE=glibtoolize \
+                LC_ALL=C \
+                libintl_extra_libs='-liconv' \
+                INTLLIBS='-lintl -liconv '
+
+# temporarily disable ccache, to ease un-privileged development:
+configure.ccache no
 
 configure.args-append --enable-cups
 
 configure.ldflags-append "-lXft -lfontconfig -lXrender -lXext -lXinerama -lXrandr"
 
 post-activate {
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
 }
 
-# broken, so disable:
+# livecheck is broken, so disable:
 livecheck.type  none

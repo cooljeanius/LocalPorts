@@ -124,7 +124,8 @@ depends_lib-append  port:qt4-mac \
                     port:geocode-glib \
                     port:libgeoip \
                     port:GeoLiteCity \
-                    port:gshhg-gmt
+                    port:gshhg-gmt \
+                    port:gnome-maps
 
 depends_skip_archcheck-append lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45 gpsd
 require_active_variants qt4-mac {debug demos examples openvg universal}
@@ -200,7 +201,9 @@ variant python27 conflicts python25 python26 python32 python33 python34 \
                             port:py27-pyshp \
                             port:py27-rasterio \
                             port:py27-geojson \
-                            port:py27-pygeocoder
+                            port:py27-pygeocoder \
+                            port:py27-geopandas \
+                            port:py27-shapely
     depends_skip_archcheck-append py27-cartopy py27-scipy
     require_active_variants gdal {python27}
     require_active_variants postgresql84 {python python27}
@@ -227,7 +230,10 @@ variant python33 conflicts python25 python26 python27 python32 python34 \
                             port:py33-geojson \
                             port:py33-fiona \
                             port:py33-rasterio \
-                            port:py33-xlrd
+                            port:py33-xlrd \
+                            port:py33-openpyxl \
+                            port:py33-geopandas \
+                            port:py33-shapely
     require_active_variants py33-django {bash_completion}
 }
 variant python34 conflicts python25 python26 python27 python32 python33 \
@@ -237,7 +243,10 @@ variant python34 conflicts python25 python26 python27 python32 python33 \
                             port:py34-geojson \
                             port:py34-fiona \
                             port:py34-rasterio \
-                            port:py34-xlrd
+                            port:py34-xlrd \
+                            port:py34-openpyxl \
+                            port:py34-geopandas \
+                            port:py34-shapely
 }
 
 if {![variant_isset python25] && ![variant_isset python26] && ![variant_isset python32] && ![variant_isset python33] && ![variant_isset python34]} {

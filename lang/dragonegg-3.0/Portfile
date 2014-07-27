@@ -12,6 +12,7 @@ subport                 ${name}-gcc-4.5 {
     revision            3
     set gcc_version     4.5
     set gcc_version_no_dot 45
+    #FIXME: gcc needs LTO support
 }
 subport                 ${name}-gcc-4.6 {
     revision            3
@@ -35,7 +36,7 @@ homepage                http://dragonegg.llvm.org/
 if {${subport} == ${name}} {
 version                 ${llvm_version}
 epoch                   1
-revision                8
+revision                9
 
 master_sites            http://llvm.org/releases/${version}/
 distfiles               ""
@@ -44,12 +45,18 @@ set gcc_version         4.6
 conflicts-append        ${name}-gcc-4.6
 replaced_by             ${name}-gcc-4.6
 
+# stub port just has shell scripts:
+supported_archs         noarch
+installs_libs           no
+
 depends_run-append      port:${name}-gcc-${gcc_version}
 
 use_configure           no
-build                   {}
+build {
+    ui_debug "${name} has no build step"
+}
 destroot {
-    # For base
+    # For base:
     foreach binary {gcc cpp c++ g++ gcj gcov gfortran} {
         ln -s dragonegg-${llvm_version}-${binary}-mp-${gcc_version} ${destroot}${prefix}/bin/dragonegg-${llvm_version}-${binary}
     }
@@ -57,7 +64,8 @@ destroot {
 
 } else {
 
-depends_lib-append      port:llvm-${llvm_version} port:gcc${gcc_version_no_dot}
+depends_lib-append      port:llvm-${llvm_version} \
+                        port:gcc${gcc_version_no_dot}
 depends_run-append      port:gcc_select
 
 # gcc needs to match our arch, not the other way around
@@ -79,7 +87,7 @@ platform darwin {
         depends_lib
         depends_run
         pre-fetch {
-            ui_error "$name is not supported on Mavericks or later."
+            ui_error "${name} is not supported on Mavericks or later."
             error "unsupported platform"
         }
     }

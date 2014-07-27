@@ -5,13 +5,13 @@ PortSystem      1.0
 
 name            xfwm4
 version         4.6.2
-revision        3
+revision        4
 categories      xfce
 platforms       darwin linux
 license         GPL-2+
 maintainers     afb openmaintainer
 description     The window manager for Xfce
-long_description ${description}
+long_description ${description}.
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
 use_bzip2       yes
@@ -20,16 +20,11 @@ checksums       md5     3e6c0c54b028b6ea60e865e55ecdf3f8 \
                 rmd160  445e499ca84846222120d607b80b5eac79b422d7 \
                 sha256  212819ee03c24635f79d50930284c422469e22489952d0b286e6fe5af2155828
 
-configure.args-append \
-                --enable-randr \
-                --enable-startup-notification \
-                --disable-compositor \
-                --disable-xsync
-
 depends_build-append \
                 port:intltool \
                 port:xfce4-dev-tools \
-                port:pkgconfig
+                port:pkgconfig \
+                path:bin/xmkmf:imake
 
 depends_lib-append \
                 port:xfconf \
@@ -39,17 +34,12 @@ depends_lib-append \
                 port:libglade2 \
                 port:libxfcegui4 \
                 port:atk \
-                port:bzip2 \
-                port:expat \
+                port:desktop-file-utils \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
-                port:graphite2 \
-                port:harfbuzz \
-                port:libffi \
                 port:libiconv \
-                port:libpng \
                 port:libxfce4util \
                 port:libxml2 \
                 port:startup-notification \
@@ -64,23 +54,65 @@ depends_lib-append \
                 port:xorg-libXi \
                 port:xorg-libXinerama \
                 port:xorg-libXrandr \
-                port:xorg-libXres \
                 port:xorg-libice \
                 port:xorg-libsm \
                 port:xorg-libxcb \
-                port:xorg-xcb-util \
                 port:xrender \
-                port:xz \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
                 path:lib/pkgconfig/dbus-1.pc:dbus
 
-# Do NOT do intltool's INTLTOOL_PERL dance
-configure.cmd   ${prefix}/bin/xdt-autogen
-configure.env-append XDT_PROG_LIBTOOLIZE=glibtoolize
+depends_run-append \
+                port:libpng
 
-# broken, so disable:
+# Do NOT do intltool's INTLTOOL_PERL dance:
+configure.cmd   ${prefix}/bin/xdt-autogen
+configure.env-append \
+                XDT_PROG_LIBTOOLIZE=glibtoolize \
+                XMKMF='${prefix}/bin/xmkmf' \
+                XSYNC_LIBS=' -lXext' \
+                MATH_LIBS=' -lm' \
+                libintl_extra_libs='-liconv' \
+                INTLLIBS='-lintl -liconv '
+
+configure.args-append \
+                --enable-render \
+                --enable-randr \
+                --enable-startup-notification \
+                --enable-kde-systray \
+                --disable-compositor \
+                --disable-xsync \
+                --with-x \
+                --x-includes=${prefix}/include \
+                --x-libraries=${prefix}/lib
+
+# temporarily disable ccache, to ease un-privileged development:
+configure.ccache no
+
+post-activate {
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+}
+
+variant compositor description {enable the compositor} {
+    # (dependencies are already added anyways)
+    configure.args-replace --disable-compositor --enable-compositor
+}
+
+variant debug description {enable debugging} {
+    configure.args-append --enable-debug=full
+    configure.optflags    -g
+    configure.pipe        no
+    post-configure {
+        reinplace "s|-Werror||g" ${worksrcpath}/src/Makefile
+    }
+}
+
+variant xsync description {enable xsync via libXext} {
+    # (dependencies are already added anyways)
+    configure.args-replace --disable-xsync --enable-xsync
+}
+
+# livecheck is broken, so disable:
 livecheck.type  none

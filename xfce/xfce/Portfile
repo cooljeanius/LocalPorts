@@ -18,7 +18,7 @@ appealing and easy to use.
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
 
-# depends on MacPorts xfce4
+# depends on MacPorts xfce4:
 depends_lib-append \
                 port:exo \
                 port:gtk-xfce-engine \
@@ -54,16 +54,24 @@ depends_run-append \
                 path:bin/dbus-launch:dbus \
                 bin:ssh-agent:openssh
 
+# clear:
 distfiles
 
 use_configure   no
 supported_archs noarch
 installs_libs   no
-build           { }
-destroot        {
-        xinstall -d ${destroot}${prefix}/share/xfce4
-        file copy ${portpath}/${filesdir}/STARTME ${destroot}${prefix}/share/xfce4/
+
+build {
+    ui_debug "The ${name} meta-port has no build step."
 }
+
+destroot {
+    xinstall -d ${destroot}${prefix}/share/xfce4
+    ui_debug "copying ${portpath}/${filesdir}/STARTME to ${destroot}${prefix}/share/xfce4/"
+    file copy ${portpath}/${filesdir}/STARTME ${destroot}${prefix}/share/xfce4/
+}
+
 notes "To start xfce put \"exec startxfce4\" in your .xinitrc"
 
+# not applicable:
 livecheck.type  none

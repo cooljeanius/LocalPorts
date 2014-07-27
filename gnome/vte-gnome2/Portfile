@@ -93,24 +93,24 @@ description {Build Bindings for Python 2.6} {
 }
 
 variant docs description {build documentation} {
-    depends_build-append        port:gtk-doc
-    depends_run-append          port:devhelp \
-                                port:libpng
-    configure.args-append       --enable-gtk-doc \
-                                --enable-gtk-doc-html \
-                                --enable-gtk-doc-pdf
+    depends_build-append    port:gtk-doc
+    depends_run-append      port:devhelp \
+                            port:libpng
+    configure.args-append   --enable-gtk-doc \
+                            --enable-gtk-doc-html \
+                            --enable-gtk-doc-pdf
 }
 
 variant debug description {enable debugging} {
-    configure.args-append       --enable-debug
-    configure.optflags          -g
-    configure.pipe              no
+    configure.args-append   --enable-debug
+    configure.optflags      -g
+    configure.pipe          no
 }
 
 variant ptyhelper description {build a setuid helper for opening ptys} {
-    configure.args-replace      --disable-gnome-pty-helper --enable-gnome-pty-helper
+    configure.args-replace  --disable-gnome-pty-helper --enable-gnome-pty-helper
     # this is to prevent a conflict with the newer vte port:
-    configure.args-append       --libexecdir=${prefix}/libexec/${name}
+    configure.args-append   --libexecdir=${prefix}/libexec/${name}
 }
 
 # used to be built by default even without the variant, so make the
@@ -118,14 +118,14 @@ variant ptyhelper description {build a setuid helper for opening ptys} {
 default_variants-append +ptyhelper
 
 variant introspection description {build with gobject-introspection support} {
-    depends_lib-append          port:gobject-introspection
-    configure.args-replace --disable-introspection --enable-introspection
+    depends_lib-append      port:gobject-introspection
+    configure.args-replace  --disable-introspection --enable-introspection
 }
 
 variant glade description {Enable building of glade catalog items} {
-    depends_lib-append          port:glade
-    configure.args-replace      --disable-glade --enable-glade=yes
-    configure.env-append        enable_glade_catalogue=yes
+    depends_lib-append      port:glade
+    configure.args-replace  --disable-glade --enable-glade=yes
+    configure.env-append    enable_glade_catalogue=yes
 }
 
 # glade expects catalog modules and libraries to have a .so suffix:

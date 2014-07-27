@@ -1,0 +1,121 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=portfile:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name		    nessus-libraries
+version		    2.2.6
+revision            3
+categories	    net security
+# most source files are LGPL, but a couple are GPL-2+ only (chiefly the
+# vendored-in getopt sources, and some headers), and the header comment
+# block of some others (share_fd.c, snprintf.c) look BSD-ish... likewise
+# with a lot of files in libpcap-nessus, but they all have the
+# "obnoxious advertising clause", so I am assuming that they are the old
+# version of the BSD license...
+# anyways, NO brackets here:
+license		    LGPL-2+ GPL-2+ BSD BSD-old
+maintainers	    nomaintainer
+description	    Nessus security scanner
+long_description \
+    Nessus is a security scanner that crawls across a network, \
+    looking for well-known vulnerabilities and common misconfigurations.
+
+homepage            http://www.nessus.org/
+platforms           darwin
+master_sites \
+    ftp://ftp.nessus.org/pub/nessus/nessus-${version}/src/ \
+    ftp://ftp.gwdg.de/pub/linux/misc/nessus/nessus-${version}/src/ \
+    http://ftp.gwdg.de/pub/linux/misc/nessus/nessus-${version}/src/ \
+    ftp://sunsite.cnlab-switch.ch/mirror/nessus/nessus-${version}/src/ \
+    ftp://ftp.chg.ru/pub/security/nessus/nessus-${version}/src/ \
+    ftp://ftp.sekure.net/pub/nessus/nessus-${version}/src/
+
+checksums           md5     ac027cd2dfa149a44a6dbb748eb93ce9 \
+                    sha1    7552cb5c48ace2e38537d8b58a1c7968172399cc \
+                    rmd160  6fd4b60515fa17657a015a3a31d380ee5d2c23ba
+
+worksrcdir          ${name}/
+
+patchfiles-append   patch-libtool_mode.diff
+
+configure.args-append \
+                    --mandir=\\\${prefix}/share/man \
+                    --infodir=\\\${prefix}/share/info \
+		    --enable-cipher \
+		    --without-ssl \
+                    --disable-bpf-sharing \
+                    --x-includes=${prefix}/include \
+                    --x-libraries=${prefix}/lib
+
+# temporarily ease unprivileged development:
+configure.ccache no
+
+# really could use a better testsuite, but whatever...
+test.run yes
+test.target-prepend "-C libhosts_gatherer"
+
+post-destroot {
+    set docdir ${destroot}${prefix}/share/doc/${name}
+    xinstall -d ${docdir}
+    xinstall -m 644 ${worksrcpath}/libnessus/COPYING ${docdir}
+    if {[variant_isset bpf_sharing]} {
+        xinstall -m 644 ${worksrcpath}/README.BPF ${docdir}
+    }
+    set pcapdocdir ${docdir}/pcap
+    xinstall -d ${pcapdocdir}
+    xinstall -W ${worksrcpath}/libpcap-nessus -m 644 CHANGES README \
+        ${pcapdocdir}
+    if {![variant_isset debug]} {
+        # uninstalling should really be handled by MacPorts, so remove
+        # their custom uninstaller:
+        ui_debug "delete ${destroot}${prefix}/sbin/uninstall-nessus"
+        delete ${destroot}${prefix}/sbin/uninstall-nessus
+    }
+}
+
+variant ssl conflicts no_ssl description {enable openssl support} {
+    depends_lib-append port:openssl
+    configure.args-replace --without-ssl --with-ssl=${prefix}
+}
+
+variant no_ssl conflicts ssl description {legacy compatibility variant} {}
+
+if {![variant_isset no_ssl]} {
+    default_variants-append +ssl
+}
+
+variant bpf_sharing description {share one BPF among processes} {
+    configure.args-replace --disable-bpf-sharing --enable-bpf-sharing
+}
+
+if {![variant_isset bpf_sharing]} {
+    patchfiles-append patch-no_bpf_share.diff
+}
+
+# The patch removes some object files that were previously built
+# by default, so make bpf_sharing a default variant:
+default_variants-append +bpf_sharing
+
+variant debug conflicts perf description {enable debugging} {
+    depends_build-append    bin:flex:flex \
+                            bin:bison:bison \
+                            port:libtool
+    depends_run-append      bin:gdb:gdb
+    depends_skip_archcheck-append flex bison libtool gdb
+    configure.args-append   --enable-debug \
+                            --enable-debug-store \
+                            --disable-gccpipe
+    if {[variant_isset ssl]} {
+        configure.args-append --enable-debug-ssl
+    }
+    configure.optflags -ggdb
+    configure.pipe no
+}
+
+variant perf conflicts debug description {optimize for performance} {
+    configure.args-append   --enable-gccpipe \
+                            --enable-release
+    # these seem to fail to make it in, but whatever:
+    configure.optflags -O3
+}

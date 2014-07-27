@@ -7,7 +7,8 @@ PortGroup           muniversal 1.0
 name                poppler
 conflicts-append    pdf2json xpdf-tools
 version             0.22.5
-revision            2
+revision            3
+#TODO: update to 0.26.3 (0.24.0+ needed for current evince)
 license             GPL-2+
 maintainers         devans openmaintainer
 categories          graphics
@@ -30,9 +31,7 @@ depends_build-append \
                     port:gawk \
                     port:poppler-data
 
-depends_lib-append  port:bzip2 \
-                    port:curl \
-                    port:expat \
+depends_lib-append  port:curl \
                     port:fontconfig \
                     port:freetype \
                     path:lib/pkgconfig/glib-2.0.pc:glib2 \
@@ -44,20 +43,13 @@ depends_lib-append  port:bzip2 \
                     port:gettext \
                     port:jpeg \
                     port:libiconv \
-                    port:libidn \
                     path:lib/pkgconfig/pixman-1.pc:libpixman \
                     port:openssl \
-                    port:xz \
-                    port:c-ares \
-                    port:cyrus-sasl2 \
-                    port:libcomerr \
-                    port:libssh2 \
-                    port:openldap \
-                    port:libfetch \
-                    port:libffi
+                    port:xz
 
 depends_lib-delete  port:gobject-introspection
 
+# Should also be a "depends_test", if we had those:
 depends_run-append  port:poppler-data
 
 post-patch {
@@ -67,6 +59,7 @@ post-patch {
         ${worksrcpath}/qt4/Makefile.in
 }
 
+# enabling the gtk test could lead to circular dependencies:
 configure.args-append \
                     --disable-introspection \
                     --disable-poppler-qt4 \
@@ -82,8 +75,7 @@ configure.args-append \
 
 platform macosx {
     variant quartz {
-        configure.args-delete --with-x
-        configure.args-append --without-x
+        configure.args-replace --with-x --without-x
     }
 }
 
@@ -102,8 +94,7 @@ if {![variant_isset quartz]} {
 }
 
 variant qt4 description { Support for the QT4 toolkit } {
-    configure.args-delete --disable-poppler-qt4
-    configure.args-append --enable-poppler-qt4
+    configure.args-replace --disable-poppler-qt4 --enable-poppler-qt4
     if {[variant_isset quartz]} {
         PortGroup qt4 1.0
         # The qt4 PortGroup will pull this in, so remove it so
@@ -123,80 +114,122 @@ variant qt4 description { Support for the QT4 toolkit } {
 variant docs description {Build gtk-doc documentation} {
     PortGroup              archcheck 1.0
     depends_build-append   port:gtk-doc
-    depends_skip_archcheck gtk-doc
-    configure.args-delete  --disable-gtk-doc
-    configure.args-append  --enable-gtk-doc
+    depends_skip_archcheck-append gtk-doc
+    configure.args-replace --disable-gtk-doc --enable-gtk-doc
+    configure.args-append  --enable-gtk-doc-html \
+                           --enable-gtk-doc-pdf
+    configure.env-append   GTKDOC_CHECK='${prefix}/bin/gtkdoc-check' \
+                           GTKDOC_MKPDF='${prefix}/bin/gtkdoc-mkpdf' \
+                           GTKDOC_REBASE='${prefix}/bin/gtkdoc-rebase'
 }
 
 variant autoreconf description {Regenerate build system with\
                                 autoreconf before configuring} {
     use_autoreconf         yes
     autoreconf.args        -fvi
+    # If attempting to make a patch, append '-Wall' to autoreconf.args
     depends_build-append   port:grep \
                            port:m4 \
                            bin:perl:perl5
 
     post-patch {
+        reinplace "s|AC_HELP_STRING|AS_HELP_STRING|g" ${worksrcpath}/configure.ac
         reinplace "s|INCLUDES|AM_CPPFLAGS|" ${worksrcpath}/Makefile.am
         eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/Makefile.am]
         eval reinplace "s|INCLUDES|AM_CPPFLAGS|" [glob ${worksrcpath}/*/*/Makefile.am]
     }
 
+    configure.args-append  --with-libiconv-prefix=${prefix} \
+                           --with-testdatadir=${prefix}/share/${name}
+    #FIXME: testdatadir is NOT actually correct...
+    configure.env-append   FREETYPE_CONFIG='${prefix}/bin/freetype-config'\
+                           GLIB_MKENUMS='${prefix}/bin/glib-mkenums' \
+                           LIBICONV='-liconv' \
+                           LTLIBICONV='-liconv' \
+                           PTHREAD_LIBS='-lpthread'
+
     if {![variant_isset quartz]} {
         depends_build-append \
-                           port:xorg-util-macros
+                           port:xorg-util-macros \
+                           path:bin/xmkmf:imake
+        configure.env-append \
+                           XMKMF='${prefix}/bin/xmkmf' \
+                           X_CFLAGS=' -I${prefix}/include' \
+                           X_LIBS=' -L${prefix}/lib' \
+                           X_PRE_LIBS=' -lSM -lICE'
+        if {[variant_isset gobject]} {
+            configure.env-append \
+                   GTK_TEST_CFLAGS='-D_REENTRANT -I${prefix}/include -I${prefix}/include/cairo -I${prefix}/include/freetype2 -I${prefix}/include/gio-unix-2.0 -I${prefix}/include/glib-2.0 -I${prefix}/include/libpng16 -I${prefix}/include/pixman-1 -I${prefix}/lib/glib-2.0/include ' \
+                   GTK_TEST_LIBS=' -L${prefix}/lib -lcairo -lcairo-gobject -lfontconfig -lfreetype -lgio-2.0 -lglib-2.0 -lgobject-2.0 -lintl -lm '
+        } else {
+            configure.env-append \
+                   GTK_TEST_CFLAGS='-D_REENTRANT -I${prefix}/include -I${prefix}/include/cairo -I${prefix}/include/freetype2 -I${prefix}/include/libpng16 -I${prefix}/include/pixman-1 ' \
+                   GTK_TEST_LIBS=' -L${prefix}/lib -lcairo -lfontconfig -lfreetype -lintl -lm '
+        }
     }
 }
 
 variant zlib description {Build with zlib support (poppler's\
                           configure script warns that this is not\
                           totally safe)} {
-    configure.args-delete  --disable-zlib
-    configure.args-append  --enable-zlib
+    configure.args-replace --disable-zlib --enable-zlib
     depends_lib-append     port:zlib
+    if {[variant_isset autoreconf]} {
+        configure.env-append ZLIB_LIBS='-lz'
+    }
 }
 
 # I was going to name this variant "+gobject-introspection" but that
 # has a "-" in it, and switching it to an underscore would just be too
 # confusing...
 variant gobject description {Build with support for gobject-introspection} {
-    configure.args-delete  --disable-introspection
-    configure.args-append  --enable-introspection=yes
+    configure.args-replace --disable-introspection --enable-introspection=yes
     # Only gobject-introspection is really needed here, the others are
-    # just to see if they will help
+    # just to see if they will help:
     depends_lib-append     port:gobject-introspection \
-                           port:libgee
+                           port:libgee \
+                           port:libffi
     depends_build-append   port:python27 \
                            port:gob2 \
                            port:valabind
 
-    # gobject-introspection uses g-ir-scanner, which uses $CC from env
+    # gobject-introspection uses g-ir-scanner, which uses ${CC} from env:
     if {[variant_isset universal]} {
         foreach arch ${configure.universal_archs} {
-            lappend merger_build_args(${arch})  CC='${configure.cc} -arch ${arch}'
-            lappend merger_build_env(${arch})   CC='${configure.cc} -arch ${arch}'
+            lappend merger_build_args(${arch}) \
+                        CC='${configure.cc} -arch ${arch}'
+            lappend merger_build_env(${arch}) \
+                        CC='${configure.cc} -arch ${arch}'
+            build.env-append \
+                        CC="${configure.cc} ${configure.cc_archflags}"
         }
     } else {
-        build.env-append        CC="${configure.cc} ${configure.cc_archflags}"
-        build.args-append       CC="${configure.cc} ${configure.cc_archflags}"
+        build.env-append    CC="${configure.cc} ${configure.cc_archflags}"
+        build.args-append   CC="${configure.cc} ${configure.cc_archflags}"
     }
 
     # For Tiger, and myself because I have a broken system make...
-    depends_build-append    port:gmake
-    build.cmd               ${prefix}/bin/gmake
+    depends_build-append    port:remake
+    build.cmd               ${prefix}/bin/remake
 
     # Trying disabling these to see if that will get it to build... (nope)
     use_parallel_build      no
+    configure.pipe          no
+}
+
+if {[variant_isset autoreconf] || [variant_isset gobject]} {
+    # ease development:
     configure.ccache        no
 }
 
 default_variants-append +zlib +gobject
 
+#FIXME: get test data sorted out for this:
 test.run        yes
 test.dir        ${worksrcpath}/test
 test.target     all
 
-# regex is broken, so disable temporarily
+# regex is broken, so disable temporarily:
 livecheck.type  none
 livecheck.url   ${master_sites}
 livecheck.regex ${name}-(\[0-9\]+\\.\[0-9\]*\[02468\](\\.\[0-9\]+)*)${extract.suffix}

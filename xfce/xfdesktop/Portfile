@@ -11,7 +11,7 @@ platforms       darwin linux
 license         GPL-2+
 maintainers     afb openmaintainer
 description     A desktop manager for the Xfce Desktop Environment
-long_description ${description}
+long_description ${description}.
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
 use_bzip2       yes
@@ -45,6 +45,7 @@ depends_lib-append \
                 port:libxfcegui4 \
                 port:atk \
                 port:dbus-glib \
+                port:desktop-file-utils \
                 port:exo \
                 port:fontconfig \
                 port:freetype \
@@ -103,7 +104,7 @@ post-patch {
     system -W ${worksrcpath} "${prefix}/bin/autoupdate m4/glib-gettext.m4"
 }
 
-# Do NOT do intltool's INTLTOOL_PERL dance
+# Do NOT do intltool's INTLTOOL_PERL dance:
 use_autoreconf  yes
 autoreconf.args -fvi -Wall
 autoreconf.env-append \
@@ -158,7 +159,9 @@ variant debug description {enable debugging} {
 post-activate {
     ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
 }
 
-# broken, so disable:
+# livecheck is broken, so disable:
 livecheck.type  none

@@ -5,14 +5,14 @@ PortSystem      1.0
 
 name            xfce4-settings
 version         4.6.5
-revision        4
+revision        5
 categories      xfce
 platforms       darwin linux
 license         GPL-2+
 maintainers     afb openmaintainer
 description     Settings Manager that replaces the previous \
                 xfce-mcs-manager
-long_description ${description}
+long_description ${description}.
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-4.6.2/src/
 use_bzip2       yes
@@ -27,7 +27,8 @@ depends_build-append \
                 port:pkgconfig \
                 port:gmake \
                 port:gtk-doc \
-                path:bin/glib-gettextize:glib2
+                path:bin/glib-gettextize:glib2 \
+                path:bin/xmkmf:imake
 
 depends_lib-append \
                 port:libxfcegui4 \
@@ -38,24 +39,19 @@ depends_lib-append \
                 port:xorg-libXi \
                 port:xorg-libXrandr \
                 port:atk \
-                port:bzip2 \
                 port:dbus-glib \
-                port:expat \
+                port:desktop-file-utils \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
-                port:graphite2 \
                 port:gtk2 \
-                port:harfbuzz \
                 port:libffi \
                 port:libglade2 \
                 port:libiconv \
-                port:libpng \
                 port:libxfce4util \
                 port:libxklavier \
                 port:libxml2 \
-                port:startup-notification \
                 port:xfconf \
                 port:xorg-libXau \
                 port:xorg-libXcomposite \
@@ -76,8 +72,12 @@ depends_lib-append \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
-                path:lib/pkgconfig/pixman-1.pc:libpixman \
                 path:lib/pkgconfig/dbus-1.pc:dbus
+
+patchfiles-append \
+                patch-configure.ac.diff
+
+patch.args-append --backup
 
 post-patch {
     xinstall -d ${worksrcpath}/m4
@@ -85,9 +85,15 @@ post-patch {
     foreach m4macro {codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4} {
         xinstall -m 644 ${prefix}/share/aclocal/${m4macro} ${worksrcpath}/m4
     }
+    # fix Makefiles:
+    fs-traverse am_makefile ${worksrcpath} {
+        if {[file tail ${am_makefile}] eq "Makefile.am"} {
+            reinplace "s|INCLUDES|AM_CPPFLAGS|g" ${am_makefile}
+        }
+    }
 }
 
-# Do NOT do intltool's INTLTOOL_PERL dance
+# Do NOT do intltool's INTLTOOL_PERL dance:
 use_autoreconf  yes
 autoreconf.cmd  ${prefix}/bin/xdt-autogen
 autoreconf.env-append \
@@ -102,14 +108,55 @@ autoreconf.env-append \
                 XDT_PROG_AUTOCONF=${prefix}/bin/autoconf
 
 pre-configure {
+    ui_debug "running '${prefix}/bin/intltoolize --automake --copy --force' in ${worksrcpath}"
     system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
 }
 
 configure.args-append \
-                --disable-libnotify
+                --disable-libnotify \
+                --enable-libxklavier \
+                --enable-xcursor \
+                --enable-xrandr \
+                --enable-xsettings-daemon \
+                --with-x \
+                --x-includes=${prefix}/include \
+                --x-libraries=${prefix}/lib
+
+configure.env-append \
+                libintl_extra_libs='-liconv' \
+                INTLLIBS='-lintl -liconv ' \
+                XMKMF='${prefix}/bin/xmkmf' \
+                build_xfsettingsd='yes'
+
+# temporarily disable ccache, to ease un-privileged development:
+configure.ccache no
 
 build.type      gnu
 build.cmd       ${prefix}/bin/gmake
+
+test.run        yes
+test.target     check
+
+#FIXME: this messing with the destroot is to try to work around the build
+# process failing to actually link and install the binaries, but so far
+# it is still not working...
+destroot.target-prepend all
+destroot.target-append  install-exec
+
+post-destroot {
+    if {[variant_isset debug]} {
+        destroot.target-append  installcheck
+    } else {
+        destroot.target-append  install-strip
+    }
+    ui_debug "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+    system -W ${worksrcpath} "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
+}
+
+post-activate {
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+}
 
 platform darwin 8 {
     patchfiles-append    patch-configure.diff
@@ -128,5 +175,24 @@ platform darwin 8 {
                          XCURSOR_LIBS="-L${prefix}/lib -lXcursor"
 }
 
-# broken, so disable:
+variant debug description {enable debugging} {
+    depends_build-replace port:gmake port:remake
+    configure.args-append --enable-debug=full \
+                          --enable-pluggable-dialogs \
+                          --enable-maintainer-mode
+    configure.optflags    -g
+    configure.pipe        no
+    post-configure {
+        reinplace "s|-Werror||g" ${worksrcpath}/xfce4-settings-helper/Makefile
+    }
+    build.cmd             ${prefix}/bin/remake
+    use_parallel_build    no
+}
+
+variant sound description {enable sound settings via libcanberra} {
+    depends_lib-append    port:libcanberra
+    configure.args-append --enable-sound-settings
+}
+
+# livecheck is broken, so disable:
 livecheck.type  none

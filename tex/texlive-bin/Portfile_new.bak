@@ -67,6 +67,7 @@ depends_lib-append \
                 port:icu \
                 port:harfbuzz \
                 port:harfbuzz-icu \
+                port:libpaper \
                 port:texlive-common
 
 depends_run-append \
@@ -302,6 +303,7 @@ pre-activate {
 }
 
 post-activate {
+    ui_debug "${texlive_bindir}/mktexlsr"
     system -W ${prefix} "${texlive_bindir}/mktexlsr"
 }
 
@@ -309,7 +311,7 @@ post-activate {
 variant x11 conflicts no_x11 description {Build with x11 support, using Xaw widgets for xdvi} {
     depends_lib-append     port:xorg-libXp
     configure.args-delete  --without-x --without-pdfopen
-    depends_lib-append     port:xorg-libXaw
+    depends_lib-append     port:xorg-libXaw port:xorg-libXi
     configure.args-append  --with-xdvi-x-toolkit=xaw
     depends_lib-append     port:xorg-libX11 \
                            port:xorg-libXau \
@@ -333,7 +335,7 @@ variant motif requires x11 description {Use Motif to build xdvi} {
 variant no_x11 conflicts x11 motif description {Legacy compatibility variant} {}
 
 if {![variant_isset no_x11]} {
-    default_variants    +x11
+    default_variants-append +x11
 }
 
 livecheck.type      regex

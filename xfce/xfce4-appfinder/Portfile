@@ -5,14 +5,14 @@ PortSystem      1.0
 
 name            xfce4-appfinder
 version         4.6.2
-revision        3
+revision        4
 categories      xfce
 platforms       darwin linux
 license         GPL-2+
 maintainers     afb openmaintainer
 description     Software to find every application supporting Desktop \
                 entry format
-long_description ${description}
+long_description ${description}.
 homepage        http://www.xfce.org/
 master_sites    http://www.ca-us.xfce.org/archive/xfce-${version}/src/
 use_bzip2       yes
@@ -31,17 +31,15 @@ depends_lib-append \
                 port:libxfce4menu \
                 port:Thunar \
                 port:atk \
-                port:bzip2 \
                 port:dbus-glib \
+                port:desktop-file-utils \
                 port:exo \
                 port:fontconfig \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
                 port:gtk2 \
-                port:libffi \
                 port:libiconv \
-                port:libpng \
                 port:libxfce4util \
                 port:xfconf \
                 port:xorg-libX11 \
@@ -57,22 +55,37 @@ depends_lib-append \
                 port:xorg-libXrandr \
                 port:xorg-libxcb \
                 port:xrender \
-                port:zlib \
                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango \
                 path:lib/pkgconfig/dbus-1.pc:dbus
 
 depends_run-append \
+                port:libpng \
                 port:desktop-file-utils
 
-# Do NOT do intltool's INTLTOOL_PERL dance
+# Do NOT do intltool's INTLTOOL_PERL dance:
 configure.cmd   ${prefix}/bin/xdt-autogen
-configure.env-append XDT_PROG_LIBTOOLIZE=glibtoolize
+configure.env-append \
+                XDT_PROG_LIBTOOLIZE=glibtoolize \
+                libintl_extra_libs='-liconv' \
+                INTLLIBS='-lintl -liconv '
+
+# temporarily disable ccache, to ease un-privileged development:
+configure.ccache no
 
 post-activate {
+    ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
     system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/icons/hicolor"
+    ui_debug "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
+    system -W ${prefix} "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
 }
 
-# broken, so disable:
+variant debug description {enable debugging} {
+    configure.args-append --enable-debug=full
+    configure.optflags    -g
+    configure.pipe        no
+    }
+
+# livecheck is broken, so disable:
 livecheck.type  none

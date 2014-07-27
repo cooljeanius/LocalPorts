@@ -10,7 +10,7 @@ PortGroup           muniversal 1.0
 name                libvirt
 version             1.0.3
 # TODO: update to 1.2.5 like the version of this Portfile in trunk...
-revision            5
+revision            6
 categories          sysutils
 license             LGPL-2.1+
 platforms           darwin
