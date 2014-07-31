@@ -6,6 +6,8 @@ PortGroup           cmake 1.0
 
 name                SFML
 version             2.0
+#TODO: update to 2.1
+revision            1
 categories          devel multimedia
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -31,7 +33,7 @@ worksrcdir          ${name}-${version}
 
 # SFML includes internal versions of some of these, but I am including
 # the dependencies anyways for when I figure out how to get it to use
-# external copies
+# external copies:
 depends_lib-append  port:glew \
                     port:freetype \
                     port:jpeg \
@@ -39,22 +41,97 @@ depends_lib-append  port:glew \
                     port:mesa \
                     port:openal-soft
 
+# Requires Leopard or later:
+pre-fetch {
+    if {${os.platform} eq "darwin" && ${os.major} < 9} {
+        ui_error "${name} ${version} is only compatible with OS X 10.5 and later"
+        return -code error "incompatible OS X version"
+    }
+}
+
+patchfiles-append   patch-cmake_Config.cmake.diff
+patch.args-append   --backup
+
+# docs say: "If you want to use C++11 features in your application on
+# Mac OS X, you have to use clang (Apple's official compiler) and libc++."
+if {${configure.cxx_stdlib} eq "libc++"} {
+    compiler.blacklist-append *gcc*
+}
+
 configure.cppflags-append \
                     -I${prefix}/include/AL
 configure.args-append \
                     -DCMAKE_FRAMEWORK_PATH=${prefix}/Library/Frameworks \
                     -DCMAKE_INSTALL_FRAMEWORK_PREFIX=${prefix}/Library/Frameworks
+if {[string match *gcc* ${configure.compiler}]} {
+    # for some reason CMake is too stupid to detect this on its own:
+    configure.args-append \
+                    -DCMAKE_COMPILER_IS_GNUCXX=1
+}
 configure.env-append \
                     CMAKE_FRAMEWORK_PATH=${prefix}/Library/Frameworks \
                     CMAKE_INSTALL_FRAMEWORK_PREFIX=${prefix}/Library/Frameworks
 build.env-append    ${configure.env}
 use_parallel_build  no
 
+post-destroot {
+    # should probably just delete these extraneous bundled external
+    # frameowrks, but that would require figuring out how to link against
+    # our own versions first:
+    ui_debug "fixing permissions of bad bundled external frameworks"
+    file attributes ${destroot}${prefix}/Library/Frameworks/freetype.framework/freetype -permissions +x
+    # could not get "eval" and "glob" to work with "file attributes" here:
+    file attributes ${destroot}${prefix}/Library/Frameworks/freetype.framework/Versions/A/freetype -permissions +x
+    file attributes ${destroot}${prefix}/Library/Frameworks/freetype.framework/Versions/Current/freetype -permissions +x
+    file attributes ${destroot}${prefix}/Library/Frameworks/sndfile.framework/sndfile -permissions +x
+    file attributes ${destroot}${prefix}/Library/Frameworks/sndfile.framework/Versions/A/sndfile -permissions +x
+    file attributes ${destroot}${prefix}/Library/Frameworks/sndfile.framework/Versions/Current/sndfile -permissions +x
+    # (another half-measure to take in the meantime would be figuring out
+    # how to replace the duplicate directories with symlinks)
+}
+
 # OpenAL fails on Mountain Lion: http://trac.macports.org/ticket/39008
 # And Lion: http://trac.macports.org/ticket/34012
-platform darwin < 11 {
+if {${os.platform} eq "darwin" && ${os.major} < 11} {
     depends_lib-append \
                     port:OpenAL
+} elseif {${os.platform} ne "darwin"} {
+    depends_build-append \
+                    port:pkgconfig
+    configure.args-append \
+                    -DSFML_INSTALL_PKGCONFIG_FILES=1
 }
+
+platform macosx {
+    # this logic is based on what PortGroup xcodeversion 1.0 does:
+    if {![info exists xcodeversion] || ${xcodeversion} == "none"} {
+        pre-fetch {
+            ui_warn "Failed to determine your Xcode version (from '/usr/bin/xcodebuild -version')."
+        }
+    }
+    if {[vercmp ${xcodeversion} 4.0] < 0} {
+        configure.args-append \
+                    -DSFML_INSTALL_XCODE4_TEMPLATES=0
+    } else {
+        configure.args-append \
+                    -DSFML_INSTALL_XCODE4_TEMPLATES=1
+    }
+    } 
+
+# The cmake PortGroup should provide the +debug variant for us:
+if {[variant_isset debug]} {
+    configure.args-replace -Wno-dev --debug-output
+    configure.optflags -g
+    # docs say: "SFML cannot be built in debug as frameworks;
+    # use instead dylibs."
+    configure.args-append \
+                    -DSFML_BUILD_FRAMEWORKS=0
+    }
+
+variant docs description {build documentation with doxygen} {
+    depends_build-append bin:doxygen:doxygen
+    configure.args-append \
+                    -DSFML_BUILD_DOC=1
+    }
 
 livecheck.type      none

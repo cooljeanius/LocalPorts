@@ -1,0 +1,37 @@
+--- Portfile.orig	2013-02-18 12:59:21.000000000 -0500
++++ Portfile	2014-07-30 12:48:44.000000000 -0400
+@@ -5,13 +5,15 @@
+ 
+ name                port-whatsnew
+ version             0.1
++revision            1
+ categories          sysutils macports
+ maintainers         gwmail.gwu.edu:egall openmaintainer
+ platforms           darwin
+ license             BSD
+ supported_archs     noarch
+ 
+-description         Show the svn log of what changed since this port was installed.
++description         Show the svn log of what changed since this port \
++                    was installed.
+ long_description    ${description}
+ homepage            http://svn.macports.org/repository/macports/contrib/${name}
+ 
+@@ -19,13 +21,15 @@
+ 
+ fetch.type          svn
+ svn.url             https://svn.macports.org/repository/macports/contrib/${name}
+-svn.revision        103172
++svn.revision        120482
+ 
+ worksrcdir          ${name}
+ 
+ use_configure       no
+ 
+-build {}
++build {
++    ui_debug "${name} has no build step."
++}
+ 
+ destroot {
+     xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/${name}

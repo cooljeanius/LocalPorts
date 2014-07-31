@@ -194,9 +194,8 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
         patchfiles-append patch-src_thread2.6.diff
         ui_debug "in '${worksrcpath}/src/thread2.6', renaming configure.in to configure.ac"
         move ${worksrcpath}/src/thread2.6/configure.in ${worksrcpath}/src/thread2.6/configure.ac
-        # TODO: do this with `file attributes` in Tcl instead:
-        ui_debug "chmod -x ${worksrcpath}/src/thread2.6/configure.ac"
-        system -W ${worksrcpath}/src/thread2.6 "chmod -x configure.ac"
+        ui_debug "fixing permissions on ${worksrcpath}/src/thread2.6/configure.ac"
+        file attributes ${worksrcpath}/src/thread2.6/configure.ac -permissions -x
         ui_debug "creating ${worksrcpath}/src/thread2.6/m4"
         file mkdir ${worksrcpath}/src/thread2.6/m4
         ui_debug "copying macros from ${worksrcpath}/src/thread2.6 to ${worksrcpath}/src/thread2.6/m4"
@@ -311,7 +310,7 @@ variant mp_bundle requires mp_deps description "Adds other ports related to ${na
 variant debug description "enable debugging" {
     configure.optflags -g
     configure.pipe no
-    }
+}
 
 variant egallager requires mp_shadow_deps description "Uses my personal fork of MacPorts" {
     PortGroup                github 1.0

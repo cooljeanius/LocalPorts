@@ -1,5 +1,5 @@
 --- configure.ac.orig	2007-05-14 13:26:14.000000000 -0400
-+++ configure.ac	2014-04-08 17:59:57.000000000 -0400
++++ configure.ac	2014-07-30 15:27:42.000000000 -0400
 @@ -1,4 +1,4 @@
 -#
 +#                                               -*- Autoconf -*-
@@ -254,7 +254,7 @@
 -            ac_cv_shared_link_args='$(CXX) -dynamiclib -install_name $@ -compatibility_version 1 -current_version 1 -o $@.t'
 -            # linking static archives into a dynamic lib doesn't seem to work
 -            # explicitly link the object files
-+            ac_cv_shared_link_args='$(CXX) $(LDFLAGS) -dynamiclib -install_name $@ -compatibility_version 1 -current_version 1 -o $@.t'
++            ac_cv_shared_link_args='$(CXX) $(LDFLAGS) -dynamiclib -install_name ${libdir}/$@ -compatibility_version 1 -current_version 1 -o $@.t'
 +            # linking static archives into a dynamic lib does NOT seem
 +            # to work explicitly link the object files
              ac_cv_shared_lib_link_objs=yes

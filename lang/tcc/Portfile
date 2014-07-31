@@ -12,7 +12,7 @@ maintainers         gwmail.gwu.edu:egall openmaintainer
 license             LGPL-2.1+
 supported_archs     i386
 
-platform darwin > 10 {
+if {${os.platform} eq "darwin" && ${os.major} > 10} {
     # x86_64 failed for me on darwin 10, but I had included it by default
     # when I wrote this Portfile at school, which had a newer OS, so I
     # assume that x86_64 must have worked on the newer OS...

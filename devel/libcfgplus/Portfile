@@ -5,6 +5,7 @@ PortSystem          1.0
 
 name                libcfgplus
 version             0.6.2
+revision            1
 categories          devel
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -34,7 +35,23 @@ platform darwin {
 configure.env-append    LD="${configure.cc}"
 build.env-append        LD="${configure.cc}"
 configure.args-append   --x-includes=${prefix}/include \
-                        --x-libraries=${prefix}/lib
+                        --x-libraries=${prefix}/lib \
+                        --infodir=${prefix}/share/info \
+                        --mandir=${prefix}/share/man
 
 # The "test" target is really more like a "distcheck":
 test.run no
+
+post-destroot {
+    set dylib ${destroot}${prefix}/lib/libcfg+.${version}.dylib
+    if {[file isfile ${dylib}]} {
+        set dylibinstname [file tail ${dylib}]
+        set dylibfinalpath ${prefix}/lib/${dylibinstname}
+        ui_debug "install_name_tool -change ${dylibinstname} ${dylibfinalpath} ${dylib}"
+        exec install_name_tool -change ${dylibinstname} ${dylibfinalpath} ${dylib}
+        ui_debug "install_name_tool -id ${dylibfinalpath} ${dylib}"
+        exec install_name_tool -id ${dylibfinalpath} ${dylib}
+        ui_debug "otool -D ${dylib}"
+        system -W ${worksrcpath} "otool -D ${dylib}"
+    }
+}

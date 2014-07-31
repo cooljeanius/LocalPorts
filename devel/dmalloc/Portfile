@@ -5,7 +5,7 @@ PortSystem       1.0
 
 name             dmalloc
 version          5.5.2
-revision         1
+revision         2
 categories       devel
 maintainers      toby openmaintainer
 description      Debug Malloc Library
@@ -38,12 +38,27 @@ configure.args-append \
                  --enable-threads \
                  --enable-shlib
 
+build.target-append threadscxx cxx
+
 # testsuite fails:
 test.run         yes
 test.target      heavy
 # "heavy" also calls "light", which is equivalent to "check"
 
 destroot.destdir prefix=${destroot}${prefix}
+destroot.target-append installthcxx installcxxsl installcxx installdocs
+destroot.env-append libdir=${prefix}/lib
+
+post-destroot {
+    foreach dylib [glob ${destroot}${prefix}/lib/*.dylib] {
+        set dylibinstname [file tail ${dylib}]
+        set dylibfinalpath ${prefix}/lib/${dylibinstname}
+        ui_debug "install_name_tool -change ${dylibinstname} ${dylibfinalpath} ${dylib}"
+        exec install_name_tool -change ${dylibinstname} ${dylibfinalpath} ${dylib}
+        ui_debug "otool -D ${dylib}"
+        system -W ${worksrcpath} "otool -D ${dylib}"
+    }
+}
 
 livecheck.type   regex
 livecheck.url    [lindex ${master_sites} 0]

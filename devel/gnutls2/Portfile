@@ -10,10 +10,10 @@ set my_name     gnutls
 version         2.12.19
 revision        6
 categories      devel security net
-# yes, some of the libs are GPL only
+# yes, some of the libs are actually GPL only:
 license         LGPL-2.1+ GPL-3+
 maintainers     nomaintainer
-description     GNU Transport Layer Security Library, old version
+description     GNU Transport Layer Security Library, old version.
 homepage        http://www.${my_name}.org/
 platforms       darwin
 
@@ -21,7 +21,7 @@ long_description \
     GnuTLS is a portable ANSI C based library which implements the TLS \
     1.0 and SSL 3.0 protocols. The library does not include any \
     patented algorithms and is available under the \
-    GNU Lesser General Public License (LGPL).
+    GNU Lesser General Public License (LGPL). This is version 2 and is old.
 
 master_sites    gnu:${my_name}
 distname        ${my_name}-${version}
@@ -39,10 +39,8 @@ depends_build-append \
                 port:gaa \
                 bin:ar:cctools
 
-# libcfgplus is loaded at runtime, see tests variant below for more on that
 depends_lib-append \
                 port:libcfgplus \
-                port:libgcrypt \
                 port:lzo2 \
                 port:readline \
                 port:nettle \
@@ -51,14 +49,14 @@ depends_lib-append \
                 port:gettext \
                 port:gmp \
                 port:libiconv \
-                port:libgpg-error \
                 port:p11-kit
 
-# have to use included libtasn1 now that the port for libtasn1 is too new:
+# Have to use included libtasn1 now that the port for libtasn1 is too new.
+# Also libgcrypt is too new now, too, so will have to add a port for
+# the old version of that, as well... see new variant below.
 configure.args-append \
                 --with-lzo \
-                --with-libgcrypt \
-                --with-libgcrypt-prefix=${prefix} \
+                --without-libgcrypt \
                 --disable-guile \
                 --with-p11-kit \
                 --disable-silent-rules \
@@ -71,13 +69,14 @@ configure.args-append \
                 --with-libreadline-prefix=${prefix} \
                 --disable-valgrind-tests \
                 --disable-gtk-doc \
-                --program-suffix=2
-#TODO: use a transform name instead of a suffix for programs
+                --program-transform-name='s|${my_name}|${name}|g'
 
 # Keep from conflicting with regular gnutls:
 configure.pre_args \
                 --prefix=${prefix}/lib/${name}
 
+# most of these variables are probably unnecessary, but setting them
+# placates my OCD:
 configure.env-append \
                 GAA=${prefix}/bin/gaa \
                 POW_LIB='-lm' \
@@ -97,15 +96,13 @@ configure.env-append \
                 LZO_LIBS='-llzo2' \
                 LTLIBICONV='-L${prefix}/lib -liconv ' \
                 LTLIBINTL='-L${prefix}/lib -lintl -liconv ' \
-                LTLIBGCRYPT='-L${prefix}/lib -lgcrypt -lgpg-error ' \
                 LIBZ='-lz' \
                 LIBZ_PREFIX='${prefix}' \
                 LIBICONV='-L${prefix}/lib -liconv ' \
                 LIBINTL='-L${prefix}/lib -lintl -liconv ' \
-                LIBGCRYPT='-L${prefix}/lib -lgcrypt -lgpg-error ' \
-                LIBGCRYPT_PREFIX='${prefix}' \
                 INTLLIBS='-L${prefix}/lib -lintl -liconv '
 
+# Making a variant until https://trac.macports.org/ticket/38208 is fixed:
 variant tests description {Run tests} {
     depends_build-append  path:bin/valgrind:valgrind \
                           path:bin/runtest:dejagnu
@@ -114,16 +111,34 @@ variant tests description {Run tests} {
     test.run              yes
     test.target           check
     platform darwin {
-        # one of the tests needs this to be able to find libcfg+ properly:
-        test.env-append   DYLD_FALLBACK_LIBRARY_PATH=/usr/lib:${prefix}/lib:~/lib:/usr/local/lib:/lib
+        test.env-append   CLICOLOR=1
     }
 }
+
+# currently broken by new gcrypt, see above:
+variant gcrypt description {Add libgcrypt support - currently broken} {
+    depends_lib-append    port:libgcrypt \
+                          port:libgpg-error
+    configure.args-replace --without-libgcrypt --with-libgcrypt
+    configure.args-append --with-libgcrypt-prefix=${prefix}
+    configure.env-append \
+                LTLIBGCRYPT='-L${prefix}/lib -lgcrypt -lgpg-error ' \
+                LIBGCRYPT='-L${prefix}/lib -lgcrypt -lgpg-error ' \
+                LIBGCRYPT_PREFIX='${prefix}'
+    pre-build {
+        ui_warn "Warning: This build will probably fail due to libgcrypt."
+        }
+    }
+
+# used to be enabled unconditionally, so make it a default variant:
+default_variants-append +gcrypt
 
 variant guile description {Adds guile support - was broken} {
     # Needed because of how guile-snarf does preprocessing:
     PortGroup          muniversal 1.0
-    # swig-guile and slib-guile are not actually linked against but I feel
-    # like keeping them as library dependencies anyways:
+    # swig-guile and slib-guile are not actually "linked-against" in the
+    # usual sense, but I feel like keeping them as library dependencies
+    # anyways:
     depends_lib-append port:guile \
                        port:swig-guile \
                        port:slib-guile \
@@ -138,11 +153,9 @@ variant guile description {Adds guile support - was broken} {
                GUILE_LDFLAGS='-L${prefix}/lib -lguile -lgmp -lm -lltdl' \
                GUILE_SITE='${prefix}/share/guile/site' \
                GUILE_TOOLS='${prefix}/bin/guile-tools'
-    pre-build {
-        ui_warn "Warning: This build might fail."
-    }
-    # needs to be set for dynamically loading guile extensions during the
-    # build process:
+    # need to insert the libdir from the MacPorts prefix into the default
+    # DYLD_FALLBACK_LIBRARY_PATH for the purpose of dynamically loading
+    # guile extensions during the build process:
     build.env-append \
 DYLD_FALLBACK_LIBRARY_PATH=/usr/lib:${prefix}/lib:~/lib:/usr/local/lib:/lib
     use_parallel_build no
@@ -168,7 +181,7 @@ variant autoreconf description {Runs autoreconf before configuring} {
                             bin:autopoint:gettext \
                             bin:perl:perl5
     configure.args-append   --enable-gcc-warnings
-    platform darwin > 8 {
+    if {${os.platform} eq "darwin" && ${os.major} > 8} {
         configure.args-append \
                             --enable-largefile
     }
@@ -184,7 +197,7 @@ variant docs description {Build gtk-doc documentation} {
                            bin:xsltproc:libxslt
     # texinfo is already added unconditionally on Darwin 8, so I am only
     # adding it on higher platforms here in this variant:
-    platform darwin > 8 {
+    if {${os.platform} eq "darwin" && ${os.major} > 8} {
         depends_build-append \
                            port:texinfo
     }

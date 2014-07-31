@@ -14,6 +14,7 @@ supported_archs     noarch
 
 platforms           darwin
 
+#FIXME: just fetch from the tag instead of doing this:
 fetch.type          git
 git.url             git://github.com/cooljeanius/MacOSXMacros.git
 
@@ -21,13 +22,15 @@ depends_run-append  port:xml2
 
 use_configure       no
 
+# This should be implied as part of disabling configure:
+configure.ccache    no
+
 build {
-    ui_msg "Fixing permissions..."
-    #TODO: do this in Tcl instead of shelling out to system:
-    system -W ${worksrcpath} "chmod -x ./*.m4 ./*.md"
+    ui_debug "${name} has no build step."
+    # no idea why I had to fix permissions previously...
 }
 
-# Making a variant until https://trac.macports.org/ticket/38208 is fixed
+# Making a variant until https://trac.macports.org/ticket/38208 is fixed:
 variant tests description {Run tests} {
     depends_build-append \
                     port:autoconf \
@@ -44,7 +47,7 @@ variant tests description {Run tests} {
 }
 
 #TODO: split the "_Extra" m4 file off into a separate variant with its own
-# dependencies and test command
+# dependencies and test command...
 
 destroot {
     xinstall -d ${destroot}${prefix}/share/aclocal

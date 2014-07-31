@@ -69,7 +69,7 @@ depends_build-append   port:gettext \
 
 # things that still need ports:
 # - libmcheck (part of glibc, would be hard to extract from it)
-# - libbabeltrace (seems slightly more reasonable to port)
+# - libbabeltrace (seems slightly more reasonable to port - have a WIP)
 depends_lib-append     port:readline \
                        port:expat \
                        port:libiconv \
@@ -105,7 +105,7 @@ post-patch {
 
 pre-configure {
     file mkdir "${workpath}/build"
-    #FIXME: this is currently unused
+    #FIXME: this is currently unused.
 }
 
 configure.args-append \
@@ -227,22 +227,29 @@ destroot.args-append \
 
 post-destroot {
     ui_debug "changing ggdb to be setgid procmod"
+    #FIXME: this should really be done with "file attributes", but trunk
+    # does it like this instead, so keep it like trunk:
     system "chgrp procmod ${destroot}${prefix}/bin/ggdb*"
     system "chmod g+s ${destroot}${prefix}/bin/ggdb*"
 
-    # the info-renaming stuff should no longer be necessary now that I
-    # changed the location it installs to, so it has been removed
+    # The info-renaming stuff should no longer be necessary now that I
+    # changed the location to which gdb installs its info files instead.
+    # Thus I have removed the info-renaming stuff that used to be here.
 
     ui_debug "setting up gnubin in destroot"
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
     foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {
         ui_debug "symlinking ${binary} into gnubin"
-        ln -s ${prefix}/bin/${binary} ${destroot}${prefix}/libexec/gnubin/[string range $binary 1 end]
+        ln -s ${prefix}/bin/${binary} ${destroot}${prefix}/libexec/gnubin/[string range ${binary} 1 end]
     }
 }
 
-# technically it supports python25, too, but MacPorts
-# does not build that as a framework, at least not really...
+# Technically gdb supports python25, too, and is going to extend python
+# support back to python24 in gdb 7.8, but MacPorts does not build those
+# versions as frameworks, at least not really... python25 does have one
+# made out of symlinks, and the dbus-python24 and dbus-python25 ports both
+# put stuff framework locations for both python24 and python25 respectively
+# despite them not existing yet, but these do not really count.
 set pythons_suffixes {26 27 31 32 33}
 
 set pythons_ports {}

@@ -167,7 +167,7 @@ configure.args \
 	--enable-postscript \
 	--enable-safe-browsing \
 	--disable-crashreporter \
-	--enable-optimize='-O2' \
+	--enable-optimize='${configure.optflags}' \
 	--disable-prebinding \
 	--enable-strip \
 	--enable-install-strip \
@@ -228,14 +228,12 @@ variant debug description {build for debugging} {
     depends_build-append \
          port:valgrind \
          bin:gdb:gdb
-    configure.optflags      -g
     configure.args-delete   --disable-debug \
                             --disable-mochitest \
-                            --enable-optimize='-O2' \
+                            --enable-optimize='${configure.optflags}' \
                             --enable-strip \
                             --enable-install-strip \
                             --disable-tests
-
     configure.args-append   --enable-debug='-ggdb3' \
                             --enable-mochitest \
                             --disable-optimize \
@@ -253,11 +251,12 @@ variant debug description {build for debugging} {
                             --enable-freetypetest \
                             --enable-libIDLtest \
                             --enable-trace-jscalls
-    platform darwin < 11 {
+    configure.optflags      -g
+    if {${os.platform} eq "darwin" && ${os.major} < 11} {
         configure.args-append \
             --enable-shark
     }
-    platform darwin > 8 {
+    if {${os.platform} eq "darwin" && ${os.major} > 8} {
         configure.args-append \
             --enable-dtrace
     }
@@ -266,6 +265,7 @@ variant debug description {build for debugging} {
 variant docs description {Build documentation} {
     depends_build-append \
         port:doxygen
+    #TODO: tell port to actually use doxygen
 }
 
 variant gnome description {use gnome libraries where appropriate} {
@@ -278,7 +278,6 @@ variant gnome description {use gnome libraries where appropriate} {
 
     configure.args-delete --disable-gnomevfs \
                           --disable-gnomeui
-
     configure.args-append --enable-gnomevfs \
                           --enable-gnomeui \
                           --enable-gio \

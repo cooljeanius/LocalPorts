@@ -6,12 +6,13 @@ PortGroup           archcheck 1.0
 
 name                gdal
 version             1.10.1
-revision            2
+#TODO: update to 1.11.0
+revision            3
 categories          gis
 license             MIT BSD
 platforms           darwin macosx
 
-maintainers         gmail.com:seanasy openmaintainer
+maintainers         gwmail.gwu.edu:egall openmaintainer
 
 description         GDAL - Geospatial Data Abstraction Library
 
@@ -47,7 +48,7 @@ set OPENCLBASE              "/System/Library/Frameworks/OpenCL.framework"
 
 configure.args-append       --with-local=${prefix} \
                             --with-libz=${prefix} \
-                            --without-lzma \
+                            --with-liblzma=no \
                             --with-png=${prefix} \
                             --with-libtiff=${prefix} \
                             --with-geotiff=${prefix} \
@@ -94,27 +95,39 @@ configure.args-append       --with-local=${prefix} \
                             --without-xerces \
                             --without-expat \
                             --without-poppler \
-                            --without-macosx-framework \
                             --mandir=${prefix}/share/man
 
-# Patch to ensure that the python installation respects DESTDIR
+# Once we have updated to 1.11.0, uncomment this to always choose internal
+# libjson code (#44098):
+#configure.args-append      --with-libjson-c=internal
+
+configure.env-append        GEOTIFF_INCLUDE='-I${prefix}/include'
+
+# Patch to ensure that the python installation respects DESTDIR:
 patchfiles-append           patch-swig_python_GNUmakefile.diff \
                             patch-gdalwarpkernel_opencl_c.diff \
                             patch-gdalwarpkernel_opencl_h.diff
 
-# Upstream fix for "Undefined symbols: _environ"
+# Upstream fix for the "Undefined symbols: _environ" error:
 patchfiles-append   patch-port-cpl_spawn.cpp.diff
 
-# Patches for universal build
+# Silence a configure warning about ignoring datarootdir:
+patchfiles-append   patch-GDALmake.opt.in.diff
+
+# Ease development:
+patch.args-append   --backup
+
+# Patches for universal build:
 post-configure {
     reinplace -E "s|(INST_PYMOD).*|\\1\t=\t${PYINST}|" \
         ${worksrcpath}/GDALmake.opt
     if {[variant_isset universal]} {
+        ui_debug "ed - ${worksrcpath}/port/cpl_config.h < ${filespath}/config.h.ed"
         system "ed - ${worksrcpath}/port/cpl_config.h < ${filespath}/config.h.ed"
     }
 }
 
-# Set target to none
+# Set target to none by clearing it:
 build.target
 
 variant lzma conflicts universal \
@@ -122,7 +135,7 @@ variant lzma conflicts universal \
     depends_lib-append      port:lzma \
                             port:xz \
                             port:lzip
-    depends_skip_archcheck  lzma
+    depends_skip_archcheck-append lzma
     if {[variant_isset python24]} {
         depends_lib-append  port:py24-liblzma
     }
@@ -136,13 +149,13 @@ variant lzma conflicts universal \
     if {[variant_isset python27]} {
         depends_lib-append  port:py27-liblzma
     }
-    configure.args-delete   --without-lzma
-    configure.args-append   --with-lzma=${prefix}
+    configure.args-replace  --with-lzma=no --with-lzma=yes
 }
 
 variant geos description {Enable GEOS geometry engine functionality} {
     depends_lib-append      port:geos
-    if {![variant_isset universal]} {
+    if {![variant_isset universal] && ![variant_isset perf] && \
+        ![tbool configure.ccache] && [variant_isset broken]} {
         depends_lib-append  port:geos2
     }
     if {[variant_isset python25] && ![variant_isset postgresql81] && \
@@ -166,8 +179,7 @@ variant geos description {Enable GEOS geometry engine functionality} {
         ![variant_isset postgresql93]} {
         depends_lib-append  port:py27-geoalchemy
     }
-    configure.args-delete   --without-geos
-    configure.args-append   --with-geos=${prefix}/bin/geos-config
+    configure.args-replace  --without-geos --with-geos=${prefix}/bin/geos-config
 }
 
 variant curl description {Enable curl support} {
@@ -175,13 +187,14 @@ variant curl description {Enable curl support} {
                             port:flickcurl \
                             port:tclcurl
     if {[variant_isset framework]} {
-        depends_lib-append  port:curlftpfs
-        platform darwin > 10 {
+        if {![variant_isset universal]} {
+            depends_lib-append port:curlftpfs
+        }
+        if {${os.platform} eq "darwin" && ${os.major} > 10} {
             depends_lib-append port:curlhandle
         }
     }
-    configure.args-delete   --without-curl
-    configure.args-append   --with-curl=${prefix}/bin/curl-config
+    configure.args-replace  --without-curl --with-curl=${prefix}/bin/curl-config
     if {[variant_isset python24]} {
         depends_lib-append  port:py24-curl \
                             port:curlish_select
@@ -199,21 +212,69 @@ variant curl description {Enable curl support} {
     }
 }
 
-variant mrsid description {Enable MrSID file format} {
+variant mrsid conflicts universal description {Enable MrSID file format} {
     depends_lib-append      port:geoexpress-sdk
-    configure.args-delete   --without-mrsid
-    configure.args-append   --with-mrsid=${prefix}/share/Geo_DSDK
+    configure.args-replace  --without-mrsid --with-mrsid=${prefix}/share/Geo_DSDK
 
+    pre-fetch {
+        if {${os.platform} eq "darwin" && (${os.major} < 12 || ${os.major} > 13)} {
+            ui_error "mrsid is only compatible with OS X 10.8 and 10.9"
+            return -code error "incompatible OS X version"
+        }
+    }
     # Fixes for Geo_DSDK 7.x - http://trac.osgeo.org/gdal/ticket/2410
     patchfiles-append       patch-frmts_mrsid_mrsiddataset.cpp.diff \
                             patch-mrsid-configure.diff
 }
 
+#TODO: make a port for the ECW SDK instead of forcing the user to modify
+# our prefix manually:
+variant ecw description {Enable ECW file format via external ECW SDK} {
+    configure.args-replace  --without-ecw --with-ecw=${prefix}/lib/ECW
+
+    if {${configure.cxx_stdlib} eq "libc++"} {
+        patchfiles-append   patch-configure-ecw-libcxx.diff
+    } else {
+        patchfiles-append   patch-configure-ecw-libstdcxx.diff
+    }
+
+    pre-configure {
+        if {(![file exists ${prefix}/lib/ECW]) && \
+        (![file exists /Intergraph/ERDASEcwJpeg2000SDK5.1.1/Desktop_Read-Only])} {
+            ui_error "
+****
+* The Intergraph ECW SDK version 5.1.1 is needed to
+* compile gdal with the ecw variant. It must be installed separately.
+* Please download the Mac OS X version of the SDK
+* 'ERDAS ECW/JP2 SDK v5.1.1 (MacOSX)' from
+* http://download.intergraph.com/
+* Choose to install it in ${prefix}/lib/ECW.
+* Then try to install GDAL again.
+****"
+            return -code error "ECW SDK 5.1.1 not installed."
+        }
+
+        if {(![file exists ${prefix}/lib/ECW]) && \
+            ([file exists /Intergraph/ERDASEcwJpeg2000SDK5.1.1/Desktop_Read-Only])} {
+
+          ui_error "
+****
+* Please create symbolic links from the /Intergraph directory to
+* ${prefix}/lib/ECW, by executing at the prompt:
+* sudo ln -s /Intergraph/ERDASEcwJpeg2000SDK5.1.1/Desktop_Read-Only \
+                  ${prefix}/lib/ECW"
+* Or reinstall the ECW SDK in ${prefix}/lib/ECW directly.
+* Then try again.
+****"
+            return -code error "Symlinks missing."
+        }
+    }
+}
+
 variant hdf4 description {Enable HDF4 file format} {
     depends_lib-append      port:hdf4 \
                             port:hdfeos
-    configure.args-delete   --without-hdf4
-    configure.args-append   --with-hdf4=${prefix}
+    configure.args-replace  --without-hdf4 --with-hdf4=${prefix}
 }
 
 variant hdf5 description {Enable HDF5 file format} {
@@ -223,62 +284,57 @@ variant hdf5 description {Enable HDF5 file format} {
     if {[variant_isset hdf4]} {
         depends_lib-append  port:h4h5tools
     }
-    configure.args-delete   --without-hdf5
-    configure.args-append   --with-hdf5=${prefix}
+    configure.args-replace  --without-hdf5 --with-hdf5=${prefix}
 }
 
 variant netcdf description {Enable NetCDF file format} {
     depends_lib-append      port:netcdf \
                             port:ncview
-    if {[variant_isset python26]} {
-        configure.ccache    no
+    if {[variant_isset python26] && ![tbool configure.ccache]} {
         depends_lib-append  port:py26-netcdf4
     }
-    if {[variant_isset python27]} {
-        configure.ccache    no
+    if {[variant_isset python27] && ![tbool configure.ccache]} {
         depends_lib-append  port:py27-netcdf4
     }
-    configure.args-delete   --without-netcdf
-    configure.args-append   --with-netcdf=${prefix}
+    configure.args-replace  --without-netcdf --with-netcdf=${prefix}
+    # some other netcdf things are added in variant +huge
 }
 
-#JPEG-2K
+#JPEG-2K variants:
 variant jasper conflicts openjpeg \
     description {Enable JasPer JPEG-2000 format support} {
     depends_lib-append      port:jasper
-    configure.args-delete   --without-jasper
-    configure.args-append   --with-jasper=${prefix}
+    configure.args-replace  --without-jasper --with-jasper=${prefix}
 }
 
+# currently broken, still checks for openjpeg2.0 while the openjpeg port
+# is up to version 2.1:
 variant openjpeg conflicts jasper \
     description {Enable OpenJPEG JPEG-2000 format support} {
     depends_lib-append      port:openjpeg \
                             port:openjpeg15
-    configure.args-delete   --without-openjpeg
-    configure.args-append   --with-openjpeg=${prefix}
+    configure.args-replace  --without-openjpeg --with-openjpeg=${prefix}
 }
 
-
+# Might not need to conflict with universal any more:
 variant xerces conflicts universal description {Enable xerces XML support for GML file format} {
     depends_lib-append      path:lib/libxerces-c.dylib:xercesc
-    configure.args-delete   --without-xerces
-    configure.args-append   --with-xerces=${prefix}
+    configure.args-replace  --without-xerces --with-xerces=${prefix}
     depends_skip_archcheck-append xercesc
 }
 
+# Enabled by default below:
 variant expat description {Enable expat XML support} {
     depends_lib-append      port:expat
-    configure.args-delete   --without-expat
-    configure.args-append   --with-expat=${prefix}
+    configure.args-replace  --without-expat --with-expat=${prefix}
 }
 
-# Python variants
+# Python variants:
 variant python24 conflicts python25 python26 python27 \
     description {Enable Python 2.4 support} {
     depends_lib-append      port:python24
     configure.python        ${prefix}/bin/python2.4
-    configure.args-delete   --without-python
-    configure.args-append   --with-python
+    configure.args-replace  --without-python --with-python
     set PYINST              ${frameworks_dir}/Python.framework/Versions/2.4
     build.args-append       PYTHON=python2.4
     build.env-append        PYTHON=python2.4
@@ -288,12 +344,10 @@ variant python25 conflicts python24 python26 python27 \
     description {Enable Python 2.5 support} {
     depends_lib-append      port:python25
     configure.python        ${prefix}/bin/python2.5
-    configure.args-delete   --without-python
-    configure.args-append   --with-python
+    configure.args-replace  --without-python --with-python
     set PYINST              ${frameworks_dir}/Python.framework/Versions/2.5
     build.args-append       PYTHON=python2.5
     build.env-append        PYTHON=python2.5
-    use_parallel_build      no
 }
 
 variant python26 conflicts python24 python25 python27 \
@@ -301,12 +355,10 @@ variant python26 conflicts python24 python25 python27 \
     depends_lib-append      port:python26 \
                             port:py26-numpy
     configure.python        ${prefix}/bin/python2.6
-    configure.args-delete   --without-python
-    configure.args-append   --with-python
+    configure.args-replace  --without-python --with-python
     set PYINST              ${frameworks_dir}/Python.framework/Versions/2.6
     build.args-append       PYTHON=python2.6
     build.env-append        PYTHON=python2.6
-    use_parallel_build      no
 }
 
 variant python27 conflicts python24 python25 python26 \
@@ -314,15 +366,15 @@ variant python27 conflicts python24 python25 python26 \
     depends_lib-append      port:python27 \
                             port:py27-numpy
     configure.python        ${prefix}/bin/python2.7
-    configure.args-delete   --without-python
-    configure.args-append   --with-python
+    configure.args-replace  --without-python --with-python
     set PYINST              ${frameworks_dir}/Python.framework/Versions/2.7
     build.args-append       PYTHON=python2.7
     build.env-append        PYTHON=python2.7
-    use_parallel_build      no
 }
 
-# Database variants
+#FIXME: gdal supports python3 as of version 1.10.0, add respective variants
+
+# Database variants:
 set postgresql_suffixes {81 82 83 84 90 91 92 93}
 
 set portsgresql_variants {}
@@ -338,32 +390,38 @@ foreach s ${postgresql_suffixes} {
     eval [subst {
         variant ${p} description "Enable PostgreSQL ${v} support" conflicts ${c} {
             depends_lib-append      port:${p}
-            configure.args-delete   --without-pg
-            configure.args-append   --with-pg=${prefix}/lib/postgresql${s}/bin/pg_config
+            configure.args-replace  --without-pg --with-pg=${prefix}/lib/postgresql${s}/bin/pg_config
         }
     }]
 }
 
+#FIXME: change this to variants for supported mysql versions:
 variant mysql5 description {Enable MySQL 5 support} {
     depends_lib-append      path:bin/mysql_config5:mysql5
-    configure.args-delete   --without-mysql
-    configure.args-append   --with-mysql=${prefix}/lib/mysql5/bin/mysql_config
+    configure.args-replace  --without-mysql --with-mysql=${prefix}/lib/mysql5/bin/mysql_config
 }
 
+# sqlite3 is really a backup in case we fail to find spatialite:
 variant sqlite3 description {Enable SQLite3 support} {
     depends_lib-append      port:sqlite3 \
                             port:tcl-sqlite3
     if {[variant_isset framework]} {
+        # warning: this will pull in the whole of qt4 as well:
         depends_lib-append  port:qt4-mac-sqlite3-plugin
     }
-    configure.args-delete   --without-sqlite3
-    configure.args-append   --with-sqlite3=${prefix}
+    configure.args-replace  --without-sqlite3 --with-sqlite3=${prefix}
+    configure.env-append    SQLITE3_CFLAGS='-I${prefix}/include' \
+                            SQLITE3_LDFLAGS='-L${prefix}/lib -lsqlite3' \
+                            SQLITE_INC='-I${prefix}/include'
 }
 
-variant spatialite description {Enable SpartiaLite support} {
+# needs the same things as sqlite3, but more:
+variant spatialite requires sqlite3 \
+        description {Enable SpartiaLite support} {
+    depends_build-append    port:pkgconfig
     depends_lib-append      port:spatialite
-    configure.args-delete   --without-spatialite
-    configure.args-append   --with-spatialite=${prefix}
+    configure.args-replace  --without-spatialite --with-spatialite=${prefix}
+    configure.env-append    LIBS='[exec ${prefix}/bin/pkg-config --libs spatialite]'
     if {[variant_isset python24]} {
         depends_lib-append  port:py24-spatialite
     }
@@ -378,7 +436,9 @@ variant spatialite description {Enable SpartiaLite support} {
     }
 }
 
-variant unixODBC conflicts iodbc description {Enable ODBC support via unixODBC} {
+# ODBC variants:
+variant unixODBC conflicts iodbc \
+        description {Enable ODBC support via unixODBC} {
     depends_lib-append      port:unixODBC
     if {[variant_isset mysql5]} {
         if {![variant_isset universal]} {
@@ -391,26 +451,24 @@ variant unixODBC conflicts iodbc description {Enable ODBC support via unixODBC} 
     if {[variant_isset python27]} {
         depends_lib-append  port:py27-pyodbc
     }
-    configure.args-delete   --without-odbc
-    configure.args-append   --with-odbc=${prefix}
+    configure.args-replace  --without-odbc --with-odbc=${prefix}
 }
 
-variant iodbc conflicts unixODBC description {Enable ODBC support via libiodbc} {
+variant iodbc conflicts unixODBC \
+        description {Enable ODBC support via libiodbc} {
     depends_lib-append      port:libiodbc
-    configure.args-delete   --without-odbc
-    configure.args-append   --with-odbc=${prefix}
+    configure.args-replace  --without-odbc --with-odbc=${prefix}
 }
 
+# PDF support:
 variant poppler description {Enable poppler support} {
     depends_lib-append      port:poppler
-    configure.args-delete   --without-popper
-    configure.args-append   --with-poppler=${prefix}
+    configure.args-replace  --without-poppler --with-poppler=${prefix}
 }
 
-# OpenCL
+# OpenCL variant:
 variant opencl description {Use OpenCL for parallel computations} {
-    configure.args-delete   --without-opencl
-    configure.args-append   --with-opencl
+    configure.args-replace  --without-opencl --with-opencl
     configure.args-append   --with-opencl-include=${OPENCLBASE}/Headers
     configure.args-append   --with-opencl-lib='-framework OpenCL'
     if {[variant_isset python26]} {
@@ -421,18 +479,24 @@ variant opencl description {Use OpenCL for parallel computations} {
     }
 }
 
-# OS X Framework
-#TODO: investigate if this breaks stuff
+# variant to build as a Framework on OS X:
+#TODO: investigate if this breaks stuff, as it changes where it installs:
 platform macosx {
     variant framework description {Build as a Mac OS X framework} {
-        configure.args-delete   --without-macosx-framework
-        configure.args-append   --with-macosx-framework
+        configure.args-append   --with-macosx-framework \
+                                --disable-option-checking
+        configure.env-append    CARBON_FRAMEWORK="-framework Carbon" \
+                                with_macosx_framework='yes' \
+                                MACOSX_FRAMEWORK=yes
+        if {[variant_isset universal] && ![variant_isset huge]} {
+            configure.universal_args-delete --disable-dependency-tracking
+        }
     }
 }
 
 variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
                       description {Pull even more dependencies} {
-    configure.args-delete   --without-lzma \
+    configure.args-delete   --with-lzma=no \
                             --without-pg \
                             --without-grass \
                             --without-libgrass \
@@ -474,7 +538,6 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
     configure.universal_args-delete --disable-dependency-tracking
     depends_lib-append      port:cfitsio \
                             port:libxmi \
-                            port:netcdf-fortran \
                             port:nco \
                             port:libgdiplus \
                             port:msgpack \
@@ -486,11 +549,11 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
                             port:p5.16-xml-sax-expat \
                             port:swig-python \
                             port:swig-ruby \
+                            port:ruby19 \
                             port:rb-xmlparser \
                             port:rb-sqlite3 \
                             port:libkml \
                             port:shapelib \
-                            port:podofo \
                             port:lcms2 \
                             port:fontconfig \
                             port:freetype \
@@ -504,7 +567,6 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
                             port:xorg-libXau \
                             port:xorg-libXdmcp \
                             port:c-ares \
-                            port:cyrus-sasl2 \
                             port:libcomerr \
                             port:libfetch \
                             port:libidn \
@@ -515,8 +577,23 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
                             port:openssl \
                             port:jbigkit \
                             port:armadillo \
-                            path:lib/.libstdcxx:libstdcxx \
+                            port:pcre \
+                            port:libxml2 \
                             bin:java:kaffe
+    # openjpeg will also get linked against here regardless of whether its
+    # variant is set, but I do not want to add a duplicate dependency for
+    # it, nor do I want this variant (+huge) to require the +openjpeg
+    # variant, because it conflicts with the +jasper variant...
+    if {![variant_isset perf] && ![tbool configure.ccache]} {
+        # the +netcdf variant should already be required by this variant
+        # (+huge), but just in case:
+        if {[variant_isset netcdf] && [variant_isset broken]} {
+            depends_lib-append  port:netcdf-fortran
+        }
+    }
+    if {${configure.cxx_stdlib} eq "libstdc++"} {
+        depends_lib-append  path:lib/libstdc++.6.dylib:libgcc
+    }
     if {[variant_isset python25]} {
         depends_lib-append  port:py25-couchdbkit \
                             port:py25-couchdb \
@@ -531,15 +608,26 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
         depends_lib-append  port:py27-couchdb \
                             port:py27-xlwt
     }
+    pre-configure {
+        xinstall -m 755 ${prefix}/share/gettext/config.rpath ${worksrcpath}
+    }
     configure.args-append   --with-cfitsio \
                             --with-grib \
                             --with-perl \
-                            --with-ruby
-    use_parallel_build      no
+                            --with-ruby \
+                            --with-libkml=${prefix} \
+                            --with-libkml-inc=${prefix}/include \
+                            --with-libkml-lib=${prefix}/lib
 }
 
+# Only disable parallel build in one place:
+if {[variant_isset python25] || [variant_isset python26] || \
+    [variant_isset python27] || [variant_isset huge]} {
+    use_parallel_build      no
+    }
+
 variant extra_nonuniversal conflicts universal requires huge hdf4 lzma \
-description {Extra dependencies that are not universal} {
+        description {Extra dependencies that are not universal} {
     depends_lib-append      port:wgrib2 \
                             port:ocilib \
                             port:couchdb \
@@ -548,48 +636,85 @@ description {Extra dependencies that are not universal} {
                             port:mdbtools
     depends_skip_archcheck-append \
                             lzma wgrib2 ocilib couchdb mdbtools
-    configure.args-append   --with-php \
-                            --with-msg \
-                            --with-oci
+    configure.args-append   --with-oci
 }
 
-#variant broken requires extra_nonuniversal poppler \
-#spatialite xerces conflicts universal description {dependencies that do \
-#not even work even when not building universal} {
-#    depends_lib-append      port:pamtester \
-#                            port:svdlibc \
-#                            port:sam2p
-#    depends_skip_archcheck-append pamtester sam2p tif22pnm svdlibc xercesc
-#    configure.args-delete   --without-xerces
-#    configure.args-append   --with-pam
-#    if {[variant_isset xerces]} {
-#        depends_lib-append  port:xalanj
-#        depends_skip_archcheck-append xalanj
-#    }
-#}
+# comment out if necessary:
+variant broken requires extra_nonuniversal poppler \
+spatialite xerces conflicts universal description {dependencies that do \
+not even work even when not building universal} {
+    depends_lib-append      port:pamtester \
+                            port:svdlibc \
+                            port:sam2p \
+                            port:cyrus-sasl2
+    depends_skip_archcheck-append pamtester sam2p tif22pnm svdlibc xercesc
+    configure.args-delete   --without-xerces
+    configure.args-append   --with-pam \
+                            --with-php \
+                            --with-msg
+    # the +poppler variant should already be required by this variant
+    # (+broken), but just in case:
+    if {[variant_isset poppler]} {
+        depends_lib-append  port:podofo
+    }
+    if {[variant_isset xerces]} {
+        depends_lib-append  port:xalanj
+        depends_skip_archcheck-append xalanj
+    }
+    }
 
 variant autoreconf description {Runs autoreconf before configuring} {
     pre-patch {
         file copy ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
     }
-    #TODO: fix patches for new version:
+    #TODO: need to fix patches for new version, currently they fail
+    # to apply cleanly:
     patchfiles-append       patch-configure.ac.diff \
                             patch-configure.in.diff
     use_autoreconf          yes
-    autoreconf.args         -fvi
+    autoreconf.args         -fvi -Wall
     depends_build-append    port:gawk \
                             port:grep \
                             port:gsed
 }
 
-# Perf variant to optimize code
+# Only turn off ccache in one place:
+if {[variant_isset autoreconf] || [variant_isset framework] || \
+    ([variant_isset netcdf] && \
+     ([variant_isset python26] || [variant_isset python27]))} {
+    configure.ccache no
+    }
+
+# Perf variant to optimize code:
 variant perf description {Optimize for speed} {
-    configure.compiler      macports-clang-3.3
-    configure.optflags      -O3 -march=native
-    configure.pipe          yes
+    PortGroup                   compiler_blacklist_versions 1.0
+    # instead of forcing macports-clang-3.4 to be configure.compiler
+    # manually, blacklist the previous versions:
+    compiler.blacklist-append   macports-clang-2.9 macports-clang-3.0 \
+                                macports-clang-3.1 macports-clang-3.2 \
+                                macports-clang-3.3
+    # also blacklist the corresponding system clang versions:
+    compiler.blacklist-append   {clang < 503.0.38}
+    # also blacklist old versions of gcc:
+    compiler.blacklist-append   gcc-3.3 {*gcc-4.[0-6]}
+    # just in case:
+    compiler.fallback-prepend macports-clang-3.4
+    # set the flags this way instead of manually:
+    configure.march     native
+    configure.mtune     native
+    # for some reason that fails, so still have to do it manually anyways:
+    configure.optflags  -O3 -march=native
+    configure.pipe      yes
+    # force a local build, just in case, by clearing archive_sites:
+    archive_sites
 }
 
-default_variants            +expat
+default_variants-append     +expat
+
+# we now add a dependency on the relevant py-geoalchemy in the geos variant
+# depending on the python variant set, and that pulls in py-psycopg2, whose
+# postgres variants can get messed up, so only make +geos a default variant
+# if there are no python or postgresql variants set:
 if {![variant_isset postgresql81] && ![variant_isset postgresql82] && \
     ![variant_isset postgresql83] && ![variant_isset postgresql84] && \
     ![variant_isset postgresql90] && ![variant_isset postgresql91] && \
@@ -600,20 +725,97 @@ if {![variant_isset postgresql81] && ![variant_isset postgresql82] && \
 }
 
 # Postconfigure hack to avoid read ${include} .h files before
-# GDAL own include directories
+# GDAL own include directories:
 post-configure {
     set FRMT_PATH ${worksrcpath}/ogr/ogrsf_frmts
-    foreach makefile [glob -dir $FRMT_PATH */GNUmakefile] {
-        reinplace "s|\$\(EXPAT_INCLUDE\)||" $makefile
+    if {[variant_isset expat]} {
+        foreach makefile [glob -dir ${FRMT_PATH} */GNUmakefile] {
+            reinplace "s|\$\(EXPAT_INCLUDE\)||" ${makefile}
+        }
     }
+
+    if {[variant_isset geos] && \
+        [file exists ${worksrcpath}/GDALmake.opt]} {
+        reinplace -E "s|(GEOS_CFLAGS.*=).*|\\1|" ${worksrcpath}/GDALmake.opt
+        }
 }
 
 post-destroot {
     xinstall -m 755 -d ${destroot}${prefix}/share/doc/${name}
     xinstall -m 644 -W ${worksrcpath} HOWTO-RELEASE NEWS VERSION \
         ${destroot}${prefix}/share/doc/${name}
+
+    if {[variant_isset mrsid]} {
+         foreach f [list \
+            bin/gdal_contour \
+            bin/gdal_grid \
+            bin/gdal_rasterize \
+            bin/gdal_translate \
+            bin/gdaladdo \
+            bin/gdalbuildvrt \
+            bin/gdaldem \
+            bin/gdalenhance \
+            bin/gdalinfo \
+            bin/gdallocationinfo \
+            bin/gdalmanage \
+            bin/gdalserver \
+            bin/gdalsrsinfo \
+            bin/gdaltindex \
+            bin/gdaltransform \
+            bin/gdalwarp \
+            bin/nearblack \
+            bin/ogr2ogr \
+            bin/ogrinfo \
+            bin/ogrlineref \
+            bin/ogrtindex \
+            bin/testepsg \
+            lib/libgdal.1.dylib] \
+            {
+                exec install_name_tool -change libltidsdk.9.dylib ${prefix}/share/Geo_DSDK/Raster_DSDK/lib/libltidsdk.9.dylib ${prefix}/${f}
+            }
+    }
+
+    if {[variant_isset ecw]} {
+          foreach f [list \
+            bin/gdal_contour \
+            bin/gdal_grid \
+            bin/gdal_rasterize \
+            bin/gdal_translate \
+            bin/gdaladdo \
+            bin/gdalbuildvrt \
+            bin/gdaldem \
+            bin/gdalenhance \
+            bin/gdalinfo \
+            bin/gdallocationinfo \
+            bin/gdalmanage \
+            bin/gdalserver \
+            bin/gdalsrsinfo \
+            bin/gdaltindex \
+            bin/gdaltransform \
+            bin/gdalwarp \
+            bin/nearblack \
+            bin/ogr2ogr \
+            bin/ogrinfo \
+            bin/ogrlineref \
+            bin/ogrtindex \
+            bin/testepsg \
+            lib/libgdal.1.dylib] \
+            {
+                if {${configure.cxx_stdlib} eq "libc++"} {
+                    exec install_name_tool -change \
+                        /Users/jenkins/hudson/workspace/RL_5.1.1_ECWJP2SDK_OSX/Master/libNCSEcw.dylib ${prefix}/lib/ECW/redistributable/libc++/libNCSEcw.dylib \
+                        ${prefix}/${f}
+                } else {
+                    exec install_name_tool -change \
+                        /Users/jenkins/hudson/workspace/RL_5.1.1_ECWJP2SDK_OSX/Master/libNCSEcw.dylib ${prefix}/lib/ECW/redistributable/libstdc++/libNCSEcw.dylib \
+                        ${prefix}/${f}
+                }
+            }
+    }
 }
 
+# checking CURRENT is necessary to keep it from thinking that 1.9.2 is
+# newer than 1.1x.x:
 livecheck.type  regex
-livecheck.url   http://download.osgeo.org/${name}/
+livecheck.url   http://download.osgeo.org/${name}/CURRENT
 livecheck.regex ${name}-(\\d+(?:\\.\\d+)*)\\.tar

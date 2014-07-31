@@ -11,7 +11,7 @@ platforms               darwin
 license                 {MIT BSD}
 maintainers             ciserlohn gwmail.gwu.edu:egall openmaintainger
 
-description             Evented I/O for V8 JavaScript
+description             Evented I/O for V8 JavaScript.
 
 long_description        Node's goal is to provide an easy way to build \
                         scalable network programs in JavaScript. Node is \
@@ -118,7 +118,7 @@ variant debug description {Enable debugging} {
     configure.optflags      -g
 }
 
-# V8 only supports ARM and IA-32 processors
+# V8 only supports ARM and IA-32 processors:
 supported_archs         i386 x86_64
 
 universal_variant       no
@@ -131,7 +131,7 @@ test.run                yes
 
 use_parallel_build      no
 
-switch $build_arch {
+switch ${build_arch} {
     i386 {
         configure.args-append   --dest-cpu=ia32
     }
@@ -200,7 +200,7 @@ destroot {
     xinstall -d ${incpdir}
     xinstall -d ${docdir}
 
-# install binaries
+# install binaries:
     xinstall -m 755 -W ${worksrcpath} \
         tools/node-waf \
         ${bindir}
@@ -217,7 +217,7 @@ destroot {
         }
     }
 
-# install headers
+# install headers:
     xinstall -m 644 -W ${worksrcpath} \
         src/node.h \
         src/node_buffer.h \
@@ -236,7 +236,7 @@ destroot {
         deps/uv/include/ares_version.h \
         ${incdir}
 
-# install private uv headers
+# install private uv headers:
     xinstall -m 644 -W ${worksrcpath} \
         deps/uv/include/uv-private/eio.h \
         deps/uv/include/uv-private/ev.h \
@@ -246,7 +246,7 @@ destroot {
         deps/uv/include/uv-private/uv-win.h \
         ${incpdir}
 
-# install static libs
+# install static libs:
     xinstall -m 644 -W ${worksrcpath} \
         out/Release/libhttp_parser.a \
         out/Release/libuv.a \
@@ -265,23 +265,23 @@ destroot {
         }
     }
 
-# install the wafadmin tool
+# install the wafadmin tool:
     eval xinstall -m 644 [glob -directory ${worksrcpath}/tools/wafadmin -nocomplain -type f *] ${libwdir}
     eval xinstall -m 644 [glob -directory ${worksrcpath}/tools/wafadmin/Tools -nocomplain -type f *] ${libwtdir}
 
     if {[variant_isset debug]} {
-    # install dtrace script
+    # install dtrace script:
         xinstall -m 644 -W ${worksrcpath} \
             src/node.d \
             ${libddir}/node8.d
     }
 
-# install manpage
+# install manpage:
     xinstall -m 644 -W ${worksrcpath} \
         doc/node.1 \
         ${destroot}${prefix}/share/man/man1/node8.1
 
-# install docs
+# install docs:
     xinstall -m 644 -W ${worksrcpath} \
         AUTHORS \
         ChangeLog \

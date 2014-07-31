@@ -18,8 +18,8 @@ maintainers         ryandesign openmaintainer
 # Uses Carbon Scrap Manager which is 32-bit only.
 supported_archs     i386 ppc
 
-# Leopard was the last version of OS X to support ppc
-platform darwin > 9 {
+# Leopard was the last version of OS X to support ppc:
+if {${os.platform} eq "darwin" && ${os.major} > 9} {
     universal_variant no
 }
 platform darwin x86_64 {
@@ -28,7 +28,7 @@ platform darwin x86_64 {
 
 description         Secret Maryo Chronicles
 
-long_description    ${description}
+long_description    ${description} is a 2D platforming game.
 
 homepage            http://www.${name}.org/
 
@@ -64,7 +64,7 @@ patchfiles-append   patch-autogen.sh.diff \
                     patch-configure.ac.diff \
                     patch-configure.ac.2.diff
 # TODO: combine the patches for configure.ac into just one patch, for
-# easier maintainenance
+# easier maintainenance (the whole "order matters" thing is a pain).
 
 post-patch {
     reinplace "s|@PREFIX@|${prefix}|g" ${patch.dir}/autogen.sh

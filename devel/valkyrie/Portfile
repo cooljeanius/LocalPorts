@@ -35,8 +35,8 @@ checksums             md5     a411dfb803f548dae5f988de0160aeb5 \
 
 # This was taken from the valgrind portfile; I do NOT know if it actually
 # applies to valkyrie, too, though...
-pre-configure {
-    if {"darwin" == ${os.platform} && (${os.major} < 9 || ${os.major} > 12)} {
+pre-fetch {
+    if {${os.platform} eq "darwin" && (${os.major} < 9 || ${os.major} > 12)} {
         ui_error "${name} ${version} is only compatible with OS X 10.5, 10.6, 10.7 and 10.8"
         return -code error "incompatible OS X version"
     }
@@ -73,18 +73,18 @@ post-configure {
 }
 
 # allow ccache, if specified by the user
-# (this was taken from the djview portfile)
+# (this was taken from the djview portfile):
 pre-build {
     if {[tbool configure.ccache]} {
         build.post_args "CCACHE=ccache"
     }
 }
 
-# Just in case
+# Just in case:
 build.env-append      ${configure.env}
 
 # This variant could have been left empty but I felt like I had to
-# put something in it
+# put something in it:
 variant debug description {Set for debugging} {
     use_parallel_build no
     configure.optflags -g
@@ -94,7 +94,7 @@ variant debug description {Set for debugging} {
 # the mtree...
 destroot.violate_mtree      yes
 
-# Setting destroot.destdir just in case
+# Setting destroot.destdir just in case:
 destroot.destdir      ${destroot}${prefix}
 post-destroot {
     xinstall -d ${destroot}${prefix}/share/${name}-${version}
@@ -110,5 +110,5 @@ post-destroot {
 livecheck.type        none
 livecheck.url         ${homepage}
 # The livecheck regex is broken; I am not sure how to fix it
-# (besides just disabling it, that is)
+# (besides just disabling it, that is)...
 livecheck.regex       ${name}-(\\d(?:\\.\\d)+)

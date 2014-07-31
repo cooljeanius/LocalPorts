@@ -7,19 +7,19 @@ name                cpan2port
 version             0.1.0
 categories          sysutils macports perl
 platforms           darwin
-maintainers         gwmail.gwu.edu:egall macsforever2000 openmaintainer
+maintainers         gwmail.gwu.edu:egall mf2k openmaintainer
 license             WTFPL-2 permissive
 supported_archs     noarch
 
 description         A perl script to generate MacPorts portfiles
-long_description    ${description} from CPAN modules
+long_description    ${description} from CPAN modules.
 homepage            http://svn.macports.org/repository/macports/contrib/${name}
 
 livecheck.type      none
 
 fetch.type          svn
 svn.url             https://svn.macports.org/repository/macports/contrib/${name}
-svn.revision        105372
+svn.revision        120996
 revision            ${svn.revision}
 
 depends_lib-append  port:p5.16-module-depends \
@@ -41,7 +41,12 @@ configure {
     reinplace "s|#! /usr/bin/env perl|#!${configure.perl}|g" ${worksrcpath}/${name}
 }
 
-build {}
+# should be implied by overriding configure:
+configure.ccache    no
+
+build {
+    ui_debug "${name} has no build step."
+}
 
 destroot {
     xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/${name}

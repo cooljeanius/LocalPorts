@@ -1,0 +1,47 @@
+--- Portfile.orig	2013-01-28 00:58:16.000000000 -0500
++++ Portfile	2014-07-30 12:31:48.000000000 -0400
+@@ -5,27 +5,36 @@
+ 
+ name                portfile-gen
+ version             0.2
+-categories          sysutils
++revision            1
++categories          sysutils macports
+ maintainers         ryandesign gwmail.gwu.edu:egall openmaintainer
+ platforms           darwin
+ license             BSD
+ supported_archs     noarch
+ 
+-description         Generate a basic template Portfile given a few bits of information
+-long_description    ${description}
+-homepage            http://svn.macports.org/repository/macports/contrib/portfile-gen
++description         Generate a basic template Portfile given a few bits \
++                    of information
++long_description    ${description}.
++homepage            http://svn.macports.org/repository/macports/contrib/${name}
+ 
+ livecheck.type      none
+ 
+ fetch.type          svn
+-svn.url             https://svn.macports.org/repository/macports/contrib/portfile-gen
+-svn.revision        102094
++svn.url             https://svn.macports.org/repository/macports/contrib/${name}
++svn.revision        114218
++
++worksrcdir          ${name}
+ 
+ use_configure       no
+ 
+-build {}
++# should be implied by turning off configure:
++configure.ccache    no
++
++build {
++    ui_debug "${name} has no build step"
++}
+ 
+ destroot {
+-    xinstall -m 755 ${workpath}/${name}/${name} ${destroot}${prefix}/bin/${name}
++    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/${name}
+ }
+ 

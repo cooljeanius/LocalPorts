@@ -5,27 +5,34 @@ PortSystem          1.0
 
 name                portfile-gen
 version             0.2
+revision            1
 categories          sysutils macports
 maintainers         ryandesign gwmail.gwu.edu:egall openmaintainer
 platforms           darwin
 license             BSD
 supported_archs     noarch
 
-description         Generate a basic template Portfile given a few bits of information
-long_description    ${description}
+description         Generate a basic template Portfile given a few bits \
+                    of information
+long_description    ${description}.
 homepage            http://svn.macports.org/repository/macports/contrib/${name}
 
 livecheck.type      none
 
 fetch.type          svn
 svn.url             https://svn.macports.org/repository/macports/contrib/${name}
-svn.revision        102094
+svn.revision        114218
 
 worksrcdir          ${name}
 
 use_configure       no
 
-build {}
+# should be implied by turning off configure:
+configure.ccache    no
+
+build {
+    ui_debug "${name} has no build step"
+}
 
 destroot {
     xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/${name}

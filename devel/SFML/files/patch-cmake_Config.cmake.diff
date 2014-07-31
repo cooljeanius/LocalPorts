@@ -1,0 +1,38 @@
+--- cmake/Config.cmake.orig	2013-02-20 17:40:36.000000000 -0500
++++ cmake/Config.cmake	2014-07-29 14:05:19.000000000 -0400
+@@ -2,7 +2,7 @@
+ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+     set(WINDOWS 1)
+ 
+-    # detect the architecture (note: this test won't work for cross-compilation)
++    # detect the architecture (note: this test will NOT work for cross-compilation)
+     include(CheckTypeSize)
+     check_type_size(void* SIZEOF_VOID_PTR)
+     if("${SIZEOF_VOID_PTR}" STREQUAL "4")
+@@ -10,7 +10,7 @@
+     elseif("${SIZEOF_VOID_PTR}" STREQUAL "8")
+         set(ARCH_64BITS 1)
+     else()
+-        message(FATAL_ERROR "Unsupported architecture")
++        message(FATAL_ERROR "Unsupported architecture : bad size for void pointer")
+         return()
+     endif()
+ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+@@ -29,7 +29,7 @@
+         return()
+     endif()
+ else()
+-    message(FATAL_ERROR "Unsupported operating system")
++    message(FATAL_ERROR "Unsupported operating system : ${CMAKE_SYSTEM_NAME}")
+     return()
+ endif()
+ 
+@@ -63,7 +63,7 @@
+         set(MSVC_VERSION 2011)
+     endif()
+ else()
+-    message(FATAL_ERROR "Unsupported compiler")
++    message(FATAL_ERROR "Unsupported compiler : ${CMAKE_CXX_COMPILER}")
+     return()
+ endif()
+ 

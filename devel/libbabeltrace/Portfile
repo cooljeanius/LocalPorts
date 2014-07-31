@@ -42,8 +42,8 @@ depends_lib-append  port:ossp-uuid \
 # - configure.ac: silence some warnings when autoreconfing, and other
 #   misc. tweaks that I usually like to make, and have autoheader declare
 #   some things in config.h that prevent errors
-# - converter_babeltrace[-log].c: work around OS X missing openat
-#   and getline
+# - converter_babeltrace[-log].c: work around OS X missing openat()
+#   and getline()
 patchfiles-append   patch-compat_Makefile.am.diff \
                     patch-configure.ac.diff \
                     patch-converter_babeltrace.c.diff \
@@ -77,23 +77,30 @@ configure.args-append \
                     --disable-glibtest \
                     --disable-silent-rules
 
-# old versions of clang (from before Xcode 4.2.1) need to be blacklisted
-# for not supporting thread-local storage as well, but unlike gcc (below),
-# I do not think that that needs to be conditionalized to be just
-# for darwin...
-compiler.blacklist-append {clang < 318.0.61}
-# blacklist the equivalent clangs from MacPorts, too:
-compiler.blacklist-append macports-clang-2.9 macports-clang-3.0
-
-platform darwin {
+if {${os.platform} eq "darwin"} {
     # hack to get include/babeltrace/endian.h to use the right header on
     # darwin (freebsd should already define this by default):
     configure.cppflags-append -D__FreeBSD__=5
-    # uses thread-local storage, which gcc does not support on darwin:
-    compiler.blacklist-append gcc-3.3 *gcc-4.0 *gcc-4.2 *gcc-4.3 *gcc-4.4
-    compiler.blacklist-append *gcc-4.5 *gcc-4.6 *gcc-4.7
-    # ...although for some reason gcc-4.8 seems to work:
-    compiler.fallback-prepend macports-gcc-4.8
+    # uses thread-local storage, which gcc only supports via emutls
+    # on darwin as of gcc45 and later:
+    compiler.blacklist-append gcc-3.3 {*gcc-4.[0-4]}
+    if {${os.major} >= 11} {
+        # old versions of clang (from before Xcode 4.2.1) need to be
+        # blacklisted for not supporting thread-local storage as well:
+        compiler.blacklist-append {clang < 318.0.61}
+        # blacklist the equivalent clangs from MacPorts, too:
+        compiler.blacklist-append macports-clang-2.9 macports-clang-3.0
+    } else {
+        # clang does not support TLS at all on pre-Lion systems, not even
+        # via emutls like gcc does, so blacklist all clangs:
+        compiler.blacklist-append *clang*
+        # Make sure a recent version of gcc supporting emutls is in the
+        # fallback list:
+        compiler.fallback-append macports-gcc-4.8
+    }
+} else {
+    # not sure what to blacklist on other platforms...
+    configure.args-delete --disable-glibtest
 }
 
 # try to make working on developing this portfile easier:
@@ -102,7 +109,7 @@ configure.pipe      no
 configure.optflags  -g
 use_parallel_build  no
 
-# tests fail, because I moved some of the build failures into the
+# tests fail, because I moved some of the build failures of tests into the
 # test phase:
 test.run            yes
 test.target         check

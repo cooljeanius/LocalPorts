@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                t4k_common
 version             0.1.1
-revision            2
+revision            3
 categories          devel games education
 license             GPL-3+
 platforms           darwin
@@ -20,9 +20,13 @@ long_description    ${name} is a common library for routines used in \
 homepage            http://tux4kids.debian.alioth.org/
 master_sites        http://alioth.debian.org/frs/download.php/3540/
 
-checksums           sha1    626eddedee86059ccab593a226c8d98571018b46 \
-                    rmd160  6c0332ea44e4a44021c645e5b4329c2efd377fed \
-                    sha256  42c155816dae2c5dad560faa50edaa1ca84536530283d37859c4b91e82675110
+checksums           sha1    da39a3ee5e6b4b0d3255bfef95601890afd80709 \
+                    rmd160  9c1185a5c5e9fc54612808977ee8f548b2258d31 \
+                    sha256  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+# possible stealth update:
+dist_subdir         ${name}/${version}_1
+# (actually current distfile is completely broken...)
 
 depends_build-append \
                     port:pkgconfig
@@ -66,12 +70,18 @@ depends_lib-append  port:libsdl \
 patchfiles-append   patch-linewrap_fix.diff \
                     patch-configure.ac.diff
 
+# This might be irrelevant now that we modify patch.args below:
 pre-patch {
-    file copy ${worksrcpath}/configure.ac ${worksrcpath}/configure.ac.orig
+    if {[file exists ${worksrcpath}/configure.ac]} {
+        ui_debug "making an extra backup of ${worksrcpath}/configure.ac"
+        file copy ${worksrcpath}/configure.ac ${worksrcpath}/configure.ac.orig
+    }
 }
 
+patch.args-append   --backup
+
 use_autoreconf      yes
-autoreconf.args     -fvi
+autoreconf.args     -fvi -Wall
 
 configure.args-append \
                     --disable-sdltest \
@@ -90,6 +100,7 @@ variant docs description "build documentation" {
                     bin:pdflatex:texlive-latex \
                     bin:makeindex:texlive-basic \
                     bin:egrep:grep
+    # These arguments are NOT one-for-one replacements:
     configure.args-delete \
                     --disable-doxygen-doc \
                     --disable-doxygen-dot \
@@ -102,8 +113,11 @@ variant docs description "build documentation" {
     use_parallel_build no
     build.target-append dvi html info pdf ps
     post-build {
+        ui_debug "running '${prefix}/bin/doxygen -u' in ${worksrcpath}"
         system -W ${worksrcpath} "${prefix}/bin/doxygen -u"
+        ui_debug "running '${prefix}/bin/doxygen' in ${worksrcpath}"
         system -W ${worksrcpath} "${prefix}/bin/doxygen"
+        ui_debug "running '${build.cmd}' in ${worksrcpath}/doxygen/latex"
         system -W ${worksrcpath}/doxygen/latex "${build.cmd}"
     }
     post-destroot {
@@ -116,5 +130,5 @@ variant docs description "build documentation" {
     }
 }
 
-# returns with 406 error
+# returns with 406 error, so disable:
 livecheck.type      none

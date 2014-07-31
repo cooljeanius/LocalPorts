@@ -149,6 +149,8 @@ destroot.env-append \
     LEXLIB="${prefix}/lib/libfl.a"
 
 post-destroot {
+    #FIXME: this should really be done with "file attributes", but trunk
+    # does it like this instead, so keep it like trunk:
     system "chgrp procmod ${destroot}${prefix}/bin/*-apple"
     system "chmod g+s ${destroot}${prefix}/bin/*-apple"
 

@@ -211,7 +211,7 @@ variant huge requires debug gvfs description {Pulls in many dependencies; unsupp
                  port:xpm
         configure.args-append \
                  --enable-gtk-doc-app
-        platform darwin > 11 {
+        if {${os.platform} eq "darwin" && ${os.major} > 11} {
             depends_lib-append port:curlhandle
         }
     } else {

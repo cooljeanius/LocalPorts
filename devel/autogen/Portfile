@@ -5,6 +5,8 @@ PortSystem          1.0
 
 name                autogen
 version             5.18.2
+#TODO: update to 5.18.3
+revision            1
 categories          devel
 platforms           darwin
 maintainers         mww openmaintainer
@@ -67,9 +69,8 @@ depends_lib-append  port:guile \
                     port:libtool \
                     port:rx \
                     port:gnuregex
-# coreutils is not exactly linked against, but it is still needed
-# the regex libs were added while I was trying to debug a build issue; now
-# they are "just in case" (can probably be removed)
+# coreutils is not exactly linked against, but it is still needed.
+# The regex libs were added while I was trying to debug a build issue...
 
 configure.args-append \
                     --mandir=${prefix}/share/man \
@@ -84,7 +85,9 @@ configure.args-append \
                     --with-libintl-prefix=${prefix} \
                     --enable-shell
 
-configure.env-append libdir=${prefix}/lib
+configure.env-append \
+                    libdir=${prefix}/lib \
+                    LIBS="-lrx"
 
 test.run            yes
 test.target         check
@@ -93,16 +96,19 @@ test.env-append     LDFLAGS="-L${prefix}/lib -lintl" \
                     CPPFLAGS="-I{prefix}/include" \
                     INC="-I{prefix}/include"
 # Tests use custom envvars when compiling; setting these reduces the number
-# of test failures from 20 to 1
+# of test failures from 20 to 1.
 
 # info was missing after I upgraded:
 destroot.target-append install-info
 
 variant debug description {enable debugging of autogen} {
-    #depends_lib-append lib:dmalloc:dmalloc
+    depends_lib-append lib:dmalloc:dmalloc
     configure.args-append --enable-debug
-    # cannot use '--with-dmalloc' because of #42843
+    # Ticket #42843 is fixed, but not sure if that means that we can use
+    # '--with-dmalloc' again though...
     configure.optflags -g
+    # ease unprivileged development:
+    configure.ccache no
 }
 
 platform darwin 8 {

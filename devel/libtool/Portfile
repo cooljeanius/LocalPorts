@@ -41,7 +41,7 @@ if {${os.platform} != "darwin"} {
 
 depends_run-append  bin:m4:m4
 
-#worksrcdir          [strsed $distname {s/[a-z]*$//}]
+#worksrcdir          [strsed ${distname} {s/[a-z]*$//}]
 
 configure.args-append \
                     F77=no \
@@ -76,8 +76,8 @@ post-destroot {
 
     set docdir ${prefix}/share/doc/${name}
     xinstall -d ${destroot}${docdir}
-    xinstall -m 0644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS README THANKS \
-        TODO ${destroot}${docdir}
+    xinstall -m 0644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS \
+        README THANKS TODO ${destroot}${docdir}
 }
 
 platform darwin {

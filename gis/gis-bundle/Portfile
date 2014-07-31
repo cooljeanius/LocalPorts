@@ -28,7 +28,7 @@ checksums           rmd160  12345 \
 depends_build-append \
                     port:gawk
 
-#TODO: make app bundles for some of these ones that have guis
+#TODO: make app bundles for some of these ones that have guis...
 depends_lib-append  port:qt4-mac \
                     port:cgal \
                     port:tcl \
@@ -134,6 +134,7 @@ require_active_variants tcl {corefoundation memdebug threads universal}
 require_active_variants postgresql84 {earthdistance krb5 tcl universal}
 require_active_variants gdal {huge universal}
 require_active_variants mapnik {cairo gdal geos osm sqlite}
+require_active_variants postgis {postgresql84 universal}
 require_active_variants postgis2 {gui raster sfcgal topology universal}
 require_active_variants qlandkartegt {debug universal}
 require_active_variants qlandkartegt-garmindev {debug universal}
@@ -155,10 +156,15 @@ variant python25 conflicts python26 python27 python32 python33 python34 \
                             port:py25-openpyxl \
                             port:py25-xlutils \
                             port:py25-xlwt \
-                            port:py25-geopy
+                            port:py25-geopy \
+                            port:py25-psycopg2 \
+                            port:py25-sqlalchemy \
+                            port:py25-geoalchemy \
+                            port:py25-couchdb
     require_active_variants gdal {python25}
     require_active_variants vtk5 {python25}
     require_active_variants qtiplot {python25}
+    require_active_variants py25-psycopg2 {postgresql84}
 }
 
 variant python26 conflicts python25 python27 python32 python33 python34 \
@@ -175,7 +181,12 @@ variant python26 conflicts python25 python27 python32 python33 python34 \
                             port:py26-xlwt \
                             port:py26-pyshp \
                             port:py26-geojson \
-                            port:py26-pygeocoder
+                            port:py26-pygeocoder \
+                            port:py26-psycopg2 \
+                            port:py26-sqlalchemy \
+                            port:py26-geoalchemy \
+                            port:py26-couchdb \
+                            port:py26-netcdf4
     require_active_variants gdal {python26}
     require_active_variants mapnik {python26}
     require_active_variants py26-mapnik {cairo gdal postgis sqlite}
@@ -183,6 +194,7 @@ variant python26 conflicts python25 python27 python32 python33 python34 \
     require_active_variants qgis {python26}
     require_active_variants vtk5 {python26}
     require_active_variants qtiplot {python26}
+    require_active_variants py26-psycopg2 {postgresql84}
 }
 
 variant python27 conflicts python25 python26 python32 python33 python34 \
@@ -203,7 +215,12 @@ variant python27 conflicts python25 python26 python32 python33 python34 \
                             port:py27-geojson \
                             port:py27-pygeocoder \
                             port:py27-geopandas \
-                            port:py27-shapely
+                            port:py27-shapely \
+                            port:py27-psycopg2 \
+                            port:py27-sqlalchemy \
+                            port:py27-geoalchemy \
+                            port:py27-couchdb \
+                            port:py27-netcdf4
     depends_skip_archcheck-append py27-cartopy py27-scipy
     require_active_variants gdal {python27}
     require_active_variants postgresql84 {python python27}
@@ -212,6 +229,7 @@ variant python27 conflicts python25 python26 python32 python33 python34 \
     require_active_variants qgis {python27}
     require_active_variants vtk5 {python27}
     require_active_variants qtiplot {python27}
+    require_active_variants py27-psycopg2 {postgresql84}
 }
 
 variant python32 conflicts python25 python26 python27 python33 python34 \
@@ -219,7 +237,9 @@ variant python32 conflicts python25 python26 python27 python33 python34 \
     depends_lib-append      port:python32 \
                             port:py32-pyshp \
                             port:py32-django \
-                            port:py32-xlrd
+                            port:py32-xlrd \
+                            port:py32-sqlalchemy \
+                            port:py32-netcdf4
     require_active_variants py32-django {bash_completion}
 }
 variant python33 conflicts python25 python26 python27 python32 python34 \
@@ -233,8 +253,12 @@ variant python33 conflicts python25 python26 python27 python32 python34 \
                             port:py33-xlrd \
                             port:py33-openpyxl \
                             port:py33-geopandas \
-                            port:py33-shapely
+                            port:py33-shapely \
+                            port:py33-psycopg2 \
+                            port:py33-sqlalchemy \
+                            port:py33-netcdf4
     require_active_variants py33-django {bash_completion}
+    require_active_variants py33-psycopg2 {postgresql84}
 }
 variant python34 conflicts python25 python26 python27 python32 python33 \
     description {Enable Python 3.4 support} {
@@ -246,7 +270,11 @@ variant python34 conflicts python25 python26 python27 python32 python33 \
                             port:py34-xlrd \
                             port:py34-openpyxl \
                             port:py34-geopandas \
-                            port:py34-shapely
+                            port:py34-shapely \
+                            port:py34-psycopg2 \
+                            port:py34-sqlalchemy \
+                            port:py34-netcdf4
+    require_active_variants py34-psycopg2 {postgresql84}
 }
 
 if {![variant_isset python25] && ![variant_isset python26] && ![variant_isset python32] && ![variant_isset python33] && ![variant_isset python34]} {
