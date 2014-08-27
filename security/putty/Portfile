@@ -18,7 +18,7 @@ conflicts           pssh
 description         a free implementation of Telnet and SSH, along with \
                     an xterm terminal emulator
 
-long_description    PuTTY is ${description}
+long_description    PuTTY is ${description}.
 
 homepage            http://www.chiark.greenend.org.uk/~sgtatham/${name}/
 master_sites        ftp://ftp.chiark.greenend.org.uk/users/sgtatham/${name}-${version}/ \

@@ -7,7 +7,7 @@ PortGroup           cmake 1.0
 name                SFML
 version             2.0
 #TODO: update to 2.1
-revision            1
+revision            2
 categories          devel multimedia
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -44,7 +44,7 @@ depends_lib-append  port:glew \
 # Requires Leopard or later:
 pre-fetch {
     if {${os.platform} eq "darwin" && ${os.major} < 9} {
-        ui_error "${name} ${version} is only compatible with OS X 10.5 and later"
+        ui_error "${name} ${version} only works with OS X 10.5 and later"
         return -code error "incompatible OS X version"
     }
 }
@@ -76,7 +76,7 @@ use_parallel_build  no
 
 post-destroot {
     # should probably just delete these extraneous bundled external
-    # frameowrks, but that would require figuring out how to link against
+    # frameworks, but that would require figuring out how to link against
     # our own versions first:
     ui_debug "fixing permissions of bad bundled external frameworks"
     file attributes ${destroot}${prefix}/Library/Frameworks/freetype.framework/freetype -permissions +x
@@ -116,9 +116,10 @@ platform macosx {
         configure.args-append \
                     -DSFML_INSTALL_XCODE4_TEMPLATES=1
     }
-    } 
+} 
 
-# The cmake PortGroup should provide the +debug variant for us:
+# The cmake PortGroup should provide the +debug variant for us; we just
+# need to modify a few aspects of it:
 if {[variant_isset debug]} {
     configure.args-replace -Wno-dev --debug-output
     configure.optflags -g
@@ -126,12 +127,12 @@ if {[variant_isset debug]} {
     # use instead dylibs."
     configure.args-append \
                     -DSFML_BUILD_FRAMEWORKS=0
-    }
+}
 
 variant docs description {build documentation with doxygen} {
     depends_build-append bin:doxygen:doxygen
     configure.args-append \
                     -DSFML_BUILD_DOC=1
-    }
+}
 
 livecheck.type      none
