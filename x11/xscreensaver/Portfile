@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                xscreensaver
 version             5.26
-revision            2
+revision            3
 categories          x11
 platforms           darwin
 maintainers         mww openmaintainer
@@ -39,8 +39,6 @@ depends_lib-append  port:gtk2 \
                     port:freetype \
                     port:gdk-pixbuf2 \
                     port:gettext \
-                    port:gtkglext \
-                    port:glew \
                     port:jpeg \
                     port:libxml2 \
                     port:mesa \
@@ -89,11 +87,10 @@ configure.universal_args-delete \
                     --disable-dependency-tracking
 
 configure.env-append \
-                    XMKMF=${prefix}/bin/xmkmf
-
-configure.ldflags-append \
-                    -lintl \
-                    -ljpeg
+                    XMKMF=${prefix}/bin/xmkmf \
+                    LIBS='-lintl -ljpeg' \
+                    INTLLIBS='-lintl' \
+                    GLE_LIBS='-lgle-graphics'
 
 use_parallel_build  no
 
@@ -103,8 +100,7 @@ platform macosx {
     PortGroup       xcodeversion 1.0
     categories-append aqua
     depends_build-append \
-                    bin:seticon:osxutils \
-                    port:ImageMagick
+                    bin:seticon:osxutils
     depends_skip_archcheck-append osxutils
     post-build {
         reinplace "s|/usr/local/bin|${prefix}/bin|g" ${worksrcpath}/OSX/update-info-plist.pl

@@ -68,8 +68,8 @@ configure.env-append      COBC_LIBS='${configure.ldflags}' \
                           LIBCOB_LIBS='-lm -lgmp -lmpfr -lncursesw -ldb' \
                           LIBINTL='-lintl -liconv' \
                           LIBS='-lgnugetopt' \
-                          LTLIBICONV='-L/opt/local/lib -liconv' \
-                          LTLIBINTL='-L/opt/local/lib -lintl -liconv'
+                          LTLIBICONV='-L${prefix}/lib -liconv' \
+                          LTLIBINTL='-L${prefix}/lib -lintl -liconv'
 
 # temporarily disable ccache as I test as non-root:
 configure.ccache    no

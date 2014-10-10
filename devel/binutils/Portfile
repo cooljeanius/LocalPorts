@@ -2,10 +2,11 @@
 # $Id: Portfile 84744 2011-09-30 12:28:34Z jmr@macports.org $
 
 PortSystem             1.0
+PortGroup              conflicts_build 1.0
 
 name                   binutils
 version                2.24
-revision               2
+revision               3
 description            FSF Binutils for native development.
 long_description       Free Software Foundation development toolchain \
                        ("binutils") for native development. Tools are \
@@ -27,6 +28,10 @@ checksums \
     sha256 e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137
 
 #TODO: get patch for configure.ac to apply again...
+
+# Tries to use itself while upgrading, but the whole point of upgrading is
+# because it is broken, and it cannot use itself while it is still broken:
+conflicts_build-append binutils
 
 depends_build-append   port:intltool \
                        bin:makeinfo:texinfo \

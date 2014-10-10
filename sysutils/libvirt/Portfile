@@ -45,7 +45,8 @@ depends_build-append \
 # link against it (yet).
 # some of the build dependencies (such as libxml2) are also library deps
 
-patchfiles-append   patch-configure.ac.diff
+patchfiles-append   patch-configure.ac.diff \
+                    patch-tools_Makefile.am.diff
 
 patch.args-append   --backup
 
@@ -184,6 +185,7 @@ configure.args-append \
                     --with-vmware \
                     --with-xml-catalog-file=${prefix}/etc/xml/catalog \
                     --with-yajl \
+                    --disable-maintainer-mode \
                     --disable-silent-rules \
                     --enable-debug=no \
                     --disable-glibtest \
@@ -210,13 +212,20 @@ configure.env-append \
         POLKIT_LIBS="-L${prefix}/lib -lpolkit-agent-1 -lpolkit-gobject-1 -lgio-2.0 -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0 -lglib-2.0 -lintl" \
         PKCHECK_PATH="${prefix}/bin/pkcheck" \
         with_polkit="yes" \
-        with_polkit1="yes"
+        with_polkit1="yes" \
+        POD2MAN="/usr/bin/pod2man"
+
+build.env-append  \
+        POD2MAN="/usr/bin/pod2man"
 
 variant debug description {Enable debugging} {
     autoreconf.args-append -Wall
     configure.optflags -g
     configure.args-replace --enable-debug=no --enable-debug=yes
     configure.pipe no
+    # these make it even slower, but make the log messages easier to read:
+    use_parallel_build no
+    configure.ccache no
 }
 
 # Tests currently fail:
@@ -233,6 +242,7 @@ variant test requires debug description {Enable tests} {
 }
 
 platform macosx {
+    # dtrace requires OS X:
     variant dtrace description {Enable dtrace support} {
         depends_build-append \
                     port:dtrace
@@ -243,6 +253,7 @@ platform macosx {
                     with_dtrace="yes" \
                     DTRACE=/usr/sbin/dtrace
     }
+    # osxfuse is non-universal:
     variant fuse conflicts universal description {Enable fuse support} {
         depends_lib-append \
                     path:lib/pkgconfig/fuse.pc:osxfuse
@@ -256,6 +267,7 @@ variant avahi description {Use Avahi to advertise remote daemon} {
     configure.args-replace  --without-avahi --with-avahi
 }
 
+# Python variants:
 variant python24 conflicts python25 python26 python27 \
                  description {Compile Python 2.4 bindings} {
     depends_lib-append      port:python24
@@ -296,6 +308,7 @@ if {![variant_isset python24] && ![variant_isset python25] && ![variant_isset py
     default_variants-append +python27
 }
 
+# made a variant due to my cyrus-sasl2 port refusing to upgrade:
 variant sasl description {Use Cyrus SASL for authentication} {
     depends_lib-append      port:cyrus-sasl2
     configure.args-replace  --without-sasl --with-sasl

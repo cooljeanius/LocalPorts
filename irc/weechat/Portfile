@@ -7,7 +7,7 @@ PortGroup           cmake 1.0
 name                weechat
 version             0.4.1
 # TODO: update to 0.4.2
-revision            1
+revision            2
 categories          irc
 maintainers         otherware.org:nefar openmaintainer
 license             GPL-3+
@@ -33,16 +33,15 @@ checksums           rmd160  07cf6554b0238a2dd41da94483d62573789fe97b \
                     sha256  d27bed07ee2d0638c1683ad18666d478ed9a042aeeedcd0dd9ce22f1392e0ebb
 
 depends_build-append \
-                    port:asciidoc
+                    port:asciidoc \
+                    port:libtool
 
 depends_lib-append  port:gettext \
                     port:libgcrypt \
+                    port:libgpg-error \
                     port:libiconv \
                     port:ncurses \
                     port:curl \
-                    port:libfetch \
-                    port:libidn \
-                    port:libtool \
                     port:zlib
 
 patchfiles-append   patch-src_plugins_Makefile.diff
@@ -69,6 +68,7 @@ variant aspell description {Support for aspell} {
                     port:aspell
 }
 
+#FIXME: this variant seems to have broken:
 variant lua description {Bindings for lua plugins} {
     configure.args-delete \
                     -DENABLE_LUA=OFF
@@ -78,12 +78,15 @@ variant lua description {Bindings for lua plugins} {
                     port:lua
 }
 
+
 variant scheme description {Bindings for Scheme (guile) plugins} {
     configure.args-delete \
                     -DENABLE_GUILE=OFF
     configure.args-append \
                     -DENABLE_GUILE=ON
-    depends_lib-append \
+    depends_build-append \
+                    port:guile
+    depends_run-append \
                     port:guile
 }
 
@@ -92,9 +95,12 @@ variant perl description {Bindings for perl plugins} {
                     -DENABLE_PERL=OFF
     configure.args-append \
                     -DENABLE_PERL=ON
+    depends_build-append \
+                    path:bin/perl:perl5
     depends_lib-append \
-                    path:bin/perl:perl5 \
-                    lib:perl:perl5.12
+                    lib:perl:perl5.16
+    depends_run-append \
+                    path:bin/perl:perl5
 }
 
 variant python description {Bindings for python plugins} {
@@ -102,9 +108,12 @@ variant python description {Bindings for python plugins} {
                     -DENABLE_PYTHON=OFF
     configure.args-append \
                     -DENABLE_PYTHON=ON
+    depends_build-append \
+                    bin:python:python_select
     depends_lib-append \
-                    bin:python:python26 \
                     path:bin/python:python27
+    depends_run-append \
+                    bin:python:python26
 
     post-configure {
         reinplace -E "s|\(Python.framework\)|${frameworks_dir}/\\1|" ${worksrcpath}/src/plugins/python/CMakeFiles/python.dir/link.txt
@@ -116,8 +125,9 @@ variant ruby description {Bindings for ruby plugins} {
                     -DENABLE_RUBY=OFF
     configure.args-append \
                     -DENABLE_RUBY=ON
-    depends_lib-append \
-                    bin:ruby:ruby \
+    depends_build-append \
+                    bin:ruby:ruby
+    depends_run-append \
                     path:bin/ruby:ruby19
 }
 
@@ -136,15 +146,19 @@ variant tls description {Support for secure connecting} {
     configure.args-append \
                     -DENABLE_GNUTLS=ON
     depends_lib-append \
-                    port:gnutls \
-                    port:c-ares \
-                    port:cyrus-sasl2 \
-                    port:gmp \
-                    port:libtasn1 \
-                    port:libgpg-error \
-                    port:openldap \
-                    port:openssl
+                    port:gnutls
 }
+
+# The cmake PortGroup should provide the +debug variant for us; we just
+# need to modify a few aspects of it:
+if {[variant_isset debug]} {
+    configure.args-replace -Wno-dev --debug-output
+    # cmake warns that this flag set by the cmake PortGroup is unused:
+    pre-configure {
+        configure.args-delete -DCMAKE_CXX_FLAGS_RELEASE="-DNDEBUG"
+    }
+    configure.optflags -g
+    }
 
 post-destroot {
     set docdir ${destroot}${prefix}/share/doc/${name}

@@ -1,0 +1,125 @@
+--- Portfile.orig	2014-10-01 11:01:39.000000000 -0400
++++ Portfile	2014-10-10 12:00:43.000000000 -0400
+@@ -8,21 +8,22 @@
+ version                 2.1.26
+ revision                4
+ categories              security net
+-platforms               darwin
+-# license is BSD plus a fourth (almost redundant) acknowledgement clause
++platforms               darwin freebsd
++# license is BSD plus a fourth (almost redundant) acknowledgement clause:
+ license                 Permissive
++# (should that not just be "BSD-old" instead?)
+ maintainers             landonf openmaintainer
+ 
+ description             SASL is an authentication library.
+ 
+-long_description        SASL is the Simple Authentication and Security Layer, \
+-                        a method for adding authentication support to \
+-                        connection-based protocols. To use SASL, a protocol \
+-                        includes a command for identifying and authenticating \
+-                        a user to a server and for optionally negotiating \
+-                        protection of subsequent protocol interactions. If \
+-                        its use is negotiated, a security layer is inserted \
+-                        between the protocol and the connection.
++long_description    SASL is the Simple Authentication and Security Layer, \
++                    a method for adding authentication support to \
++                    connection-based protocols. To use SASL, a protocol \
++                    includes a command for identifying and authenticating \
++                    a user to a server and for optionally negotiating \
++                    protection of subsequent protocol interactions. If \
++                    its use is negotiated, a security layer is inserted \
++                    between the protocol and the connection.
+ 
+ homepage                http://cyrusimap.org/
+ master_sites            http://cyrusimap.org/releases/ \
+@@ -32,10 +33,13 @@
+ checksums               rmd160  861a06d663cf3da37a198d0f971d99b249b5f4b8 \
+                         sha256  8fbc5136512b59bb793657f36fadda6359cae3b08f01fd16b3d406f1345b7bc3
+ 
+-depends_lib             port:openssl \
+-                        port:zlib
++depends_lib-append      port:openssl \
++                        port:zlib \
++                        port:libcomerr
++# (libcomerr might actually be just for the kerberos variant, but as that
++# is the default, it is hard to tell the difference...)
+ 
+-default_variants        +kerberos
++default_variants-append +kerberos
+ 
+ patchfiles              patch-libsasl2.pc.in.diff \
+                         patch-ltconfig_rpath_fallback.diff \
+@@ -58,18 +62,16 @@
+ 
+ use_parallel_build      no
+ 
+-#universal_variant       no
++# temporarily disable ccache to ease unprivileged development:
++configure.ccache        no
+ 
+-# This is a start towards universal... lib/Makefile.am and sasldb/Makefile.am need to be updated to not do blind ar-fu
+-#post-extract {
+-#    system "rm ${worksrcpath}/config/libtool.m4"
+-#}
+-
+-#use_autoreconf          yes
+-#autoreconf.args         -fvi
+-#autoreconf.env          ACLOCAL="aclocal -I${worksrcpath}/cmulocal -I${worksrcpath}/config"
++# the muniversal portgroup (added above) is a start towards universal...
++# lib/Makefile.am and sasldb/Makefile.am need to be updated to not do
++# blind ar-fu
+ 
+-# This is a horrible hackaround as replacing the ar-fu as mentioned above is non-trivial
++
++# This is a horrible hackaround, as replacing the ar-fu as mentioned above
++# is non-trivial:
+ pre-build {
+     if {[variant_isset universal]} {
+         foreach arch ${universal_archs_to_use} {
+@@ -80,6 +82,11 @@
+     }
+ }
+ 
++# try to fix #41872
++if {[file exists /usr/local/include/db.h]} {
++    destroot.delete_la_files yes
++}
++
+ destroot.keepdirs       ${destroot}${prefix}/var/state/saslauthd \
+                         ${destroot}${prefix}/var/pwcheck
+ 
+@@ -94,6 +101,12 @@
+ 
+ variant kerberos description "Enable Kerberos support" {
+     configure.args-append   --enable-keep-db-open
++    # '--enable-keep-db-open' implies using berkely db:
++    depends_build-append    port:db_select
++    configure.args-append   --with-dblib=berkeley \
++                            --with-bdb-libdir=${prefix}/lib \
++                            --with-bdb-incdir=${prefix}/include \
++                            --with-gdbm=${prefix}
+     
+     if {${os.platform} eq "darwin"} {
+         depends_lib-append  port:kerberos5
+@@ -107,15 +120,15 @@
+     }
+ }
+ 
++#FIXME: try some other sqlite-related flags; current ones seem unreliable:
+ variant sql description "Enable SQL support" {
+     depends_lib-append      port:sqlite3
+-    configure.args-append   --enable-sql
++    configure.args-append   --enable-sql \
++                            --with-sqlite3=${prefix}
+ }
+ 
+-# doesn't work, ticket #22093
+-#variant static description "Build static library" {
+-#    configure.args-append   --enable-static
+-#}
++# a static variant does NOT work, see ticket #22093
+ 
++# livecheck seems to work:
+ livecheck.type          regex
+ livecheck.regex         {cyrus-sasl-(\d+(?:\.\d+)*)\.tar\.gz}

@@ -1,0 +1,106 @@
+--- Portfile.orig	2014-06-01 05:32:37.000000000 -0400
++++ Portfile	2014-10-07 10:05:09.000000000 -0400
+@@ -8,7 +8,7 @@
+ 
+ name            pulseaudio
+ version         5.0
+-revision        1
++revision        2
+ license         LGPL-2.1
+ categories      audio
+ maintainers     devans openmaintainer
+@@ -16,12 +16,12 @@
+ description     A sound server for POSIX OSes
+ 
+ long_description \
+-                PulseAudio is a sound server for POSIX OSes, meaning that it is a proxy \
+-                for your sound applications. It allows you to do advanced operations \
+-                on your sound data as it passes between your application and your hardware. \
+-                Things like transferring the audio to a different machine, changing the \
+-                sample format or channel count and mixing several sounds into one are \
+-                easily achieved using a sound server.
++PulseAudio is a sound server for POSIX OSes, meaning that it is a proxy \
++for your sound applications. It allows you to do advanced operations \
++on your sound data as it passes between your application and hardware. \
++Things like transferring the audio to a different machine, changing the \
++sample format or channel count and mixing several sounds into one are \
++easily achieved using a sound server.
+ 
+ homepage        http://www.freedesktop.org/wiki/Software/PulseAudio/
+ master_sites    http://freedesktop.org/software/${name}/releases/
+@@ -44,6 +44,7 @@
+                 port:libsamplerate \
+                 port:libtool \
+                 port:gdbm \
++                port:gettext \
+                 path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                 port:gtk3 \
+                 port:dbus \
+@@ -62,7 +63,8 @@
+     }
+ }
+ 
+-patchfiles      patch-man-Makefile.am.diff i386.patch
++patchfiles      patch-man-Makefile.am.diff \
++                patch-i386.diff
+ 
+ # reconfigure with our intltool.m4 using upstream autogen.sh
+ 
+@@ -73,10 +75,8 @@
+ 
+ configure.cmd   ./autogen.sh
+ 
+-configure.args  --with-mac-sysroot=/ \
+-                --with-mac-version-min=$macosx_deployment_target \
+-                --without-caps \
+-                --disable-silent-rules \
++configure.args  --with-caps \
++                --enable-silent-rules \
+                 --disable-tests \
+                 --disable-x11 \
+                 --disable-oss-output \
+@@ -100,10 +100,17 @@
+                 --enable-neon-opt=no \
+                 --enable-orc
+ 
++platform macosx {
++    configure.args-append \
++                --with-mac-sysroot=/ \
++                --with-mac-version-min=${macosx_deployment_target}
++}
++                
++
+ add_users       pulse group=pulse realname=Pulse\ Audio
+ 
+ variant x11 {
+-    configure.args-delete   --disable-x11
++    configure.args-replace  --disable-x11 --enable-x11
+     depends_lib-append      port:xorg-libX11 \
+                             port:xorg-libxcb \
+                             port:xorg-libice \
+@@ -112,10 +119,24 @@
+ }
+ 
+ variant jack description {Enable Jack support } {
+-    configure.args-delete   --disable-jack
++    configure.args-replace  --disable-jack --enable-jack
+     depends_lib-append      port:jack
+ }
+ 
++variant tests description {Enable testing} {
++    configure.args-replace  --disable-tests --enable-tests
++    configure.args-replace  --enable-silent-rules --disable-silent-rules
++    test.run                yes
++    test.target             check
++    if {[file exists ${worksrcpath}/src/tests/test-daemon.sh]} {
++        test.target-append  check-daemon
++    }
++    # switching to the '--enable-tests' configure flag adds a check for the
++    # libcheck pkgconfig module:
++    depends_build-append    port:check
++    # (not actually linked-against, though...)
++}
++
+ default_variants +x11
+ 
+ livecheck.type  regex

@@ -5,8 +5,10 @@ PortSystem          1.0
 
 name                file
 version             5.15
-# TODO: update to 5.17
+# TODO: update to 5.19
 revision            1
+# possible stealth update?
+dist_subdir         ${name}/${version}_1
 categories          sysutils
 license             BSD
 maintainers         nomaintainer

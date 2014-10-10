@@ -42,6 +42,9 @@ depends_lib-append  path:lib/pkgconfig/glib-2.0.pc:glib2 \
 depends_run-append  port:glib-networking \
                     port:gjs
 
+# osxfuse is non-universal, at least for now:
+universal_variant   no
+
 configure.args-append \
                     --disable-silent-rules \
                     --disable-glibtest \
