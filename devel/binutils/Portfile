@@ -6,7 +6,7 @@ PortGroup              conflicts_build 1.0
 
 name                   binutils
 version                2.24
-revision               3
+revision               4
 description            FSF Binutils for native development.
 long_description       Free Software Foundation development toolchain \
                        ("binutils") for native development. Tools are \
@@ -30,8 +30,23 @@ checksums \
 #TODO: get patch for configure.ac to apply again...
 
 # Tries to use itself while upgrading, but the whole point of upgrading is
-# because it is broken, and it cannot use itself while it is still broken:
-conflicts_build-append binutils
+# because it is broken, and it cannot use itself while it is still broken.
+# This only happened because it was overlinked with ppl though, and then
+# ppl was upgraded and broke it. Might also need to check other libraries
+# that we overlink binutils against...
+if {![catch {set installed [lindex [registry_active ppl] 0]}]} {
+    pre-fetch {
+        set ppl_version [lindex ${installed} 1]
+        ui_debug "ppl_version is \"${ppl_version}\""
+        set ppl_revision [lindex ${installed} 2]
+        ui_debug "ppl_revision is \"${ppl_revision}\""
+        if {[vercmp ${ppl_version} 1.1] > 0 || ([vercmp ${ppl_version} 1.1] == 0 && ${ppl_revision} > 1)} {
+            conflicts_build-append binutils
+        } else {
+            ui_debug "A self-referential build conflict should be unnecessary."
+        }
+    }
+}
 
 depends_build-append   port:intltool \
                        bin:makeinfo:texinfo \
@@ -105,7 +120,12 @@ configure.args-append  --infodir='${prefix}/share/info' \
                        --disable-64-bit-bfd
 
 # set before using it in our own environment variables:
-configure.optflags     -ggdb3
+if {[catch "registry_active gdb"]} {
+    # see comment below on "catch" syntax with gdb cases like this:
+    configure.optflags -g3
+} else {
+    configure.optflags -ggdb3
+}
 
 # try to force certain things to be used:
 configure.env-append   SED=${prefix}/bin/gsed \
@@ -153,7 +173,7 @@ configure.cppflags-append \
 
 # these used to be appended to configure.ldflags:
 configure.env-append \
-    LIBS="-lgc -lcloog-isl -lgmp -lisl -lmpc -lmpfr -lppl"
+    LIBS="-lgc -lcloog-isl -lgmp -lisl -lmpc -lmpfr"
 
 post-extract {
     ui_debug "This post-extract step has been moved to pre-patch instead."
@@ -173,8 +193,9 @@ pre-patch {
     system -W ${worksrcpath} "${prefix}/bin/aclocal-17 -I config"
 }
 
-#TODO: get autoreconf-ing to work again
+#TODO: get autoreconf-ing to work again...
 
+# this is kind of unnecessary now that we use the above pre-fetch block:
 pre-configure {
     ui_debug "checking ppl installation..."
     system -W ${prefix} "echo \"ppl `ppl-config -V` is installed with: `${prefix}/bin/ppl-config -O`\""
@@ -184,10 +205,8 @@ post-configure {
     # these messages might not be true any more now that the location
     # to which libc-headers installs has been changed:
     if {![catch "registry_active libc-headers"]} {
-        ui_msg "Having libc-headers active can cause a lot of warnings \
-               when building ${name}."
-        ui_msg "You might want to deactivate the libc-headers port while \
-               building ${name}, and then reactivate it later."
+        ui_warn "Having libc-headers active could cause a lot of warnings when building ${name}."
+        ui_msg "You might want to deactivate the libc-headers port while building ${name}, and then reactivate it later."
         ui_msg "Continuing building anyway for now though..."
     }
     # Hack to work around readelf build failure:
@@ -233,7 +252,7 @@ build.env-append   CPPFLAGS='-I${prefix}/include' \
                    PICFLAG_FOR_TARGET="-fno-common -DPIC" \
                    COREFILE="trad-core.lo" \
                    LIBM="-lm" \
-                   LIBS="-lgc -lcloog-isl -lgmp -lisl -lmpc -lmpfr -lppl"
+                   LIBS="-lgc -lcloog-isl -lgmp -lisl -lmpc -lmpfr"
 
 # try forcing things that fail to be simply picked up from the environment:
 build.args-append      READELF_PROG="" \
@@ -255,33 +274,38 @@ if {[variant_isset universal]} {
 }
 
 post-build {
-    configure.args-delete \
-                       --enable-libssp \
-                       --enable-build-with-cxx \
-                       --enable-build-poststage1-with-cxx \
-                       --with-mpc \
-                       --with-mpfr \
-                       --with-gmp \
-                       --with-ppl \
-                       --enable-objc-gc \
-                       --enable-lto \
-                       --enable-dlltool \
-                       --enable-objdump \
-                       --enable-windres \
-                       --enable-windmc \
-                       --enable-bfd \
-                       --enable-gas \
-                       --enable-gprof \
-                       --disable-ppl-version-check \
-                       --disable-cloog-version-check \
-                       --enable-languages \
-                       --enable-stage1-languages \
-                       --enable-stage1-checking \
-                       --enable-libquadmath \
-                       --enable-libquadmath-support
-    configure.args-append \
-                       --disable-option-checking \
-                       --prefix=${prefix}
+    ui_debug "Trying to build some unsupported subdirs in post-build..."
+    # have to remove everything we set above:
+    configure.args-delete  --enable-libssp \
+                           --enable-build-with-cxx \
+                           --enable-build-poststage1-with-cxx \
+                           --with-mpc \
+                           --with-mpfr \
+                           --with-gmp \
+                           --with-ppl \
+                           --enable-objc-gc \
+                           --enable-lto \
+                           --enable-dlltool \
+                           --enable-objdump \
+                           --enable-windres \
+                           --enable-windmc \
+                           --enable-bfd \
+                           --enable-gas \
+                           --enable-gprof \
+                           --disable-ppl-version-check \
+                           --disable-cloog-version-check \
+                           --enable-languages \
+                           --enable-languages=all \
+                           --enable-stage1-languages \
+                           --enable-stage1-languages=all \
+                           --enable-stage1-checking \
+                           --enable-stage1-checking=all \
+                           --enable-libquadmath \
+                           --enable-libquadmath-support
+    configure.args-append  --prefix=${prefix}
+    if {![variant_isset tests]} {
+        configure.args-append  --disable-option-checking
+    }
     ui_debug "entering ${worksrcpath}/gprof and running ${configure.cmd} ${configure.args}"
     system -W ${worksrcpath}/gprof "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gprof/Makefile
@@ -297,18 +321,31 @@ post-build {
     system -W ${worksrcpath}/gas "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/gas/Makefile
     if {[catch "registry_active gdb"]} {
+        # "catch" syntax always confuses me; this is the case where gdb
+        # is NOT active:
         ui_debug "entering ${worksrcpath}/gas/doc and running ${build.cmd} ${build.pre_args}"
         system -W ${worksrcpath}/gas/doc "${build.cmd} ${build.pre_args}"
         ui_debug "entering ${worksrcpath}/gas/po and running ${build.cmd} ${build.pre_args}"
         system -W ${worksrcpath}/gas/po "${build.cmd} ${build.pre_args}"
     } else {
-        ui_debug "skipping building things for gas"
+        ui_debug "skipping building things for gas because gdb is active"
     }
     ui_debug "entering ${worksrcpath}/ld and running ${configure.cmd} ${configure.args}"
     system -W ${worksrcpath}/ld "${configure.cmd} ${configure.args}"
     reinplace "s|CPPFLAGS \=|CPPFLAGS \= \-I${prefix}/include|" ${worksrcpath}/ld/Makefile
     ui_debug "entering ${worksrcpath}/ld and running ${build.cmd} ${build.pre_args}"
     system -W ${worksrcpath}/ld "${build.cmd} ${build.pre_args}"
+}
+
+# until there is a 'depends_test' type of dependency:
+variant tests description {Enable the dejagnu-based test suite} {
+    depends_build-append   port:dejagnu
+    configure.args-append  -C
+    configure.args-delete  --disable-ppl-version-check \
+                           --disable-cloog-version-check
+    test.run               yes
+    test.target            check
+    # (there are a bunch of failures)
 }
 
 # Binutils violates the mtree layout by creating ${prefix}/<arch>/
@@ -318,12 +355,13 @@ post-destroot {
     ui_debug "entering ${worksrcpath}/gprof and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     system -W ${worksrcpath}/gprof "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     if {[catch "registry_active gdb"]} {
+        # see comment above on "catch" syntax with gdb cases like this:
         ui_debug "entering ${worksrcpath}/gas/doc and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/gas/doc "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         ui_debug "entering ${worksrcpath}/gas/po and running ${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
         system -W ${worksrcpath}/gas/po "${destroot.cmd} ${destroot.pre_args} ${destroot.post_args}"
     } else {
-        ui_debug "skipping installing things for gas"
+        ui_debug "skipping installing things for gas because gdb is active"
     }
     platform x86_64 {
         ui_msg "Trying to generate ld scripts in ${worksrcpath}/ld..."
@@ -442,7 +480,7 @@ post-destroot {
         xinstall -d ${destroot}${prefix}/x86_64-apple-darwin${os.version}/lib
     }
     # use gnubin directory for un-prefixed executables, like as in
-    # coreutils and gmake and so on
+    # coreutils and gmake and so on:
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin
     foreach binary [glob -tails -directory ${destroot}${prefix}/bin g*] {
         ui_debug "symlinking ${binary} into gnubin"

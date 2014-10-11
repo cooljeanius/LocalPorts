@@ -5,11 +5,12 @@ PortSystem          1.0
 PortGroup           cmake 1.0
 
 name                weechat
-version             0.4.1
-# TODO: update to 0.4.2
-revision            2
+version             0.4.2
+# TODO: update to 1.0 like trunk
+revision            1
 categories          irc
-maintainers         otherware.org:nefar openmaintainer
+maintainers         gmail.com:starkhalo \
+                    openmaintainer
 license             GPL-3+
 description         Fast, light & extensible IRC client
 long_description \
@@ -17,103 +18,88 @@ long_description \
      client for many operating systems. Everything can be done with a \
      keyboard. It is customizable and extensible with plugins/scripts, \
      and includes: \
-      - nicklist \
-      - smart hotlist \
-      - infobar with highlight notification \
-      - horizontal and vertical split \
-      - double charset support (decode/encode) \
-      - FIFO pipe for remote control \
-      - and much more!
+     \n - nicklist \
+     \n - smart hotlist \
+     \n - infobar with highlight notification \
+     \n - horizontal and vertical split \
+     \n - double charset support (decode/encode) \
+     \n - FIFO pipe for remote control \
+     \n - and much more!\n
+
+#TODO: add the 'weechat-devel' subport that trunk has:
+if {${name} eq ${subport}} {
+    conflicts       weechat-devel
+}
 
 homepage            http://${name}.org/
 platforms           darwin
 master_sites        ${homepage}files/src
 
-checksums           rmd160  07cf6554b0238a2dd41da94483d62573789fe97b \
-                    sha256  d27bed07ee2d0638c1683ad18666d478ed9a042aeeedcd0dd9ce22f1392e0ebb
+checksums \
+    rmd160 11130c6de4ef55924d779f6697be87b55f2d94d3 \
+    sha256 95c4337b10f0e54192dcdaf7ce60f9bd22dfc82abd0832219b20dedd06d509dc
 
-depends_build-append \
-                    port:asciidoc \
-                    port:libtool
+depends_build-append    port:asciidoc \
+                        port:libtool
 
-depends_lib-append  port:gettext \
-                    port:libgcrypt \
-                    port:libgpg-error \
-                    port:libiconv \
-                    port:ncurses \
-                    port:curl \
-                    port:zlib
+depends_lib-append      port:gettext \
+                        port:libgcrypt \
+                        port:libgpg-error \
+                        port:libiconv \
+                        port:ncurses \
+                        port:curl \
+                        port:zlib
 
-patchfiles-append   patch-src_plugins_Makefile.diff
+patchfiles-append       patch-src_plugins_Makefile.diff
 
-configure.args-append \
-                    -DENABLE_GNUTLS=OFF \
-                    -DENABLE_LUA=OFF \
-                    -DENABLE_GUILE=OFF \
-                    -DENABLE_PERL=OFF \
-                    -DENABLE_PYTHON=OFF \
-                    -DENABLE_PYTHON3=OFF \
-                    -DENABLE_RUBY=OFF \
-                    -DENABLE_TCL=OFF \
-                    -DENABLE_ASPELL=OFF
+configure.args-append   -DENABLE_GNUTLS=OFF \
+                        -DENABLE_LUA=OFF \
+                        -DENABLE_GUILE=OFF \
+                        -DENABLE_PERL=OFF \
+                        -DENABLE_PYTHON=OFF \
+                        -DENABLE_PYTHON3=OFF \
+                        -DENABLE_RUBY=OFF \
+                        -DENABLE_TCL=OFF \
+                        -DENABLE_ASPELL=OFF
 
-use_bzip2           yes
+use_bzip2               yes
 
 variant aspell description {Support for aspell} {
-    configure.args-delete \
-                    -DENABLE_ASPELL=OFF
-    configure.args-append \
-                    -DENABLE_ASPELL=ON
-    depends_lib-append \
-                    port:aspell
+    configure.args-replace  -DENABLE_ASPELL=OFF -DENABLE_ASPELL=ON
+    depends_lib-append      port:aspell
 }
 
 #FIXME: this variant seems to have broken:
-variant lua description {Bindings for lua plugins} {
-    configure.args-delete \
-                    -DENABLE_LUA=OFF
-    configure.args-append \
-                    -DENABLE_LUA=ON
-    depends_lib-append \
-                    port:lua
+variant lua conflicts universal description {Bindings for lua plugins} {
+    configure.args-replace      -DENABLE_LUA=OFF -DENABLE_LUA=ON
+    depends_lib-append          port:lua \
+                                port:lua51
+    # (lua51 is non-universal)
+    configure.cppflags-append   -I${prefix}/include/lua-5.1
+    configure.ldflags-append    -L${prefix}/lib/lua-5.1
+    configure.env-append        LUA=${prefix}/bin/lua5.1 \
+                                LUAC=${prefix}/bin/luac5.1
 }
 
 
 variant scheme description {Bindings for Scheme (guile) plugins} {
-    configure.args-delete \
-                    -DENABLE_GUILE=OFF
-    configure.args-append \
-                    -DENABLE_GUILE=ON
-    depends_build-append \
-                    port:guile
-    depends_run-append \
-                    port:guile
+    configure.args-replace  -DENABLE_GUILE=OFF -DENABLE_GUILE=ON
+    depends_build-append    port:guile
+    depends_run-append      port:guile
 }
 
 variant perl description {Bindings for perl plugins} {
-    configure.args-delete \
-                    -DENABLE_PERL=OFF
-    configure.args-append \
-                    -DENABLE_PERL=ON
-    depends_build-append \
-                    path:bin/perl:perl5
-    depends_lib-append \
-                    lib:perl:perl5.16
-    depends_run-append \
-                    path:bin/perl:perl5
+    configure.args-replace  -DENABLE_PERL=OFF -DENABLE_PERL=ON
+    depends_build-append    path:bin/perl:perl5
+    depends_lib-append      lib:perl:perl5.16
+    depends_run-append      path:bin/perl:perl5
 }
 
 variant python description {Bindings for python plugins} {
-    configure.args-delete \
-                    -DENABLE_PYTHON=OFF
-    configure.args-append \
-                    -DENABLE_PYTHON=ON
-    depends_build-append \
-                    bin:python:python_select
-    depends_lib-append \
-                    path:bin/python:python27
-    depends_run-append \
-                    bin:python:python26
+    configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
+    depends_build-append    bin:python:python_select
+    depends_lib-append      path:bin/python:python27
+    depends_run-append      bin:python:python26
 
     post-configure {
         reinplace -E "s|\(Python.framework\)|${frameworks_dir}/\\1|" ${worksrcpath}/src/plugins/python/CMakeFiles/python.dir/link.txt
@@ -121,44 +107,66 @@ variant python description {Bindings for python plugins} {
 }
 
 variant ruby description {Bindings for ruby plugins} {
-    configure.args-delete \
-                    -DENABLE_RUBY=OFF
-    configure.args-append \
-                    -DENABLE_RUBY=ON
-    depends_build-append \
-                    bin:ruby:ruby
-    depends_run-append \
-                    path:bin/ruby:ruby19
+    configure.args-replace  -DENABLE_RUBY=OFF -DENABLE_RUBY=ON
+    depends_build-append    bin:ruby:ruby
+    depends_run-append      path:bin/ruby:ruby19
 }
 
 variant tcl description {Bindings for tcl plugins} {
-    configure.args-delete \
-                    -DENABLE_TCL=OFF
-    configure.args-append \
-                    -DENABLE_TCL=ON
-    depends_lib-append \
-                    port:tcl
+    configure.args-replace  -DENABLE_TCL=OFF -DENABLE_TCL=ON
+    depends_lib-append      port:tcl
 }
 
 variant tls description {Support for secure connecting} {
-    configure.args-delete \
-                    -DENABLE_GNUTLS=OFF
-    configure.args-append \
-                    -DENABLE_GNUTLS=ON
-    depends_lib-append \
-                    port:gnutls
+    configure.args-replace  -DENABLE_GNUTLS=OFF -DENABLE_GNUTLS=ON
+    configure.args-append   -DCA_FILE=${prefix}/etc/openssl/cert.pem
+    depends_lib-append      port:gnutls
+    depends_run-append      path:etc/openssl/cert.pem:certsync
 }
 
-# The cmake PortGroup should provide the +debug variant for us; we just
-# need to modify a few aspects of it:
+# we already build asciidocs anyways; this is just extra:
+variant doc description {Build Documentation and plugin API} {
+    depends_build-append            port:source-highlight
+    depends_skip_archcheck-append   source-highlight
+    configure.args-append           -DENABLE_DOC=ON
+    }
+
+# The cmake PortGroup should already provide the +debug variant for us;
+# we just need to modify a few aspects of it:
 if {[variant_isset debug]} {
-    configure.args-replace -Wno-dev --debug-output
+    patch.args-append           --backup
+    configure.args-replace      -Wno-dev --debug-output
     # cmake warns that this flag set by the cmake PortGroup is unused:
     pre-configure {
-        configure.args-delete -DCMAKE_CXX_FLAGS_RELEASE="-DNDEBUG"
+        configure.args-delete   -DCMAKE_CXX_FLAGS_RELEASE="-DNDEBUG"
     }
-    configure.optflags -g
+    configure.optflags          -g
+    configure.pipe              no
     }
+
+if {[variant_isset debug] || [variant_isset doc]} {
+    # the plugin API part of the doc variant (also useful for debugging):
+    destroot.delete_la_files    no
+}
+
+# (uncomment in a separate commit; it will require extra work)
+#variant autotools requires debug \
+# description {Build with autotools instead of cmake} {
+#    # cmake is still needed, but just for autoreconfing. The dependency
+#    # does not really actually need to be changed, but doing so shows the
+#    # changed purpose:
+#    depends_build-replace   port:cmake path:share/aclocal/cmake.m4:cmake
+#    depends_build-append    port:autoconf \
+#                            port:automake \
+#                            port:gettext
+#    # (libtool is already added as a dependency above)
+#    patchfiles-append       patch-autogen.sh.diff \
+#                            patch-configure.ac.diff \
+#                            patch-Makefile.am.diff
+#    use_autoreconf          yes
+#    # (since we override autoreconf.cmd, we add the dependencies manually)
+#    autoreconf.cmd          "sh ./autogen.sh"
+#}
 
 post-destroot {
     set docdir ${destroot}${prefix}/share/doc/${name}
@@ -181,3 +189,5 @@ post-install {
     }
 }
 
+#FIXME: livecheck seems broken...
+livecheck.type      none

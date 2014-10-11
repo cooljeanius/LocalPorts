@@ -1,0 +1,17 @@
+***************
+*** 136,142 ****
+                                          char *c, *ec;
+                                          cdf_timestamp_to_timespec(&ts, tp);
+                                          c = cdf_ctime(&ts.tv_sec, tbuf);
+-                                         if ((ec = strchr(c, '\n')) != NULL)
+                                                  *ec = '\0';
+  
+                                          if (NOTMIME(ms) && file_printf(ms,
+--- 136,142 ----
+                                          char *c, *ec;
+                                          cdf_timestamp_to_timespec(&ts, tp);
+                                          c = cdf_ctime(&ts.tv_sec, tbuf);
++                                         if (c != NULL && (ec = strchr(c, '\n')) != NULL)
+                                                  *ec = '\0';
+  
+                                          if (NOTMIME(ms) && file_printf(ms,

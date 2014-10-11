@@ -4,14 +4,11 @@
 PortSystem          1.0
 
 name                file
-version             5.15
-# TODO: update to 5.19
-revision            1
-# possible stealth update?
-dist_subdir         ${name}/${version}_1
+version             5.19
+revision            0
 categories          sysutils
 license             BSD
-maintainers         nomaintainer
+maintainers         ryandesign openmaintainer
 description         File - determine file type
 long_description \
     File tests each argument in an attempt to classify it. There are \
@@ -30,39 +27,46 @@ master_sites        freebsd \
                     ftp://ftp.astron.com/pub/${name}/ \
                     ftp://ftp.gw.com/mirrors/pub/unix/${name}/
 
-checksums           md5     3f99565532f548d7540912c4642d1ede \
-                    sha1    de1a060aa5fe61c1a6f0359fb526e824b4244323 \
-                    rmd160  72d8b853feaeb1f53368732cd948e02c12cae1bf \
-                    sha256  4bd52cc614d6488127c0bddc208a2855481744d76ff0878d9c173d2a6ed564e4
+checksums           md5     e3526f59023f3f7d1ffa4d541335edab \
+                    sha1    0dff09eb44fde1998be79e8d312e9be4456d31ee \
+                    rmd160  a39305c4b47e5f2f3c51151b8faea3ef17aaec46 \
+                    sha256  9484b3bbda1acc7b13a4f71031a85ce10c77bd0ffec7226741a219ef587e3a7c
 
 patchfiles-append   patch-magic-Magdir-msdos.diff \
-                    patch-src-readcdf.c.diff \
                     patch-magic-Makefile.am.diff \
+                    patch-Makefile.am.diff \
                     patch-getline.diff \
+                    patch-configure.ac.diff \
                     patch-acinclude.m4.diff
-# patch-configure.ac.diff is commented out because it fails
-# to apply against the new version
+# The following patchfiles are no longer listed above because they fail
+# to apply against the new version:
+# - the original patch-configure.ac.diff (as of file 5.15)
+# - patch-src-readcdf.c.diff (as of file 5.19)
+# The following patchfiles are no longer appended above because...?
+# - patch-magic-Magdir-assembler.diff (???)
 
-configure.args-append \
-                    --enable-fsect-man5 \
-                    --disable-silent-rules \
-                    --disable-elf \
-                    --disable-elf-core
+configure.args-append   --enable-fsect-man5 \
+                        --enable-largefile \
+                        --enable-silent-rules \
+                        --disable-elf \
+                        --disable-elf-core \
+                        --disable-maintainer-mode \
+                        --disable-warnings
 
-depends_build-append \
-                    port:gawk \
-                    lib:rx:rx
+depends_build-append    port:gawk \
+                        lib:rx:rx
 # The rx port only installs a static library, so it is only
-# a build dependency
+# a build dependency. Actually using it currently fails though.
 
-depends_lib-append  port:zlib
+depends_lib-append      port:zlib
 
-depends_run-append  bin:otool:cctools
+depends_run-append      bin:otool:cctools
 
 post-patch {
     # run glibtoolize before autoreconf runs it, to silence some warnings
-    # from aclocal
-    system -W ${worksrcpath} "glibtoolize --copy --force --automake"
+    # from aclocal:
+    ui_debug "running \"${prefix}/bin/glibtoolize --copy --force --automake\" in ${worksrcpath}"
+    system -W ${worksrcpath} "${prefix}/bin/glibtoolize --copy --force --automake"
     eval xinstall [glob ${filespath}/*.c] ${worksrcpath}/src
     eval xinstall [glob ${filespath}/*.h] ${worksrcpath}/src
 }
@@ -70,11 +74,29 @@ post-patch {
 use_autoreconf      yes
 autoreconf.args     -fvi
 
-use_parallel_build  no
+# temporarily disable ccache to ease unprivileged development:
+configure.ccache    no
+
 build.type          gnu
 
-test.run            yes
-test.target         check
+variant debug description {enable debugging} {
+    patch.args-append       --backup
+    autoreconf.args-append  -Wall
+    configure.args-replace  --enable-silent-rules --disable-silent-rules
+    configure.args-replace  --disable-warnings --enable-warnings
+    configure.args-replace  --disable-maintainer-mode --enable-maintainer-mode
+    if {[catch "registry_active gdb"]} {
+        # "catch" syntax always confuses me; this is the case where gdb
+        # is NOT active:
+        configure.optflags  -g
+    } else {
+        configure.optflags  -ggdb
+    }
+    configure.pipe          no
+    use_parallel_build      no
+    test.run                yes
+    test.target             check
+}
 
 if {${name} == ${subport}} {
     depends_lib-append port:libmagic
@@ -92,13 +114,14 @@ if {${name} == ${subport}} {
 }
 
 subport libmagic {
+    configure.args-append --enable-static --enable-shared
     post-destroot {
         delete ${destroot}${prefix}/bin/file ${destroot}${prefix}/share/man/man1/file.1
     }
     
     pre-activate {
         # file @5.14_0 and earlier installed some files now provided by
-        # libmagic
+        # libmagic:
         if {![catch {set installed [lindex [registry_active file] 0]}]} {
             set file_version [lindex ${installed} 1]
             set file_revision [lindex ${installed} 2]
@@ -106,5 +129,17 @@ subport libmagic {
                 registry_deactivate_composite file "" [list ports_nodepcheck 1]
             }
         }
+    }
+
+    variant python description {Enable python bindings (experimental)} {
+        depends_build-append    bin:python:python_select
+        depends_run-append      bin:python:python27
+        patchfiles-append       patch-python_Makefile.am.diff
+        post-build {
+            ui_debug "running \"python setup.py build\" in ${worksrcpath}/python"
+            system -W ${worksrcpath}/python "python setup.py build"
+        }
+        #FIXME: building works, but installing python stuff currently
+        # ignores DESTDIR, and fails because of that...
     }
 }

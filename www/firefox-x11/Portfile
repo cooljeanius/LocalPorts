@@ -84,6 +84,12 @@ depends_lib-append \
         port:xrender \
         port:zlib
 
+# Some flags to use some of them:
+configure.cppflags-append \
+        -DHAVE_GLIB \
+        -I${prefix}/include/glib-2.0 \
+        -I${prefix}/lib/glib-2.0/include
+
 # The following were listed as dependencies in build instructions I found
 # for Firefox online. They are also turned on by configure.args set below.
 depends_lib-append \
@@ -94,7 +100,7 @@ depends_lib-append \
         port:sqlite3 \
         port:hunspell
 
-# The following I just added from the configure script, feel free to remove
+# The following I just added via the configure script, feel free to remove:
 depends_build-append \
         port:mawk \
         port:gawk \
@@ -116,7 +122,7 @@ depends_lib-append \
         port:gss \
         port:libpixman \
         port:libproxy
-# xorg-libXinerama should have been added above
+# (xorg-libXinerama should have already been added above)
 
 platform darwin 11 {
     # ticket #31941, bug in system grep:
@@ -221,28 +227,33 @@ require_active_variants gconf x11
 require_active_variants gdk-pixbuf2 x11
 require_active_variants gtk2 x11
 require_active_variants libnotify x11
-require_active_variants mesa iglx
+#require_active_variants mesa iglx
 require_active_variants pango x11
+
+# this warning is actually kind of pointless, as the system dyld headers
+# can trigger the same warnings:
+post-configure {
+    if {![catch "registry_active dyld-headers"]} {
+        ui_warn "Having dyld-headers active could cause some warnings when building ${name}."
+        ui_msg "You might want to deactivate the dyld-headers port while building ${name}, and then reactivate it later."
+        ui_msg "Continuing building anyway for now though..."
+    }
+}
 
 variant debug description {build for debugging} {
     depends_build-append \
-         port:valgrind \
+         bin:valgrind:valgrind \
          bin:gdb:gdb
-    configure.args-delete   --disable-debug \
-                            --disable-mochitest \
-                            --enable-optimize='${configure.optflags}' \
-                            --enable-strip \
-                            --enable-install-strip \
-                            --disable-tests
-    configure.args-append   --enable-debug='-ggdb3' \
-                            --enable-mochitest \
-                            --disable-optimize \
-                            --disable-strip \
-                            --disable-install-strip \
-                            --enable-profiling \
+    depends_skip_archcheck-append valgrind gdb
+    configure.args-replace  --disable-debug --enable-debug='-ggdb3'
+    configure.args-replace  --disable-mochitest --enable-mochitest
+    configure.args-replace  --enable-optimize='${configure.optflags}' --disable-optimize
+    configure.args-replace  --enable-strip --disable-strip
+    configure.args-replace  --enable-install-strip --disable-install-strip
+    configure.args-replace  --disable-tests --enable-tests
+    configure.args-append   --enable-profiling \
                             --enable-callgrind \
                             --enable-valgrind \
-                            --enable-tests \
                             --enable-logging \
                             --enable-logrefcnt \
                             --enable-reflow-perf \
@@ -252,6 +263,7 @@ variant debug description {build for debugging} {
                             --enable-libIDLtest \
                             --enable-trace-jscalls
     configure.optflags      -g
+    configure.pipe          no
     if {${os.platform} eq "darwin" && ${os.major} < 11} {
         configure.args-append \
             --enable-shark
@@ -260,12 +272,14 @@ variant debug description {build for debugging} {
         configure.args-append \
             --enable-dtrace
     }
+    #FIXME: add a test suite somewhere around here...
 }
 
 variant docs description {Build documentation} {
     depends_build-append \
         port:doxygen
-    #TODO: tell port to actually use doxygen
+    configure.env-append \
+        DOXYGEN=${prefix}/bin/doxygen
 }
 
 variant gnome description {use gnome libraries where appropriate} {
@@ -276,24 +290,19 @@ variant gnome description {use gnome libraries where appropriate} {
 	port:gnome-icon-theme \
         port:startup-notification
 
-    configure.args-delete --disable-gnomevfs \
-                          --disable-gnomeui
-    configure.args-append --enable-gnomevfs \
-                          --enable-gnomeui \
-                          --enable-gio \
+    configure.args-replace --disable-gnomevfs --enable-gnomevfs
+    configure.args-replace --disable-gnomeui --enable-gnomeui
+    configure.args-append --enable-gio \
                           --enable-gconf \
                           --enable-startup-notification
 }
 
 variant official_branding description {Enables official Firefox branding.  You may not redistribute resulting packages built with this variant.} {
     license-append restrictive
+    configure.args-replace --disable-official-branding --enable-official-branding
+    configure.args-replace --disable-splashscreen --enable-splashscreen
     configure.args-delete \
-        --disable-official-branding \
-        --with-branding=browser/branding/unofficial \
-        --disable-splashscreen
-    configure.args-append \
-	--enable-official-branding \
-        --enable-splashscreen
+        --with-branding=browser/branding/unofficial
 }
 
 patchfiles-append patch-dylib_file.diff
@@ -311,11 +320,11 @@ post-patch {
     # find -xtype -> gfind -xtype
     reinplace "s:find:gfind:g" ${worksrcpath}/toolkit/mozapps/installer/packager.mk
 
-    # Do NOT use the system X11
+    # Do NOT use the system X11:
     reinplace "s:/usr/X11R6:${prefix}:" ${worksrcpath}/dom/plugins/base/nsPluginsDirUnix.cpp
     reinplace "s/libXt.so.6:libXext.so/libXt.dylib:libXext.dylib/" ${worksrcpath}/dom/plugins/base/nsPluginsDirUnix.cpp
 
-    # Set the right install_name on the libs
+    # Set the right install_name on the libs:
     reinplace "s:@executable_path:${prefix}/lib/${pkg_name}:g" ${worksrcpath}/config/config.mk
     reinplace "s:@executable_path:${prefix}/lib/${pkg_name}:g" ${worksrcpath}/config/rules.mk
     reinplace "s:@executable_path:${prefix}/lib/${pkg_name}:g" ${worksrcpath}/js/src/config/config.mk
@@ -325,7 +334,7 @@ post-patch {
     reinplace "s:@executable_path:${prefix}/lib/${pkg_name}:g" ${worksrcpath}/security/coreconf/Darwin.mk
     reinplace "s:@executable_path:${prefix}/lib/${pkg_name}:g" ${worksrcpath}/security/nss/lib/freebl/config.mk
 
-    # Fix the correct library filenames for loading at runtime
+    # Fix the correct library filenames for loading at runtime:
     reinplace "s:libatk-1.0.so.0:${prefix}/lib/libatk-1.0.dylib:" ${worksrcpath}/accessible/src/atk/nsApplicationAccessibleWrap.cpp
 
     reinplace "s:libgssapi_krb5.so.2:${prefix}/libexec/heimdal/lib/libgssapi.2.dylib:" ${worksrcpath}/extensions/auth/nsAuthGSSAPI.cpp
@@ -355,7 +364,7 @@ post-patch {
     reinplace "s:libXss.so.1:${prefix}/lib/libXss.1.0.0.dylib:" ${worksrcpath}/widget/src/qt/nsIdleServiceQt.cpp
     reinplace "s:libesd.so.0:${prefix}/lib/libesd.0.dylib:" ${worksrcpath}/widget/src/qt/nsSound.cpp
 
-    # Set our system plugins path
+    # Set our system plugins path:
     reinplace "s:/usr/lib/mozilla/plugins:${prefix}/lib/nsplugins:" ${worksrcpath}/xpcom/io/nsAppFileLocationProvider.cpp
 
     reinplace "s:/etc/gre\.:${prefix}/etc/gre.:g" \

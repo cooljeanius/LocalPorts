@@ -7,7 +7,7 @@ PortGroup         active_variants 1.1
 
 name              PureDarwin
 version           0.1
-revision          1
+revision          2
 categories        sysutils
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall openmaintainer
@@ -145,7 +145,6 @@ depends_lib-append port:darwinbuild \
                    port:cryptlib \
                    port:fuzz \
                    port:flawfinder \
-                   port:libnasl \
                    port:p5.16-net-telnet \
                    port:p5.16-net-telnet-cisco \
                    port:putty \
@@ -239,7 +238,7 @@ depends_lib-append port:darwinbuild \
                    port:watch \
                    port:p5.16-mozilla-ca \
                    port:p5.16-csp \
-                   port:curl-ca-bundle \
+                   path:etc/openssl/cert.pem:certsync \
                    port:dirmngr \
                    port:keychain \
                    port:SSHKeychain \
@@ -257,7 +256,7 @@ depends_lib-append port:darwinbuild \
                    port:p5.16-net-frame-dump \
                    port:tcpdstat \
                    port:tcpdump \
-                   port:docbook2x \
+                   path:bin/docbook2man:docbook2x \
                    port:sicp \
                    port:texi2html \
                    port:texinfo \
@@ -299,8 +298,8 @@ depends_lib-append port:darwinbuild \
                    port:proxytunnel
 depends_run-append port:qemu
 
-# TODO: Check ${configure.cxx_stdlib} directly once MacPorts 2.3 is
-# released
+# TODO: Check ${configure.cxx_stdlib} directly now that MacPorts 2.3 is
+# released:
 platform darwin {
     set cxxstdlib {}
 
@@ -314,16 +313,22 @@ platform darwin {
     } else {
         set cxxstdlib libstdc++
     }
-}
 
-if {${cxxstdlib} eq "libstdc++"} {
-    depends_lib-append path:lib/pkgconfig/webkit-1.0.pc:webkit-gtk-2.0
-} else {
-    depends_lib-append path:lib/pkgconfig/webkit-1.0.pc:webkit-gtk
+    if {${cxxstdlib} eq "libstdc++"} {
+        depends_lib-append path:lib/pkgconfig/webkit-1.0.pc:webkit-gtk-2.0
+    } else {
+        depends_lib-append path:lib/pkgconfig/webkit-1.0.pc:webkit-gtk
+        if {${cxxstdlib} eq "libc++" && ${os.major} <= 10} {
+            depends_lib-append port:libc++
+        }
+    }
 }
 
 require_active_variants MacPorts only_mp_deps
 require_active_variants MacPorts mp_bundle
+# Requiring that MacPorts be installed with the `+mp_bundle` variant will
+# drag in my "useful-ports" port, which in turn will drag in a bunch of
+# other dependencies.
 
 # livecheck is not applicable here, so disable:
 livecheck.type       none

@@ -1,5 +1,5 @@
---- acinclude.m4.bak	2013-09-15 19:15:59.000000000 -0400
-+++ acinclude.m4	2013-09-16 07:27:05.000000000 -0400
+--- acinclude.m4.orig	2010-07-21 11:56:10.000000000 -0400
++++ acinclude.m4	2014-10-10 12:48:46.000000000 -0400
 @@ -1,58 +1,82 @@
 -dnl from autoconf 2.13 acspecific.m4, with changes to check for daylight
 +dnl# from autoconf 2.13 acspecific.m4, with changes to check for daylight
@@ -35,8 +35,8 @@
 +# On SGI, apparently tzname is a #define, but that is ok,
 +# AC_CHECK_DECL will consider it declared and we will not give our
 +# own extern.
-+AC_CHECK_HEADERS_ONCE([time.h])
-+AC_CHECK_DECLS([tzname],[],[],[#include <time.h>])
++AC_CHECK_HEADERS_ONCE([time.h])dnl
++AC_CHECK_DECLS([tzname],[],[],[#include <time.h>])dnl
 +AC_CACHE_CHECK([for tzname],[ac_cv_var_tzname],
 +[AC_LINK_IFELSE([AC_LANG_SOURCE([[
 +#include <time.h>
@@ -47,13 +47,13 @@
 -  if test $ac_cv_var_tzname = yes; then
 -    AC_DEFINE(HAVE_TZNAME,1,[HAVE_TZNAME])
 -  fi
-+#endif
++#endif /* !HAVE_DECL_TZNAME */
 +]],[[
 +return tzname[0][0];
 +]])],
 +  [ac_cv_var_tzname=yes],[ac_cv_var_tzname=no])
 +])
-+if test $ac_cv_var_tzname = yes; then
++if test "x${ac_cv_var_tzname}" = "xyes"; then
 +  AC_DEFINE([HAVE_TZNAME],[1],[HAVE_TZNAME])
 +fi
  
@@ -81,7 +81,7 @@
 -[AC_TRY_LINK(
 -changequote(<<, >>)dnl
 -<<#include <time.h>
-+AC_CHECK_DECLS([daylight],[],[],[#include <time.h>])
++AC_CHECK_DECLS([daylight],[],[],[#include <time.h>])dnl
 +AC_CACHE_CHECK([for daylight],[ac_cv_var_daylight],
 +[AC_LINK_IFELSE([AC_LANG_SOURCE([[
 +#include <time.h>
@@ -90,7 +90,7 @@
 -#endif>>,
 -changequote([, ])dnl
 -[atoi(daylight);], ac_cv_var_daylight=yes, ac_cv_var_daylight=no)])
-+#endif
++#endif /* !HAVE_DECL_DAYLIGHT */
 +]],[[
 +atoi(daylight);
 +]])],

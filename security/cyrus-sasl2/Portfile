@@ -82,7 +82,12 @@ pre-build {
     }
 }
 
-# try to fix #41872
+# an attempt at a test suite:
+test.run                yes
+test.target             check
+# (currently short enough that it passes)
+
+# try to fix #41872 but only in certain cases:
 if {[file exists /usr/local/include/db.h]} {
     destroot.delete_la_files yes
 }

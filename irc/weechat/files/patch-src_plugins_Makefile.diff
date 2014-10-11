@@ -1,6 +1,6 @@
---- src/plugins/Makefile.am.orig	2013-01-20 02:21:06.000000000 -0600
-+++ src/plugins/Makefile.am	2013-01-21 23:40:25.000000000 -0600
-@@ -117,8 +117,8 @@
+--- src/plugins/Makefile.am.orig	2013-10-06 02:58:14.000000000 -0400
++++ src/plugins/Makefile.am	2014-10-10 16:01:57.000000000 -0400
+@@ -113,8 +113,8 @@
  # install plugin header
  
  install-data-hook:
