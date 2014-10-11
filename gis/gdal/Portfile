@@ -624,7 +624,7 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
 if {[variant_isset python25] || [variant_isset python26] || \
     [variant_isset python27] || [variant_isset huge]} {
     use_parallel_build      no
-    }
+}
 
 variant extra_nonuniversal conflicts universal requires huge hdf4 lzma \
         description {Extra dependencies that are not universal} {
@@ -661,7 +661,7 @@ not even work even when not building universal} {
         depends_lib-append  port:xalanj
         depends_skip_archcheck-append xalanj
     }
-    }
+}
 
 variant autoreconf description {Runs autoreconf before configuring} {
     pre-patch {
@@ -683,7 +683,7 @@ if {[variant_isset autoreconf] || [variant_isset framework] || \
     ([variant_isset netcdf] && \
      ([variant_isset python26] || [variant_isset python27]))} {
     configure.ccache no
-    }
+}
 
 # Perf variant to optimize code:
 variant perf description {Optimize for speed} {

@@ -127,8 +127,8 @@ variant gcrypt description {Add libgcrypt support - currently broken} {
                 LIBGCRYPT_PREFIX='${prefix}'
     pre-build {
         ui_warn "Warning: This build will probably fail due to libgcrypt."
-        }
     }
+}
 
 # used to be enabled unconditionally, so make it a default variant:
 default_variants-append +gcrypt

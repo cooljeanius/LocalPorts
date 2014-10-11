@@ -100,7 +100,7 @@ variant sasl description {Enable authentication via SASL} {
     depends_lib-append port:cyrus-sasl2
     configure.args-replace --without-cyrus-sasl --with-cyrus-sasl
     configure.env-append SASL_LIBS="-lsasl2"
-    }
+}
 
 # This used to be enabled by default without a variant, and it will
 # warn you if you disable it, so make the variant a default:

@@ -129,7 +129,7 @@ variant doc description {Build Documentation and plugin API} {
     depends_build-append            port:source-highlight
     depends_skip_archcheck-append   source-highlight
     configure.args-append           -DENABLE_DOC=ON
-    }
+}
 
 # The cmake PortGroup should already provide the +debug variant for us;
 # we just need to modify a few aspects of it:
@@ -142,7 +142,7 @@ if {[variant_isset debug]} {
     }
     configure.optflags          -g
     configure.pipe              no
-    }
+}
 
 if {[variant_isset debug] || [variant_isset doc]} {
     # the plugin API part of the doc variant (also useful for debugging):

@@ -104,7 +104,7 @@ variant debug description {enable debugging} {
         reinplace "s|-Werror||g" ${worksrcpath}/libical/src/libicalss/Makefile
         reinplace "s|-Werror||g" ${worksrcpath}/src/Makefile
     }
-    }
+}
 
 # livecheck is broken, so disable:
 livecheck.type  none

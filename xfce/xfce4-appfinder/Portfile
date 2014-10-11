@@ -85,7 +85,7 @@ variant debug description {enable debugging} {
     configure.args-append --enable-debug=full
     configure.optflags    -g
     configure.pipe        no
-    }
+}
 
 # livecheck is broken, so disable:
 livecheck.type  none
