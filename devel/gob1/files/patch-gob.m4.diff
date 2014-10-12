@@ -1,0 +1,48 @@
+--- gob.m4.orig	2000-08-07 01:20:51.000000000 -0400
++++ gob.m4	2014-10-11 19:02:08.000000000 -0400
+@@ -1,11 +1,12 @@
++# gob.m4 serial 1                                          -*- Autoconf -*-
+ dnl
+ dnl GOB_HOOK(script if found, fail)
+ dnl if fail = "failure", abort if GOB not found
+ dnl
+ 
+ 
+-AC_DEFUN(GOB_HOOK,[
+-	AC_PATH_PROG(GOB,gob)
++AC_DEFUN([GOB_HOOK],[
++	AC_PATH_PROGS([GOB],[gob gob1])
+ 	if test ! x$GOB = x; then	
+ 		if test ! x$1 = x; then 
+ 			AC_MSG_CHECKING(for gob >= $1)
+@@ -19,10 +20,10 @@
+ 			if test $g_ve -eq $g_r_ve; then
+ 				if test $g_ma -ge $g_r_ma; then
+ 					if test $g_mi -ge $g_r_mi; then
+-						AC_MSG_RESULT(ok)
++						AC_MSG_RESULT([ok])
+ 					else
+ 						if test $g_ma -gt $g_r_ma; then
+-							AC_MSG_RESULT(ok)
++							AC_MSG_RESULT([ok])
+ 						else
+ 							AC_MSG_ERROR("found $g_ve.$g_ma.$g_mi requires $g_r_ve.$g_r_ma.$g_r_mi")
+ 						fi
+@@ -32,7 +33,7 @@
+ 				fi
+ 			else
+ 				if test $g_ve -gt $g_r_ve; then
+-					AC_MSG_RESULT(ok)
++					AC_MSG_RESULT([ok])
+ 				else
+ 					AC_MSG_ERROR(major version $g_ve found but $g_r_ve required)
+ 				fi
+@@ -46,7 +47,7 @@
+ 			unset g_r_ma
+ 			unset g_r_mi
+ 		fi
+-		AC_SUBST(GOB)
++		AC_SUBST([GOB])
+ 		$2
+ 	else		
+ 		$3

@@ -39,6 +39,8 @@ checksums \
     rmd160 11130c6de4ef55924d779f6697be87b55f2d94d3 \
     sha256 95c4337b10f0e54192dcdaf7ce60f9bd22dfc82abd0832219b20dedd06d509dc
 
+use_bzip2               yes
+
 depends_build-append    port:asciidoc \
                         port:libtool
 
@@ -50,30 +52,45 @@ depends_lib-append      port:gettext \
                         port:curl \
                         port:zlib
 
+# this patch only does stuff when building with autotools, but it cannot
+# hurt to apply it anyways:
 patchfiles-append       patch-src_plugins_Makefile.diff
 
-configure.args-append   -DENABLE_GNUTLS=OFF \
-                        -DENABLE_LUA=OFF \
-                        -DENABLE_GUILE=OFF \
-                        -DENABLE_PERL=OFF \
-                        -DENABLE_PYTHON=OFF \
-                        -DENABLE_PYTHON3=OFF \
-                        -DENABLE_RUBY=OFF \
-                        -DENABLE_TCL=OFF \
-                        -DENABLE_ASPELL=OFF
-
-use_bzip2               yes
+if {![variant_isset autotools]} {
+    # cmake options are just in the order they have historically been in:
+    configure.args-append   -DENABLE_GNUTLS=OFF \
+                            -DENABLE_LUA=OFF \
+                            -DENABLE_GUILE=OFF \
+                            -DENABLE_PERL=OFF \
+                            -DENABLE_PYTHON=OFF \
+                            -DENABLE_PYTHON3=OFF \
+                            -DENABLE_RUBY=OFF \
+                            -DENABLE_TCL=OFF \
+                            -DENABLE_ASPELL=OFF
+} else {
+    configure.env-append    CURL_CONFIG="${prefix}/bin/curl-config"
+}
 
 variant aspell description {Support for aspell} {
-    configure.args-replace  -DENABLE_ASPELL=OFF -DENABLE_ASPELL=ON
+    if {![variant_isset autotools]} {
+        configure.args-replace  -DENABLE_ASPELL=OFF -DENABLE_ASPELL=ON
+    } else {
+        # aspell can also use enchant with autotools:
+        depends_lib-append      port:enchant
+        # (the actual switching of arguments has to be done in the actual
+        # variant, or else we end up with a million pre-configure blocks)
+    }
     depends_lib-append      port:aspell
 }
 
-#FIXME: this variant seems to have broken:
+# scripting variants:
+
+#FIXME: this lua variant seems to have broken when using cmake:
 variant lua conflicts universal description {Bindings for lua plugins} {
-    configure.args-replace      -DENABLE_LUA=OFF -DENABLE_LUA=ON
-    depends_lib-append          port:lua \
-                                port:lua51
+    if {![variant_isset autotools]} {
+        configure.args-replace  -DENABLE_LUA=OFF -DENABLE_LUA=ON
+    }
+    depends_lib-append          port:lua51
     # (lua51 is non-universal)
     configure.cppflags-append   -I${prefix}/include/lua-5.1
     configure.ldflags-append    -L${prefix}/lib/lua-5.1
@@ -83,59 +100,90 @@ variant lua conflicts universal description {Bindings for lua plugins} {
 
 
 variant scheme description {Bindings for Scheme (guile) plugins} {
-    configure.args-replace  -DENABLE_GUILE=OFF -DENABLE_GUILE=ON
+    if {![variant_isset autotools]} {
+        configure.args-replace  -DENABLE_GUILE=OFF -DENABLE_GUILE=ON
+    }
+    #FIXME: complains about version being <= 2.0 when using autotools
     depends_build-append    port:guile
     depends_run-append      port:guile
 }
 
 variant perl description {Bindings for perl plugins} {
-    configure.args-replace  -DENABLE_PERL=OFF -DENABLE_PERL=ON
+    if {![variant_isset autotools]} {
+        configure.args-replace  -DENABLE_PERL=OFF -DENABLE_PERL=ON
+    }
     depends_build-append    path:bin/perl:perl5
     depends_lib-append      lib:perl:perl5.16
     depends_run-append      path:bin/perl:perl5
 }
 
 variant python description {Bindings for python plugins} {
-    configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
+    # keep python3 disabled though:
+    if {![variant_isset autotools]} {
+        configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
+    }
     depends_build-append    bin:python:python_select
     depends_lib-append      path:bin/python:python27
     depends_run-append      bin:python:python26
 
-    post-configure {
-        reinplace -E "s|\(Python.framework\)|${frameworks_dir}/\\1|" ${worksrcpath}/src/plugins/python/CMakeFiles/python.dir/link.txt
+    # this reinplace only does stuff when building with cmake, and it fails
+    # otherwise:
+    if {![variant_isset autotools]} {
+        post-configure {
+            reinplace -E "s|\(Python.framework\)|${frameworks_dir}/\\1|" ${worksrcpath}/src/plugins/python/CMakeFiles/python.dir/link.txt
+        }
     }
 }
 
 variant ruby description {Bindings for ruby plugins} {
-    configure.args-replace  -DENABLE_RUBY=OFF -DENABLE_RUBY=ON
+    if {![variant_isset autotools]} {
+        configure.args-replace  -DENABLE_RUBY=OFF -DENABLE_RUBY=ON
+    }
     depends_build-append    bin:ruby:ruby
     depends_run-append      path:bin/ruby:ruby19
 }
 
 variant tcl description {Bindings for tcl plugins} {
-    configure.args-replace  -DENABLE_TCL=OFF -DENABLE_TCL=ON
+    if {![variant_isset autotools]} {
+        configure.args-replace  -DENABLE_TCL=OFF -DENABLE_TCL=ON
+    }
     depends_lib-append      port:tcl
 }
 
+# end scripting variants
+
 variant tls description {Support for secure connecting} {
-    configure.args-replace  -DENABLE_GNUTLS=OFF -DENABLE_GNUTLS=ON
-    configure.args-append   -DCA_FILE=${prefix}/etc/openssl/cert.pem
+    if {![variant_isset autotools]} {
+        configure.args-replace  -DENABLE_GNUTLS=OFF -DENABLE_GNUTLS=ON
+        configure.args-append   -DCA_FILE=${prefix}/etc/openssl/cert.pem
+    } else {
+        configure.env-append    CA_FILE=${prefix}/etc/openssl/cert.pem
+    }
     depends_lib-append      port:gnutls
     depends_run-append      path:etc/openssl/cert.pem:certsync
 }
 
-# we already build asciidocs anyways; this is just extra:
+# we already build asciidocs anyways (at least with cmake); so this
+# is just extra:
 variant doc description {Build Documentation and plugin API} {
     depends_build-append            port:source-highlight
     depends_skip_archcheck-append   source-highlight
-    configure.args-append           -DENABLE_DOC=ON
+    if {![variant_isset autotools]} {
+        configure.args-append       -DENABLE_DOC=ON
+    } else {
+        configure.env-append \
+                        ASCIIDOC="${prefix}/bin/asciidoc" \
+                        A2X="${prefix}/bin/a2x" \
+                        SOURCEHIGHLIGHT="${prefix}/bin/source-highlight"
+    }
 }
 
 # The cmake PortGroup should already provide the +debug variant for us;
 # we just need to modify a few aspects of it:
 if {[variant_isset debug]} {
-    patch.args-append           --backup
-    configure.args-replace      -Wno-dev --debug-output
+    if {![variant_isset autotools]} {
+        configure.args-replace  -Wno-dev --debug-output
+    }
     # cmake warns that this flag set by the cmake PortGroup is unused:
     pre-configure {
         configure.args-delete   -DCMAKE_CXX_FLAGS_RELEASE="-DNDEBUG"
@@ -149,24 +197,105 @@ if {[variant_isset debug] || [variant_isset doc]} {
     destroot.delete_la_files    no
 }
 
-# (uncomment in a separate commit; it will require extra work)
-#variant autotools requires debug \
-# description {Build with autotools instead of cmake} {
-#    # cmake is still needed, but just for autoreconfing. The dependency
-#    # does not really actually need to be changed, but doing so shows the
-#    # changed purpose:
-#    depends_build-replace   port:cmake path:share/aclocal/cmake.m4:cmake
-#    depends_build-append    port:autoconf \
-#                            port:automake \
-#                            port:gettext
-#    # (libtool is already added as a dependency above)
-#    patchfiles-append       patch-autogen.sh.diff \
-#                            patch-configure.ac.diff \
-#                            patch-Makefile.am.diff
-#    use_autoreconf          yes
-#    # (since we override autoreconf.cmd, we add the dependencies manually)
-#    autoreconf.cmd          "sh ./autogen.sh"
-#}
+if {[variant_isset debug] || [variant_isset autotools]} {
+    # this was originally just for the debug variant, but the autotools
+    # variant has extra patches, so use it there as well:
+    patch.args-append           --backup
+}
+
+# this is still a WIP:
+variant autotools description {Build with autotools instead of cmake} {
+    # cmake is still needed, but just for autoreconfing (and even then
+    # not really; I only added the macro in case I need to replicate cmake
+    # checks in autoconf in the future). The dependency does not really
+    # actually need to be changed, but doing so shows the changed purpose:
+    depends_build-replace   port:cmake path:share/aclocal/cmake.m4:cmake
+    depends_build-append    port:autoconf \
+                            port:automake \
+                            port:gettext
+    depends_lib-append      port:pth
+    # (libtool is already added as a dependency above)
+    patchfiles-append       patch-autogen.sh.diff \
+                            patch-configure.ac.diff \
+                            patch-Makefile.am.diff
+    post-patch {
+        file mkdir ${worksrcpath}/m4
+        xinstall -m 644 ${filespath}/signal.m4 ${worksrcpath}/m4
+    }
+    use_autoreconf          yes
+    # (since we override autoreconf.cmd, we add the dependencies manually)
+    autoreconf.cmd          "sh ./autogen.sh"
+    # override these here instead of appending like normal:
+    configure.cmd           ./configure
+    configure.pre_args      --prefix=${prefix}
+    # need to do these ones in a phase to properly override:
+    pre-configure {
+    # autotools configure flags are new, so put them in alphabetical order:
+        configure.args      --disable-aspell \
+                            --disable-doc \
+                            --disable-enchant \
+                            --disable-gnutls \
+                            --disable-guile \
+                            --disable-lua \
+                            --disable-man \
+                            --disable-perl \
+                            --disable-python \
+                            --disable-python3 \
+                            --disable-ruby \
+                            --disable-scripts \
+                            --disable-tcl \
+                            --with-libpth-prefix=${prefix} \
+                            --with-libiconv-prefix=${prefix} \
+                            --with-libintl-prefix=${prefix} \
+                            --disable-xfer
+        # (the last one is necessary because the necessary flag,
+        # '-Wl,-multiply_defined,suppress', is deprecated and no longer
+        # works, unfortunately...)
+        if {[variant_isset aspell]} {
+            configure.args-replace  --disable-aspell --enable-aspell
+            configure.args-replace  --disable-enchant --enable-enchant
+        }
+        if {[variant_isset lua]} {
+            configure.args-replace  --disable-lua --enable-lua
+            configure.args-append \
+                                --with-lua-inc=${prefix}/include/lua-5.1 \
+                                --with-lua-lib=${prefix}/lib/lua-5.1 \
+                                --with-lua-suffix="-5.1"
+        }
+        if {[variant_isset scheme]} {
+            configure.args-replace  --disable-guile --enable-guile
+        }
+        if {[variant_isset perl]} {
+            configure.args-replace  --disable-perl --enable-perl
+        }
+        if {[variant_isset python]} {
+            configure.args-replace  --disable-python --enable-python
+        }
+        if {[variant_isset ruby]} {
+            configure.args-replace  --disable-ruby --enable-ruby
+        }
+        if {[variant_isset tcl]} {
+            configure.args-replace  --disable-tcl --enable-tcl
+            configure.args-append   --with-tclconfig=${prefix}/lib
+        }
+        if {[variant_isset lua] || [variant_isset scheme] || \
+            [variant_isset perl] || [variant_isset python] || \
+            [variant_isset ruby] || [variant_isset tcl]} {
+            configure.args-replace  --disable-scripts --enable-scripts
+        }
+        if {[variant_isset tls]} {
+            configure.args-replace  --disable-gnutls --enable-gnutls
+        }
+        if {[variant_isset doc]} {
+            configure.args-replace  --disable-doc --enable-doc
+            configure.args-replace  --disable-man --enable-man
+        }
+        if {[variant_isset debug]} {
+            configure.args-append   --with-debug
+        }
+        configure.universal_args    --disable-dependency-tracking
+    }
+}
 
 post-destroot {
     set docdir ${destroot}${prefix}/share/doc/${name}

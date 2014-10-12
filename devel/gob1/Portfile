@@ -1,0 +1,31 @@
+# -*- Mode: Tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:et:sw=4:ts=4:sts=4
+# $Id: Portfile 112918 2013-11-04 03:47:36Z jmr@macports.org $
+
+PortSystem          1.0
+
+name                gob1
+version             1.0.12
+revision            1
+categories          devel
+license             GPL-2+
+maintainers         nomaintainer
+description         preprocessor for making GTK+ 1 objects with inline C
+long_description \
+    Old 1.0 version of gob for making GTK+ 1 (with \
+    some support for GTK+ 2) objects.
+homepage            http://www.5z.com/jirka/gob.html
+platforms           darwin
+
+master_sites        http://ftp.5z.com/pub/gob/ \
+                    gnome:sources/gob/1.0
+distname            gob-${version}
+checksums           md5     573706a03ff6696ee5b6ab3fbbd17d67 \
+                    sha1    ebdc5c9d24b3eb0eb2c16c9c4bb3e9da225383e3 \
+                    rmd160  a237e1ab70dd96042c1eca63acb4c684e9636269
+
+patchfiles-append   patch-gob.m4.diff
+patch.args-append   --backup
+
+depends_lib-append  port:glib1
+
+configure.args-append   --mandir=${prefix}/share/man

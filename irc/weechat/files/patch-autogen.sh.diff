@@ -1,0 +1,147 @@
+--- autogen.sh.orig	2013-10-06 02:58:14.000000000 -0400
++++ autogen.sh	2014-10-11 18:08:09.000000000 -0400
+@@ -20,26 +20,96 @@
+ # along with WeeChat.  If not, see <http://www.gnu.org/licenses/>.
+ #
+ 
++# before we can set up portability code for 'echo', put the rest of the stuff
++# that autoconf normally puts before it:
++# Be more Bourne compatible:
++DUALCASE=1; export DUALCASE # for MKS sh
++if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then :
++  emulate sh
++  NULLCMD=:
++  # Pre-4.2 versions of Zsh do word splitting on ${1+"$@"}, which
++  # is contrary to our usage.  Disable this feature.
++  alias -g '${1+"$@"}'='"$@"'
++  setopt NO_GLOB_SUBST
++else
++  case `(set -o) 2>/dev/null` in #(
++  *posix*) :
++    set -o posix ;; #(
++  *) :
++     ;;
++esac
++fi
++
++# Now we can steal some "echo" portability code from what autoconf generates:
++as_nl='
++'
++export as_nl
++# Printing a long string crashes Solaris 7 /usr/bin/printf.
++as_echo='\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'
++as_echo=${as_echo}${as_echo}${as_echo}${as_echo}${as_echo}
++as_echo=${as_echo}${as_echo}${as_echo}${as_echo}${as_echo}${as_echo}
++# Prefer a ksh shell builtin over an external printf program on Solaris,
++# but without wasting forks for bash or zsh.
++if test -z "${BASH_VERSION}${ZSH_VERSION}" \
++    && (test "X`print -r -- ${as_echo}`" = "X${as_echo}") 2>/dev/null; then
++  as_echo='print -r --'
++  as_echo_n='print -rn --'
++elif (test "X`printf %s ${as_echo}`" = "X${as_echo}") 2>/dev/null; then
++  as_echo='printf %s\n'
++  as_echo_n='printf %s'
++else
++  if test "X`(/usr/ucb/echo -n -n ${as_echo}) 2>/dev/null`" = "X-n ${as_echo}"; then
++    as_echo_body='eval /usr/ucb/echo -n "$1${as_nl}"'
++    as_echo_n='/usr/ucb/echo -n'
++  else
++    as_echo_body='eval expr "X$1" : "X\\(.*\\)"'
++    as_echo_n_body='eval
++      arg=$1;
++      case ${arg} in #(
++      *"${as_nl}"*)
++	expr "X${arg}" : "X\\(.*\\)${as_nl}";
++	arg=`expr "X${arg}" : ".*${as_nl}\\(.*\\)"`;;
++      esac;
++      expr "X${arg}" : "X\\(.*\\)" | tr -d "${as_nl}"
++    '
++    export as_echo_n_body
++    as_echo_n='sh -c ${as_echo_n_body} as_echo'
++  fi
++  export as_echo_body
++  as_echo='sh -c ${as_echo_body} as_echo'
++fi
++
+ ###
+ ### common stuff
+ ###
+ 
+-AUTOGEN_LOG=autogen.log
++AUTOGEN_SH_LOG=autogen_sh.log
++
++## remove the log up here before defining the run function, in case it somehow
++## managed to get left over, so that we do not append to an already-populated
++## logfile:
++if test -e ${AUTOGEN_SH_LOG}; then
++  rm -f ${AUTOGEN_SH_LOG}
++fi
++
++echo "logging to ${AUTOGEN_SH_LOG} as of `date` from `pwd`" >> ${AUTOGEN_SH_LOG}
+ 
+ err ()
+ {
+     echo "-------"
+     echo "Error :"
+     echo "---8<-----------------------------------"
+-    cat $AUTOGEN_LOG
++    cat ${AUTOGEN_SH_LOG}
+     echo "----------------------------------->8---"
+     exit 1
+ }
+ 
+ run ()
+ {
+-    echo -n "Running \"$@\"..."
+-    eval $@ >$AUTOGEN_LOG 2>&1
++    # 'echo -n' is non-portable; use an autoconf-style compatibility variable
++    # instead:
++    ${as_echo_n} "Running \"$@\"... "
++    eval $@ >>${AUTOGEN_SH_LOG} 2>&1
+     if [ $? = 0 ] ; then
+         echo " OK"
+     else
+@@ -55,7 +125,7 @@
+ run "rm -rf config"
+ run "rm -f config.h.in"
+ run "rm -f aclocal.m4 configure config.log config.status"
+-run "rm -rf autom4te*.cache"
++run "rm -rf autom4te*.cache || rmdir autom4te*.cache"
+ # remove libtool stuff
+ run "rm -f libtool"
+ # remove gettext stuff
+@@ -70,12 +140,27 @@
+ run "mkdir intl"
+ 
+ # execute autotools cmds
+-run "autopoint -f"
+-run "libtoolize --automake --force --copy"
+-run "aclocal --force -I config/m4"
+-run "autoheader"
+-run "autoconf"
+-run "automake --add-missing --copy --gnu"
++run "autopoint --force"
++if test -x "$(which glibtoolize)"; then
++  run "glibtoolize --automake --force --copy"
++else
++  run "libtoolize --automake --force --copy"
++fi
++if test -d m4; then
++  EXTRA_ACLOCAL_FLAGS="-I m4"
++fi
++run "aclocal --force --warnings=all,no-obsolete -I config/m4 ${EXTRA_ACLOCAL_FLAGS} --install"
++run "autoheader --force --warnings=all"
++run "autoconf --force --warnings=all,no-obsolete"
++# automake has 7 warning classes, so as long as we are turning off 3 or fewer,
++# it is better to do it this way:
++run "automake --add-missing --copy --force-missing --gnu --warnings=all,no-obsolete,no-override,no-portability"
+ 
+ # ending
+-rm -f $AUTOGEN_LOG
++if test -w ${AUTOGEN_SH_LOG} && test -r ${AUTOGEN_SH_LOG}; then
++  if test $(wc -l < ${AUTOGEN_SH_LOG}) -gt 100; then
++    rm -f ${AUTOGEN_SH_LOG}
++  fi
++fi
++
++echo "Done running '$0'."

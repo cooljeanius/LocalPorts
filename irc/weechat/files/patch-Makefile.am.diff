@@ -1,0 +1,19 @@
+--- Makefile.am.orig	2013-10-06 02:58:14.000000000 -0400
++++ Makefile.am	2014-10-11 17:06:22.000000000 -0400
+@@ -57,7 +57,7 @@
+              weechat.png \
+              weechat.pc.in
+ 
+-ACLOCAL_AMFLAGS = -I m4
++ACLOCAL_AMFLAGS = -I m4 -I config/m4 --install
+ 
+ pkgconfigdir   = $(libdir)/pkgconfig
+ pkgconfig_DATA = weechat.pc
+@@ -65,5 +65,7 @@
+ icondir   = $(datadir)/icons/hicolor/32x32/apps
+ icon_DATA = weechat.png
+ 
++noinst_SCRIPTS = autogen.sh git-version.sh makedist.sh
++
+ clean-local:
+ 	$(RM) config-git.h
