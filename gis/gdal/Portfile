@@ -7,7 +7,7 @@ PortGroup           archcheck 1.0
 name                gdal
 version             1.10.1
 #TODO: update to 1.11.0
-revision            3
+revision            5
 categories          gis
 license             MIT BSD
 platforms           darwin macosx
@@ -262,7 +262,7 @@ variant ecw description {Enable ECW file format via external ECW SDK} {
 * Please create symbolic links from the /Intergraph directory to
 * ${prefix}/lib/ECW, by executing at the prompt:
 * sudo ln -s /Intergraph/ERDASEcwJpeg2000SDK5.1.1/Desktop_Read-Only \
-                  ${prefix}/lib/ECW"
+                  ${prefix}/lib/ECW
 * Or reinstall the ECW SDK in ${prefix}/lib/ECW directly.
 * Then try again.
 ****"
@@ -278,7 +278,7 @@ variant hdf4 description {Enable HDF4 file format} {
 }
 
 variant hdf5 description {Enable HDF5 file format} {
-    depends_lib-append      port:hdf5-18 \
+    depends_lib-append      port:hdf5 \
                             port:h5utils \
                             port:hdfeos5
     if {[variant_isset hdf4]} {
@@ -329,9 +329,9 @@ variant expat description {Enable expat XML support} {
     configure.args-replace  --without-expat --with-expat=${prefix}
 }
 
-# Python variants:
+# Python variants (first two are deprecated):
 variant python24 conflicts python25 python26 python27 \
-    description {Enable Python 2.4 support} {
+    description {Enable Python 2.4 support (deprecated)} {
     depends_lib-append      port:python24
     configure.python        ${prefix}/bin/python2.4
     configure.args-replace  --without-python --with-python
@@ -341,7 +341,7 @@ variant python24 conflicts python25 python26 python27 \
 }
 
 variant python25 conflicts python24 python26 python27 \
-    description {Enable Python 2.5 support} {
+    description {Enable Python 2.5 support (deprecated)} {
     depends_lib-append      port:python25
     configure.python        ${prefix}/bin/python2.5
     configure.args-replace  --without-python --with-python
@@ -595,9 +595,9 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
         depends_lib-append  path:lib/libstdc++.6.dylib:libgcc
     }
     if {[variant_isset python25]} {
-        depends_lib-append  port:py25-couchdbkit \
-                            port:py25-couchdb \
+        depends_lib-append  port:py25-couchdb \
                             port:py25-xlwt
+        # py25-couchdbkit has been removed from trunk
     }
     if {[variant_isset python26]} {
         depends_lib-append  port:py26-couchdb \
@@ -737,7 +737,7 @@ post-configure {
     if {[variant_isset geos] && \
         [file exists ${worksrcpath}/GDALmake.opt]} {
         reinplace -E "s|(GEOS_CFLAGS.*=).*|\\1|" ${worksrcpath}/GDALmake.opt
-        }
+    }
 }
 
 post-destroot {

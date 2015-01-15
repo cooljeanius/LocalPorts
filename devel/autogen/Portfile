@@ -5,8 +5,8 @@ PortSystem          1.0
 
 name                autogen
 version             5.18.2
-#TODO: update to 5.18.3
-revision            1
+#TODO: update to 5.18.4
+revision            4
 categories          devel
 platforms           darwin
 maintainers         mww openmaintainer
@@ -54,40 +54,96 @@ patch.args-append   --backup
 use_autoreconf      yes
 autoreconf.args     -fvi -Wall
 
+# new version of guile (2.0+) is non-universal:
+universal_variant   no
+
+# match the supported archs with guile, too:
+if {${os.arch} eq "i386" && ${os.major} >= 11} {
+    supported_archs i386 x86_64
+    set universal_archs_supported {i386 x86_64}
+} elseif {${os.arch} eq "i386" && ${build_arch} eq "x86_64"} {
+    supported_archs i386 x86_64 ppc
+    set universal_archs_supported {i386 x86_64 ppc}
+} elseif {${os.arch} eq "i386"} {
+    supported_archs i386 ppc
+    set universal_archs_supported {i386 ppc}
+} elseif {${build_arch} eq "ppc64"} {
+    supported_archs ppc ppc64
+    set universal_archs_supported {ppc ppc64}
+} else {
+    supported_archs ${build_arch}
+    set universal_archs_supported ${build_arch}
+}
+
 depends_build-append \
                     bin:texi2html:texi2html \
                     bin:gawk:gawk \
                     bin:grep:grep \
                     bin:gsed:gsed
+# old, guile18-specific libraries:
+# * port:gmp
+# * port:libtool
 depends_lib-append  port:guile \
                     port:libiconv \
                     port:libxml2 \
                     port:zlib \
                     port:coreutils \
                     port:gettext \
-                    port:gmp \
-                    port:libtool \
                     port:rx \
-                    port:gnuregex
+                    port:boehmgc
 # coreutils is not exactly linked against, but it is still needed.
-# The regex libs were added while I was trying to debug a build issue...
+# libiconv and zlib also seem not to be linked against, but the Portfile in
+# trunk still lists them...
+# The regex library was added while I was trying to debug a build issue...
 
 configure.args-append \
                     --mandir=${prefix}/share/man \
                     --infodir=${prefix}/share/info \
                     --libdir=${prefix}/lib \
                     --enable-snprintfv-install \
-                    --with-libguile=${prefix} \
                     --with-libxml2=${prefix} \
                     --with-libxml2-cflags="-I${prefix}/include/libxml2" \
-                    --with-guile-ver=1.8 \
                     --with-libiconv-prefix=${prefix} \
                     --with-libintl-prefix=${prefix} \
-                    --enable-shell
+                    --enable-shell \
+                    --disable-rpath
+
+# match with guile:
+platform darwin {
+    if {${build_arch} eq "i386"} {
+        configure.args-append \
+            --host=i686-apple-${os.platform}${os.major} \
+            --build=i686-apple-${os.platform}${os.major}
+    } elseif {${build_arch} eq "x86_64"} {
+        configure.args-append \
+            --host=x86_64-apple-${os.platform}${os.major} \
+            --build=x86_64-apple-${os.platform}${os.major}
+    } elseif {${build_arch} eq "ppc"} {
+        configure.args-append \
+            --host=powerpc-apple-${os.platform}${os.major} \
+            --build=powerpc-apple-${os.platform}${os.major}
+    } elseif {${build_arch} eq "ppc64"} {
+        configure.args-append \
+            --host=powerpc64-apple-${os.platform}${os.major} \
+            --build=powerpc64-apple-${os.platform}${os.major}
+    }
+}
+
+# ones I tried that have ended up bad:
+# * --with-libguile=${prefix}
+# * --with-guile-ver=1.8 # (should be 2.0 now)
+# * --with-libguile-cflags="-I${prefix}/include -D_THREAD_SAFE"
+# * --with-libguile-libs="-L${prefix}/lib -lguile18 -lltdl -lgmp -lm"
+#   # (for 2.0, that would be "-L${prefix}/lib -lguile-2.0 -lgc"...)
 
 configure.env-append \
                     libdir=${prefix}/lib \
                     LIBS="-lrx"
+
+post-build {
+    # just in case an '-R' still managed to slip in there::
+    reinplace "s|-R|-L|g" ${worksrcpath}/autoopts/autoopts-config
+}
 
 test.run            yes
 test.target         check

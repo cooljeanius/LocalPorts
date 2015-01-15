@@ -149,18 +149,19 @@ require_active_variants libpcl {debug universal}
 require_active_variants libproj4 {universal}
 require_active_variants qtiplot {debug qtexengine universal}
 
+# deprecated:
 variant python25 conflicts python26 python27 python32 python33 python34 \
-    description {Enable Python 2.5 support} {
+    description {Enable Python 2.5 support (deprecated)} {
     depends_lib-append      port:python25 \
                             port:py25-lightblue \
                             port:py25-openpyxl \
                             port:py25-xlutils \
                             port:py25-xlwt \
-                            port:py25-geopy \
                             port:py25-psycopg2 \
                             port:py25-sqlalchemy \
                             port:py25-geoalchemy \
                             port:py25-couchdb
+    # py25-geopy has been removed from trunk
     require_active_variants gdal {python25}
     require_active_variants vtk5 {python25}
     require_active_variants qtiplot {python25}
