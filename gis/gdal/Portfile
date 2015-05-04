@@ -7,7 +7,7 @@ PortGroup           archcheck 1.0
 name                gdal
 version             1.10.1
 #TODO: update to 1.11.0
-revision            5
+revision            6
 categories          gis
 license             MIT BSD
 platforms           darwin macosx
@@ -290,10 +290,12 @@ variant hdf5 description {Enable HDF5 file format} {
 variant netcdf description {Enable NetCDF file format} {
     depends_lib-append      port:netcdf \
                             port:ncview
-    if {[variant_isset python26] && ![tbool configure.ccache]} {
+    if {[variant_isset python26] && ![tbool configure.ccache] && \
+        ![variant_isset universal]} {
         depends_lib-append  port:py26-netcdf4
     }
-    if {[variant_isset python27] && ![tbool configure.ccache]} {
+    if {[variant_isset python27] && ![tbool configure.ccache] && \
+        ![variant_isset universal]} {
         depends_lib-append  port:py27-netcdf4
     }
     configure.args-replace  --without-netcdf --with-netcdf=${prefix}
@@ -540,8 +542,6 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
                             port:libxmi \
                             port:nco \
                             port:libgdiplus \
-                            port:msgpack \
-                            port:jubatus-msgpack-rpc \
                             port:grib_api \
                             port:ssdeep \
                             port:swig-perl \
@@ -646,6 +646,8 @@ not even work even when not building universal} {
     depends_lib-append      port:pamtester \
                             port:svdlibc \
                             port:sam2p \
+                            lib:msgpack:msgpack \
+                            port:jubatus-msgpack-rpc \
                             port:cyrus-sasl2
     depends_skip_archcheck-append pamtester sam2p tif22pnm svdlibc xercesc
     configure.args-delete   --without-xerces

@@ -7,7 +7,7 @@ PortGroup       conflicts_build 1.0
 name            enblend
 version         4.0
 set longname    ${name}-enfuse
-revision        11
+revision        12
 categories      graphics
 maintainers     gmail.com:hvdwolf openmaintainer
 license         GPL-2+
