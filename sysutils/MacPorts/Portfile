@@ -143,8 +143,8 @@ variant only_mp_deps requires mp_shadow_deps keep_prefix conflicts egallager des
                          port:launch \
                          port:gmake \
                          port:man \
-                         port:p5.16-lchown \
-                         port:p5.16-file-chdir \
+                         port:p5.26-lchown \
+                         port:p5.26-file-chdir \
                          port:cdsclient \
                          port:cmdftp \
                          port:mdf2iso \

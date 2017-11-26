@@ -49,12 +49,12 @@ pre-configure {
     reinplace "s|__OSX_AVAILABLE_BUT_DEPRECATED|//|g" ${worksrcpath}/include_fixed/stdlib.h
     # For some reason autoreconf-ing fails to install these:
     # (be sure to update the version number if automake is ever updated)
-    xinstall -m 755 -W ${prefix}/share/automake-1.14 \
+    xinstall -m 755 -W ${prefix}/share/automake-1.15 \
         ar-lib \
         compile \
         missing \
         ${worksrcpath}/util
-    xinstall -m 755 ${prefix}/share/libtool/config/ltmain.sh ${worksrcpath}/util
+    xinstall -m 755 ${prefix}/share/libtool/build-aux/ltmain.sh ${worksrcpath}/util
 }
 
 configure.env           PATH=${prefix}/libexec/${name}-bootstrap/bin:$env(PATH)

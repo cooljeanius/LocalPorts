@@ -48,7 +48,6 @@ depends_lib-append \
                 path:lib/pkgconfig/pango.pc:pango
 
 depends_run-append \
-                port:gtk-engines \
                 path:share/themes/ThinIce/gtk-2.0/gtkrc:gtk-engines2
 
 # Broken, so disable:

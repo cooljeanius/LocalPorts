@@ -20,16 +20,14 @@ svn.url             https://svn.macports.org/repository/macports/contrib/${name}
 svn.revision        128845
 revision            ${svn.revision}
 
-set perl_version    5.16
+set perl_version    5.26
 
 depends_run-append  port:p${perl_version}-carp-clan \
                     port:p${perl_version}-cpan-meta-yaml \
                     port:p${perl_version}-file-path \
                     port:p${perl_version}-getopt-simple \
                     port:p${perl_version}-list-moreutils \
-                    port:p${perl_version}-module-corelist \
                     port:p${perl_version}-module-depends \
-                    port:p${perl_version}-parse-cpan-meta \
                     port:p${perl_version}-pod-simple \
                     port:p${perl_version}-yaml
 

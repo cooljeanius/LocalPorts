@@ -2,6 +2,7 @@
 # $Id: Portfile 106088 2013-05-14 17:27:47Z macsforever2000@macports.org $
 
 PortSystem          1.0
+PortGroup           archcheck 1.0
 PortGroup           muniversal 1.0
 
 # Had some trouble with arch flags, so I figured it would be better to
@@ -143,6 +144,8 @@ depends_lib-append  port:curl \
 
 depends_run-append  port:logrotate \
                     port:augeas
+
+depends_skip_archcheck-append logrotate augeas
 
 configure.args-append \
                     --without-apparmor \

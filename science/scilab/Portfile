@@ -171,6 +171,10 @@ pre-configure {
         configure.classpath-append ${prefix}/GNUstep/lib/GNUstep/Libraries/Java
     }
     ui_debug "configure.classpath will be displayed when displaying configuration environment."
+    if {[active_variants path:lib/pkgconfig/eigen3.pc:eigen3 blas]} {
+        configure.ldflags-append \
+                      -leigen_blas
+    }
 }
 
 configure.args-append --with-macports-prefix=${prefix} \
@@ -215,13 +219,6 @@ configure.ldflags-append \
                       -lpng \
                       -lreadline \
                       -lX11
-
-#TODO: only check this if eigen3 is actually installed
-# (Portfile fails to parse when it is not)
-if {[active_variants path:lib/pkgconfig/eigen3.pc:eigen3 blas]} {
-    configure.ldflags-append \
-                      -leigen_blas
-}
 
 # ccache support has been removed because:
 # ccache: FATAL: Recursive invocation (the name of the ccache binary must be "ccache")

@@ -65,12 +65,12 @@ depends_lib-append  port:qt4-mac \
                     port:gpsd \
                     port:osm-gps-map \
                     port:osm-gps-map-gtk2 \
-                    port:p5.16-gps \
-                    port:p5.16-term-gnuplot \
-                    port:p5.16-gdgraph \
-                    port:p5.16-parse-win32registry \
-                    port:p5.16-spreadsheet-parseexcel \
-                    port:p5.16-spreadsheet-writeexcel \
+                    port:p5.26-gps \
+                    port:p5.26-term-gnuplot \
+                    port:p5.26-gdgraph \
+                    port:p5.26-parse-win32registry \
+                    port:p5.26-spreadsheet-parseexcel \
+                    port:p5.26-spreadsheet-writeexcel \
                     port:pear-Net_UserAgent_Mobile_GPS \
                     port:pear-Image_GIS \
                     port:pear-Spreadsheet_Excel_Writer \
@@ -79,8 +79,6 @@ depends_lib-append  port:qt4-mac \
                     port:rgm3800 \
                     port:rgm3800py \
                     port:viking \
-                    port:sunclock \
-                    port:xearth \
                     port:bitmap \
                     port:gmt4 \
                     port:gmt5 \

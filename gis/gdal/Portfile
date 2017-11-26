@@ -423,7 +423,9 @@ variant spatialite requires sqlite3 \
     depends_build-append    port:pkgconfig
     depends_lib-append      port:spatialite
     configure.args-replace  --without-spatialite --with-spatialite=${prefix}
-    configure.env-append    LIBS='[exec ${prefix}/bin/pkg-config --libs spatialite]'
+    pre-configure {
+        configure.env-append    LIBS='[exec ${prefix}/bin/pkg-config --libs spatialite]'
+    }
     if {[variant_isset python24]} {
         depends_lib-append  port:py24-spatialite
     }
@@ -545,8 +547,8 @@ variant huge requires curl expat geos hdf5 mysql5 netcdf opencl sqlite3 \
                             port:grib_api \
                             port:ssdeep \
                             port:swig-perl \
-                            port:p5.16-www-curl \
-                            port:p5.16-xml-sax-expat \
+                            port:p5.26-www-curl \
+                            port:p5.26-xml-sax-expat \
                             port:swig-python \
                             port:swig-ruby \
                             port:ruby19 \

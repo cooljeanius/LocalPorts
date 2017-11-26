@@ -56,10 +56,9 @@ build.args      PREFIX=${prefix}
 
 destroot.args   PREFIX=${prefix}
 
-depends_lib     port:perl5.16 \
-                port:p5.16-time-modules \
-                port:p5.16-timedate \
-                port:p5.16-time-period \
+depends_lib     port:perl5.26 \
+                port:p5.26-timedate \
+                port:p5.26-time-period \
                 port:rsync
 
 # The latest version is from 2005.

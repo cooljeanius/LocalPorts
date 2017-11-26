@@ -3,7 +3,7 @@
 
 PortSystem              1.0
 
-name                    nodejs8
+name                    nodejs08
 version                 0.8.22
 revision                2
 categories              devel net

@@ -3,9 +3,9 @@
 
 PortSystem          1.0
 
-name                gmake
+name                gmake3
 version             3.82
-revision            1
+revision            2
 categories          devel
 license             GPL-3+
 installs_libs       no
@@ -31,10 +31,13 @@ checksums           md5     1a11100f3c63fcf5753818e59d63088f \
 
 use_bzip2           yes
 
+set datadir ${prefix}/share/${name}
 configure.args-append \
                     --program-prefix=g \
-                    --infodir=${prefix}/share/info \
-                    --mandir=${prefix}/share/man \
+                    --program-suffix=3 \
+                    --datadir=${datadir} \
+                    --infodir=${datadir}/info \
+                    --mandir=${datadir}/man \
                     --with-libiconv-prefix=${prefix} \
                     --with-libintl-prefix=${prefix}
 
@@ -68,11 +71,11 @@ variant tests description {Build tests} {
 
 # This is mostly taken from the coreutils portfile
 post-destroot {
-    if {[file exists ${destroot}${prefix}/share/info/dir]} {
-        delete ${destroot}${prefix}/share/info/dir
+    if {[file exists ${destroot}${datadir}/info/dir]} {
+        delete ${destroot}${datadir}/info/dir
     }
 
-    set docdir ${prefix}/share/doc/${name}
+    set docdir ${datadir}/doc/${name}
     xinstall -d ${destroot}${docdir}
     xinstall -m 0644 -W ${worksrcpath} AUTHORS COPYING ChangeLog NEWS \
         README ${destroot}${docdir}
@@ -83,7 +86,7 @@ post-destroot {
         ln -s ${prefix}/bin/${binary} ${destroot}${prefix}/libexec/gnubin/gnu[string range $binary 1 end]
     }
     xinstall -m 755 -d ${destroot}${prefix}/libexec/gnubin/man/man1
-    foreach manpage [glob -tails -directory ${destroot}${prefix}/share/man/man1 g*] {
+    foreach manpage [glob -tails -directory ${destroot}${datadir}/man/man1 g*] {
         ln -s ${prefix}/share/man/man1/${manpage}.gz ${destroot}${prefix}/libexec/gnubin/man/man1/[string range $manpage 1 end].gz
         ln -s ${prefix}/share/man/man1/${manpage}.gz ${destroot}${prefix}/libexec/gnubin/man/man1/gnu[string range $manpage 1 end].gz
     }

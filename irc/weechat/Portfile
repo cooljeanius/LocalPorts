@@ -99,7 +99,7 @@ variant lua conflicts universal description {Bindings for lua plugins} {
 }
 
 
-variant scheme description {Bindings for Scheme (guile) plugins} {
+variant scheme conflicts universal description {Bindings for Scheme (guile) plugins} {
     if {![variant_isset autotools]} {
         configure.args-replace  -DENABLE_GUILE=OFF -DENABLE_GUILE=ON
     }
@@ -113,7 +113,7 @@ variant perl description {Bindings for perl plugins} {
         configure.args-replace  -DENABLE_PERL=OFF -DENABLE_PERL=ON
     }
     depends_build-append    path:bin/perl:perl5
-    depends_lib-append      lib:perl:perl5.16
+    depends_lib-append      lib:perl:perl5.26
     depends_run-append      path:bin/perl:perl5
 }
 

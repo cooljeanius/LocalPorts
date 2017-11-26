@@ -253,18 +253,18 @@ variant huge requires debug gvfs description {Pulls in many dependencies; unsupp
                  bin:xmllint:libxml2 \
                  bin:xsltproc:libxslt
     # intltool needs to be run with the correct version of perl:
-    configure.env-append INTLTOOL_PERL=${prefix}/bin/perl5.16
+    configure.env-append INTLTOOL_PERL=${prefix}/bin/perl5.26
     depends_lib-append \
-                 port:p5.16-libintl-perl \
-                 port:p5.16-www-curl \
-                 port:p5.16-gd-svg \
-                 port:p5.16-svg \
-                 port:p5.16-image-exiftool \
-                 port:p5.16-chart \
-                 port:p5.16-compress-raw-zlib \
-                 port:p5.16-io-compress \
-                 port:p5.16-io-zlib \
-                 port:p5.16-image-metadata-jpeg \
+                 port:p5.26-libintl-perl \
+                 port:p5.26-www-curl \
+                 port:p5.26-gd-svg \
+                 port:p5.26-svg \
+                 port:p5.26-image-exiftool \
+                 port:p5.26-chart \
+                 port:p5.26-compress-raw-zlib \
+                 port:p5.26-io-compress \
+                 port:p5.26-io-zlib \
+                 port:p5.26-image-metadata-jpeg \
                  port:tclcurl \
                  port:libiconv \
                  port:atk \
@@ -327,7 +327,6 @@ variant huge requires debug gvfs description {Pulls in many dependencies; unsupp
                  port:exiftags \
                  port:exiv2 \
                  port:flickcurl \
-                 port:gdk-pixbuf \
                  port:icoconvert \
                  port:jhead \
                  port:jp2a \
@@ -348,7 +347,7 @@ variant huge requires debug gvfs description {Pulls in many dependencies; unsupp
                  bin:perl:perl5
 
     depends_skip_archcheck-append jhead twain-sane jpeg2ps png2ico \
-                                  libsvg-cairo gdk-pixbuf gtk-doc
+                                  libsvg-cairo gtk-doc
     if {[variant_isset python25]} {
         depends_lib-append \
                  port:py25-fpconst \
@@ -381,7 +380,6 @@ variant huge requires debug gvfs description {Pulls in many dependencies; unsupp
     if {[variant_isset python27]} {
         depends_lib-append \
                  port:py27-fpconst \
-                 port:py27-cairosvg \
                  port:py27-curl \
                  port:py27-curlish \
                  port:dbus-python27 \
@@ -406,7 +404,7 @@ variant huge requires debug gvfs description {Pulls in many dependencies; unsupp
                               -Wformat-non-literal \
                               -Werror=missing-prototypes
     configure.cppflags-append -Wno-unknown-warning-option \
-                              -Wformat-nonliteral
+                              -Wno-format-nonliteral
     configure.env-append INTLLIBS='-lintl -liconv ' \
                          XMKMF=${prefix}/bin/xmkmf
     if {[variant_isset debug]} {

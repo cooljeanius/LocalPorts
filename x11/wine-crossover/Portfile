@@ -281,7 +281,6 @@ configure.args-append       --with-gphoto \
 depends_build-append        path:bin/nm:cctools \
                             port:byacc \
                             port:coreutils \
-                            port:gettext-lint \
                             port:gawk
 depends_lib-append          port:gphoto2 \
                             port:libgphoto2 \
@@ -299,8 +298,8 @@ depends_lib-append          port:gphoto2 \
                             port:dosbox \
                             port:xorg-libpthread-stubs \
                             path:bin/valgrind:valgrind \
-                            port:p5.16-ole-storage_lite \
-                            port:p5.16-lwp-protocol-https \
+                            port:p5.26-ole-storage_lite \
+                            port:p5.26-lwp-protocol-https \
                             port:psutils \
                             port:cmdftp \
                             port:unrtf \

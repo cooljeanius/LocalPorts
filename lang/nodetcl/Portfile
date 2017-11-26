@@ -26,13 +26,13 @@ homepage            https://github.com/bovine/nodetcl
 checksums           rmd160  5fd5da3cc4ad356e16796072f2cab548dac9091d \
                     sha256  c9e70a2763d16647bfc435d842d1800050c7c33b107c4c6e7cde50de90404827
 
-depends_build-append path:bin/node-waf:nodejs8
+depends_build-append path:bin/node-waf:nodejs08
 depends_lib-append  lib:tcl:tcl
-#TODO: make sure that nodejs8's node8 executable that we are requiring
+#TODO: make sure that nodejs08's node8 executable that we are requiring
 # here is actually used:
-depends_run-append  bin:node8:nodejs8
+depends_run-append  bin:node8:nodejs08
 
-# nodejs8 is not universal, so disable universal variant here, too:
+# nodejs08 is not universal, so disable universal variant here, too:
 universal_variant   no
 
 configure.cmd       ${prefix}/bin/node-waf configure

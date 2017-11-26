@@ -51,7 +51,6 @@ depends_lib-append \
                 port:freetype \
                 port:gdk-pixbuf2 \
                 port:gettext \
-                port:glib1 \
                 port:gtk2 \
                 port:libglade2 \
                 port:libiconv \

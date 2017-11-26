@@ -44,7 +44,6 @@ depends_lib-append port:gawk \
                    port:libuninameslist \
                    port:libuninum \
                    port:libunistring \
-                   port:libutf8proc \
                    port:libsigsegv \
                    port:endian \
                    port:cfitsio \
@@ -65,14 +64,10 @@ depends_lib-append port:gawk \
                    port:md5sha1sum \
                    port:unhash \
                    port:dcfldd \
-                   port:dc3dd \
                    port:fast-md5 \
-                   port:md5deep \
                    port:pv \
                    port:gmsl \
                    port:remake \
-                   port:bootstrap_cmds \
-                   port:developer_cmds \
                    port:CoreOSMakefiles \
                    port:proctools \
                    port:yasm \
@@ -82,7 +77,6 @@ depends_lib-append port:gawk \
                    port:libthai \
                    port:libhangul \
                    port:tftp-hpa \
-                   port:google-perftools \
                    port:halloc \
                    port:byacc \
                    port:byaccj \
@@ -92,14 +86,11 @@ depends_lib-append port:gawk \
                    port:bison1 \
                    port:idutils \
                    port:diffutils \
-                   port:html-xml-utils \
-                   port:patchutils \
                    port:sharutils \
                    port:spellutils \
                    port:t1utils \
                    port:gpp \
                    port:mcpp \
-                   port:vbpp \
                    port:rpl \
                    port:gccmakedep \
                    port:makedepend \
@@ -108,7 +99,6 @@ depends_lib-append port:gawk \
                    port:libgnugetopt \
                    port:vbindiff \
                    port:pth \
-                   port:ssdeep \
                    port:ed \
                    port:splint \
                    port:boehmgc \
@@ -122,7 +112,6 @@ depends_lib-append port:gawk \
                    port:sudosh \
                    port:rootsh \
                    port:rc \
-                   port:yajl \
                    port:daemon \
                    port:daemontools \
                    port:gnuregex \
@@ -139,7 +128,7 @@ depends_lib-append port:gawk \
                    port:less \
                    port:texi2html \
                    port:c2html \
-                   port:rtf2html \
+                   port:unrtf \
                    port:txt2html \
                    port:txt2man \
                    port:txt2regex \
@@ -148,10 +137,7 @@ depends_lib-append port:gawk \
                    port:gengetopt \
                    port:genext2fs \
                    port:autobook \
-                   port:cuetools \
                    port:gtgt \
-                   port:volatility \
-                   port:vim \
                    port:bash-completion \
                    port:chgrep \
                    port:grep \
@@ -159,19 +145,16 @@ depends_lib-append port:gawk \
                    port:ngrep \
                    port:sgrep \
                    port:sgrep2 \
-                   port:fmscripts \
                    port:macutil \
                    port:html \
                    port:xorg-sgml-doctools \
                    port:util-linux \
                    port:uucp \
                    port:rx \
-                   port:hfstar \
                    port:afsctool \
                    port:gtime \
                    port:gperf \
                    port:gnetcat \
-                   port:glances \
                    port:findutils \
                    port:diction \
                    port:ddrescue \
@@ -185,7 +168,6 @@ depends_lib-append port:gawk \
                    port:gnustep-make \
                    port:gnustep-make-cocoa \
                    port:xorg-util-macros \
-                   port:sglib \
                    port:doclifter \
                    port:cws2fws \
                    port:autobuild \
@@ -207,7 +189,6 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:xfce4-dev-tools \
                    port:groff \
                    port:sgml-common \
-                   port:pdfgrep \
                    port:openssh \
                    port:mm-common \
                    port:xdg-utils \
@@ -219,17 +200,14 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:wget \
                    port:dejagnu \
                    port:man \
-                   port:moreutils \
                    port:xmlto \
                    port:icon-naming-utils \
                    port:desktop-file-utils \
                    port:autogen \
                    port:uni2ascii \
                    port:gnome-doc-utils \
-                   port:elftoolchain \
                    port:asciidoc \
                    port:renameutils \
-                   port:gettext-lint \
                    port:libcroco \
                    port:svn2cl \
                    port:linuxdoc \
@@ -244,8 +222,7 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:mtools \
                    port:wiggle \
                    port:quilt \
-                   port:compare \
-                   port:valgrind
+                   port:yajl
     depends_skip_archcheck-append MacOSXMacros gtk-doc man gnome-doc-utils compare docbook2X
     post-destroot {
         reinplace "s|bunch|ton|g" ${destroot}${prefix}/share/doc/${name}/README.md
