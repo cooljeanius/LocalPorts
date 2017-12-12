@@ -4,7 +4,7 @@
 PortSystem          1.0
 
 name                file
-version             5.19
+version             5.32
 revision            0
 categories          sysutils
 license             BSD
@@ -27,21 +27,21 @@ master_sites        freebsd \
                     ftp://ftp.astron.com/pub/${name}/ \
                     ftp://ftp.gw.com/mirrors/pub/unix/${name}/
 
-checksums           md5     e3526f59023f3f7d1ffa4d541335edab \
-                    sha1    0dff09eb44fde1998be79e8d312e9be4456d31ee \
-                    rmd160  a39305c4b47e5f2f3c51151b8faea3ef17aaec46 \
-                    sha256  9484b3bbda1acc7b13a4f71031a85ce10c77bd0ffec7226741a219ef587e3a7c
+checksums           md5     4f2503752ff041895090ed6435610435 \
+                    sha1    c2858a8043387d1229d8768ad42762a803d017db \
+                    rmd160  b7d41a4c6b2c28d9f202d740e353416e2036c1ef \
+                    sha256  8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
 
 patchfiles-append   patch-magic-Magdir-msdos.diff \
                     patch-magic-Makefile.am.diff \
                     patch-Makefile.am.diff \
                     patch-getline.diff \
-                    patch-configure.ac.diff \
                     patch-acinclude.m4.diff
 # The following patchfiles are no longer listed above because they fail
 # to apply against the new version:
 # - the original patch-configure.ac.diff (as of file 5.15)
 # - patch-src-readcdf.c.diff (as of file 5.19)
+# - the new patch-configure.ac.diff (as of file 5.32)
 # The following patchfiles are no longer appended above because...?
 # - patch-magic-Magdir-assembler.diff (???)
 

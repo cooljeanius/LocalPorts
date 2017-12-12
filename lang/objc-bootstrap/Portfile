@@ -4,7 +4,7 @@
 PortSystem              1.0
 
 name                    objc-bootstrap
-version                 3.2.11
+version                 3.3.4
 categories              lang devel
 platforms               darwin
 license                 LGPL-2+
@@ -20,8 +20,10 @@ long_description        \
 homepage                http://users.pandora.be/stes/compiler.html
 master_sites            http://users.pandora.be/stes/
 distfiles               objc-bootstrap-${version}.tar.gz
-checksums               sha1    6631ab028526a27713a44616de9279c509a35a49 \
-                        rmd160  84fb9e6b3e7a0d5bd8b1e3f3f3a322b37235bbd8
+checksums \
+    sha1    c899d465813428007ce082308f4f56244987c408 \
+    rmd160  a9de375d691d1c23121099a05bcc3e2d095cdb20 \
+    sha256  5ee2968b37a25eff3a1ff656b7d7f5e3d5912809d5808a678cb3b77da20c1bf9
 
 depends_extract-append  port:openssl
 depends_build-append    port:gawk

@@ -4,9 +4,8 @@
 PortSystem          1.0
 
 name                autogen
-version             5.18.2
-#TODO: update to 5.18.4
-revision            4
+version             5.18.12
+revision            0
 categories          devel
 platforms           darwin
 maintainers         mww openmaintainer
@@ -21,35 +20,36 @@ long_description    AutoGen is a tool designed to simplify the creation \
 
 homepage            http://autogen.sourceforge.net/
 master_sites        sourceforge gnu:autogen/rel${version}
-checksums           rmd160  b26653253f7a2d397ecee03ebe02cf2627b12fa6 \
-                    sha256  1fad5687a5f0fb110fe78d13dccde11346b5e072b44cf8d4e6871fdf42e02c6b
+checksums           rmd160  6392c2137786ab9ac781100579f1cf5f6af99fd5 \
+                    sha256  be3ba62e883185b6ee8475edae97d7197d701d6b9ad9c3d2df53697110c1bfd8
 
 use_xz              yes
 
 patchfiles-append   patch-Makefile.am.diff \
                     patch-doc_Makefile.am.diff \
-                    patch-configure.ac.diff \
                     patch-config_unlocked-io.m4.diff \
-                    patch-config_libopts.m4.diff \
-                    patch-config_extensions.m4.diff \
-                    patch-config_ag_macros.m4.diff \
                     patch-agen5_Makefile.am.diff
 # patchfiles:
 # - Makefile.am: silence some warnings while autoreconfing
 # - doc_Makefile.am: ditto
-# - configure.ac: misc. configury tweaks, such as silencing autoreconf and
-#   autoscan warnings, as well as solving other issues
 # - config_unlocked-io.m4: not actually needed, the issue turned out to be
 #   extensions.m4 instead
+# - agen5_Makefile.am: dirty hack to fix compilation issue with libguile
+# patchfiles that no longer apply:
+# - configure.ac: misc. configury tweaks, such as silencing autoreconf and
+#   autoscan warnings, as well as solving other issues
 # - config_libopts.m4: same as configure.ac
 # - config_extensions.m4: same as configure.ac
 # - config_ag_macros.m4: originally started as a workaround for the stray
 #   '-R' flag in the output of 'autoopts-config --libs'
 #   (see https://trac.macports.org/ticket/42728 for reference), now more
 #   similar in purpose to the rest of the patches for the m4 macro files
-# - agen5_Makefile.am: dirty hack to fix compilation issue with libguile
 
 patch.args-append   --backup
+
+post-patch {
+    xinstall -d ${worksrcpath}/po
+}
 
 use_autoreconf      yes
 autoreconf.args     -fvi -Wall

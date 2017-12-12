@@ -4,8 +4,8 @@
 PortSystem          1.0
 
 name                megatools
-version             1.9.91
-revision            4
+version             1.9.99
+revision            0
 categories          net fuse
 license             GPL-2+
 platforms           darwin

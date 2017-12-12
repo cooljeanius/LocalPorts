@@ -5,8 +5,8 @@ PortSystem      1.0
 PortGroup       muniversal 1.0
 
 name            gdb-apple
-version         1824
-revision        1
+version         2831
+revision        0
 categories      devel
 license         GPL-2+
 maintainers     jeremyhu openmaintainer
@@ -42,8 +42,8 @@ use_parallel_build no
 distname        gdb-${version}
 master_sites    http://opensource.apple.com/tarballs/gdb
 
-checksums       rmd160  90290c3950dd06c1691a477b9ee302c00b681ed1 \
-                sha256  d25b056a826015e1e0ea338b9b8f03e40dce3ff4696faf95df259ae1a42698da
+checksums       rmd160  c957689a492bb560e12946af2437047ba8799e7e \
+                sha256  26ab6db6819380f31b9ec3c7a6d654038805051ac21726c3ef727e88333600d1
 
 depends_build-append \
                 port:gettext \

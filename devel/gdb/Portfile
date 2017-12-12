@@ -6,7 +6,7 @@ PortGroup              muniversal 1.0
 PortGroup              archcheck 1.0
 
 name                   gdb
-#TODO: update to 7.8:
+#TODO: update to 8.0.1, but that will involve changing compiler lists:
 version                7.7.1
 revision               2
 categories             devel

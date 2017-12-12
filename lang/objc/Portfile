@@ -4,7 +4,7 @@
 PortSystem              1.0
 
 name                    objc
-version                 3.2.11
+version                 3.3.6
 categories              lang devel
 platforms               darwin
 license                 LGPL-2+
@@ -24,13 +24,19 @@ long_description        \
 homepage                http://users.pandora.be/stes/compiler.html
 master_sites            http://users.pandora.be/stes/
 distfiles               objc-${version}.tar.gz
-checksums               sha1    648b0656f774d20d2cf26e3067e4559d960954c8 \
-                        rmd160  37df07e8d93f80c3b8befd0fe5a5f8444d894b09
-patchfiles-append       patch-src-cakit-intmodp.m.diff \
-                        patch-configure.in.diff
+checksums\
+    sha1    a69018f76055b2fa781abf2b9ff97edd7641cd29 \
+    rmd160  060e91f561e0f469a1d0de914362577e8bf52c98 \
+    sha256  fccb010fa8126ebae1a64112fbb0ea11871be9337f993cbb4f1b3e6c46b90cfc
+
+patchfiles-append       patch-src-cakit-intmodp.m.diff
+# FIXME: get patch-configure.in.diff to apply again
 patch.args-append       --backup
 pre-patch {
     file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
+}
+post-patch {
+    system -W ${worksrcpath} "autoupdate configure.ac"
 }
 
 depends_extract-append  port:openssl

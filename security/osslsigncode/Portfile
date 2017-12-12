@@ -4,7 +4,7 @@
 PortSystem          1.0
 
 name                osslsigncode
-version             1.4
+version             1.7.1
 categories          security devel
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -20,10 +20,10 @@ long_description    ${description} - more exactly the Authenticode \
 homepage            http://osslsigncode.sourceforge.net/
 master_sites        sourceforge
 
-checksums           md5     018b12b3efc4a5250dd3977c2bada3cd \
-                    sha1    ac63d62abddfcb37597640da96f61f496bee6086 \
-                    rmd160  58e5031f2f94b8f6bcdf90a6beacf19758d7e429 \
-                    sha256  721eddade1571fcde54e7f5c21f961dacb990c19f9bdb05c4a7aaeb269979069
+checksums           md5     ac5655b9281b692423ecb2e9185f09d7 \
+                    sha1    42f847bf4753f3435c746f5be12de37e6b1a57b1 \
+                    rmd160  2c1c1831c4146addc02a1295fa18e907520e5754 \
+                    sha256  f9a8cdb38b9c309326764ebc937cba1523a3a751a7ab05df3ecc99d18ae466c9
 
 depends_build-append port:pkgconfig
 depends_lib-append   port:openssl

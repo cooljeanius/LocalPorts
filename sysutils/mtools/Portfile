@@ -2,9 +2,10 @@
 # $Id: Portfile 38993 2008-08-05 09:33:27Z jmr@macports.org $
 
 PortSystem          1.0
+PortGroup           snowleopard_fixes 1.0
 
 name                mtools
-version             4.0.13
+version             4.0.18
 revision            0
 platforms           darwin
 categories          sysutils
@@ -16,10 +17,10 @@ long_description    Utilities to access MS-DOS disks from Unix without \
 homepage            http://${name}.linux.lu/
 
 master_sites        ${homepage}
-checksums           md5     5acb1ddbc1aed47c22448071cbbe37c9 \
-                    sha1    ca7554f7665eef33adbfb03a2827b83a0811b031 \
-                    rmd160  3a922ad83fa4a18188bbac60a0a8c0bd8546d38d \
-                    sha256  f9a3e83f6e3af6256e19ba63229f97f6772b0728422d4c057d6693113cdd70ed
+checksums           md5     17b9f525c1ae3583a478338deb7fbc19 \
+                    sha1    d703db71a409837a37db10a09ef63a35183f7565 \
+                    rmd160  b9c8337ff3f394a607249f8839010b82a8b8a184 \
+                    sha256  30d408d039b4cedcd04fbf824c89b0ff85dcbb6f71f13d2d8d65abb3f58cacc3
 
 configure.args-append \
                     --mandir=${prefix}/share/man \

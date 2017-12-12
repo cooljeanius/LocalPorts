@@ -34,6 +34,7 @@ checksums \
 #   sha1   3259e91bee9dee17d7fb017e7e5fa0060b9edcf1 \
 #   rmd160 cd739a63cb937e447e673e9a19b43205a22d9448 \
 #   sha256 6dc2682d366776ff771fd6c9ae709bcfef0b7b00cac9e620b56d13bf81faaf6e
+#TODO: update to 4.2
 
 conflicts_build-append \
                 vigra
@@ -71,7 +72,7 @@ pre-fetch {
 }
 
 pre-patch {
-    # Should no longer be necessary (after updating to 4.1.2):
+    # Should no longer be necessary (after updating to 4.2):
     if {[file exists ${worksrcpath}/configure.in]} {
         ui_debug "renaming configure.in to configure.ac"
         file rename ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
@@ -80,7 +81,7 @@ pre-patch {
     }
 }
 
-# patches will need to be fixed to apply against 4.1.2 to update to it:
+# patches will need to be fixed to apply against 4.2 to update to it:
 patchfiles-append \
                 patch-libpng15.diff \
                 patch-Makefile.am.diff \
@@ -159,5 +160,5 @@ platform macosx {
     configure.args-append --with-apple-opengl-framework
 }
 
-#TODO: update to 4.1.2 (see above)
+#TODO: update to 4.2 (see above)
 livecheck.regex   /${longname}-(\[0-9.\]+)${extract.suffix}

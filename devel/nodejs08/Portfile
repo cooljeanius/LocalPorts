@@ -300,6 +300,5 @@ if {${os.major} < 10} {
 
 compiler.blacklist-append gcc-3.3 *gcc-4.0
 
-livecheck.url       ${homepage}dist/
-livecheck.type      regex
-livecheck.regex     v(\\d+\\.\[02468\]+\\.\\d+)
+# This is an old version, so turn off livecheck:
+livecheck.type      none

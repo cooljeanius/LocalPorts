@@ -312,7 +312,7 @@ variant debug description "enable debugging" {
     configure.pipe no
 }
 
-variant egallager requires mp_shadow_deps description "Uses my personal fork of MacPorts" {
+variant egallager requires mp_shadow_deps conflicts only_mp_deps description "Uses my personal fork of MacPorts" {
     PortGroup                github 1.0
     PortGroup                archcheck 1.0
 

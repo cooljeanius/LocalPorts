@@ -6,7 +6,7 @@ PortSystem      1.0
 name            libgweather2
 set oldname     libgweather
 version         2.30.3
-revision        10
+revision        11
 set branch      [join [lrange [split ${version} .] 0 1] .]
 maintainers     devans openmaintainer
 categories      net gnome x11
@@ -73,9 +73,6 @@ depends_lib-append \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pango.pc:pango
 
-depends_run-append \
-                path:share/icons/gnome/index.theme:gnome-icon-theme
-
 patchfiles-append patch-python-prefix.diff
 
 configure.args-append \
@@ -141,13 +138,6 @@ post-activate {
         GCONF_CONFIG_SOURCE= \
         ${prefix}/bin/gconftool-2 --makefile-install-rule \
             ${prefix}/etc/gconf/schemas/gweather.schemas"
-     ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/${name}/icons/gnome"
-    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/${name}/icons/gnome"
-}
-
-post-deactivate {
-     ui_debug "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/${name}/icons/gnome"
-    system -W ${prefix} "${prefix}/bin/gtk-update-icon-cache -f -t ${prefix}/share/${name}/icons/gnome"
 }
 
 # "gnome" livecheck wants to update to the gnome3 version, so disable:

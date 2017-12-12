@@ -148,4 +148,4 @@ platform darwin 9 {
     }
 }
 
-livecheck.type  gnome
+livecheck.type  none

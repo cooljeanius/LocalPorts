@@ -7,7 +7,7 @@ PortGroup           muniversal 1.0
 
 name                TrouSerS
 set lowername       trousers
-version             0.3.11.2
+version             0.3.14
 # remember to keep the one in the gtk variant one higher:
 revision            0
 categories          security devel
@@ -57,7 +57,7 @@ variant debug description {Enable debugging} {
     configure.optflags -g
 }
 
-variant gmp description {build ${name} with GMP math lib (used in DAA)} {
+variant gmp description {build TrouSerS with GMP math lib (used in DAA)} {
     depends_lib-append port:gmp
     # just append it instead of adding "--without-gmp" above and then
     # replacing it here, because the configure script stupidly treats

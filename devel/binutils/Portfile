@@ -5,8 +5,8 @@ PortSystem             1.0
 PortGroup              conflicts_build 1.0
 
 name                   binutils
-version                2.24
-revision               4
+version                2.29.1
+revision               1
 description            FSF Binutils for native development.
 long_description       Free Software Foundation development toolchain \
                        ("binutils") for native development. Tools are \
@@ -23,9 +23,9 @@ master_sites           gnu:${name}
 use_bzip2              yes
 
 checksums \
-    sha1   7ac75404ddb3c4910c7594b51ddfc76d4693debb \
-    rmd160 b4aa3ea5ba9d0d9f817b2cf136e7f911f692af8d \
-    sha256 e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137
+    sha1    5156099a6c50bd330c3d4c8fc56a9bf725ccaf08 \
+    rmd160  046894acead1dfe008d3013b43a1e78ec9f22788 \
+    sha256  1509dff41369fb70aed23682351b663b56db894034773e6dbf7d5d6071fc55cc
 
 #TODO: get patch for configure.ac to apply again...
 
@@ -105,7 +105,6 @@ configure.args-append  --infodir='${prefix}/share/info' \
                        --enable-windmc=yes \
                        --enable-bfd=yes \
                        --enable-gas=yes \
-                       --enable-gprof=yes \
                        --disable-ppl-version-check \
                        --disable-cloog-version-check \
                        --enable-languages=all \
@@ -184,7 +183,7 @@ pre-patch {
     # For some reason autoreconf-ing fails to install this:
     # (be sure to update the version number if automake is ever updated)
     if {![file exists ${worksrcpath}/missing]} {
-        xinstall -W ${prefix}/share/automake-1.14 missing ${worksrcpath}
+        xinstall -W ${prefix}/share/automake-1.15 missing ${worksrcpath}
     }
     ui_debug "these autoscan results should be empty once the patch works:"
     system -W ${worksrcpath} "${prefix}/bin/autoscan264 >/dev/null"

@@ -29,3 +29,6 @@ patch.args-append   --backup
 depends_lib-append  port:glib1
 
 configure.args-append   --mandir=${prefix}/share/man
+
+# This is an old version, so turn off livecheck:
+livecheck.type  none

@@ -5,8 +5,8 @@ PortSystem          1.0
 PortGroup           active_variants 1.1
 
 name                libnotify
-version             0.7.6
-revision            1
+version             0.7.7
+revision            0
 set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          devel gnome
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -23,9 +23,9 @@ master_sites        gnome:sources/${name}/${branch}
 
 use_xz              yes
 
-checksums           sha1    956ce02a9f2c9fb74a81a765358131efdb7bf536 \
-                    rmd160  7f2ae9f2e75396607e79c2a5781bbe81b3efc9fd \
-                    sha256  0ef61ca400d30e28217979bfa0e73a7406b19c32dd76150654ec5b2bdf47d837
+checksums           sha1    4cdf482737df504ac37f5489940b5c7ea5e18d57 \
+                    rmd160  5d2e10b8e25c7ba383ce884ba8faeb3635a80893 \
+                    sha256  9cb4ce315b2655860c524d46b56010874214ec27e854086c1a1d0260137efc04
 
 depends_build-append \
                     port:pkgconfig \

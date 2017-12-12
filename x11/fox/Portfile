@@ -4,7 +4,7 @@
 PortSystem          1.0
 
 name                fox
-version             1.6.49
+version             1.6.55
 revision            0
 description         The FOX GUI toolkit
 long_description    FOX is a C++ based Toolkit for developing Graphical \
@@ -16,8 +16,8 @@ license             LGPL-2.1+
 
 homepage            http://www.fox-toolkit.org/
 master_sites        http://ftp.fox-toolkit.org/pub/
-checksums           rmd160  fed992535878fc1c2018bad4f29792d16a1f8794 \
-                    sha256  3679ecd23064958259fbef5898aabb048d63b2dcb796de1d8801fe0b51e5a90e
+checksums           rmd160  079877ed864e46eb1a0ff1094270f08f21c79c95 \
+                    sha256  172416625221e54dcc1c4293fc892b9695f1e952f4b895376e6604c6c3813d74
 
 supported_archs     x86_64
 
