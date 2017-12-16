@@ -1,0 +1,11 @@
+--- /opt/local/var/macports/build/_Users_ericgallager_LocalPorts_textproc_libxslt/libxslt/work/libxslt-1.1.32/libexslt/functions.c.orig	2017-12-13 21:59:17.000000000 -0500
++++ /opt/local/var/macports/build/_Users_ericgallager_LocalPorts_textproc_libxslt/libxslt/work/libxslt-1.1.32/libexslt/functions.c	2017-12-13 22:01:22.000000000 -0500
+@@ -384,7 +384,7 @@
+ 	 * Prepare to process params in reverse order.  First, go to
+ 	 * the beginning of the param chain.
+ 	 */
+-	for (i = 1; i <= func->nargs; i++) {
++	for (i = 1; (i <= func->nargs) && (i < __INT_MAX__); i++) {
+ 	    if (paramNode->prev == NULL)
+ 	        break;
+ 	    paramNode = paramNode->prev;
