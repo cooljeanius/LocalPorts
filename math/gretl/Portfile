@@ -7,7 +7,7 @@ PortGroup           muniversal 1.0
 
 name                gretl
 version             1.9.14
-revision            1
+revision            2
 categories          math finance science office
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
