@@ -4,7 +4,7 @@
 PortSystem              1.0
 
 name                    objc
-version                 3.3.6
+version                 3.3.7
 categories              lang devel
 platforms               darwin
 license                 LGPL-2+
@@ -24,10 +24,11 @@ long_description        \
 homepage                http://users.pandora.be/stes/compiler.html
 master_sites            http://users.pandora.be/stes/
 distfiles               objc-${version}.tar.gz
-checksums\
-    sha1    a69018f76055b2fa781abf2b9ff97edd7641cd29 \
-    rmd160  060e91f561e0f469a1d0de914362577e8bf52c98 \
-    sha256  fccb010fa8126ebae1a64112fbb0ea11871be9337f993cbb4f1b3e6c46b90cfc
+checksums \
+    sha1    05bd1f24e4ee83c4add1cc5b5bd5c7f3c2155294 \
+    rmd160  e0fd0c540d90f8fc0fd0b59b78b422fd2b216421 \
+    sha256  d9bc8f851b20a029776b6a4c04b85a19af763c86183809064220c96d8c26d8e3 \
+    size    939690
 
 patchfiles-append       patch-src-cakit-intmodp.m.diff
 # FIXME: get patch-configure.in.diff to apply again
@@ -55,7 +56,7 @@ pre-configure {
     reinplace "s|__OSX_AVAILABLE_BUT_DEPRECATED|//|g" ${worksrcpath}/include_fixed/stdlib.h
     # For some reason autoreconf-ing fails to install these:
     # (be sure to update the version number if automake is ever updated)
-    xinstall -m 755 -W ${prefix}/share/automake-1.15 \
+    xinstall -m 755 -W ${prefix}/share/automake-1.16 \
         ar-lib \
         compile \
         missing \
