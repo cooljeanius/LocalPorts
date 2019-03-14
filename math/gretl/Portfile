@@ -3,11 +3,12 @@
 
 PortSystem          1.0
 
+PortGroup           active_variants 1.1
 PortGroup           muniversal 1.0
 
 name                gretl
 version             1.9.14
-revision            3
+revision            4
 categories          math finance science office
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -93,16 +94,45 @@ depends_lib-append  port:gmp \
                     path:lib/pkgconfig/pango.pc:pango
 # The path-style dependency for unixODBC is because it conflicts with
 # libiodbc (which also works here)
+
 # c-ares, libssh2, and openssl might get linkages made to them depending
 # on if they appear in `curl-config --libs`, which depends on what variants
 # curl is installed with. gretl uses no symbols from any of those though.
+# Add dependencies anyways though:
+if {![catch {set result [active_variants curl ares]}]} {
+  if {$result} {
+    depends_lib-append port:c-ares
+  } else {
+    ui_debug "curl installed without ares variant; skipping adding c-ares dependency."
+  }
+} else {
+  ui_debug "curl not installed; assuming safe to skip c-ares dependency."
+}
+if {![catch {set result [active_variants curl sftp_scp]}]} {
+  if {$result} {
+    depends_lib-append port:libssh2
+  } else {
+    ui_debug "curl installed without sftp_scp variant; skipping adding libssh2 dependency."
+  }
+} else {
+  ui_debug "curl not installed; assuming safe to skip libssh2 dependency."
+}
+if {![catch {set result [active_variants curl ssl]}]} {
+  if {$result} {
+    depends_lib-append  path:lib/libssl.dylib:openssl
+  } else {
+    ui_debug "curl installed without ssl variant; skipping adding openssl dependency."
+  }
+} else {
+  ui_debug "curl not installed; assuming safe to skip openssl dependency."
+}
 
 depends_run-append  bin:xdg-mime:xdg-utils
 
 configure.pkg_config ${prefix}/bin/pkg-config
 
 configure.optflags -Os
-configure.cflags -Wall ${configure.optflags} -fstrict-aliasing -ftree-loop-im -ftree-loop-linear -ftree-loop-ivcanon -fivopts -funroll-loops -freorder-blocks -ffast-math
+configure.cflags -Wall ${configure.optflags} -fno-strict-aliasing -ftree-loop-im -ftree-loop-linear -ftree-loop-ivcanon -fivopts -funroll-loops -freorder-blocks -ffast-math -fdiagnostics-show-option -Wno-deprecated-declarations
 
 configure.args-append --enable-static \
                       --enable-shared \
@@ -118,7 +148,8 @@ configure.args-append --enable-static \
                       --with-gmake \
                       --disable-gnuplot-checks
 #TODO: make the gui a variant (perhaps 2, one for gtk2 and one for gtk3)
-# '--enable-build-doc' cannot be used because it is missing a Makefile.in
+# '--enable-build-doc' cannot be used because it is missing a Makefile.in;
+# will try putting that in a variant...
 
 post-configure {
     eval reinplace "s|gcc|${configure.cc}|g" [glob ${worksrcpath}/utils/FR*/Makefile]
@@ -130,10 +161,13 @@ build.type gnu
 build.cmd ${prefix}/bin/gmake
 # "lib" has to go first:
 build.target lib subdirs tags
-# (pdfdocs target is broken, as is osx-dist)
+# (pdfdocs target is broken; moved to variant below)
+# (osx-dist target is misleadingly named; it should really be "uninstall")
 
 post-build {
     #TODO: obey env and flags and stuff when building these:
+    system -W ${worksrcpath}/extra "${build.cmd}"
+    system -W ${worksrcpath}/share/bcih "${build.cmd}"
     system -W ${worksrcpath}/utils/FRB "${build.cmd} frb2db"
     system -W ${worksrcpath}/utils/FRED "${build.cmd} fred2db"
 }
@@ -172,6 +206,45 @@ post-destroot {
 }
 
 platform macosx {
+}
+
+variant docs description {Build extra documentation} {
+    pre-configure {
+        xinstall -d ${worksrcpath}/doc/commands
+        xinstall -d ${worksrcpath}/doc/figures
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/figures_pt/*.png] ${worksrcpath}/doc/figures
+        eval xinstall -m 644 [glob ${worksrcpath}/doc/figures_pt/*.pdf] ${worksrcpath}/doc/figures
+        eval xinstall -m 644 [glob ${filespath}/*.png] ${worksrcpath}/doc/figures
+        xinstall -d ${worksrcpath}/doc/tex_it
+        xinstall -d ${worksrcpath}/doc/tex_es
+        system -W ${worksrcpath}/doc/commands "echo \"cmdtex:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/commands "echo \"functex:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/commands "echo \"help-all:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/commands "echo \"textables:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/commands "echo \"topiclist_en:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/commands "echo \"us2a4:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/tex "touch tabnonloopcmds.tex"
+        system -W ${worksrcpath}/doc/tex "touch matfuncs.tex"
+        system -W ${worksrcpath}/doc/tex "touch refbody.tex"
+        system -W ${worksrcpath}/doc/tex "touch cmdtopics.tex"
+        system -W ${worksrcpath}/doc/tex "touch funcbody.tex"
+        system -W ${worksrcpath}/doc/tex "touch tabinternals.tex"
+        system -W ${worksrcpath}/doc/tex "touch tabfunctions.tex"
+        system -W ${worksrcpath}/doc/tex_it "echo \"help-all:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/tex_it "echo \"textables:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/tex_es "echo \"help-all:\" >> Makefile.in"
+        system -W ${worksrcpath}/doc/tex_es "echo \"textables:\" >> Makefile.in"
+    }
+    depends_lib-append path:lib/pkgconfig/libxslt.pc:libxslt
+    configure.args-append --enable-build-doc
+    # from the actual documentation about --enable-build-doc:
+    # "But please note that this option will work only if you are using the CVS
+    # source."
+    # TODO: get the real files we need from there, instead of the hacks I used
+    # above.
+    build.target-prepend pdfdocs
+    # FIXME: latest error message I have gotten up to is:
+    # I found no \citation commands---while reading file gretl-ref.aux
 }
 
 #TODO:
