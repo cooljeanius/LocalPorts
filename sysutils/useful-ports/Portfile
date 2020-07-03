@@ -8,7 +8,7 @@ PortGroup         archcheck 1.0
 github.setup      cooljeanius LocalPorts 0.1.3 v
 name              useful-ports
 version           0.1
-revision          6
+revision          7
 categories        sysutils macports
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall
@@ -50,7 +50,6 @@ depends_lib-append port:gawk \
                    port:fpp \
                    port:autoconf-archive \
                    port:javacc \
-                   port:jikespg \
                    port:fastjar \
                    port:chsuf \
                    port:bbe \
@@ -64,7 +63,6 @@ depends_lib-append port:gawk \
                    port:md5sha1sum \
                    port:unhash \
                    port:dcfldd \
-                   port:fast-md5 \
                    port:pv \
                    port:gmsl \
                    port:remake \
@@ -193,7 +191,6 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:mm-common \
                    port:xdg-utils \
                    port:xml-coreutils \
-                   port:darwinbuild \
                    port:xorg-encodings \
                    port:f2c \
                    port:gtk-doc \
@@ -223,6 +220,8 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:wiggle \
                    port:quilt \
                    port:yajl
+    # FIXME: add darwinbuild back, but have it be guarded by a check for
+    # architecture and/or platform version number
     depends_skip_archcheck-append MacOSXMacros gtk-doc man gnome-doc-utils compare docbook2X
     post-destroot {
         reinplace "s|bunch|ton|g" ${destroot}${prefix}/share/doc/${name}/README.md

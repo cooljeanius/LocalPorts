@@ -165,11 +165,31 @@ build.target lib subdirs tags
 # (osx-dist target is misleadingly named; it should really be "uninstall")
 
 post-build {
+    set dirs {}
+    if {[variant_isset universal]} {
+        foreach arch ${universal_archs_to_use} {
+            lappend dirs ${worksrcpath}-${arch}
+        }
+    } else {
+        lappend dirs ${worksrcpath}
+    }
     #TODO: obey env and flags and stuff when building these:
-    system -W ${worksrcpath}/extra "${build.cmd}"
-    system -W ${worksrcpath}/share/bcih "${build.cmd}"
-    system -W ${worksrcpath}/utils/FRB "${build.cmd} frb2db"
-    system -W ${worksrcpath}/utils/FRED "${build.cmd} fred2db"
+    foreach dir ${dirs} {
+        system -W ${dir}/extra "${build.cmd}"
+        system -W ${dir}/share/bcih "${build.cmd}"
+        system -W ${dir}/utils/FRB "${build.cmd} frb2db"
+        system -W ${dir}/utils/FRED "${build.cmd} fred2db"
+    }
+    # Doing this would be redundant if non-universal,
+    # since ${dirs} == ${worksrcpath}, but for universal it is a 3rd directory
+    # that we have not touched yet. Cannot just lappend it above because then
+    # we would try to do this for extra and bcih, too, but they do not have
+    # Makefiles in the unconfigured, arch-generic 3rd dir. We xinstall the
+    # binaries built here later during post-destroot.
+    if {[variant_isset universal]} {
+        system -W ${worksrcpath}/utils/FRB "${build.cmd} frb2db"
+        system -W ${worksrcpath}/utils/FRED "${build.cmd} fred2db"
+    }
 }
 
 # tests succeed for x86_64, but fail for i386:
