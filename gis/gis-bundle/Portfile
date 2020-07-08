@@ -7,7 +7,7 @@ PortGroup           archcheck 1.0
 
 name                gis-bundle
 version             0.1.0
-revision            1
+revision            2
 categories          gis
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall
@@ -30,7 +30,7 @@ depends_build-append \
 
 #TODO: make app bundles for some of these ones that have guis...
 depends_lib-append  port:qt4-mac \
-                    port:cgal \
+                    path:lib/libCGAL.dylib:cgal4 \
                     port:tcl \
                     port:postgresql84 \
                     port:gdal \
@@ -38,10 +38,7 @@ depends_lib-append  port:qt4-mac \
                     port:libkml \
                     port:libproj4 \
                     port:mapnik \
-                    port:mapserver \
-                    port:postgis \
-                    port:postgis2 \
-                    port:qgis \
+                    bin:pgsql2shp:postgis \
                     port:qlandkartegt \
                     port:qlandkartegt-garmindev \
                     port:spatialite \
@@ -51,13 +48,10 @@ depends_lib-append  port:qt4-mac \
                     port:xz \
                     port:lzip \
                     port:wgrib2 \
-                    port:ocilib \
-                    port:couchdb \
-                    port:xalanj \
-                    port:xercesc \
+                    port:xercesc3 \
                     port:mdbtools \
                     port:qt4-mac-sqlite3-plugin \
-                    port:vtk5 \
+                    port:vtk \
                     port:fmscripts \
                     port:cmconvert \
                     port:dgpsip \
@@ -71,20 +65,11 @@ depends_lib-append  port:qt4-mac \
                     port:p5.26-parse-win32registry \
                     port:p5.26-spreadsheet-parseexcel \
                     port:p5.26-spreadsheet-writeexcel \
-                    port:pear-Net_UserAgent_Mobile_GPS \
-                    port:pear-Image_GIS \
-                    port:pear-Spreadsheet_Excel_Writer \
-                    port:pear-Structures_DataGrid_DataSource_Excel \
-                    port:pear-Structures_DataGrid_Renderer_XLS \
-                    port:rgm3800 \
-                    port:rgm3800py \
-                    port:viking \
                     port:bitmap \
                     port:gmt4 \
                     port:gmt5 \
                     port:gnuplot \
                     port:grace \
-                    port:jgraph \
                     port:ploticus \
                     port:plotutils \
                     port:qtiplot \
@@ -98,22 +83,19 @@ depends_lib-append  port:qt4-mac \
                     port:CocoaDialog \
                     port:cliclick \
                     port:libgweather \
-                    port:libgweather2 \
                     port:network-weathermap \
                     port:gtkdbfeditor \
-                    port:pg2xbase \
-                    port:catdoc \
+                    bin:xls2csv:catdoc \
                     port:libxl \
-                    bin:xls2csv:libxls \
                     port:xlsx2csv \
                     port:gnumeric \
                     port:sc \
                     port:geos \
                     port:liblas \
                     port:proj \
-                    port:proj47 \
+                    port:proj4 \
+                    port:proj6 \
                     port:sfcgal \
-                    port:relax3d \
                     port:terra \
                     port:geographiclib \
                     port:spatialindex \
@@ -125,19 +107,17 @@ depends_lib-append  port:qt4-mac \
                     port:gshhg-gmt \
                     port:gnome-maps
 
-depends_skip_archcheck-append lzma wgrib2 ocilib couchdb xalanj mdbtools xercesc pgplot arpack openmpi gcc45 gpsd
+depends_skip_archcheck-append lzma wgrib2 mdbtools xercesc3 pgplot arpack openmpi gcc45 gpsd
 require_active_variants qt4-mac {debug demos examples openvg universal}
-require_active_variants cgal {debug demos qt4 universal}
+require_active_variants cgal4 {debug demos qt4 universal}
 require_active_variants tcl {corefoundation memdebug threads universal}
 require_active_variants postgresql84 {earthdistance krb5 tcl universal}
 require_active_variants gdal {huge universal}
 require_active_variants mapnik {cairo gdal geos osm sqlite}
-require_active_variants postgis {postgresql84 universal}
-require_active_variants postgis2 {gui raster sfcgal topology universal}
 require_active_variants qlandkartegt {debug universal}
 require_active_variants qlandkartegt-garmindev {debug universal}
 require_active_variants qt4-mac-sqlite3-plugin {debug universal}
-require_active_variants vtk5 {debug universal}
+require_active_variants vtk {debug universal}
 require_active_variants gmt4 {gdal triangle xgrid}
 require_active_variants gmt5 {gdal triangle}
 require_active_variants sfcgal {debug examples universal viewer}
@@ -157,11 +137,10 @@ variant python25 conflicts python26 python27 python32 python33 python34 \
                             port:py25-xlwt \
                             port:py25-psycopg2 \
                             port:py25-sqlalchemy \
-                            port:py25-geoalchemy \
-                            port:py25-couchdb
+                            port:py25-geoalchemy
     # py25-geopy has been removed from trunk
     require_active_variants gdal {python25}
-    require_active_variants vtk5 {python25}
+    require_active_variants vtk {python25}
     require_active_variants qtiplot {python25}
     require_active_variants py25-psycopg2 {postgresql84}
 }
@@ -184,14 +163,11 @@ variant python26 conflicts python25 python27 python32 python33 python34 \
                             port:py26-psycopg2 \
                             port:py26-sqlalchemy \
                             port:py26-geoalchemy \
-                            port:py26-couchdb \
                             port:py26-netcdf4
     require_active_variants gdal {python26}
     require_active_variants mapnik {python26}
-    require_active_variants py26-mapnik {cairo gdal postgis sqlite}
     require_active_variants py26-django {bash_completion}
-    require_active_variants qgis {python26}
-    require_active_variants vtk5 {python26}
+    require_active_variants vtk {python26}
     require_active_variants qtiplot {python26}
     require_active_variants py26-psycopg2 {postgresql84}
 }
@@ -208,25 +184,21 @@ variant python27 conflicts python25 python26 python32 python33 python34 \
                             port:py27-xlrd \
                             port:py27-xlwt \
                             port:py27-cartopy \
-                            port:py27-fiona \
                             port:py27-pyshp \
                             port:py27-rasterio \
                             port:py27-geojson \
                             port:py27-pygeocoder \
-                            port:py27-geopandas \
                             port:py27-shapely \
                             port:py27-psycopg2 \
                             port:py27-sqlalchemy \
                             port:py27-geoalchemy \
-                            port:py27-couchdb \
                             port:py27-netcdf4
     depends_skip_archcheck-append py27-cartopy py27-scipy
     require_active_variants gdal {python27}
     require_active_variants postgresql84 {python python27}
     require_active_variants mapnik {python27}
     require_active_variants py27-django {bash_completion}
-    require_active_variants qgis {python27}
-    require_active_variants vtk5 {python27}
+    require_active_variants vtk {python27}
     require_active_variants qtiplot {python27}
     require_active_variants py27-psycopg2 {postgresql84}
 }
@@ -295,15 +267,34 @@ variant broken description {broken dependencies are thrown here until they work}
                             port:mapm3 \
                             port:orfeotoolbox \
                             port:saga \
+                            port:jgraph \
+                            port:libgweather2 \
+                            port:mapserver \
+                            port:ocilib \
+                            port:pg2xbase \
+                            port:relax3d \
+                            port:rgm3800 \
+                            port:rgm3800py \
+                            port:couchdb \
+                            port:viking \
+                            port:xalanj \
                             port:kgeography
     depends_skip_archcheck-append OpenSceneGraph osgswig-devel
     require_active_variants grass {ffmpeg sqlite3 universal}
     require_active_variants libpcl {debug universal}
-    require_active_variants qgis {debug grass universal}
     require_active_variants pgRouting {debug doc universal}
     require_active_variants orfeotoolbox {debug qt4 universal}
     require_active_variants osgswig-devel {debug universal}
+    if {[variant_isset python25]} {
+        depends_lib-append  port:py25-couchdb
+    }
+    if {[variant_isset python26]} {
+        depends_lib-append  port:py26-couchdb
+    }
     if {[variant_isset python27]} {
+        depends_lib-append  port:py27-couchdb \
+                            port:py27-geopandas \
+                            port:py27-fiona
         require_active_variants orfeotoolbox {python27}
         require_active_variants saga {python27}
     }

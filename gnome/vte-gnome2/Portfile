@@ -7,7 +7,7 @@ name            vte-gnome2
 set myname      vte
 replaced_by     ${myname}
 version         0.28.2
-revision        4
+revision        5
 set branch      [join [lrange [split ${version} .] 0 1] .]
 maintainers     nomaintainer
 categories      gnome
@@ -93,7 +93,9 @@ description {Build Bindings for Python 2.6} {
 }
 
 variant docs description {build documentation} {
-    depends_build-append    port:gtk-doc
+    depends_build-append    port:gtk-doc \
+                            port:dblatex \
+                            bin:fop:fop
     depends_run-append      port:devhelp \
                             port:libpng
     configure.args-append   --enable-gtk-doc \

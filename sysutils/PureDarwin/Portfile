@@ -7,7 +7,7 @@ PortGroup         active_variants 1.1
 
 name              PureDarwin
 version           0.1
-revision          2
+revision          3
 categories        sysutils
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall openmaintainer
@@ -46,10 +46,10 @@ depends_lib-append port:darwinbuild \
                    port:fs-check \
                    port:xorg \
                    port:iRecovery \
-                   port:p5.24-cpan-meta \
-                   port:p5.24-cpan-meta-requirements \
-                   port:p5.24-cpan-meta-yaml \
-                   port:p5.24-parse-cpan-meta \
+                   port:p5.26-cpan-meta \
+                   port:p5.26-cpan-meta-requirements \
+                   port:p5.26-cpan-meta-yaml \
+                   port:p5.26-parse-cpan-packages-fast \
                    port:gnuchess \
                    port:openssl \
                    port:cracklib \
@@ -80,7 +80,6 @@ depends_lib-append port:darwinbuild \
                    port:mod_perl2 \
                    port:mod_security2 \
                    port:mod_dnssd \
-                   port:mod_jk \
                    port:mod_python \
                    port:apr \
                    port:apr-util \
@@ -124,7 +123,6 @@ depends_lib-append port:darwinbuild \
                    port:libarchive \
                    port:renameutils \
                    port:libcxx \
-                   port:libcxxabi \
                    port:libedit \
                    port:libevent \
                    port:libevent1 \
@@ -141,8 +139,8 @@ depends_lib-append port:darwinbuild \
                    port:cryptlib \
                    port:fuzz \
                    port:flawfinder \
-                   port:p5.24-net-telnet \
-                   port:p5.24-net-telnet-cisco \
+                   port:p5.26-net-telnet \
+                   port:p5.26-net-telnet-cisco \
                    port:putty \
                    port:spinner \
                    port:libxml2 \
@@ -150,7 +148,7 @@ depends_lib-append port:darwinbuild \
                    port:xmlsec \
                    port:sloth \
                    port:mdnsd \
-                   port:p5.24-net-bonjour \
+                   port:p5.26-net-bonjour \
                    port:avahi \
                    port:rb-dnssd \
                    port:rb-easyjour \
@@ -162,7 +160,7 @@ depends_lib-append port:darwinbuild \
                    port:memcached \
                    port:memcachedb \
                    port:memcacheq \
-                   port:p5.24-cache-memcached \
+                   port:p5.26-cache-memcached \
                    port:rb-memcache \
                    port:spymemcached \
                    port:lrzsz \
@@ -178,19 +176,18 @@ depends_lib-append port:darwinbuild \
                    port:unarj \
                    port:nano \
                    port:ncurses \
-                   port:p5.24-net-snmp \
-                   port:p5.24-snmp_session \
+                   port:p5.26-net-snmp \
+                   port:p5.26-snmp_session \
                    port:rb-snmp \
                    port:scotty \
                    port:snmptt \
                    port:cryptcat \
                    port:gnetcat \
                    port:nc6 \
-                   port:netcat \
                    port:sbd \
                    port:socat \
                    port:ntfs-3g \
-                   port:openntpd \
+                   path:sbin/ntpd:openntpd \
                    path:bin/objc:objc \
                    port:cyrus-sasl2 \
                    port:libgsasl \
@@ -212,7 +209,7 @@ depends_lib-append port:darwinbuild \
                    port:postgrey \
                    port:sqlgrey \
                    port:vm-pop3d \
-                   port:p5.24-devel-ppport \
+                   port:p5.26-devel-ppport \
                    port:slirp \
                    port:procmail \
                    port:spambnc \
@@ -220,11 +217,10 @@ depends_lib-append port:darwinbuild \
                    port:py27-openssl \
                    port:py27-pyobjc \
                    port:py27-dateutil \
-                   port:arrsync \
                    port:dirvish \
                    port:librsync \
                    port:murk \
-                   port:p5.24-file-rsyncp \
+                   port:p5.26-file-rsyncp \
                    port:rsnapshot \
                    port:rsync \
                    port:rsync-lart \
@@ -232,22 +228,21 @@ depends_lib-append port:darwinbuild \
                    path:bin/ruby:ruby \
                    path:bin/screen:screen \
                    port:watch \
-                   port:p5.24-mozilla-ca \
+                   port:p5.26-mozilla-ca \
                    path:etc/openssl/cert.pem:certsync \
-                   port:dirmngr \
                    port:keychain \
                    port:SSHKeychain \
-                   port:p5.24-authen-smb \
+                   port:p5.26-authen-smb \
                    port:samba3 \
                    path:bin/srm:srm \
                    path:bin/sudo:sudo \
                    port:swig \
                    port:eventlog \
                    port:ossp-fsl \
-                   port:p5.24-net-syslog \
-                   port:p5.24-unix-syslog \
+                   port:p5.26-net-syslog \
+                   port:p5.26-unix-syslog \
                    port:tcl \
-                   port:p5.24-net-frame-dump \
+                   port:p5.26-net-frame-dump \
                    port:tcpdstat \
                    port:tcpdump \
                    path:bin/docbook2man:docbook2x \
@@ -256,7 +251,7 @@ depends_lib-append port:darwinbuild \
                    port:texinfo \
                    port:ftidy \
                    port:jtidy \
-                   port:p5.24-perl-tidy \
+                   port:p5.26-perl-tidy \
                    port:tidy \
                    port:uucp \
                    path:bin/vim:vim \

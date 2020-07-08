@@ -4,8 +4,10 @@
 PortSystem          1.0
 
 name                libcfgplus
+# FIXME: actually fix this conflict instead of just marking it:
+conflicts-append    ossp-cfg
 version             0.6.2
-revision            1
+revision            2
 categories          devel
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer

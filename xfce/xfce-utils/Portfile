@@ -5,7 +5,7 @@ PortSystem 1.0
 
 name            xfce-utils
 version         4.6.2
-revision        6
+revision        7
 categories      xfce sysutils
 platforms       darwin linux
 license         GPL-2+
@@ -24,8 +24,8 @@ supported_archs noarch
 
 depends_build-append \
                 bin:perl:perl5 \
-                port:perl5.24 \
-                port:p5.24-xml-parser \
+                port:perl5.26 \
+                port:p5.26-xml-parser \
                 port:intltool \
                 port:xfce4-dev-tools \
                 port:pkgconfig \
@@ -85,7 +85,7 @@ pre-configure {
     system -W ${worksrcpath} "${prefix}/bin/intltoolize --automake --copy --force"
 }
 
-configure.perl  ${prefix}/bin/perl5.24
+configure.perl  ${prefix}/bin/perl5.26
 configure.args-append \
                 --with-xsession-prefix=${prefix} \
                 --enable-maintainer-mode
