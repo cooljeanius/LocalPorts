@@ -1,0 +1,63 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           xcode 1.0
+
+github.setup        PureDarwin darwinbuild 1640.0.2
+github.tarball_from archive
+categories          devel
+platforms           darwin
+maintainers         {gwmail.gwu.edu:egall @cooljeanius} openmaintainer
+license             BSD
+description         Darwinbuild is a set of tools that facilitate building the sources \
+                    released by Apple.
+
+long_description    The Darwin Build Scripts are a collection of tools that assist compilation of \
+                    the many projects contained in Darwin, the open source base of Apple's \
+                    Mac OS X operating system.  Apple publishes the sources of these projects \
+                    in an archive format (.tar.gz).  An archive is published for each project \
+                    version on Apple's site. These tools will provide the proper build environment \
+                    as well as help to resolve any necessary dependencies prior to building.
+
+homepage            https://macosforge.github.io/darwinbuild/
+
+checksums           rmd160  504015c22e18e017a4db61e02929540a71728bbc \
+                    sha256  76270855fe73b6971f8351294b648db37840a7bd3ae1c1c5c92f11b9786a5d79 \
+                    size    321260
+
+depends_lib-append  port:sqlite3 \
+                    port:tcl
+
+xcode.configuration Public
+xcode.target        world
+xcode.build.settings \
+                    PREFIX=${prefix} \
+                    GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS=NO
+xcode.destroot.settings \
+                    PREFIX=${prefix} \
+                    GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS=NO \
+                    LIBRARY_SEARCH_PATHS=${prefix}/lib \
+                    HEADER_SEARCH_PATHS=${prefix}/include \
+                    FRAMEWORK_SEARCH_PATHS=${frameworks_dir}
+xcode.destroot.type none
+
+variant universal {
+    set xcode.universal.settings ""
+    set xcode.universal.sdk ""
+}
+
+if {${os.major} < 10} {
+    known_fail      yes
+    pre-fetch {
+        return -code error "For Darwin 8 & 9 support, install the darwinbuild-legacy port."
+    }
+}
+
+platform darwin 9 {
+    replaced_by     darwinbuild-legacy
+}
+
+platform darwin 8 {
+    replaced_by     darwinbuild-legacy
+}
