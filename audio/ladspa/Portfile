@@ -1,0 +1,63 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                ladspa
+version             1.15
+revision            2
+categories          audio devel
+platforms           darwin linux
+maintainers         gwmail.gwu.edu:egall openmaintainer
+license             LGPL-2+
+
+description         Linux Audio Developer's Simple Plugin API
+
+long_description    Many audio synthesis and recording packages are in use \
+                    or in development on Linux.  These work in many different \
+                    ways.  LADSPA provides a standard way for `plugin' audio \
+                    processors to be used with a wide range of these packages.
+
+homepage            http://www.ladspa.org/
+master_sites        http://www.ladspa.org/download/
+
+distname            ${name}_sdk_${version}
+
+extract.suffix      .tgz
+
+# The Fink info file from which I am copying still uses MD5 for a checksum, so
+# copy it here, too:
+checksums   md5     5824922ad4ae6aeb2910d302191e7afd \
+    rmd160  94ade7b6286d0536a80d748e33ed94162beef9cf \
+    sha256  4229959b09d20c88c8c86f4aa76427843011705df22d9c28b38359fd1829fded \
+    size    71179
+
+patchfiles-append   ladspa.patch
+patch.args          -p1
+
+post-patch {
+    reinplace "s|@MACPORTS_PREFIX@|${prefix}|g" ${worksrcpath}/src/Makefile
+}
+
+use_configure       no
+
+#FIXME: need to be UsingTheRightCompiler
+build.dir           ${worksrcpath}/src
+build.target        targets
+
+post-build {
+    system -W ${worksrcpath} "head -n 20 src/ladspa.h > COPYING"
+}
+
+destroot {
+    xinstall -d -m 755 ${destroot}${prefix}/lib/ladspa
+    xinstall -d -m 755 ${destroot}${prefix}/include
+    xinstall -d -m 755 ${destroot}${prefix}/bin
+    eval xinstall -m 755 [glob ${worksrcpath}/plugins/*] ${destroot}${prefix}/lib/ladspa/
+    xinstall -m 644 ${worksrcpath}/src/ladspa.h ${destroot}${prefix}/include/
+    eval xinstall -m 755 [glob ${worksrcpath}/bin/*] ${destroot}${prefix}/bin/
+    xinstall -d -m 755 ${destroot}${prefix}/share/doc/ladspa
+    xinstall -m 644 ${worksrcpath}/README ${destroot}${prefix}/share/doc/ladspa
+    xinstall -m 644 ${worksrcpath}/doc/COPYING ${destroot}${prefix}/share/doc/ladspa
+    eval xinstall -m 644 [glob ${worksrcpath}/doc/*html] ${destroot}${prefix}/share/doc/ladspa
+}

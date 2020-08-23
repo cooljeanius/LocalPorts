@@ -8,7 +8,7 @@ PortGroup         archcheck 1.0
 github.setup      cooljeanius LocalPorts 0.1.3 v
 name              useful-ports
 version           0.1
-revision          7
+revision          8
 categories        sysutils macports
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall
@@ -216,12 +216,12 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:libtool \
                    port:gnutar \
                    port:coreutils \
-                   port:mtools \
                    port:wiggle \
                    port:quilt \
                    port:yajl
     # FIXME: add darwinbuild back, but have it be guarded by a check for
     # architecture and/or platform version number
+    # Also add back mtools after conflict with multimarkdown is fixed
     depends_skip_archcheck-append MacOSXMacros gtk-doc man gnome-doc-utils compare docbook2X
     post-destroot {
         reinplace "s|bunch|ton|g" ${destroot}${prefix}/share/doc/${name}/README.md
