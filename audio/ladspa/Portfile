@@ -5,7 +5,7 @@ PortSystem          1.0
 
 name                ladspa
 version             1.15
-revision            2
+revision            3
 categories          audio devel
 platforms           darwin linux
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -39,7 +39,8 @@ post-patch {
     reinplace "s|@MACPORTS_PREFIX@|${prefix}|g" ${worksrcpath}/src/Makefile
 }
 
-use_configure       no
+use_configure           no
+configure.cxx_stdlib    libstdc++
 
 #FIXME: need to be UsingTheRightCompiler
 build.dir           ${worksrcpath}/src
