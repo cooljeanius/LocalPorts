@@ -11,13 +11,10 @@ Ports to create some day:
 - FlatCarbon-Headers (all of them, i.e. more than are in the CarbonHeaders port)
 - other stuff from opensource.apple.com or from the Apple sample code that comes with Xcode.
 - also other stuff that comes from macosforge
-- pip_select (created ticket asking for it: https://trac.macports.org/ticket/38016)
-- Jumpcut: http://jumpcut.sourceforge.net/
-- The Unarchiver (work from Homebrew's `unar` formula)
 - libmp3hip (for MusicKit below) (in progress)
 - GNS3: http://training.gns3.net/download/
 - libfreenect: https://github.com/OpenKinect/libfreenect (submitted: https://trac.macports.org/ticket/39092)
-- xctool: https://github.com/facebook/xctool 
+- dssi (from Fink)
 
 Stuff I've downloaded from SourceForge randomly in the past (check https://sourceforge.net/user/updates for full list):
 - Open64
