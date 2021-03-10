@@ -38,6 +38,7 @@ configure.args-append \
                     --with-libiconv-prefix=${prefix} \
                     --with-libintl-prefix=${prefix} \
                     --without-dmalloc
+configure.cflags-append -Wno-error=implicit-function-declaration
 
 depends_build-append \
                     bin:flex:flex \

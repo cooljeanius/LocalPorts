@@ -8,7 +8,7 @@ PortGroup         archcheck 1.0
 github.setup      cooljeanius LocalPorts 0.1.3 v
 name              useful-ports
 version           0.1
-revision          8
+revision          9
 categories        sysutils macports
 platforms         darwin
 maintainers       gwmail.gwu.edu:egall
@@ -50,11 +50,9 @@ depends_lib-append port:gawk \
                    port:fpp \
                    port:autoconf-archive \
                    port:javacc \
-                   port:fastjar \
                    port:chsuf \
                    port:bbe \
                    port:gsed \
-                   port:ssed \
                    port:convmv \
                    port:jansson \
                    port:libb64 \
@@ -62,10 +60,8 @@ depends_lib-append port:gawk \
                    port:cfv \
                    port:md5sha1sum \
                    port:unhash \
-                   port:dcfldd \
                    port:pv \
                    port:gmsl \
-                   port:remake \
                    port:CoreOSMakefiles \
                    port:proctools \
                    port:yasm \
@@ -77,18 +73,15 @@ depends_lib-append port:gawk \
                    port:tftp-hpa \
                    port:halloc \
                    port:byacc \
-                   port:byaccj \
                    port:ebnf2yacc \
                    port:lemon \
                    port:bison \
-                   port:bison1 \
                    port:idutils \
                    port:diffutils \
                    port:sharutils \
                    port:spellutils \
                    port:t1utils \
                    port:gpp \
-                   port:mcpp \
                    port:rpl \
                    port:gccmakedep \
                    port:makedepend \
@@ -102,17 +95,12 @@ depends_lib-append port:gawk \
                    port:boehmgc \
                    port:aamath \
                    port:e \
-                   port:glark \
                    port:contacts \
                    port:string_replace \
                    port:tre \
                    port:zsh-templates-osx \
-                   port:sudosh \
-                   port:rootsh \
-                   port:rc \
                    port:daemon \
                    port:daemontools \
-                   port:gnuregex \
                    port:makeicns \
                    port:dylibbundler \
                    port:getabspath \
@@ -137,18 +125,13 @@ depends_lib-append port:gawk \
                    port:autobook \
                    port:gtgt \
                    port:bash-completion \
-                   port:chgrep \
                    port:grep \
                    port:lv \
                    port:ngrep \
                    port:sgrep \
-                   port:sgrep2 \
-                   port:macutil \
                    port:html \
                    port:xorg-sgml-doctools \
                    port:util-linux \
-                   port:uucp \
-                   port:rx \
                    port:afsctool \
                    port:gtime \
                    port:gperf \
@@ -156,7 +139,6 @@ depends_lib-append port:gawk \
                    port:findutils \
                    port:diction \
                    port:ddrescue \
-                   port:argtable \
                    port:p7zip \
                    port:flagpoll \
                    port:unsort \
@@ -171,7 +153,6 @@ depends_lib-append port:gawk \
                    port:autobuild \
                    port:cmph \
                    port:colordiff \
-                   port:colorer \
                    port:sortu \
                    port:mksh
 depends_run-append port:gawk \
@@ -201,7 +182,6 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:icon-naming-utils \
                    port:desktop-file-utils \
                    port:autogen \
-                   port:uni2ascii \
                    port:gnome-doc-utils \
                    port:asciidoc \
                    port:renameutils \
@@ -222,6 +202,7 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
     # FIXME: add darwinbuild back, but have it be guarded by a check for
     # architecture and/or platform version number
     # Also add back mtools after conflict with multimarkdown is fixed
+    # Also add back rc after conflict with rtags is fixed
     depends_skip_archcheck-append MacOSXMacros gtk-doc man gnome-doc-utils compare docbook2X
     post-destroot {
         reinplace "s|bunch|ton|g" ${destroot}${prefix}/share/doc/${name}/README.md
