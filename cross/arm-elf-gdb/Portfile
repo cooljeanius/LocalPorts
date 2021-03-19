@@ -5,7 +5,7 @@ PortSystem              1.0
 
 name                    arm-elf-gdb
 version                 8.0.1
-revision                0
+revision                4
 categories              cross devel
 maintainers             koostech.com:billy openmaintainer
 license                 GPL-3+
@@ -14,19 +14,19 @@ long_description        arm-elf-gdb is a version of the GNU Debugger \
                         for the arm-elf toolchain.
 homepage                http://www.gnu.org/software/gdb/gdb.html
 platforms               darwin
-master_sites            gnu:gdb
+master_sites            gnu:gdb gnu:binutils-gdb http://ftp.gnu.org/gnu/gdb/
 distname                gdb-${version}
 dist_subdir             gdb
-use_bzip2               yes
-#FIXME: update checksums once I can fetch the tarball successfully:
-checksums               md5     496399e96654fc0f899a5c964bc1f0f8 \
-                        sha1    08821f7b74238c07f99b5c975d7b4783c23081a5 \
-                        rmd160  dc27919fdea46622f21db4c4e77ffced340d70ad \
-                        sha256  2f6a0e2ce1c66c9dedeb7f58a8d1298ad602ddcdaf15d23104e1f7832b96d0e8
+use_xz                  yes
+checksums \
+    md5     48cac527e6f3018b865ece021e9723ac \
+    sha1    faa945f77cf9bb5ae9530664f8b34ad21e38088f \
+    rmd160  8dbd2c4db72c10dbe9f72950c6be40f51150947d \
+    sha256  3dbd5f93e36ba2815ad0efab030dcd0c7b211d7b353a40a53f4c02d7d56295e3 \
+    size    19583920
 
 set crossgdb-target     arm-elf
 
-#TODO: fix compatibility with texinfo5
 depends_build-append    port:arm-elf-binutils \
                         path:arm-elf/bin/gcc:arm-elf-gcc \
                         path:bin/makeinfo:texinfo \
@@ -37,8 +37,7 @@ depends_build-append    port:arm-elf-binutils \
                         bin:gawk:gawk \
                         bin:gm4:m4 \
                         bin:grep:grep \
-                        port:libunwind-headers \
-                        port:elftoolchain
+                        port:libunwind-headers
 
 depends_lib-append      port:expat \
                         port:gettext \
@@ -68,6 +67,7 @@ configure.args-append   --mandir=${prefix}/share/man \
                         --disable-cloog-version-check \
                         --disable-ppl-version-check \
                         --without-python \
+                        --without-guile \
                         --with-zlib \
                         --enable-elf-stt-common \
                         --with-x \
@@ -96,8 +96,8 @@ configure.env-append    MAKEINFO=${prefix}/bin/makeinfo \
 build.env-append        ${configure.env}
 
 build.type              gnu
-use_parallel_build      no
 configure.ccache        no
+configure.cflags-append -Wno-error=implicit-function-declaration
 
 # tests
 test.run                yes
@@ -154,8 +154,10 @@ post-patch {
                         reinplace "s|--info-dir=\$(DESTDIR)\$(infodir)|--dir-file=\$(DESTDIR)\$(infodir)/${crossgdb-target}-gdb-dir|g" \
                                 "${worksrcpath}/${makefile}"
                 }
-        # etc/standards.info
-        crossgdb::fixinfo etc/ etc/Makefile.in standards info
+        crossgdb::fixinfo bfd/doc/ bfd/doc/Makefile.in bfd info
+        crossgdb::fixinfo gdb/doc/ gdb/doc/Makefile.in annotate info
+        crossgdb::fixinfo gdb/doc/ gdb/doc/Makefile.in gdb info
+        crossgdb::fixinfo gdb/doc/ gdb/doc/Makefile.in stabs info
 }
 
 destroot.violate_mtree yes
@@ -164,5 +166,10 @@ post-destroot {
         # Do not overwrite libiberty installed by gcc.
         if {[file exists ${destroot}/${prefix}/lib/${build_arch}/libiberty.a]} {
             file delete "${destroot}/${prefix}/lib/${build_arch}/libiberty.a"
+        }
+        # Also, do not overwrite bfd.info installed by arm-elf-binutils.
+        if {[file exists ${destroot}/${prefix}/share/info/${crossgdb-target}-bfd.info]} {
+            file rename ${destroot}/${prefix}/share/info/${crossgdb-target}-bfd.info \
+                ${destroot}/${prefix}/share/info/${name}-bfd.info
         }
 }

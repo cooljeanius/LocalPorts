@@ -5,7 +5,7 @@ PortSystem      1.0
 
 name            libshout
 version         1.0.9
-revision        2
+revision        3
 categories      audio net
 maintainers     nomaintainer
 license         LGPL-2
@@ -37,6 +37,8 @@ depends_build-append \
 patchfiles-append \
                 patch-using-apple-patches.diff
 
+use_autoreconf  yes
+
 configure.args-append \
                 --with-pic \
                 --enable-shared \
@@ -46,6 +48,9 @@ configure.args-append \
                 --includedir=${prefix}/include/shout1 \
                 --x-includes=${prefix}/include \
                 --x-libraries=${prefix}/lib
+
+configure.cflags-append \
+                -Wno-error=implicit-function-declaration
 
 # ccache: invalid option -- d
 configure.ccache no

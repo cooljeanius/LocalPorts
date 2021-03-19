@@ -6,7 +6,7 @@ PortSystem      1.0
 name            hfstar
 version         1.13.19
 categories      archivers
-revision        6
+revision        7
 maintainers     gwmail.gwu.edu:egall openmaintainer
 license         GPL-2+
 description     gnutar with HFS+ support
@@ -36,6 +36,9 @@ configure.args-append \
                 --program-prefix=hfs \
                 --mandir=${prefix}/share/man \
                 --infodir=${prefix}/share/info
+
+configure.cflags-append \
+                -Wno-error=implicit-function-declaration
 
 build.env-append \
                 LANG=C \
