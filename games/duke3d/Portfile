@@ -6,7 +6,7 @@ PortGroup       archcheck 1.0
 
 name            duke3d
 version         0.1
-revision        1
+revision        2
 categories      games
 platforms       darwin
 maintainers     phw openmaintainer
@@ -22,11 +22,9 @@ homepage        http://icculus.org/${name}/
 
 depends_build-append \
                 port:pkgconfig \
-                port:ppc-linux-binutils \
                 port:arc \
                 port:arj \
                 port:dos2unix \
-                port:dosmacux \
                 port:unarj \
                 port:nasm \
                 path:include/endian.h:endian \
@@ -36,37 +34,63 @@ depends_lib-append \
                 port:libsdl_image \
                 port:libsdl_mixer \
                 port:physfs \
-                port:libsockets \
                 port:socket \
                 port:bochs
-depends_run-append \
+
+switch ${build_arch} {
+    ppc {
+        # dosmacux: see MP bug 62916 on Trac
+        # libsockets actually installs ok, it just keeps getting rebuilt
+        # every time I make a change to this Portfile...
+        depends_build-append \
+                port:ppc-linux-binutils \
+                port:dosmacux \
+                port:libsockets
+    }
+    i386 {
+        depends_run-append \
                 port:dosbox
-depends_skip_archcheck-append dosbox
+        depends_skip_archcheck-append dosbox
+    }
+}
 
 worksrcdir      trunk/source/
 use_configure   no
+configure.cflags-append -Wno-implicit -Wno-error
+configure.cppflags-append -DPLATFORM_UNIX -DPLATFORM_SUPPORTS_SDL
+platform macosx {
+    configure.cppflags-prepend -DPLATFORM_MACOSX
+    configure.cflags-append -DPLATFORM_MACOSX -DPLATFORM_UNIX
+}
 
 build.args-append \
                 macosx=true \
                 CC=${configure.cc} \
                 CXX=${configure.cxx} \
                 CPP=${configure.cpp} \
-                ASM=${prefix}/bin/nasm
+                ASM=${prefix}/bin/nasm \
+                CFLAGS=\"${configure.cflags}\" \
+                CPPFLAGS=\"${configure.cppflags}\"
 
 build.env-append \
+                macosx=true \
                 CC=${configure.cc} \
                 CXX=${configure.cxx} \
                 CPP=${configure.cpp} \
                 ASM=${prefix}/bin/nasm \
-                SDL_CONFIG=${prefix}/bin/sdl-config
+                SDL_CONFIG=${prefix}/bin/sdl-config \
+                CFLAGS=\"${configure.cflags}\" \
+                CPPFLAGS=\"${configure.cppflags}\"
 
 if {[lsearch [get_canonical_archs] ppc] == -1} {
     pre-build {
-        reinplace "s|\-faltivec|${configure.cflags}|" ${worksrcpath}/Makefile
-        eval reinplace "s|\-faltivec|${configure.cflags}|" [glob ${worksrcpath}/*/Makefile]
-        eval reinplace "s|\-faltivec|${configure.cflags}|" [glob ${worksrcpath}/*/*/Makefile]
+        reinplace "s|\-faltivec|\"${configure.cflags}\"|" ${worksrcpath}/Makefile
+        # eval messes with quotation marks, so I am removing the eval part
+        # until I figure that out...
     }
 }
+
+use_parallel_build no
 
 variant utils description {Build extra utilities (not all work)} {
     post-build {

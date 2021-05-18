@@ -51,6 +51,7 @@ configure.args-append \
                     --with-libjpeg=${prefix} \
                     --with-libtiff=${prefix} \
                     --with-libgif=${prefix}
+configure.cflags-append -Wno-error=implicit-function-declaration
 
 post-configure {
     # https://bugs.gentoo.org/show_bug.cgi?id=431916

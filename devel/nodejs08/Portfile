@@ -72,26 +72,21 @@ post-patch {
 configure.args          --without-ssl
 configure.args-append   --without-npm
 
-variant python25 conflicts python26 python27 description {Use python 2.5} {
-    depends_lib-append  port:python25
-    configure.python    ${prefix}/bin/python2.5
-}
-
-variant python26 conflicts python25 python27 description {Use python 2.6} {
+variant python26 conflicts python27 description {Use python 2.6} {
     depends_lib-append  port:python26
     configure.python    ${prefix}/bin/python2.6
 }
 
-variant python27 conflicts python25 python26 description {Use python 2.7} {
+variant python27 conflicts python26 description {Use python 2.7} {
     depends_lib-append  port:python27
     configure.python    ${prefix}/bin/python2.7
 }
 
-if {![variant_isset python25] && ![variant_isset python26]} {
+if {![variant_isset python26]} {
     default_variants-append +python27
 }
 
-if {![variant_isset python25] && ![variant_isset python26] && ![variant_isset python27]} {
+if {![variant_isset python26] && ![variant_isset python27]} {
     pre-patch {
         ui_error "${name} ${version} requires a python variant to be selected"
         return -code error "no python variant selected"

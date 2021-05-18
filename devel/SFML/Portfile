@@ -7,7 +7,7 @@ PortGroup           cmake 1.0
 name                SFML
 version             2.0
 #TODO: update to 2.1
-revision            2
+revision            3
 categories          devel multimedia
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -22,7 +22,8 @@ long_description    ${description}. It provides a simple interface to the \
                     graphics, audio and network.
 
 homepage            http://www.sfml-dev.org/
-master_sites        http://www.sfml-dev.org/download/sfml/${version}/
+master_sites        http://www.sfml-dev.org/download/sfml/${version}/ \
+                    https://www.sfml-dev.org/files
 distname            ${name}-${version}-sources
 use_zip             yes
 

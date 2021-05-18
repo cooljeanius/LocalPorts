@@ -34,6 +34,7 @@ depends_lib-append  port:qt4-mac \
                     port:tcl \
                     port:postgresql84 \
                     port:gdal \
+                    port:gdal1 \
                     port:qdjango \
                     port:libkml \
                     port:libproj4 \
@@ -112,12 +113,13 @@ require_active_variants qt4-mac {debug demos examples openvg universal}
 require_active_variants cgal4 {debug demos qt4 universal}
 require_active_variants tcl {corefoundation memdebug threads universal}
 require_active_variants postgresql84 {earthdistance krb5 tcl universal}
-require_active_variants gdal {huge universal}
+require_active_variants gdal1 {huge}
+require_active_variants gdal {cfitsio hdf4 hdf5 jasper libkml lzma netcdf openjpeg poppler xerces}
 require_active_variants mapnik {cairo gdal geos osm sqlite}
 require_active_variants qlandkartegt {debug universal}
 require_active_variants qlandkartegt-garmindev {debug universal}
 require_active_variants qt4-mac-sqlite3-plugin {debug universal}
-require_active_variants vtk {debug universal}
+require_active_variants vtk {debug ffmpeg qt4 qt5}
 require_active_variants gmt4 {gdal triangle xgrid}
 require_active_variants gmt5 {gdal triangle}
 require_active_variants sfcgal {debug examples universal viewer}
@@ -127,52 +129,13 @@ require_active_variants libpcl {debug universal}
 require_active_variants libproj4 {universal}
 require_active_variants qtiplot {debug qtexengine universal}
 
-# deprecated:
-variant python25 conflicts python26 python27 python32 python33 python34 \
-    description {Enable Python 2.5 support (deprecated)} {
-    depends_lib-append      port:python25 \
-                            port:py25-lightblue \
-                            port:py25-openpyxl \
-                            port:py25-xlutils \
-                            port:py25-xlwt \
-                            port:py25-psycopg2 \
-                            port:py25-sqlalchemy \
-                            port:py25-geoalchemy
-    # py25-geopy has been removed from trunk
-    require_active_variants gdal {python25}
-    require_active_variants vtk {python25}
-    require_active_variants qtiplot {python25}
-    require_active_variants py25-psycopg2 {postgresql84}
-}
-
-variant python26 conflicts python25 python27 python32 python33 python34 \
+variant python26 conflicts python27 python32 python33 python34 \
     description {Enable Python 2.6 support} {
-    depends_lib-append      port:python26 \
-                            port:py26-django \
-                            port:py26-mapnik \
-                            port:py26-osmgpsmap \
-                            port:py26-rtree \
-                            port:py26-lightblue \
-                            port:py26-openpyxl \
-                            port:py26-xlutils \
-                            port:py26-xlrd \
-                            port:py26-xlwt \
-                            port:py26-pyshp \
-                            port:py26-geojson \
-                            port:py26-pygeocoder \
-                            port:py26-psycopg2 \
-                            port:py26-sqlalchemy \
-                            port:py26-geoalchemy \
-                            port:py26-netcdf4
-    require_active_variants gdal {python26}
-    require_active_variants mapnik {python26}
-    require_active_variants py26-django {bash_completion}
-    require_active_variants vtk {python26}
-    require_active_variants qtiplot {python26}
-    require_active_variants py26-psycopg2 {postgresql84}
+    depends_lib-append      port:python26
+    require_active_variants gdal1 {python26}
 }
 
-variant python27 conflicts python25 python26 python32 python33 python34 \
+variant python27 conflicts python26 python32 python33 python34 \
     description {Enable Python 2.7 support} {
     depends_lib-append      port:python27 \
                             port:py27-django \
@@ -194,61 +157,28 @@ variant python27 conflicts python25 python26 python32 python33 python34 \
                             port:py27-geoalchemy \
                             port:py27-netcdf4
     depends_skip_archcheck-append py27-cartopy py27-scipy
-    require_active_variants gdal {python27}
+    require_active_variants gdal1 {python27}
     require_active_variants postgresql84 {python python27}
-    require_active_variants mapnik {python27}
     require_active_variants py27-django {bash_completion}
     require_active_variants vtk {python27}
     require_active_variants qtiplot {python27}
     require_active_variants py27-psycopg2 {postgresql84}
 }
 
-variant python32 conflicts python25 python26 python27 python33 python34 \
+variant python32 conflicts python26 python27 python33 python34 \
     description {Enable Python 3.2 support} {
-    depends_lib-append      port:python32 \
-                            port:py32-pyshp \
-                            port:py32-django \
-                            port:py32-xlrd \
-                            port:py32-sqlalchemy \
-                            port:py32-netcdf4
-    require_active_variants py32-django {bash_completion}
+    depends_lib-append      port:python32
 }
-variant python33 conflicts python25 python26 python27 python32 python34 \
+variant python33 conflicts python26 python27 python32 python34 \
     description {Enable Python 3.3 support} {
-    depends_lib-append      port:python33 \
-                            port:py33-pyshp \
-                            port:py33-django \
-                            port:py33-geojson \
-                            port:py33-fiona \
-                            port:py33-rasterio \
-                            port:py33-xlrd \
-                            port:py33-openpyxl \
-                            port:py33-geopandas \
-                            port:py33-shapely \
-                            port:py33-psycopg2 \
-                            port:py33-sqlalchemy \
-                            port:py33-netcdf4
-    require_active_variants py33-django {bash_completion}
-    require_active_variants py33-psycopg2 {postgresql84}
+    depends_lib-append      port:python33
 }
-variant python34 conflicts python25 python26 python27 python32 python33 \
+variant python34 conflicts python26 python27 python32 python33 \
     description {Enable Python 3.4 support} {
-    depends_lib-append      port:python34 \
-                            port:py34-pyshp \
-                            port:py34-geojson \
-                            port:py34-fiona \
-                            port:py34-rasterio \
-                            port:py34-xlrd \
-                            port:py34-openpyxl \
-                            port:py34-geopandas \
-                            port:py34-shapely \
-                            port:py34-psycopg2 \
-                            port:py34-sqlalchemy \
-                            port:py34-netcdf4
-    require_active_variants py34-psycopg2 {postgresql84}
+    depends_lib-append      port:python34
 }
 
-if {![variant_isset python25] && ![variant_isset python26] && ![variant_isset python32] && ![variant_isset python33] && ![variant_isset python34]} {
+if {![variant_isset python26] && ![variant_isset python32] && ![variant_isset python33] && ![variant_isset python34]} {
     default_variants-append +python27
 }
 
@@ -260,13 +190,11 @@ if {![variant_isset python25] && ![variant_isset python26] && ![variant_isset py
 variant broken description {broken dependencies are thrown here until they work} {
     depends_lib-append      port:gdal-grass \
                             port:libpcl \
-                            port:grass \
+                            port:grass7 \
                             port:pgRouting \
-                            port:osgswig-devel \
                             port:qlandkarte \
                             port:mapm3 \
                             port:orfeotoolbox \
-                            port:saga \
                             port:jgraph \
                             port:libgweather2 \
                             port:mapserver \
@@ -279,24 +207,29 @@ variant broken description {broken dependencies are thrown here until they work}
                             port:viking \
                             port:xalanj \
                             port:kgeography
-    depends_skip_archcheck-append OpenSceneGraph osgswig-devel
-    require_active_variants grass {ffmpeg sqlite3 universal}
+    depends_skip_archcheck-append OpenSceneGraph
+    require_active_variants grass7 {debug ffmpeg gui openblas sqlite zstd}
     require_active_variants libpcl {debug universal}
     require_active_variants pgRouting {debug doc universal}
     require_active_variants orfeotoolbox {debug qt4 universal}
-    require_active_variants osgswig-devel {debug universal}
-    if {[variant_isset python25]} {
-        depends_lib-append  port:py25-couchdb
-    }
-    if {[variant_isset python26]} {
-        depends_lib-append  port:py26-couchdb
-    }
     if {[variant_isset python27]} {
         depends_lib-append  port:py27-couchdb \
                             port:py27-geopandas \
                             port:py27-fiona
         require_active_variants orfeotoolbox {python27}
-        require_active_variants saga {python27}
+    }
+    if {![catch {set result [active_variants gdal1 unixODBC iodbc]}]} {
+        if {$result} {
+            depends_lib-append port:saga
+        } else {
+            pre-fetch {
+                ui_debug "gdal1 installed with wrong variants; skipping depending on saga"
+            }
+        }
+    } else {
+        pre-fetch {
+            ui_debug "unsure if we can depend upon saga or not"
+        }
     }
 }
 

@@ -1,0 +1,33 @@
+--- src/objects/tool_object.cpp.orig	2021-05-18 05:15:05.000000000 -0400
++++ src/objects/tool_object.cpp	2021-05-18 05:17:33.000000000 -0400
+@@ -53,19 +53,27 @@
+ 
+ 
+ #if 1
+-//#include "config.h"
++#ifdef HAVE_CONFIG_H
++# include "config.h"
++#endif /* HAVE_CONFIG_H */
+ #include "objects/valkyrie_object.h"
+ #include "utils/vk_config.h"
+ #include "utils/vk_messages.h"
+ #include "utils/vk_utils.h"      // vk_assert, VK_DEBUG, etc.
+ #include "utils/vglogreader.h"
+ #include "options/vk_option.h"   // PERROR* and friends
+-//#include "vk_file_utils.h"       // FileCopy()
++#if 0
++# include "vk_file_utils.h"      // FileCopy()
++#endif /* 0 */
+ 
+ #include <QApplication>
+ #include <QDir>
+ #include <QTimer>
+-#endif
++
++#if defined(HAVE_UNISTD_H) || defined(__APPLE__)
++# include <unistd.h>
++#endif /* HAVE_UNISTD_H || __APPLE__ */
++#endif /* 1 */
+ 
+ // Waiting for Vg to start:
+ #define WAIT_VG_START_MAX   1000 // msecs before giving up

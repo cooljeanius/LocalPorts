@@ -76,6 +76,7 @@ autoreconf.args     -fvi -Wall
 configure.args-append \
                     --disable-glibtest \
                     --disable-silent-rules
+configure.cflags-append -Wno-error=implicit-function-declaration
 
 if {${os.platform} eq "darwin"} {
     # hack to get include/babeltrace/endian.h to use the right header on
@@ -115,7 +116,7 @@ test.run            yes
 test.target         check
 
 # python has to be python3:
-set pythons_suffixes {31 32 33 34}
+set pythons_suffixes {32 33 34 35 36 37 38 39}
 
 set pythons_ports {}
 foreach s ${pythons_suffixes} {
@@ -141,9 +142,3 @@ foreach s ${pythons_suffixes} {
         }
     }]
 }
-
-# cannot set a python variant by default yet because the "pretend to be
-# FreeBSD" hack we use above breaks python, so comment out:
-#if {![variant_isset python31] && ![variant_isset python32] && ![variant_isset python34]} {
-#    default_variants-append +python33
-#}

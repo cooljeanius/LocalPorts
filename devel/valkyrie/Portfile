@@ -36,9 +36,18 @@ checksums             md5     a411dfb803f548dae5f988de0160aeb5 \
 # This was taken from the valgrind portfile; I do NOT know if it actually
 # applies to valkyrie, too, though...
 pre-fetch {
-    if {${os.platform} eq "darwin" && (${os.major} < 9 || ${os.major} > 12)} {
-        ui_error "${name} ${version} is only compatible with OS X 10.5, 10.6, 10.7 and 10.8"
-        return -code error "incompatible OS X version"
+    if {${os.platform} eq "darwin" && (${os.major} < 9 || ${os.major} > 17)} {
+        ui_warn "${name} ${version} is only compatible with macOS versions from 10.5 up to 10.13."
+        if {![catch {set installed [lindex [registry_active valgrind-macos-devel] 0]}]} {
+            ui_debug "proceeding anyways, though..."
+            patchfiles-append \
+                patch-src_objects_tool_object.cpp.diff \
+                patch-src_utils_vk_config.cpp.diff \
+                patch-src_utils_vk_utils.cpp.diff
+        } else {
+            ui_msg "try installing valgrind-macos-devel as a workaround"
+            return -code error "incompatible macOS version"
+        }
     }
 }
 
