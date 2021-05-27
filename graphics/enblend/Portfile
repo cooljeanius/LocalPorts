@@ -42,9 +42,9 @@ conflicts_build-append \
 depends_build-append \
                 port:pkgconfig \
                 port:help2man \
-                port:p5.16-sys-hostname-long \
-                port:p5.16-timedate \
-                port:p5.16-file-basedir \
+                port:p5.26-sys-hostname-long \
+                port:p5.26-timedate \
+                port:p5.26-file-basedir \
                 path:bin/xmkmf:imake \
                 bin:perl:perl5 \
                 bin:fig2dev:transfig \
