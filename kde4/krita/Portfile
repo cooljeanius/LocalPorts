@@ -18,7 +18,13 @@ long_description    Krita is the full-featured free digital painting \
                     texture painters and in the digital VFX industry.
 homepage            http://www.${name}.org
 master_sites        http://download.kde.org/stable/calligra-latest/ \
-                    http://www.patriksmediedesign.se/
+                    http://www.patriksmediedesign.se/ \
+                    https://download.kde.org/Attic/krita/ \
+                    https://download.kde.org/Attic/krita/${version}/ \
+                    https://download.kde.org/stable/krita/${version}/ \
+                    https://invent.kde.org/graphics/krita/-/tags \
+                    https://invent.kde.org/graphics/krita/-/archive/v${version}/ \
+                    https://krita.org/en/download/krita-desktop/
 
 checksums           rmd160 b25805f91372295d127be7ef229c3b575c662071 \
                     sha256 1bc0cd40734baf68a0d79307d0ffbd8e15a4571375a60b1016f0fc8b68c3d2ce
