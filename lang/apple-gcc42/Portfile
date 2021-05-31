@@ -191,6 +191,8 @@ platform darwin 8 {
     }
 }
 
+configure.cflags-append -Wno-error
+
 build.env \
     PATH=/bin:/usr/bin:/sbin:/usr/sbin \
     LANGUAGES=c,c++,objc,obj-c++
@@ -213,17 +215,21 @@ if {![variant_isset bootstrap]} {
         RANLIB_FOR_HOST=${prefix}/bin/ranlib \
         STRIP_FOR_HOST=${prefix}/bin/strip \
         OTOOL=${prefix}/bin/otool \
-        OTOOL64=${prefix}/bin/otool
+        OTOOL64=${prefix}/bin/otool \
+        CFLAGS="-Wno-error" \
+        BUILD_CFLAGS="-Wno-error" \
+        HOST_CFLAGS="-Wno-error" \
+        TARGET_CFLAGS="-Wno-error"
 }
 
 build.args-append \
-    CC="${configure.cc} -pipe -std=gnu89" \
+    CC="${configure.cc} -pipe -std=gnu89 -Wno-error" \
     PREFIX="${prefix}" \
     SRCROOT="${srcroot}" \
     OBJROOT="${objroot}" \
     SYMROOT="${symroot}" \
     DSTROOT="${destroot}" \
-    RC_NONARCH_CFLAGS="-pipe -std=gnu89" \
+    RC_NONARCH_CFLAGS="-pipe -std=gnu89 -Wno-error" \
     RC_OS="macos" \
     RC_ARCHS="[get_canonical_archs]" \
     RC_ProjectSourceVersion="[lindex [split ${version} .] 0]" \
