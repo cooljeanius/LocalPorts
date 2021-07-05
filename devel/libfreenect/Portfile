@@ -1,11 +1,11 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id$
 
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
 
 github.setup        OpenKinect libfreenect 0.6.2 v
+revision            1
 categories          devel graphics games
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -40,6 +40,11 @@ configure.args-append \
 # now it does NOT really do anything...
 variant java conflicts universal description {Enable java bindings} {
     PortGroup       java 1.0
+
+    java.version        1.6+
+    # Use latest LTS Java version as fallback
+    java.fallback       openjdk11
+
     depends_build-append \
                     bin:mvn:maven2
 }
@@ -58,18 +63,18 @@ variant ruby description {Enable ruby bindings} {
 
 variant opencv description {Enable opencv bindings} {
     depends_lib-append \
-                    port:opencv
+                    port:opencv3
     configure.args-delete \
                     -DBUILD_CV=OFF
     configure.args-append \
                     -DBUILD_CV=ON \
-                    -DCMAKE_MODULE_PATH=${prefix}/lib/cmake \
+                    -DCMAKE_MODULE_PATH=${prefix}/libexec/opencv3/cmake \
                     -DCMAKE_PREFIX_PATH=${prefix} \
-                    -DOpenCV_DIR=${prefix}/lib/cmake
+                    -DOpenCV_DIR=${prefix}/libexec/opencv3/cmake
     configure.env-append \
-                    CMAKE_MODULE_PATH=${prefix}/lib/cmake \
+                    CMAKE_MODULE_PATH=${prefix}/libexec/opencv3/cmake \
                     CMAKE_PREFIX_PATH=${prefix} \
-                    OpenCV_DIR=${prefix}/lib/cmake
+                    OpenCV_DIR=${prefix}/libexec/opencv3/cmake
 }
 
 variant actionscript description {Enable actionscript bindings} {

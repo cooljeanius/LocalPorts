@@ -284,10 +284,9 @@ variant docs description {Build documentation} {
 
 variant gnome description {use gnome libraries where appropriate} {
     depends_lib-append \
-	port:gnome-vfs \
-	port:libgnomeui \
-	port:libgnome \
-	port:gnome-icon-theme \
+        port:gnome-vfs \
+        port:libgnomeui \
+        port:libgnome \
         port:startup-notification
 
     configure.args-replace --disable-gnomevfs --enable-gnomevfs
