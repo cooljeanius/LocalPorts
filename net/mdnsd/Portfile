@@ -1,10 +1,9 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id: Portfile 32259 2007-12-23 10:50:38Z ryandesign@macports.org $
 
 PortSystem      1.0
 PortGroup       github 1.0
 
-github.setup    cooljeanius mdnsd 0.8.0 v
+github.setup    cooljeanius mdnsd 0.8.1 v
 categories      net
 maintainers     gwmail.gwu.edu:egall openmaintainer
 description     embeddable Multicast DNS Daemon
@@ -18,8 +17,9 @@ long_description    \
     fully on the .local network just by including a few files and \
     calling a few functions.
 
-checksums       rmd160  e15b83112386169ec2675f62a4e776b0497552b9 \
-                sha256  e4c81ffdb85843634de6ffc1651bc7c8ab61abc7d6a28a85d0b0e9a07743c5fd
+checksums       rmd160  bb4a4cf73eb584bb11f4897d91e804aa24190267 \
+                sha256  40943113090343c4f60bd12e4db617af2f34684229856c0a06a6699793d517e7 \
+                size    444316
 
 configure.args-append --includedir=${prefix}/include/${name}
 

@@ -1,0 +1,74 @@
+--- /opt/local/var/macports/sources/rsync.macports.org/macports/release/tarballs/ports/net/mdnsd/Portfile	2020-11-16 18:40:54.000000000 -0500
++++ Portfile	2021-07-10 00:30:04.000000000 -0400
+@@ -1,26 +1,47 @@
+-PortSystem 1.0
++# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+ 
+-name		mdnsd
+-version		0.7G
+-revision	0
+-categories	net
+-license		{GPL BSD}
+-maintainers	nomaintainer
+-description	embeddable Multicast DNS Daemon
+-long_description	\
+-	mdnsd is a very lightweight, simple, portable, and easy to integrate \
+-	open source implementation of Multicast DNS (part of Zeroconf, also \
+-	called Rendezvous by Apple) for developers. It supports both acting \
+-	as a Query and a Responder, allowing any software to participate \
+-	fully on the .local network just by including a few files and \
+-	calling a few functions.
+-homepage	http://dotlocal.org/mdnsd/
+-platforms	darwin
+-master_sites	http://dotlocal.org/mdnsd/
+-checksums	md5 3692107785567b0eff6cec979506da3b
+-use_configure	no
+-destroot {
+-	file mkdir ${destroot}${prefix}/bin
+-	system "install -m 755 ${worksrcpath}/mhttp ${destroot}${prefix}/bin"
+-	system "install -m 755 ${worksrcpath}/mquery ${destroot}${prefix}/bin"
++PortSystem      1.0
++PortGroup       github 1.0
++
++github.setup    cooljeanius mdnsd 0.8.1 v
++categories      net
++maintainers     gwmail.gwu.edu:egall openmaintainer
++description     embeddable Multicast DNS Daemon
++license         {GPL-3+ BSD} Permissive
++platforms       darwin
++long_description    \
++    ${name} is a lightweight, simple, portable, and easy-to-integrate \
++    open source implementation of Multicast DNS (part of Zeroconf, also \
++    called Rendezvous by Apple) for developers. It supports both acting \
++    as a Query and a Responder, allowing any software to participate \
++    fully on the .local network just by including a few files and \
++    calling a few functions.
++
++checksums       rmd160  bb4a4cf73eb584bb11f4897d91e804aa24190267 \
++                sha256  40943113090343c4f60bd12e4db617af2f34684229856c0a06a6699793d517e7 \
++                size    444316
++
++configure.args-append --includedir=${prefix}/include/${name}
++
++# Testsuite is just a stub so far, but it does exist:
++test.run        yes
++test.target     check
++
++variant autoreconf description {Regenerates configure script before building.} {
++    depends_build-append port:gawk \
++                         port:grep
++    use_autoreconf       yes
++    autoreconf.args      -fvi -Wall
++}
++
++post-destroot {
++    if {![file exists ${destroot}${prefix}/bin]} {
++        xinstall -d ${destroot}${prefix}/bin
++    }
++    if {![file exists ${destroot}${prefix}/bin/mhttp]} {
++        xinstall -m 755 ${worksrcpath}/mhttp ${destroot}${prefix}/bin
++    }
++    if {![file exists ${destroot}${prefix}/bin/mquery]} {
++        xinstall -m 755 ${worksrcpath}/mquery ${destroot}${prefix}/bin
++    }
+ }
