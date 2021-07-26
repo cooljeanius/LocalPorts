@@ -4,10 +4,8 @@
 PortSystem          1.0
 
 name                libcfgplus
-# FIXME: actually fix this conflict instead of just marking it:
-conflicts-append    ossp-cfg
 version             0.6.2
-revision            2
+revision            3
 categories          devel
 platforms           darwin
 maintainers         gwmail.gwu.edu:egall openmaintainer
@@ -33,13 +31,25 @@ platform darwin {
     patch.args-append   --backup
 }
 
+# dependencies mostly found by trace mode:
+depends_build-append    bin:mawk:mawk \
+                        bin:docbook2man:docbook2X \
+                        bin:makeinfo:texinfo \
+                        bin:doxygen:doxygen \
+                        bin:ranlib:cctools
+
 # Need to use the compiler as the linker when building this:
 configure.env-append    LD="${configure.cc}"
 build.env-append        LD="${configure.cc}"
+# tweaking includedir is to avoid conflict with ossp-cfg:
 configure.args-append   --x-includes=${prefix}/include \
                         --x-libraries=${prefix}/lib \
                         --infodir=${prefix}/share/info \
-                        --mandir=${prefix}/share/man
+                        --mandir=${prefix}/share/man \
+                        --includedir=${prefix}/include/${name} \
+                        --oldincludedir=${prefix}/include
+
+configure.cflags-append -Wno-implicit-function-declaration
 
 # The "test" target is really more like a "distcheck":
 test.run no
