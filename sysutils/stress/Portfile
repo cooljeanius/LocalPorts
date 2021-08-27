@@ -16,11 +16,13 @@ long_description         ${description} It imposes a configurable amount \
                          of CPU, memory, I/O, and disk stress on the \
                          system.
 
-homepage                 http://weather.ou.edu/%7Eapw/projects/${name}/
+# FIXME: tarball is empty when downloading from here:
+homepage                 http://web.archive.org/web/20130520190152/http://weather.ou.edu/%7Eapw/projects/${name}/
 master_sites             ${homepage}
 
-checksums                rmd160  2fc0896ae9039776dee3351205d7e2496a36cfe4 \
-                         sha256  369c997f65e8426ae8b318d4fdc8e6f07a311cfa77cc4b25dace465c582163c0
+checksums           rmd160  1d609115fa0114adc6b040bce209cfab8108df54 \
+                    sha256  809ffbf0abff4c8ddf66b9de0ef88ba8820d3898f917bfcc70f10507c24af0e5 \
+                    size    737280
 
 variant autoreconf description {Regenerates configure script \
                                 before building. Also pulls in extra \
