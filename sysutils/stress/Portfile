@@ -5,24 +5,24 @@ PortSystem               1.0
 
 name                     stress
 version                  1.0.4
-revision                 0
-platforms	         darwin
-categories	         sysutils benchmarks
-maintainers	         gwmail.gwu.edu:egall openmaintainer
-description	         ${name} is a deliberately simple workload \
+revision                 1
+platforms	        darwin
+categories	        sysutils benchmarks
+maintainers	        gwmail.gwu.edu:egall openmaintainer
+description	        ${name} is a deliberately simple workload \
                          generator for POSIX systems.
 license                  GPL-2+
 long_description         ${description} It imposes a configurable amount \
                          of CPU, memory, I/O, and disk stress on the \
                          system.
 
-# FIXME: tarball is empty when downloading from here:
 homepage                 http://web.archive.org/web/20130520190152/http://weather.ou.edu/%7Eapw/projects/${name}/
-master_sites             ${homepage}
+# Need to use a different master_sites to avoid archive being empty:
+master_sites             http://repository.timesys.com/buildsources/s/${name}/${name}-${version}/
 
-checksums           rmd160  1d609115fa0114adc6b040bce209cfab8108df54 \
-                    sha256  809ffbf0abff4c8ddf66b9de0ef88ba8820d3898f917bfcc70f10507c24af0e5 \
-                    size    737280
+checksums           rmd160  f168f4baedc97206259dd5dc59529805da48bc64 \
+                    sha256  057e4fc2a7706411e1014bf172e4f94b63a12f18412378fca8684ca92408825b \
+                    size    191800
 
 variant autoreconf description {Regenerates configure script \
                                 before building. Also pulls in extra \
@@ -30,7 +30,6 @@ variant autoreconf description {Regenerates configure script \
     depends_build-append port:autoconf-archive \
                          port:gawk \
                          port:grep \
-                         bin:rpmbuild:rpm \
                          bin:rcs2log:cvs \
                          port:texinfo \
                          port:pkgconfig \
@@ -40,16 +39,17 @@ variant autoreconf description {Regenerates configure script \
     configure.args-append --disable-silent-rules
     post-extract {
         xinstall -m 644 ${worksrcpath}/configure.in ${worksrcpath}/configure.ac
-        file delete ${worksrcpath}/configure.in
         file mkdir ${worksrcpath}/m4
         file copy ${prefix}/share/aclocal/ax_spec_package_version.m4 ${worksrcpath}/m4
         file copy ${prefix}/share/aclocal/pkg.m4 ${worksrcpath}/m4
         file mkdir ${worksrcpath}/build-aux
         file copy ${filespath}/Makefile.spec ${worksrcpath}
     }
+    # FIXME: these patches are broken:
     patchfiles-append    patch-configure.ac.diff \
                          patch-Makefile.am.diff \
                          patch-src-Makefile.am.diff
+    patch.pre_args       -p1
     test.run             yes
     test.target          test
 }
