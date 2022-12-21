@@ -14,6 +14,7 @@ Warning!
 
 Some of these ports are copied from the portfiles in the main version of MacPorts.
 If you use these, you could end up with broken portfiles shadowing the good ones.
+See bug [36951](https://trac.macports.org/ticket/36951) on the MacPorts Trac for further information.
 
 Port
 ====
