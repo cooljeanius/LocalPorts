@@ -41,6 +41,7 @@ Stuff I've downloaded from SourceForge randomly in the past (check https://sourc
 - db2html
 - MusicKit (in progress)
 
+<!--
 Copied and pasted from gnome-desktop-suite's comments hidden in its portfile:
 #
 # TODO
@@ -83,6 +84,7 @@ Copied and pasted from gnome-desktop-suite's comments hidden in its portfile:
 # gnome-netstatus (builds but doesn't work -- tries to open /proc/net/dev)
 # gnome-system-monitor (builds but segfaults on processes/resources -- probably due to lack of support for MacOSX in libgtop)
 #
+-->
 
 Make sure every GNU package has a port:
 http://www.gnu.org/software/software.html#allgnupkgs
