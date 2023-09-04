@@ -11,7 +11,7 @@ Ports to create some day:
 - other stuff from opensource.apple.com or from the Apple sample code that comes with Xcode.
 - also other stuff that comes from macosforge
 - libmp3hip (for MusicKit below) (in progress)
-- GNS3: http://training.gns3.net/download/
+- GNS3: http://web.archive.org/web/20130608012058/http://training.gns3.net/download
 - libfreenect: https://github.com/OpenKinect/libfreenect (submitted: https://trac.macports.org/ticket/39092)
 - dssi (from Fink)
 
