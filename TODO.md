@@ -1,6 +1,5 @@
 Ports to create some day:
 - busybox (build system is difficult to wrangle, don't know if I can do it)
-- EasySIMBL: https://github.com/norio-nomura/EasySIMBL/
 - OpenCFLite (opened ticket requesting it: https://trac.macports.org/ticket/38903)
 - OpenPowerPlant: https://sourceforge.net/projects/open-powerplant/
 - freexl (for gdal)
