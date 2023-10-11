@@ -14,6 +14,7 @@ Ports to create some day:
 - GNS3: http://web.archive.org/web/20130608012058/http://training.gns3.net/download
 - libfreenect: https://github.com/OpenKinect/libfreenect (submitted: https://trac.macports.org/ticket/39092)
 - dssi (from Fink)
+- srain: https://srain.silverrainz.me/install.html#macos
 
 Stuff I've downloaded from SourceForge randomly in the past (check https://sourceforge.net/user/updates for full list):
 - Open64
