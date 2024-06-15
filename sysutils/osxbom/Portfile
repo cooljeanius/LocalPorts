@@ -13,7 +13,7 @@ description         A free re-implementation of the NextSTEP/OSX lsbom \
                     utility
 long_description    ${description}. Used by the PureDarwin project \
                     to work with MacPorts binary packages.
-homepage            https://cauldrondevelopment.com/svn/${name}/trunk/
+homepage            https://github.com/cooljeanius/osxbom
 
 livecheck.type      none
 
