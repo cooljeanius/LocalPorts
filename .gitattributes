@@ -1,2 +1,10 @@
 PortIndex linguist-generated
 PortIndex.quick linguist-generated
+
+# Normalize EOLs by default, to avoid falling back on whatever
+# a committer may have set for "core.autocrlf" settings:
+* text=auto
+
+# Skip normalizing EOLs of files derived from an upstream:
+*.diff -text
+*.patch -text
