@@ -120,26 +120,30 @@ if test "${TRAC_57720_IS_FIXED}" = "yes"; then
 fi
 endgroup
 
-if test -d ports/; then
+if test -d ports/ && test -r ports/ && test -w ports/; then
     begingroup "Updating PortIndex"
-    echo "Run portindex on recent commits if PR is newer"
-    set -x
+    sync && echo "Run portindex on recent commits if PR is newer"
     git -C ports/ remote add macports https://github.com/macports/macports-ports.git
     git -C ports/ fetch macports master
     git -C ports/ checkout -qf macports/master~10
     if ! wait ${curl_portindex_pid}; then
-        echo "Fetching PortIndex failed: $?"
+        sync && echo "Fetching PortIndex failed: $?"
     fi
     git -C ports/ checkout -qf -
     git -C ports/ checkout -qf "$(git -C ports/ merge-base macports/master HEAD || echo ".")" || git -C ports/ status
-    echo "Ignore portindex errors on common ancestor:"
+    sync && echo "Ignore portindex errors on common ancestor:"
     (cd ports/ && (portindex || portindex . || (stat PortIndex && stat PortIndex.quick))) || portindex ports/
     git -C ports/ checkout -qf -
-    echo "For real now:"
-    (cd ports/ && (portindex -e || portindex -e .)) || portindex -e ports/
+    # shellcheck disable=SC2235
+    if test ! -e ports/PortIndex || (test -e PortIndex && test ports/PortIndex -ot PortIndex); then
+        sync && echo "...and now portindex for real now:"
+        (cd ports/ && (portindex -e || portindex -e .)) || portindex -e ports/
+    else
+        sync && echo "...ok, that ought to be enough."
+    fi
     endgroup
 else
-    echo "Missing 'ports/' subdir; skipping attempt to update its PortIndex"
+    echo "Missing accessible 'ports/' subdir; skipping attempt to update its PortIndex"
 fi
 
 begingroup "Running postflight"
