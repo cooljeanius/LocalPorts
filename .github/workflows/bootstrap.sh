@@ -132,10 +132,12 @@ if test -d ports/; then
     git -C ports/ checkout -qf -
     git -C ports/ checkout -qf "$(git -C ports/ merge-base macports/master HEAD)"
     ## Ignore portindex errors on common ancestor
-    (cd ports/ && (portindex || (stat PortIndex && stat PortIndex.quick)))
+    (cd ports/ && (portindex || portindex . || (stat PortIndex && stat PortIndex.quick)))
     git -C ports/ checkout -qf -
-    (cd ports/ && portindex -e)
+    (cd ports/ && (portindex -e || portindex -e .)) || portindex -e ports/
     endgroup
+else
+    echo "Missing ports/ subdir; skipping attempt to update its PortIndex"
 fi
 
 begingroup "Running postflight"
