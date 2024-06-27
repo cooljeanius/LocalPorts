@@ -32,7 +32,7 @@ MACPORTS_FILENAME=MacPorts-${MACPORTS_VERSION}-${OS_MAJOR}.tar.bz2
 
 begingroup "Fetching files"
 # Download resources in background ASAP but use later.
-# Use /usr/bin/curl so that we don't use Homebrew curl.
+# Use /usr/bin/curl to avoid using Homebrew curl.
 echo "Fetching getopt..."
 /usr/bin/curl -fsSLO "https://distfiles.macports.org/_ci/getopt/getopt-v1.1.6.tar.bz2" &
 curl_getopt_pid=$!
@@ -40,8 +40,8 @@ echo "Fetching MacPorts..."
 /usr/bin/curl -fsSLO "https://github.com/macports/macports-ci-files/releases/download/v${MACPORTS_VERSION}/${MACPORTS_FILENAME}" &
 curl_mpbase_pid=$!
 PORTINDEX_URL="https://ftp.fau.de/macports/release/ports/PortIndex_darwin_${OS_MAJOR}_${OS_ARCH}/PortIndex"
-echo "Fetching PortIndex from $PORTINDEX_URL ..."
-/usr/bin/curl -fsSLo ports/PortIndex -o ports/PortIndex.quick "$PORTINDEX_URL" "${PORTINDEX_URL}.quick" &
+echo "Fetching PortIndex from ${PORTINDEX_URL} ..."
+/usr/bin/curl -fsSLo ports/PortIndex -o ports/PortIndex.quick "${PORTINDEX_URL}" "${PORTINDEX_URL}.quick" &
 curl_portindex_pid=$!
 endgroup
 
@@ -50,12 +50,12 @@ begingroup "Info"
 echo "macOS version: $(sw_vers -productVersion)"
 echo "IP address: $(/usr/bin/curl -fsS https://www-origin.macports.org/ip.php)"
 /usr/bin/curl -fsSIo /dev/null https://packages-private.macports.org/.org.macports.packages-private.healthcheck.txt && private_packages_available=yes || private_packages_available=no
-echo "Can reach private packages server: $private_packages_available"
+echo "Can reach private packages server: ${private_packages_available}"
 endgroup
 
 
 begingroup "Disabling Spotlight"
-# Disable Spotlight indexing. We don't need it, and it might cost performance
+# Disable Spotlight indexing. We never use it, and it might cost performance:
 sudo mdutil -a -i off
 endgroup
 
@@ -66,18 +66,18 @@ echo "Moving directories..."
 sudo mkdir /opt/off
 /usr/bin/sudo /usr/bin/find /usr/local -mindepth 1 -maxdepth 1 -type d -print -exec /bin/mv {} /opt/off/ \;
 
-# Unlink files
+# Unlink files:
 echo "Removing files..."
 /usr/bin/sudo /usr/bin/find /usr/local -mindepth 1 -maxdepth 1 -type f -print -delete
 
-# Rehash to forget about the deleted files
+# Rehash to forget about the deleted files:
 hash -r
 endgroup
 
 
 begingroup "Installing getopt"
-# Install getopt required by mpbb
-if ! wait $curl_getopt_pid; then
+# Install getopt required by mpbb:
+if ! wait ${curl_getopt_pid}; then
     echo "Fetching getopt failed: $?"
 fi
 echo "Extracting..."
@@ -88,7 +88,7 @@ endgroup
 
 begingroup "Installing MacPorts"
 # Install MacPorts built by https://github.com/macports/macports-base/tree/master/.github
-if ! wait $curl_mpbase_pid; then
+if ! wait ${curl_mpbase_pid}; then
     echo "Fetching base failed: $?"
 fi
 echo "Extracting..."
@@ -104,7 +104,7 @@ if test -r /opt/local/share/macports/setupenv.bash; then
 else
     echo "/opt/local/share/macports/setupenv.bash is missing!" >&2 && exit 1
 fi
-# Set ports tree to $PWD/ports
+# Set ports tree to ${PWD}/ports
 sudo sed -i "" "s|rsync://rsync.macports.org/macports/release/tarballs/ports.tar|file://${PWD}/ports|; /^file:/s/default/nosync,default/" /opt/local/etc/macports/sources.conf
 # CI is not interactive
 echo "ui_interactive no" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
@@ -122,22 +122,23 @@ endgroup
 
 if test -d ports/; then
     begingroup "Updating PortIndex"
-    ## Run portindex on recent commits if PR is newer
+    echo "Run portindex on recent commits if PR is newer"
     git -C ports/ remote add macports https://github.com/macports/macports-ports.git
     git -C ports/ fetch macports master
     git -C ports/ checkout -qf macports/master~10
-    if ! wait $curl_portindex_pid; then
+    if ! wait ${curl_portindex_pid}; then
         echo "Fetching PortIndex failed: $?"
     fi
     git -C ports/ checkout -qf -
     git -C ports/ checkout -qf "$(git -C ports/ merge-base macports/master HEAD)"
-    ## Ignore portindex errors on common ancestor
-    (cd ports/ && (portindex || portindex . || (stat PortIndex && stat PortIndex.quick)))
+    echo "Ignore portindex errors on common ancestor:"
+    (cd ports/ && (portindex || portindex . || (stat PortIndex && stat PortIndex.quick))) || portindex ports/
     git -C ports/ checkout -qf -
+    echo "For real now:"
     (cd ports/ && (portindex -e || portindex -e .)) || portindex -e ports/
     endgroup
 else
-    echo "Missing ports/ subdir; skipping attempt to update its PortIndex"
+    echo "Missing 'ports/' subdir; skipping attempt to update its PortIndex"
 fi
 
 begingroup "Running postflight"
