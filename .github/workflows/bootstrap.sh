@@ -120,23 +120,23 @@ if test "${TRAC_57720_IS_FIXED}" = "yes"; then
 fi
 endgroup
 
-
-begingroup "Updating PortIndex"
-## Run portindex on recent commits if PR is newer
-git -C ports/ remote add macports https://github.com/macports/macports-ports.git
-git -C ports/ fetch macports master
-git -C ports/ checkout -qf macports/master~10
-if ! wait $curl_portindex_pid; then
-    echo "Fetching PortIndex failed: $?"
+if test -d ports/; then
+    begingroup "Updating PortIndex"
+    ## Run portindex on recent commits if PR is newer
+    git -C ports/ remote add macports https://github.com/macports/macports-ports.git
+    git -C ports/ fetch macports master
+    git -C ports/ checkout -qf macports/master~10
+    if ! wait $curl_portindex_pid; then
+        echo "Fetching PortIndex failed: $?"
+    fi
+    git -C ports/ checkout -qf -
+    git -C ports/ checkout -qf "$(git -C ports/ merge-base macports/master HEAD)"
+    ## Ignore portindex errors on common ancestor
+    (cd ports/ && (portindex || (stat PortIndex && stat PortIndex.quick)))
+    git -C ports/ checkout -qf -
+    (cd ports/ && portindex -e)
+    endgroup
 fi
-git -C ports/ checkout -qf -
-git -C ports/ checkout -qf "$(git -C ports/ merge-base macports/master HEAD)"
-## Ignore portindex errors on common ancestor
-(cd ports/ && portindex)
-git -C ports/ checkout -qf -
-(cd ports/ && portindex -e)
-endgroup
-
 
 begingroup "Running postflight"
 # Create macports user
