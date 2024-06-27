@@ -123,6 +123,7 @@ endgroup
 if test -d ports/; then
     begingroup "Updating PortIndex"
     echo "Run portindex on recent commits if PR is newer"
+    set -x
     git -C ports/ remote add macports https://github.com/macports/macports-ports.git
     git -C ports/ fetch macports master
     git -C ports/ checkout -qf macports/master~10
