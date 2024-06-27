@@ -38,11 +38,11 @@ jobs:
           path: mpbb
       - name: Bootstrap MacPorts
         run: . ports/.github/workflows/bootstrap.sh
-      - name: Determine list of changed ports
+      - name: Determine list of changed ports, if any
         id: portlist
         run: |
           set -eu
-          # Add getopt, mpbb and the MacPorts paths to $PATH for the subsequent
+          # Add getopt, mpbb and the MacPorts paths to ${PATH} for the subsequent
           # steps.
           # shellcheck disable=SC2129
           echo "/opt/mports/bin" >> "${GITHUB_PATH}"
@@ -58,7 +58,10 @@ jobs:
               | tr '\n' ' ' \
               | sed 's/ $//')
 
-          echo "${portlist}"
+          if test -n "${portlist}"; then echo "${portlist}"; \
+          elif test -z "${portlist}"; then \
+            sync && echo "##### ⚠️ Warning: portlist is empty" >&2; \
+          fi
           echo "portlist=${portlist}" >> "${GITHUB_OUTPUT}"
 
       - name: Determine list of subports from portlist
@@ -77,7 +80,7 @@ jobs:
               --archive-site= \
               --archive-site-private= \
               --include-deps=no \
-              $portlist \
+              ${portlist} \
               | tr '\n' ' ')
           for subport in ${new_subports}; do
             echo "${subport}"
@@ -261,7 +264,14 @@ jobs:
       - name: Make logfiles readable
         if: always()
         run: |
-          mkdir -p /tmp/mpbb
+          if test ! -e /tmp/mpbb; then
+            mkdir -p /tmp/mpbb
+          else
+            stat /tmp/mpbb
+            if test -e ports/PortIndex && test ! -e /tmp/mpbb/PortIndex; then
+              cp -v ports/PortIndex /tmp/mpbb/PortIndex
+            fi
+          fi
           sudo find \
             /tmp/mpbb \
             -maxdepth 1 \
