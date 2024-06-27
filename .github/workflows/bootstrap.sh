@@ -131,7 +131,7 @@ if test -d ports/; then
         echo "Fetching PortIndex failed: $?"
     fi
     git -C ports/ checkout -qf -
-    git -C ports/ checkout -qf "$(git -C ports/ merge-base macports/master HEAD)"
+    git -C ports/ checkout -qf "$(git -C ports/ merge-base macports/master HEAD || echo ".")" || git -C ports/ status
     echo "Ignore portindex errors on common ancestor:"
     (cd ports/ && (portindex || portindex . || (stat PortIndex && stat PortIndex.quick))) || portindex ports/
     git -C ports/ checkout -qf -
