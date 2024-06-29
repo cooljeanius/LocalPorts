@@ -5,7 +5,7 @@ PortSystem       1.0
 
 name             kernel-tools-slim
 version          8J2135
-revision         1
+revision         2
 categories       sysutils
 maintainers      sfiera gwmail.gwu.edu:egall openmaintainer
 license          BSD
@@ -25,7 +25,10 @@ checksums md5    90b8616328fff78a25bc1fd9af14dbbf \
           sha256 3b4737b86c3dff245c477a98b47d7fd6c75e459e42f491f468f9107ffcfbfd1d \
           size   10731520
 
-# FIXME: archive is empty; find out what happened to it
+# So even though the distfile ends in .gz, it's not actually gzipped, so we have
+# to do this:
+use_tar yes
+extract.suffix .tar.gz
 
 platforms        darwin
 
@@ -50,6 +53,7 @@ pre-extract {
 extract.dir ${worksrcpath}
 
 destroot {
+  xinstall -d -m 755 ${destroot}/usr/local
   foreach top {include lib man} {
     ui_debug "top is ${top}"
     fs-traverse file ${worksrcpath}/usr/local/${top} {
