@@ -1,5 +1,4 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id$
 
 PortSystem            1.0
 PortGroup             archcheck 1.0
@@ -22,16 +21,18 @@ master_sites          ${homepage}download/${version}/
 distfiles             ${name}-${version}-src-repack1.tar.gz \
                       prerequirements-${name}-${version}-x86_64-src.dmg
 
-checksums             scilab-5.4.1-src-repack1.tar.gz \
-                      md5     00a78bd58903c50000a28e50ff652000 \
-                      sha1    814fd9ff488b153a95621c297cca097d85758e1f \
-                      rmd160  bfd47dc9e20128d812b9ac5a7ce0f33b67a0d041 \
-                      sha256  e58eafab87575f8c85d62250a6ab30f80d356293121e2748886ea70b3aa0680e \
-                      prerequirements-scilab-5.4.1-x86_64-src.dmg \
-                      md5     0fa4b4d7f73a002a81fbf071a311963b \
-                      sha1    8d8bc9f9e3a63ca1087dabff2bd6db9501f8ed4c \
-                      rmd160  d00b40aa25bd4b2a4cf882fca35ae67ae1030367 \
-                      sha256  e73024561b2ab20e8c3491efca2c0f9a69edd52d1d2c31e99e4b7fed1627507a
+checksums           scilab-5.4.1-src-repack1.tar.gz \
+                    md5     00a78bd58903c50000a28e50ff652000 \
+                    sha1    814fd9ff488b153a95621c297cca097d85758e1f \
+                    rmd160  bfd47dc9e20128d812b9ac5a7ce0f33b67a0d041 \
+                    sha256  e58eafab87575f8c85d62250a6ab30f80d356293121e2748886ea70b3aa0680e \
+                    size    64956349 \
+                    prerequirements-scilab-5.4.1-x86_64-src.dmg \
+                    md5     0fa4b4d7f73a002a81fbf071a311963b \
+                    sha1    8d8bc9f9e3a63ca1087dabff2bd6db9501f8ed4c \
+                    rmd160  d00b40aa25bd4b2a4cf882fca35ae67ae1030367 \
+                    sha256  e73024561b2ab20e8c3491efca2c0f9a69edd52d1d2c31e99e4b7fed1627507a \
+                    size    36790230
 
 extract.only          ${name}-${version}-src-repack1.tar.gz
 
@@ -70,7 +71,9 @@ post-patch {
     }
     xinstall ${filespath}/Makevars.in ${worksrcpath}/po
     xinstall ${filespath}/POTFILES.in ${worksrcpath}/po
-    xinstall ${prefix}/share/gettext/gettext.h ${worksrcpath}
+    if {[file exists ${prefix}/share/gettext/gettext.h]} {
+        xinstall ${prefix}/share/gettext/gettext.h ${worksrcpath}
+    }
 }
 
 use_autoreconf        yes
@@ -89,7 +92,6 @@ depends_build-append  port:pkgconfig \
                       port:docbook-xsl \
                       port:checkstyle \
                       port:cobertura \
-                      port:commons-beanutils \
                       port:commons-logging \
                       port:junit \
                       port:objectweb-asm \
@@ -130,7 +132,7 @@ depends_lib-append    port:readline \
                       port:xorg-libX11 \
                       port:pcre \
                       path:lib/pkgconfig/fftw3.pc:fftw-3 \
-                      path:lib/libhdf5.dylib:hdf5-18 \
+                      path:lib/libhdf5.dylib:hdf5 \
                       path:lib/pkgconfig/eigen3.pc:eigen3 \
                       port:xz \
                       port:zlib \
@@ -152,19 +154,19 @@ pre-configure {
     system -W ${worksrcpath} "hdiutil attach -mountroot mountpoint -nobrowse -noautoopen ${distpath}/prerequirements-${name}-${version}-x86_64-src.dmg"
     ui_debug "Copying prerequirements from dmg..."
     # Use "copy" instead of "xinstall" here because of folders
-    eval copy [glob ${worksrcpath}/mountpoint/${name}-${version}/thirdparty/*] ${worksrcpath}/thirdparty
-    eval copy [glob ${worksrcpath}/mountpoint/${name}-${version}/bin/*] ${worksrcpath}/bin
+    copy {*}[glob ${worksrcpath}/mountpoint/${name}-${version}/thirdparty/*] ${worksrcpath}/thirdparty
+    copy {*}[glob ${worksrcpath}/mountpoint/${name}-${version}/bin/*] ${worksrcpath}/bin
     ui_debug "Done copying prerequirements."
     system -W ${worksrcpath} "hdiutil detach mountpoint/${name}-${version}"
     xinstall ${prefix}/share/gettext/gettext.jar ${worksrcpath}/thirdparty
-    eval xinstall [glob ${prefix}/share/java/antlr*.jar] ${worksrcpath}/thirdparty
-    eval xinstall [glob ${prefix}/share/java/*asm*.jar] ${worksrcpath}/thirdparty
-    eval xinstall [glob ${prefix}/share/java/checkstyle*.jar] ${worksrcpath}/thirdparty
-    eval xinstall [glob ${prefix}/share/java/commons-beanutils*.jar] ${worksrcpath}/thirdparty
-    eval xinstall [glob ${prefix}/share/java/commons-logging*.jar] ${worksrcpath}/thirdparty
-    eval xinstall [glob ${prefix}/share/java/sax*.jar] ${worksrcpath}/thirdparty
-    eval xinstall [glob ${prefix}/share/java/cobertura*.jar] ${worksrcpath}/thirdparty
-    eval xinstall [glob ${prefix}/share/java/junit*.jar] ${worksrcpath}/thirdparty
+    xinstall {*}[glob ${prefix}/share/java/antlr*.jar] ${worksrcpath}/thirdparty
+    xinstall {*}[glob ${prefix}/share/java/*asm*.jar] ${worksrcpath}/thirdparty
+    xinstall {*}[glob ${prefix}/share/java/checkstyle*.jar] ${worksrcpath}/thirdparty
+    xinstall {*}[glob ${prefix}/share/java/commons-beanutils*.jar] ${worksrcpath}/thirdparty
+    xinstall {*}[glob ${prefix}/share/java/commons-logging*.jar] ${worksrcpath}/thirdparty
+    xinstall {*}[glob ${prefix}/share/java/sax*.jar] ${worksrcpath}/thirdparty
+    xinstall {*}[glob ${prefix}/share/java/cobertura*.jar] ${worksrcpath}/thirdparty
+    xinstall {*}[glob ${prefix}/share/java/junit*.jar] ${worksrcpath}/thirdparty
     configure.classpath-append [join [glob ${prefix}/share/java/*.jar] ":"]
     configure.classpath-append [join [glob ${worksrcpath}/thirdparty/*.jar] ":"]
     if {[file isdirectory ${prefix}/GNUstep/lib/GNUstep/Libraries/Java]} {
