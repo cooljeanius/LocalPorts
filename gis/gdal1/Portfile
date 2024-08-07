@@ -1,5 +1,4 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id: Portfile 102865 2013-02-09 19:16:59Z jeremyhu@macports.org $
 
 PortSystem          1.0
 PortGroup           archcheck 1.0
@@ -36,7 +35,8 @@ master_sites        http://www.${myname}.org/dl/ \
 distname            ${myname}-${version}
 
 checksums           rmd160  b06cbd0f34a6dad99768d5f75a9856e4e027d3bc \
-                    sha256  9984f0314c0bd831eb59fb646c2bc5e13cf1378be4f51499045166cbe62be6ea
+                    sha256  9984f0314c0bd831eb59fb646c2bc5e13cf1378be4f51499045166cbe62be6ea \
+                    size    10241357
 
 depends_build-append        path:bin/ed:ed \
                             path:bin/glibtool:libtool
@@ -156,22 +156,6 @@ variant geos description {Enable GEOS geometry engine functionality} {
     if {![variant_isset universal] && ![variant_isset perf] && \
         ![tbool configure.ccache] && [variant_isset broken]} {
         depends_lib-append  port:geos2
-    }
-    if {[variant_isset python26] && ![variant_isset postgresql81] && \
-        ![variant_isset postgresql82] && ![variant_isset postgresql83] && \
-        ![variant_isset postgresql84] && ![variant_isset postgresql90] && \
-        ![variant_isset postgresql91] && ![variant_isset postgresql92] && \
-        ![variant_isset postgresql93] && ![variant_isset postgresql94] && \
-        ![variant_isset postgresql95] && ![variant_isset postgresql96]} {
-        depends_lib-append  port:py26-geoalchemy
-    }
-    if {[variant_isset python27] && ![variant_isset postgresql81] && \
-        ![variant_isset postgresql82] && ![variant_isset postgresql83] && \
-        ![variant_isset postgresql84] && ![variant_isset postgresql90] && \
-        ![variant_isset postgresql91] && ![variant_isset postgresql92] && \
-        ![variant_isset postgresql93] && ![variant_isset postgresql94] && \
-        ![variant_isset postgresql95] && ![variant_isset postgresql96]} {
-        depends_lib-append  port:py27-geoalchemy
     }
     configure.args-replace  --without-geos --with-geos=${prefix}/bin/geos-config
 }
@@ -307,18 +291,7 @@ variant expat description {Enable expat XML support} {
 }
 
 # Python variants:
-variant python26 conflicts python27 \
-    description {Enable Python 2.6 support} {
-    depends_lib-append      port:python26
-    configure.python        ${prefix}/bin/python2.6
-    configure.args-replace  --without-python --with-python
-    set PYINST              ${frameworks_dir}/Python.framework/Versions/2.6
-    build.args-append       PYTHON=python2.6
-    build.env-append        PYTHON=python2.6
-}
-
-variant python27 conflicts python26 \
-    description {Enable Python 2.7 support} {
+variant python27 description {Enable Python 2.7 support} {
     depends_lib-append      port:python27 \
                             port:py27-numpy
     configure.python        ${prefix}/bin/python2.7
@@ -331,7 +304,7 @@ variant python27 conflicts python26 \
 #FIXME: gdal supports python3 as of version 1.10.0, add respective variants
 
 # Database variants:
-set postgresql_suffixes {81 82 83 84 90 91 92 93 94 95 96}
+set postgresql_suffixes {82 83 84 90 91 92 93 94 95 96}
 
 set portsgresql_variants {}
 foreach s ${postgresql_suffixes} {
@@ -395,14 +368,8 @@ variant unixODBC conflicts iodbc \
     depends_lib-append      port:unixODBC
     if {[variant_isset mysql5]} {
         if {![variant_isset universal]} {
-            depends_lib-append mysql-connector-odbc
+            depends_lib-append port:mysql-connector-odbc
         }
-    }
-    if {[variant_isset python26]} {
-        depends_lib-append  port:py26-pyodbc
-    }
-    if {[variant_isset python27]} {
-        depends_lib-append  port:py27-pyodbc
     }
     configure.args-replace  --without-odbc --with-odbc=${prefix}
 }
@@ -425,9 +392,6 @@ variant opencl description {Use OpenCL for parallel computations} {
     configure.args-replace  --without-opencl --with-opencl
     configure.args-append   --with-opencl-include=${OPENCLBASE}/Headers
     configure.args-append   --with-opencl-lib='-framework OpenCL'
-    if {[variant_isset python27]} {
-        depends_lib-append  port:py27-pyopencl
-    }
 }
 
 # variant to build as a Framework on OS X:
@@ -493,8 +457,8 @@ variant huge requires curl expat geos hdf5 netcdf opencl sqlite3 \
                             port:libgdiplus \
                             port:ssdeep \
                             port:swig-perl \
-                            port:p5.26-lwp-curl \
-                            port:p5.26-xml-sax-expat \
+                            port:p5.28-lwp-curl \
+                            port:p5.28-xml-sax-expat \
                             port:swig-python \
                             port:swig-ruby \
                             port:ruby19 \
@@ -542,10 +506,6 @@ variant huge requires curl expat geos hdf5 netcdf opencl sqlite3 \
     if {${configure.cxx_stdlib} eq "libstdc++"} {
         depends_lib-append  path:lib/libstdc++.6.dylib:libgcc
     }
-    if {[variant_isset python27]} {
-        depends_lib-append  port:py27-xlwt \
-                            port:py27-pygrib
-    }
     pre-configure {
         xinstall -m 755 ${prefix}/share/gettext/config.rpath ${worksrcpath}
     }
@@ -559,20 +519,16 @@ variant huge requires curl expat geos hdf5 netcdf opencl sqlite3 \
 }
 
 # Only disable parallel build in one place:
-if {[variant_isset python26] || [variant_isset python27] || \
-    [variant_isset huge]} {
+if {[variant_isset python27] || [variant_isset huge]} {
     use_parallel_build      no
 }
 
 variant extra_nonuniversal conflicts universal requires huge hdf4 lzma \
         description {Extra dependencies that are not universal} {
     depends_lib-append      port:wgrib2 \
-                            port:ocilib \
                             port:swig-php \
                             port:mdbtools
-    depends_skip_archcheck-append \
-                            lzma wgrib2 ocilib couchdb mdbtools
-    configure.args-append   --with-oci
+    depends_skip_archcheck-append wgrib2 mdbtools
 }
 
 # comment out if necessary:
@@ -584,13 +540,16 @@ not even work even when not building universal} {
                             port:sam2p \
                             lib:msgpackc:msgpack1 \
                             port:cyrus-sasl2 \
-                            port:couchdb
-    depends_skip_archcheck-append pamtester sam2p tif22pnm svdlibc xercesc
+                            port:couchdb \
+                            port:ocilib
+    depends_skip_archcheck-append \
+                            couchdb ocilib pamtester sam2p tif22pnm svdlibc xercesc
     configure.args-delete   --without-xerces \
                             --without-mysql
     configure.args-append   --with-pam \
                             --with-php \
-                            --with-msg
+                            --with-msg \
+                            --with-oci
     # the +poppler variant should already be required by this variant
     # (+broken), but just in case:
     if {[variant_isset poppler]} {
@@ -599,10 +558,6 @@ not even work even when not building universal} {
     if {[variant_isset xerces]} {
         depends_lib-append  port:xalanj
         depends_skip_archcheck-append xalanj
-    }
-    if {[variant_isset python26]} {
-        depends_lib-append  port:py26-couchdb \
-                            port:py26-couchdbkit
     }
     if {[variant_isset python27]} {
         depends_lib-append  port:py27-couchdb
@@ -613,7 +568,7 @@ not even work even when not building universal} {
                 depends_lib-append port:curlftpfs
             }
         }
-        depends_lib-append  port:p5.26-www-curl \
+        depends_lib-append  port:p5.28-www-curl \
                             port:tclcurl
     }
 }
@@ -635,14 +590,14 @@ variant autoreconf description {Runs autoreconf before configuring} {
 
 # Only turn off ccache in one place:
 if {[variant_isset autoreconf] || [variant_isset framework] || \
-    ([variant_isset netcdf] && \
-     ([variant_isset python26] || [variant_isset python27]))} {
+    ([variant_isset netcdf] && [variant_isset python27])} {
     configure.ccache no
 }
 
 # Perf variant to optimize code:
 variant perf description {Optimize for speed} {
     PortGroup                   compiler_blacklist_versions 1.0
+
     # instead of forcing macports-clang-3.4 to be configure.compiler
     # manually, blacklist the previous versions:
     compiler.blacklist-append   macports-clang-2.9 macports-clang-3.0 \
@@ -674,13 +629,12 @@ default_variants-append     +expat
 # depending on the python variant set, and that pulls in py-psycopg2, whose
 # postgres variants can get messed up, so only make +geos a default variant
 # if there are no python or postgresql variants set:
-if {![variant_isset postgresql81] && ![variant_isset postgresql82] && \
-    ![variant_isset postgresql83] && ![variant_isset postgresql84] && \
-    ![variant_isset postgresql90] && ![variant_isset postgresql91] && \
-    ![variant_isset postgresql92] && ![variant_isset postgresql93] && \
-    ![variant_isset postgresql94] && ![variant_isset postgresql95] && \
-    ![variant_isset postgresql96] && \
-    ![variant_isset python26] && ![variant_isset python27]} {
+if {![variant_isset postgresql82] && ![variant_isset postgresql83] && \
+    ![variant_isset postgresql84] && ![variant_isset postgresql90] && \
+    ![variant_isset postgresql91] && ![variant_isset postgresql92] && \
+    ![variant_isset postgresql93] && ![variant_isset postgresql94] && \
+    ![variant_isset postgresql95] && ![variant_isset postgresql96] && \
+    ![variant_isset python27]} {
     default_variants-append +geos
 }
 
