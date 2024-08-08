@@ -1,5 +1,4 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id$
 
 PortSystem          1.0
 PortGroup           cmake 1.0
@@ -7,7 +6,7 @@ PortGroup           cmake 1.0
 name                mojoshader
 categories          games graphics devel
 platforms           darwin
-maintainers         gwmail.gwu.edu:egall openmaintainer
+maintainers         {gwmail.gwu.edu:egall @cooljeanius} openmaintainer
 license             zlib
 
 description         MojoShader is a library to work with Direct3D shaders \
@@ -31,12 +30,8 @@ depends_build-append \
 
 depends_lib-append  port:libsdl
 
-# Making a variant for this until ticket #38208 is resolved.
-variant tests description {Build unit tests} {
-    depends_build-append \
-                    bin:perl:perl5
-    test.run        yes
-}
+depends_test-append bin:perl:perl5
+test.run            yes
 
 destroot {
     xinstall ${worksrcpath}/lib${name}.a ${destroot}${prefix}/lib
@@ -47,9 +42,7 @@ destroot {
                          availableprofiles testparse testoutput} {
         xinstall ${worksrcpath}/${generic_bin} ${destroot}${prefix}/bin/${name}-${generic_bin}
     }
-    eval xinstall [glob ${worksrcpath}/*.h] ${destroot}${prefix}/include
+    xinstall {*}[glob ${worksrcpath}/*.h] ${destroot}${prefix}/include
     xinstall -d ${destroot}${prefix}/share/${name}
     xinstall -W ${worksrcpath} -m 644 README.txt LICENSE.txt ${destroot}${prefix}/share/${name}
 }
-
-livecheck.type      none
