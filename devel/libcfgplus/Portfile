@@ -31,6 +31,8 @@ platform darwin {
     patch.args-append   --backup
 }
 
+use_autoconf            yes
+
 # dependencies mostly found by trace mode:
 depends_build-append    bin:mawk:mawk \
                         bin:docbook2man:docbook2X \
