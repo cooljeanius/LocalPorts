@@ -19,7 +19,8 @@ long_description    Many audio synthesis and recording packages are in use \
                     processors to be used with a wide range of these packages.
 
 homepage            http://www.ladspa.org/
-master_sites        http://www.ladspa.org/download/
+master_sites        http://www.ladspa.org/download/ \
+                    fink
 
 distname            ${name}_sdk_${version}
 
