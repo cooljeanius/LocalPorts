@@ -2,6 +2,7 @@
 
 PortSystem          1.0
 PortGroup           cmake 1.0
+# TODO: use github portgroup
 
 name                mojoshader
 categories          games graphics devel
@@ -17,8 +18,9 @@ long_description    ${description} The primary motivation is moving \
                     developer deals with profiles that represent \
                     various target languages, such as GLSL.
 
-homepage            http://icculus.org/${name}/
+homepage            https://icculus.org/${name}/
 
+# https://github.com/icculus/mojoshader
 fetch.type          hg
 hg.url              http://hg.icculus.org/icculus/${name}/
 hg.tag              3de60f597ebd
