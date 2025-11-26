@@ -2,6 +2,8 @@
 
 set -e
 
+MPBB=$1
+
 printtag() {
     # GitHub Actions tag format
     echo "::$1::${2-}"
@@ -15,7 +17,8 @@ endgroup() {
     printtag "endgroup"
 }
 
-MACPORTS_VERSION=2.9.3
+MACPORTS_OLD_VERSION=2.9.3
+MACPORTS_VERSION=${MP_CI_RELEASE:-2.11.6}
 
 OS_MAJOR=$(uname -r | cut -f 1 -d .)
 OS_ARCH=$(uname -m)
