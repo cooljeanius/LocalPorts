@@ -22,6 +22,7 @@ jobs:
       group: ${{ github.ref }}/${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-13, macos-14, macos-15, macos-26]
 
@@ -113,9 +114,9 @@ jobs:
               echo "${messages}"
 
               if [ "$fail" -eq 1 ]; then
-                echo "##### ❌ ${subport}" >> "${GITHUB_STEP_SUMMARY}"
+                echo "#####  ${subport}" >> "${GITHUB_STEP_SUMMARY}"
               else
-                echo "##### ⚠️ ${subport}" >> "${GITHUB_STEP_SUMMARY}"
+                echo "#####  ${subport}" >> "${GITHUB_STEP_SUMMARY}"
               fi
               # shellcheck disable=SC2016
               printf '```\n%s```\n' "$messages" >> "${GITHUB_STEP_SUMMARY}"
@@ -125,7 +126,7 @@ jobs:
               encoded_messages+="$(echo "${messages}" | sed -E 's/$/%0A/g' | tr -d '\n')"
               echo "::${messagetype} file=${path#"${PWD}"/ports/},line=1,col=1::${encoded_messages}"
             else
-                echo "##### ✅ ${subport}" >> "${GITHUB_STEP_SUMMARY}"
+                echo "#####  ${subport}" >> "${GITHUB_STEP_SUMMARY}"
             fi
             echo "::endgroup::"
           done
@@ -172,7 +173,7 @@ jobs:
               echo "::endgroup::"
               echo "::error::Failed to install dependencies for ${subport}"
 
-              echo "⚠️ Failed to install dependencies" >> "${GITHUB_STEP_SUMMARY}"
+              echo " Failed to install dependencies" >> "${GITHUB_STEP_SUMMARY}"
 
               fail=1
               continue
@@ -194,7 +195,7 @@ jobs:
               echo "::endgroup::"
               echo "::error::Failed to install ${subport}"
 
-              echo "❌ Failed to install, see the log for more details" >> "${GITHUB_STEP_SUMMARY}"
+              echo " Failed to install, see the log for more details" >> "${GITHUB_STEP_SUMMARY}"
 
               lognum=0
               # shellcheck disable=2044,2046
@@ -211,7 +212,7 @@ jobs:
               continue
             fi
 
-            echo "✅ Successfully built" >> "${GITHUB_STEP_SUMMARY}"
+            echo " Successfully built" >> "${GITHUB_STEP_SUMMARY}"
             echo "::endgroup::"
 
             echo "::group::Testing ${subport}"
@@ -230,7 +231,7 @@ jobs:
               echo "::endgroup::"
               echo "::error::Tests failed for ${subport}"
 
-              echo "❌ Tests failed, see the log for more details" >> "${GITHUB_STEP_SUMMARY}"
+              echo " Tests failed, see the log for more details" >> "${GITHUB_STEP_SUMMARY}"
 
               # Not setting fail=1 as a 100% passing test suite is not considered
               # essential to merge a PR.
@@ -241,7 +242,7 @@ jobs:
 
             if [ -n "${test_msgs}" ]; then
               echo "${test_msgs}"
-              echo "⚠️ Test warnings" >> "${GITHUB_STEP_SUMMARY}"
+              echo " Test warnings" >> "${GITHUB_STEP_SUMMARY}"
 
               # shellcheck disable=2016
               printf '```\n%s\n```\n' "${test_msgs}" >> "${GITHUB_STEP_SUMMARY}"
@@ -252,7 +253,7 @@ jobs:
               encoded_messages+="$(echo "${test_msgs}" | sed -E 's/$/%0A/g' | tr -d '\n')"
               echo "::warning file=${path#"${PWD}"/ports/},line=1,col=1::${encoded_messages}"
             elif [ ${test_fail} -eq 0 ]; then
-                 echo "✅ Successfully tested" >> "${GITHUB_STEP_SUMMARY}"
+                 echo " Successfully tested" >> "${GITHUB_STEP_SUMMARY}"
             fi
 
             echo "::endgroup::"
