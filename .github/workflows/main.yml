@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-13, macos-14, macos-15, macos-26]
 
     steps:
       - name: Checkout ports
@@ -60,7 +60,7 @@ jobs:
 
           if test -n "${portlist}"; then echo "${portlist}"; \
           elif test -z "${portlist}"; then \
-            sync && echo "##### ⚠️ Warning: portlist is empty" >&2; \
+            sync && echo "#####  Warning: portlist is empty" >&2; \
           fi
           echo "portlist=${portlist}" >> "${GITHUB_OUTPUT}"
 
