@@ -7,7 +7,7 @@ PortGroup         archcheck 1.0
 github.setup      cooljeanius LocalPorts 0.1.3 v
 name              useful-ports
 version           0.1
-revision          11
+revision          12
 categories        sysutils macports
 maintainers       gwmail.gwu.edu:egall
 license           Permissive
@@ -88,7 +88,6 @@ depends_lib-append port:gawk \
                    port:vbindiff \
                    port:pth \
                    port:ed \
-                   port:splint \
                    port:boehmgc \
                    port:aamath \
                    port:string_replace \
@@ -125,7 +124,6 @@ depends_lib-append port:gawk \
                    port:html \
                    port:xorg-sgml-doctools \
                    port:util-linux \
-                   port:afsctool \
                    port:gtime \
                    port:gperf \
                    port:gnetcat \
@@ -148,6 +146,7 @@ depends_lib-append port:gawk \
                    port:colordiff \
                    port:sortu \
                    port:mksh
+# FIXME: add back splint once build failure with it is fixed
 depends_run-append port:gawk
 
 depends_skip_archcheck-append getabspath dmg2img alac_decoder nettee gnustep-make sglib
@@ -191,7 +190,9 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:wiggle \
                    port:quilt \
                    port:yajl \
-                   bin:mmd:mtools
+                   bin:mmd:mtools \
+                   port:ruff \
+                   port:zizmor
     # FIXME: add darwinbuild back, but have it be guarded by a check for
     # architecture and/or platform version number
     # Also switch back to regular dependency on mtools after conflict with
