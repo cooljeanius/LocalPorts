@@ -189,9 +189,10 @@ variant long_deps_chain description {Add ports with longer dependency chains} {
                    port:wiggle \
                    port:quilt \
                    port:yajl \
-                   bin:mmd:mtools \
                    port:ruff \
                    port:zizmor
+    depends_test-append \
+                   bin:mmd:mtools
     # FIXME: add darwinbuild back, but have it be guarded by a check for
     # architecture and/or platform version number
     # Also switch back to regular dependency on mtools after conflict with
