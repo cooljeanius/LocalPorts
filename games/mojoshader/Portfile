@@ -2,11 +2,11 @@
 
 PortSystem          1.0
 PortGroup           cmake 1.0
-# TODO: use github portgroup
+PortGroup           github 1.0
 
+github.setup        icculus mojoshader ad5dff84830c2863c841f4b1f4e3df78c705b383
 name                mojoshader
 categories          games graphics devel
-platforms           darwin
 maintainers         {gwmail.gwu.edu:egall @cooljeanius} openmaintainer
 license             zlib
 
@@ -20,11 +20,9 @@ long_description    ${description} The primary motivation is moving \
 
 homepage            https://icculus.org/${name}/
 
-# https://github.com/icculus/mojoshader
-fetch.type          hg
-hg.url              http://hg.icculus.org/icculus/${name}/
-hg.tag              3de60f597ebd
-version             1125
+checksums           rmd160  c4c97c00dcea390d28efdf87a0f1e90bce3b7054 \
+                    sha256  728ff9098115059c4012895b7a85065688c857fdadf9fbc04484fec8c7be3081 \
+                    size    336943
 
 depends_build-append \
                     port:re2c \
@@ -32,19 +30,15 @@ depends_build-append \
 
 depends_lib-append  port:libsdl
 
-depends_test-append bin:perl:perl5
-test.run            yes
-
 destroot {
     xinstall ${worksrcpath}/lib${name}.a ${destroot}${prefix}/lib
-    xinstall ${worksrcpath}/${name}-compiler ${destroot}${prefix}/bin
     # Add a prefix to binaries with names that look like
     # they might conflict with other packages
-    foreach generic_bin {lemon finderrors glcaps bestprofile \
-                         availableprofiles testparse testoutput} {
+    foreach generic_bin {glcaps bestprofile availableprofiles \
+                         testparse testoutput testglcompile} {
         xinstall ${worksrcpath}/${generic_bin} ${destroot}${prefix}/bin/${name}-${generic_bin}
     }
     xinstall {*}[glob ${worksrcpath}/*.h] ${destroot}${prefix}/include
     xinstall -d ${destroot}${prefix}/share/${name}
-    xinstall -W ${worksrcpath} -m 644 README.txt LICENSE.txt ${destroot}${prefix}/share/${name}
+    xinstall -W ${worksrcpath} -m 644 README.md LICENSE.txt ${destroot}${prefix}/share/${name}
 }
