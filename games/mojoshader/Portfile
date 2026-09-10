@@ -20,6 +20,8 @@ long_description    ${description} The primary motivation is moving \
 
 homepage            https://icculus.org/${name}/
 
+version             1126
+
 checksums           rmd160  c4c97c00dcea390d28efdf87a0f1e90bce3b7054 \
                     sha256  728ff9098115059c4012895b7a85065688c857fdadf9fbc04484fec8c7be3081 \
                     size    336943
